@@ -4,6 +4,7 @@
  */
 
 import type { ServerResponse } from 'node:http';
+import http from 'node:http';
 import https from 'node:https';
 import { getApiKeyForProvider, getActiveConfig } from './settings';
 import { streamClaudeCode } from './claude-cli';
@@ -30,6 +31,15 @@ export async function streamChat(
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
     await streamClaudeCode(body.messages, model, res);
+    return;
+  }
+
+  // Ollama runs locally — no API key needed
+  if (providerId === 'ollama') {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    await streamOllama(body.messages, model, res);
     return;
   }
 
@@ -215,6 +225,170 @@ function proxyStream(opts: ProxyOpts): Promise<void> {
     });
 
     req.write(opts.payload);
+    req.end();
+  });
+}
+
+/** Query the RAG server and augment messages with retrieved context. Falls back silently if unavailable. */
+async function tryRagAugment(
+  messages: { role: string; content: string }[],
+): Promise<{ role: string; content: string }[]> {
+  const userMsg = [...messages].reverse().find(m => m.role === 'user');
+  if (!userMsg) return messages;
+
+  return new Promise((resolve) => {
+    const body = JSON.stringify({ query: userMsg.content, n_results: 5 });
+    const timer = setTimeout(() => {
+      console.warn('[rag] RAG server timeout, using unaugmented prompt');
+      resolve(messages);
+    }, 3000);
+
+    const ragReq = http.request(
+      {
+        hostname: '127.0.0.1',
+        port: 8081,
+        path: '/rag/query',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(body),
+        },
+      },
+      (ragRes) => {
+        let data = '';
+        ragRes.on('data', (chunk: Buffer) => { data += chunk.toString(); });
+        ragRes.on('end', () => {
+          clearTimeout(timer);
+          try {
+            const { results } = JSON.parse(data);
+            if (!results?.length) {
+              resolve(messages);
+              return;
+            }
+
+            const contextBlock = results
+              .map((r: { text: string; score: number; metadata: Record<string, string> }) =>
+                `### ${r.metadata.source || '?'} (relevance: ${r.score.toFixed(2)})\n${r.text}`)
+              .join('\n\n---\n\n');
+
+            console.log(`[rag] Augmented with ${results.length} chunks`);
+
+            const augmented = messages.map(m => {
+              if (m.role === 'system') {
+                return { ...m, content: m.content + '\n\n## Retrieved Context\n\n' + contextBlock };
+              }
+              return m;
+            });
+            resolve(augmented);
+          } catch (e) {
+            console.warn('[rag] Failed to parse RAG response:', e);
+            resolve(messages);
+          }
+        });
+      },
+    );
+
+    ragReq.on('error', () => {
+      clearTimeout(timer);
+      console.warn('[rag] RAG server unavailable, using unaugmented prompt');
+      resolve(messages);
+    });
+
+    ragReq.write(body);
+    ragReq.end();
+  });
+}
+
+async function streamOllama(
+  messages: { role: string; content: string }[],
+  model: string,
+  res: ServerResponse,
+): Promise<void> {
+  // Try RAG augmentation before sending to Ollama
+  const augmentedMessages = await tryRagAugment(messages);
+
+  const payload = JSON.stringify({
+    model: model || 'qwen2.5-coder:14b',
+    messages: augmentedMessages,
+    stream: true,
+  });
+
+  return new Promise((resolve) => {
+    const req = http.request(
+      {
+        hostname: '127.0.0.1',
+        port: 11434,
+        path: '/v1/chat/completions',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(payload),
+        },
+      },
+      (upstream) => {
+        if (upstream.statusCode && upstream.statusCode >= 400) {
+          let body = '';
+          upstream.on('data', (chunk: Buffer) => { body += chunk.toString(); });
+          upstream.on('end', () => {
+            console.warn(`[ai-chat] Ollama error ${upstream.statusCode}: ${body.slice(0, 500)}`);
+            res.write(`data: ${JSON.stringify({ type: 'error', error: `Ollama error ${upstream.statusCode}: ${body}` })}\n\n`);
+            res.write('data: {"type":"done"}\n\n');
+            res.end();
+            resolve();
+          });
+          return;
+        }
+
+        let buffer = '';
+        upstream.on('data', (chunk: Buffer) => {
+          buffer += chunk.toString();
+          const lines = buffer.split('\n');
+          buffer = lines.pop() ?? '';
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6);
+              if (data === '[DONE]') continue;
+              try {
+                const event = JSON.parse(data);
+                const content = event.choices?.[0]?.delta?.content;
+                if (content) {
+                  res.write(`data: ${JSON.stringify({ type: 'text', text: content })}\n\n`);
+                }
+              } catch (e) {
+                console.warn(`[ai-chat] malformed Ollama SSE: ${data.slice(0, 200)}`, e);
+              }
+            }
+          }
+        });
+
+        upstream.on('end', () => {
+          res.write('data: {"type":"done"}\n\n');
+          res.end();
+          resolve();
+        });
+
+        upstream.on('error', (err) => {
+          console.warn(`[ai-chat] Ollama stream error:`, err);
+          res.write(`data: ${JSON.stringify({ type: 'error', error: String(err) })}\n\n`);
+          res.end();
+          resolve();
+        });
+      },
+    );
+
+    req.on('error', (err) => {
+      console.warn(`[ai-chat] Ollama request error:`, err);
+      res.write(`data: ${JSON.stringify({ type: 'error', error: `Cannot connect to Ollama at localhost:11434. Is it running? Error: ${err}` })}\n\n`);
+      res.end();
+      resolve();
+    });
+
+    res.on('close', () => {
+      req.destroy();
+    });
+
+    req.write(payload);
     req.end();
   });
 }

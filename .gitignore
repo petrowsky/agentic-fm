@@ -15,6 +15,10 @@ agent/docs/filemaker/script-steps/
 agent/docs/filemaker/functions/
 agent/docs/filemaker/error-codes.md
 
+# RAG pipeline (experimental)
+agent/rag/chroma_db/
+agent/rag/.venv/
+
 # Specific files
 Prompt.md
 .cursorignore
