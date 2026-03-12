@@ -1,0 +1,32 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "webviewer",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 8080,
+      "cwd": "webviewer"
+    },
+    {
+      "name": "website",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 4321,
+      "cwd": "website"
+    },
+    {
+      "name": "companion-server",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["agent/scripts/companion_server.py"],
+      "port": 8765
+    },
+    {
+      "name": "rag-server",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "uvicorn", "rag_server:app", "--host", "127.0.0.1", "--port", "8081"],
+      "port": 8081,
+      "cwd": "agent/rag"
+    }
+  ]
+}

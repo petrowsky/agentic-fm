@@ -17,7 +17,7 @@ collection = None
 
 def get_embedding_fn():
     return OllamaEmbeddingFunction(
-        url="http://localhost:11434/api/embed",
+        url="http://localhost:11434",
         model_name="nomic-embed-text",
     )
 

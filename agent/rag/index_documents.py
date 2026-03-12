@@ -17,7 +17,7 @@ COLLECTION_NAME = "agentic_fm"
 
 def get_embedding_fn():
     return OllamaEmbeddingFunction(
-        url="http://localhost:11434/api/embed",
+        url="http://localhost:11434",
         model_name="nomic-embed-text",
     )
 
@@ -92,7 +92,8 @@ def chunk_step_catalog(filepath: Path) -> list[dict]:
             label = p.get("hrLabel") or p.get("xmlElement", "")
             line = f"  - {label} ({p_type}, {req})"
             if p.get("enumValues"):
-                line += f" values: {', '.join(p['enumValues'])}"
+                vals = [str(v) if not isinstance(v, dict) else v.get("name", str(v)) for v in p["enumValues"]]
+                line += f" values: {', '.join(vals)}"
             if p.get("defaultValue"):
                 line += f" default: {p['defaultValue']}"
             param_lines.append(line)
@@ -204,7 +205,7 @@ def build_index():
     try:
         client.delete_collection(COLLECTION_NAME)
         print("Deleted existing collection.")
-    except ValueError:
+    except Exception:
         pass
 
     collection = client.create_collection(
