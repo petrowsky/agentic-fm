@@ -1,0 +1,1009 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>agentic-fm: Script Import Companion</title>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, sans-serif;
+        background: #0b1020;
+        color: #e5e7eb;
+      }
+      .wrap {
+        max-width: 1220px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+      .panel {
+        background: #121933;
+        border: 1px solid #26304f;
+        border-radius: 14px;
+        padding: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+      }
+      .panel.full {
+        grid-column: 1 / -1;
+      }
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+      }
+      h1 {
+        font-size: 24px;
+        margin-bottom: 10px;
+      }
+      h2 {
+        font-size: 16px;
+        margin-bottom: 12px;
+      }
+      h3 {
+        font-size: 17px;
+      }
+      .muted {
+        color: #93a1c6;
+      }
+      .row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+      .row.single {
+        grid-template-columns: 1fr;
+      }
+      .row.top-controls {
+        grid-template-columns: minmax(0, 1.8fr) minmax(110px, 160px);
+      }
+      .compact-field {
+        max-width: 160px;
+      }
+      .header-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-end;
+      }
+      .header-button {
+        width: auto;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        line-height: 1.1;
+        white-space: nowrap;
+      }
+      .header-button.on {
+        background: linear-gradient(180deg, #1f8f58, #187447);
+      }
+      .header-button.off {
+        background: #1a2342;
+        border: 1px solid #334269;
+      }
+      .header-button:disabled {
+        opacity: 0.72;
+        cursor: default;
+      }
+      .input-with-actions {
+        display: flex;
+        gap: 10px;
+        align-items: stretch;
+      }
+      .input-with-actions input {
+        flex: 1 1 auto;
+      }
+      .input-with-actions button {
+        width: auto;
+        flex: 0 0 auto;
+        white-space: nowrap;
+      }
+      label {
+        display: block;
+        font-size: 12px;
+        color: #93a1c6;
+        margin-bottom: 6px;
+      }
+      input,
+      select,
+      button {
+        width: 100%;
+        box-sizing: border-box;
+        border-radius: 10px;
+        border: 1px solid #334269;
+        background: #0f1530;
+        color: #eef2ff;
+        padding: 10px 12px;
+        font: inherit;
+      }
+      button {
+        cursor: pointer;
+        background: linear-gradient(180deg, #4169e1, #3558c8);
+        border: none;
+        font-weight: 600;
+      }
+      button.secondary {
+        background: #1a2342;
+        border: 1px solid #334269;
+      }
+      button.danger {
+        background: linear-gradient(180deg, #c9405e, #a52d48);
+      }
+      button:disabled {
+        cursor: default;
+        opacity: 0.5;
+      }
+      .button-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .button-row > * {
+        flex: 1 1 180px;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: #1a2342;
+        color: #c7d2fe;
+        font-size: 12px;
+      }
+      .badge.ok {
+        background: #16351e;
+        color: #9ae6b4;
+      }
+      .badge.warn {
+        background: #3a2712;
+        color: #fbd38d;
+      }
+      .badge.err {
+        background: #3d1620;
+        color: #feb2b2;
+      }
+      .badge.info {
+        background: #162b4d;
+        color: #93c5fd;
+      }
+      .status-grid {
+        display: grid;
+        grid-template-columns: 180px 1fr;
+        gap: 8px;
+        font-size: 13px;
+      }
+      .stats {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .stat {
+        min-width: 140px;
+        background: #0d1430;
+        border: 1px solid #2e395d;
+        border-radius: 12px;
+        padding: 12px;
+      }
+      .stat .label {
+        color: #93a1c6;
+        font-size: 12px;
+      }
+      .stat .value {
+        font-size: 24px;
+        font-weight: 700;
+        margin-top: 4px;
+      }
+      .imports {
+        display: grid;
+        gap: 14px;
+      }
+      .import-card {
+        background: #0d1430;
+        border: 1px solid #2e395d;
+        border-radius: 14px;
+        overflow: hidden;
+      }
+      .import-card.ok {
+        border-color: #215032;
+      }
+      .import-card.warn {
+        border-color: #7a5a26;
+      }
+      .import-card.running {
+        border-color: #2f5d8a;
+      }
+      .import-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: flex-start;
+        padding: 14px 16px;
+        border-bottom: 1px solid #223053;
+      }
+      .import-head-left {
+        min-width: 0;
+      }
+      .import-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .import-subtitle {
+        margin-top: 6px;
+        color: #93a1c6;
+        font-size: 13px;
+      }
+      .import-head-right {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+      .import-body {
+        padding: 10px 0;
+      }
+      .error-list {
+        display: grid;
+      }
+      .error-row {
+        display: grid;
+        grid-template-columns: 110px 1fr;
+        gap: 12px;
+        padding: 10px 16px;
+        border-top: 1px solid #1b2748;
+      }
+      .error-row:first-child {
+        border-top: none;
+      }
+      .line-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 34px;
+        border-radius: 999px;
+        background: #182344;
+        color: #e0e7ff;
+        font-weight: 700;
+        padding: 0 12px;
+      }
+      .line-pill.empty {
+        background: #20283c;
+        color: #a5b4d4;
+      }
+      .error-meta {
+        color: #b9c4e3;
+        font-size: 13px;
+        margin-bottom: 4px;
+      }
+      .error-message {
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-size: 14px;
+      }
+      .empty-state {
+        padding: 14px 16px;
+        color: #93a1c6;
+      }
+      .hidden {
+        display: none;
+      }
+      @media (max-width: 900px) {
+        .grid,
+        .row {
+          grid-template-columns: 1fr;
+        }
+        .status-grid {
+          grid-template-columns: 1fr;
+        }
+        .import-head {
+          flex-direction: column;
+        }
+        .import-head-right {
+          justify-content: flex-start;
+        }
+        .error-row {
+          grid-template-columns: 1fr;
+        }
+        .line-pill {
+          justify-content: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 16px;
+          margin-bottom: 16px;
+          flex-wrap: wrap;
+        "
+      >
+        <div>
+          <h1>Companion Watch</h1>
+          <div class="muted">
+            Track each import with its script name, imported line count, and
+            clear error details.
+          </div>
+        </div>
+        <div class="header-actions">
+          <button type="button" id="notificationsButton" class="header-button off">Enable notifications</button>
+          <span id="runningBadge" class="badge">stopped</span>
+          <span id="streamBadge" class="badge">stream idle</span>
+        </div>
+      </div>
+
+      <div class="grid">
+        <section class="panel">
+          <h2>Auto Import.log Watch</h2>
+          <div class="row top-controls">
+            <div>
+              <label for="importLocation">Location</label>
+              <select id="importLocation">
+                <option value="server">Server file</option>
+                <option value="local">Local database file</option>
+              </select>
+            </div>
+            <div class="compact-field">
+              <label for="importPollInterval">Poll interval</label>
+              <input id="importPollInterval" value="0.5" />
+            </div>
+          </div>
+          <div class="row single">
+            <div>
+              <label for="databasePath"
+                >Database folder for local file mode</label
+              >
+              <div class="input-with-actions">
+                <input id="databasePath" placeholder="/path/to/database/folder" />
+                <button type="button" id="browseDatabaseFolderButton" class="secondary">Browse...</button>
+              </div>
+            </div>
+          </div>
+          <div class="row single">
+            <div>
+              <label for="documentsDir">Documents dir for server mode</label>
+              <div class="input-with-actions">
+                <input id="documentsDir" placeholder="Documents folder" />
+                <button type="button" id="browseDocumentsDirButton" class="secondary">Browse...</button>
+              </div>
+            </div>
+          </div>
+          <div class="button-row">
+            <button type="button" id="startImportButton">Start watch</button>
+            <button type="button" id="stopButton" class="danger">Stop watch</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Status</h2>
+          <div id="statusGrid" class="status-grid"></div>
+        </section>
+
+        <section class="panel full">
+          <h2>Import Summary</h2>
+          <div id="stats" class="stats"></div>
+        </section>
+
+        <section class="panel full">
+          <h2>Recent Imports</h2>
+          <div id="imports" class="imports"></div>
+        </section>
+      </div>
+    </div>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+      let stream = null;
+      let defaultsApplied = false;
+      let notificationsEnabled = loadNotificationsPreference();
+      let notificationsPrimed = false;
+      let seenNotificationKeys = new Set();
+
+      function loadNotificationsPreference() {
+        try {
+          return window.localStorage.getItem("agenticFmWatchNotificationsEnabled") === "true";
+        } catch {
+          return false;
+        }
+      }
+
+      function saveNotificationsPreference(value) {
+        try {
+          window.localStorage.setItem("agenticFmWatchNotificationsEnabled", value ? "true" : "false");
+        } catch {}
+      }
+
+      function notificationsSupported() {
+        return typeof window.Notification !== "undefined";
+      }
+
+      function updateNotificationsButton() {
+        const button = $("notificationsButton");
+        if (!button) {
+          return;
+        }
+        if (!notificationsSupported()) {
+          button.textContent = "Notifications unavailable";
+          button.className = "header-button off";
+          button.disabled = true;
+          return;
+        }
+        button.disabled = false;
+        if (Notification.permission === "denied") {
+          button.textContent = "Notifications blocked";
+          button.className = "header-button off";
+          return;
+        }
+        if (Notification.permission === "granted" && notificationsEnabled) {
+          button.textContent = "Notifications on";
+          button.className = "header-button on";
+          return;
+        }
+        button.textContent = "Enable notifications";
+        button.className = "header-button off";
+      }
+
+      function setStreamBadge(text, level = "") {
+        $("streamBadge").textContent = text;
+        $("streamBadge").className = `badge${level ? ` ${level}` : ""}`;
+      }
+
+      function updateWatchActionButtons(running) {
+        const startButton = $("startImportButton");
+        const stopButton = $("stopButton");
+        if (startButton) {
+          startButton.hidden = Boolean(running);
+          startButton.disabled = Boolean(running);
+          startButton.className = "";
+        }
+        if (stopButton) {
+          stopButton.hidden = !running;
+          stopButton.disabled = !running;
+          stopButton.className = "danger";
+        }
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;");
+      }
+
+      async function request(path, method = "GET", body = null) {
+        const response = await fetch(path, {
+          method,
+          headers: body ? { "Content-Type": "application/json" } : {},
+          body: body ? JSON.stringify(body) : null,
+        });
+        const text = await response.text();
+        const contentType = response.headers.get("Content-Type") || "";
+        let data = {};
+        if (text) {
+          if (contentType.includes("application/json")) {
+            data = JSON.parse(text);
+          } else {
+            const summary = text.startsWith("<!DOCTYPE")
+              ? `Expected JSON from ${path}, got HTML instead.`
+              : text.slice(0, 200);
+            throw new Error(summary);
+          }
+        }
+        if (!response.ok) {
+          throw new Error(data.error || `HTTP ${response.status}`);
+        }
+        return data;
+      }
+
+      async function pickPath(selectionType, initialPath, title) {
+        const result = await request("/watch/pick-path", "POST", {
+          selection_type: selectionType,
+          initial_path: initialPath || "",
+          title: title || "",
+        });
+        return result.cancelled ? "" : (result.selected_path || "");
+      }
+
+      function applyDefaults(state) {
+        if (defaultsApplied) {
+          return;
+        }
+        const documentsDir = state.defaults?.documents_dir || "";
+        if (documentsDir && !$("documentsDir").value.trim()) {
+          $("documentsDir").value = documentsDir;
+        }
+        defaultsApplied = true;
+      }
+
+      function displayScriptName(importItem) {
+        return (
+          importItem.script_name ||
+          importItem.source ||
+          importItem.database_name ||
+          "Unknown script"
+        );
+      }
+
+      function displayImportSource(importItem) {
+        const source = importItem.database_name || importItem.source || "";
+        return source && source !== displayScriptName(importItem) ? source : "";
+      }
+
+      function normalizeTimestamp(value) {
+        const raw = String(value ?? "").trim();
+        if (!raw) {
+          return null;
+        }
+        if (raw.includes("T")) {
+          const parsed = new Date(raw);
+          return Number.isNaN(parsed.getTime()) ? null : parsed;
+        }
+        const match = raw.match(
+          /^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2})(?:\.(\d+))? ([+-]\d{2})(\d{2})$/,
+        );
+        if (match) {
+          const [, datePart, timePart, fraction = "", tzHour, tzMinute] = match;
+          const isoLike = `${datePart}T${timePart}${fraction ? `.${fraction}` : ""}${tzHour}:${tzMinute}`;
+          const parsed = new Date(isoLike);
+          return Number.isNaN(parsed.getTime()) ? null : parsed;
+        }
+        return null;
+      }
+
+      function formatTimestamp(value) {
+        const raw = String(value ?? "").trim();
+        if (!raw) {
+          return "";
+        }
+        const parsed = normalizeTimestamp(raw);
+        if (!parsed) {
+          return raw;
+        }
+        return new Intl.DateTimeFormat(undefined, {
+          dateStyle: "medium",
+          timeStyle: "short",
+        }).format(parsed);
+      }
+
+      function formatStatusLastError(state) {
+        const summaryError = state.summary?.last_error;
+        if (summaryError && typeof summaryError === "object") {
+          const timestampText = formatTimestamp(
+            summaryError.timestamp || summaryError.detected_at || "",
+          );
+          const bits = [
+            timestampText,
+            summaryError.script_name || "",
+            summaryError.script_line ? `line ${summaryError.script_line}` : "",
+            summaryError.label || "",
+            summaryError.code ? `code ${summaryError.code}` : "",
+          ].filter(Boolean);
+          const prefix = bits.join(" · ");
+          const message = String(summaryError.message || "").trim();
+          if (prefix && message) {
+            return `${prefix}: ${message}`;
+          }
+          if (message) {
+            return message;
+          }
+        }
+        if (typeof state.last_error === "string") {
+          return state.last_error.trim();
+        }
+        return "";
+      }
+
+      function getCompletedImportErrorEvents(state) {
+        if (!Array.isArray(state.recent_events)) {
+          return [];
+        }
+        return state.recent_events.filter(
+          (event) =>
+            event &&
+            event.event_type === "import_log_lifecycle" &&
+            event.rule === "import_completed" &&
+            event.import_status === "with_errors" &&
+            Number(event.error_count || 0) > 0,
+        );
+      }
+
+      function buildNotificationKey(event) {
+        if (!event) {
+          return "";
+        }
+        return [
+          event.detected_at || event.timestamp || "",
+          event.rule || "",
+          event.code || "",
+          event.source || "",
+          event.script_name || "",
+          event.script_line || "",
+          event.message || "",
+        ].join("||");
+      }
+
+      function buildNotificationSolutionName(event) {
+        const rawSource = String(event.source || event.database_name || "").trim();
+        if (!rawSource) {
+          return "Unknown solution";
+        }
+        const pathBits = rawSource.split(/[/\\]/);
+        const lastBit = pathBits[pathBits.length - 1] || rawSource;
+        return lastBit || "Unknown solution";
+      }
+
+      function buildNotificationHeadline(event) {
+        const solutionName = buildNotificationSolutionName(event);
+        const scriptName = String(event.script_name || "").trim();
+        if (scriptName) {
+          return `${scriptName} (${solutionName})`;
+        }
+        return solutionName;
+      }
+
+      function buildNotificationBody(event) {
+        const headline = buildNotificationHeadline(event);
+        const timestampText = formatTimestamp(event.timestamp || event.detected_at || "");
+        const errorCount = Number(event.error_count || 0);
+        const errorText = `${errorCount} error${errorCount === 1 ? "" : "s"}`;
+        return [headline, timestampText, errorText].join("\n");
+      }
+
+      function deliverNotification(title, body, tag) {
+        if (!notificationsSupported()) {
+          throw new Error("This browser does not support system notifications.");
+        }
+        if (Notification.permission !== "granted") {
+          throw new Error("Notification permission has not been granted.");
+        }
+        const notification = new Notification(title, {
+          body,
+          tag: tag || undefined,
+        });
+        notification.onclick = () => {
+          window.focus();
+          notification.close();
+        };
+        return notification;
+      }
+
+      function showImportErrorNotification(event) {
+        if (!notificationsSupported() || Notification.permission !== "granted") {
+          return;
+        }
+        deliverNotification(
+          "Import completed with errors",
+          buildNotificationBody(event),
+          buildNotificationKey(event),
+        );
+      }
+
+      function showNotificationsEnabledPreview() {
+        if (!notificationsSupported() || Notification.permission !== "granted") {
+          return;
+        }
+        deliverNotification(
+          "Import notifications enabled",
+          "You will now receive alerts here for new import errors while this page stays open.",
+          "agentic-fm-watch-notifications-enabled",
+        );
+      }
+
+      function syncErrorNotifications(state) {
+        updateNotificationsButton();
+        const completedErrorEvents = getCompletedImportErrorEvents(state);
+        const currentKeys = completedErrorEvents
+          .map((event) => buildNotificationKey(event))
+          .filter(Boolean);
+        if (!notificationsPrimed) {
+          seenNotificationKeys = new Set(currentKeys);
+          notificationsPrimed = true;
+          return;
+        }
+        const newEvents = completedErrorEvents.filter((event) => {
+          const key = buildNotificationKey(event);
+          return key && !seenNotificationKeys.has(key);
+        });
+        seenNotificationKeys = new Set(currentKeys);
+        if (!newEvents.length) {
+          return;
+        }
+        if (!notificationsEnabled || !notificationsSupported() || Notification.permission !== "granted") {
+          return;
+        }
+        const latestEvent = newEvents[newEvents.length - 1];
+        showImportErrorNotification(latestEvent);
+      }
+
+      async function toggleNotifications() {
+        if (!notificationsSupported()) {
+          alert("This browser does not support system notifications.");
+          return;
+        }
+        if (Notification.permission === "denied") {
+          alert("Notifications are blocked for this page. Enable them in your browser settings.");
+          updateNotificationsButton();
+          return;
+        }
+        if (Notification.permission === "granted") {
+          notificationsEnabled = !notificationsEnabled;
+          saveNotificationsPreference(notificationsEnabled);
+          updateNotificationsButton();
+          if (notificationsEnabled) {
+            showNotificationsEnabledPreview();
+          }
+          return;
+        }
+        const permission = await Notification.requestPermission();
+        notificationsEnabled = permission === "granted";
+        saveNotificationsPreference(notificationsEnabled);
+        updateNotificationsButton();
+        if (notificationsEnabled) {
+          showNotificationsEnabledPreview();
+        }
+      }
+
+      function renderStatus(state) {
+        const running = Boolean(state.running);
+        $("runningBadge").textContent = running ? "running" : "stopped";
+        $("runningBadge").className = `badge ${running ? "ok" : "warn"}`;
+        updateWatchActionButtons(running);
+        const lastErrorText = formatStatusLastError(state);
+        $("statusGrid").innerHTML = [
+          ["Path", state.path || ""],
+          ["File exists", String(Boolean(state.file_exists))],
+          ["Poll interval", String(state.poll_interval ?? "")],
+          ["Started at", formatTimestamp(state.started_at)],
+          ["Last change", formatTimestamp(state.last_change_at)],
+          ["Last event", formatTimestamp(state.last_event_at)],
+          ["Last error", lastErrorText],
+          ["Revision", String(state.revision ?? "")],
+        ]
+          .map(
+            ([key, value]) =>
+              `<div class="muted">${escapeHtml(key)}</div><div>${escapeHtml(value)}</div>`,
+          )
+          .join("");
+      }
+
+      function renderStats(summary = {}) {
+        const stats = [
+          ["Imports", summary.imports_total ?? 0],
+          ["No errors", summary.imports_without_errors ?? 0],
+          ["With errors", summary.imports_with_errors ?? 0],
+          ["Total errors", summary.errors_total ?? 0],
+          ["Total events", summary.events_total ?? 0],
+        ];
+        $("stats").innerHTML = stats
+          .map(
+            ([label, value]) => `
+        <div class="stat">
+          <div class="label">${escapeHtml(label)}</div>
+          <div class="value">${escapeHtml(value)}</div>
+        </div>
+      `,
+          )
+          .join("");
+      }
+
+      function renderErrorRow(error) {
+        const lineText = error.line_number
+          ? `Line ${error.line_number}`
+          : "No line";
+        const meta = [
+          error.step_name || "",
+          error.label || "",
+          error.code ? `code ${error.code}` : "",
+        ]
+          .filter(Boolean)
+          .join(" · ");
+        return `
+        <div class="error-row">
+          <div><span class="line-pill${error.line_number ? "" : " empty"}">${escapeHtml(lineText)}</span></div>
+          <div>
+            <div class="error-meta">${escapeHtml(meta)}</div>
+            <div class="error-message">${escapeHtml(error.message || "")}</div>
+          </div>
+        </div>
+      `;
+      }
+
+      function renderImportCard(importItem, isCurrent = false) {
+        const errors = Array.isArray(importItem.errors)
+          ? importItem.errors
+          : [];
+        const status = importItem.status || (isCurrent ? "running" : "ok");
+        const statusClass =
+          status === "with_errors"
+            ? "warn"
+            : status === "running"
+              ? "info"
+              : "ok";
+        const statusText =
+          status === "with_errors"
+            ? "with errors"
+            : status === "running"
+              ? "running"
+              : "ok";
+        const importedSteps = importItem.imported_steps ?? "—";
+        const source = displayImportSource(importItem);
+        const subtitleBits = [
+          source,
+          importItem.started_at ? `started ${formatTimestamp(importItem.started_at)}` : "",
+          importItem.completed_at ? `completed ${formatTimestamp(importItem.completed_at)}` : "",
+        ]
+          .filter(Boolean)
+          .join(" · ");
+        const body = errors.length
+          ? `<div class="error-list">${errors.map(renderErrorRow).join("")}</div>`
+          : `<div class="empty-state">${status === "running" ? "Import running. No errors recorded yet." : "No errors occurred during this import."}</div>`;
+        return `
+        <article class="import-card ${escapeHtml(statusClass)}">
+          <div class="import-head">
+            <div class="import-head-left">
+              <div class="import-title">
+                <h3>${escapeHtml(displayScriptName(importItem))}</h3>
+                <span class="badge ${statusClass}">${escapeHtml(statusText)}</span>
+                ${isCurrent ? '<span class="badge info">current</span>' : ""}
+              </div>
+              <div class="import-subtitle">${escapeHtml(subtitleBits || "No source metadata")}</div>
+            </div>
+            <div class="import-head-right">
+              <span class="badge info">lines imported ${escapeHtml(importedSteps)}</span>
+              <span class="badge ${errors.length ? "err" : "ok"}">errors ${escapeHtml(importItem.error_count ?? errors.length)}</span>
+            </div>
+          </div>
+          <div class="import-body">${body}</div>
+        </article>
+      `;
+      }
+
+      function renderImports(summary = {}) {
+        const imports = [];
+        const currentImport = summary.current_import || {};
+        if (
+          currentImport &&
+          (currentImport.started_at ||
+            currentImport.script_name ||
+            currentImport.source)
+        ) {
+          imports.push(renderImportCard(currentImport, true));
+        }
+        const recentImports = [...(summary.recent_imports || [])].reverse();
+        for (const importItem of recentImports) {
+          imports.push(renderImportCard(importItem, false));
+        }
+        $("imports").innerHTML = imports.length
+          ? imports.join("")
+          : '<div class="empty-state">No imports recorded yet.</div>';
+      }
+
+      function render(state) {
+        applyDefaults(state);
+        renderStatus(state);
+        renderStats(state.summary || {});
+        renderImports(state.summary || {});
+        syncErrorNotifications(state);
+      }
+
+      async function refresh() {
+        try {
+          const state = await request("/watch/results");
+          render(state);
+          if (!state.running && stream) {
+            stream.close();
+            stream = null;
+            setStreamBadge("stream idle");
+          }
+          return state;
+        } catch (error) {
+          setStreamBadge(error.message, "err");
+          throw error;
+        }
+      }
+
+      function connectStream() {
+        if (stream) {
+          stream.close();
+        }
+        stream = new EventSource("/watch/stream");
+        setStreamBadge("connecting", "warn");
+        stream.addEventListener("results", (event) => {
+          setStreamBadge("live", "ok");
+          render(JSON.parse(event.data));
+        });
+        stream.onerror = () => {
+          setStreamBadge("reconnecting", "warn");
+        };
+      }
+
+      async function startImportWatch() {
+        const payload = {
+          location: $("importLocation").value,
+          database_path: $("databasePath").value.trim(),
+          documents_dir: $("documentsDir").value.trim(),
+          poll_interval: Number($("importPollInterval").value || "0.5"),
+          start_at_end: true,
+        };
+        await request("/watch/import-log/start", "POST", payload);
+        await refresh();
+        connectStream();
+      }
+
+      async function stopWatch() {
+        if (stream) {
+          stream.close();
+          stream = null;
+        }
+        setStreamBadge("stream idle");
+        await request("/watch/stop", "POST");
+        await refresh();
+      }
+
+      async function browseDatabaseFolder() {
+        const selectedPath = await pickPath(
+          "directory",
+          $("databasePath").value.trim() || $("documentsDir").value.trim(),
+          "Select database folder",
+        );
+        if (selectedPath) {
+          $("databasePath").value = selectedPath;
+        }
+      }
+
+      async function browseDocumentsDir() {
+        const selectedPath = await pickPath(
+          "directory",
+          $("documentsDir").value.trim(),
+          "Select Documents folder",
+        );
+        if (selectedPath) {
+          $("documentsDir").value = selectedPath;
+        }
+      }
+
+      $("startImportButton").addEventListener("click", () =>
+        startImportWatch().catch((error) => alert(error.message)),
+      );
+      $("stopButton").addEventListener("click", () =>
+        stopWatch().catch((error) => alert(error.message)),
+      );
+      $("browseDatabaseFolderButton").addEventListener("click", () =>
+        browseDatabaseFolder().catch((error) => alert(error.message)),
+      );
+      $("browseDocumentsDirButton").addEventListener("click", () =>
+        browseDocumentsDir().catch((error) => alert(error.message)),
+      );
+      $("notificationsButton").addEventListener("click", () =>
+        toggleNotifications().catch((error) => alert(error.message)),
+      );
+
+      updateWatchActionButtons(false);
+      updateNotificationsButton();
+      refresh().then((state) => {
+        if (state?.running) {
+          connectStream();
+        } else {
+          setStreamBadge("stream idle");
+        }
+      }).catch(() => {});
+      setInterval(() => refresh().catch(() => {}), 5000);
+    </script>
+  </body>
+</html>

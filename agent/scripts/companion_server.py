@@ -20,12 +20,16 @@ import argparse
 import json
 import logging
 import os
+import platform
+import re
 import signal
+import socket
 import subprocess
 import sys
 import threading
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -38,6 +42,19 @@ from socketserver import ThreadingMixIn
 DEFAULT_PORT = 8765
 BIND_HOST = os.environ.get("COMPANION_BIND_HOST", "127.0.0.1")
 REMOTE_VERSION_URL = "https://raw.githubusercontent.com/petrowsky/agentic-fm/main/version.txt"
+FILE_WATCH_POLL_INTERVAL_SECONDS = 0.5
+FILE_WATCH_MAX_EVENTS = 100
+FILE_WATCH_MAX_IMPORTS = 20
+IMPORT_LOG_TIMESTAMP_RE = re.compile(r"^\d{4}-\d{2}-\d{2} ")
+IMPORT_LOG_UNKNOWN_VALUE_RE = re.compile(r'Attribute value [“"](.+?)[”"] unknown\.')
+IMPORT_LOG_ATTRIBUTE_MISSING_RE = re.compile(r'^Attribute [“"](.+?)[”"] missing\.$')
+IMPORT_LOG_FIELD_MISSING_RE = re.compile(r'^Field [“"](.+?)[”"] missing\.$')
+IMPORT_LOG_FIELD_REFERENCE_MISSING_RE = re.compile(r'^Field referred to in the calculation [“"](.+?)[”"] is missing\.$', re.S)
+IMPORT_LOG_LAYOUT_MISSING_RE = re.compile(r'^Layout [“"](.+?)[”"] missing\.$')
+IMPORT_LOG_SCRIPT_MISSING_RE = re.compile(r'^Script [“"](.+?)[”"] missing\.$')
+IMPORT_LOG_FUNCTION_MISSING_RE = re.compile(r'^Function referred to in the calculation [“"](.+?)[”"] is missing\.$', re.S)
+IMPORT_LOG_TABLE_MISSING_RE = re.compile(r'^Table referred to in the calculation [“"](.+?)[”"] is missing\.$', re.S)
+IMPORT_LOG_UNKNOWN_ERROR_RE = re.compile(r'^Unknown Error: <unknown>\.$', re.I)
 
 # Read version from version.txt at the repo root
 def _read_local_version() -> str:
@@ -64,6 +81,40 @@ _webviewer_lock = threading.Lock()
 _pending_job: dict = {}
 _pending_lock = threading.Lock()
 
+_file_watch_thread: "threading.Thread | None" = None
+_file_watch_stop_event: "threading.Event | None" = None
+_file_watch_lock = threading.Lock()
+_file_watch_condition = threading.Condition(_file_watch_lock)
+_file_watch_state: dict = {
+    "running": False,
+    "path": "",
+    "poll_interval": FILE_WATCH_POLL_INTERVAL_SECONDS,
+    "start_at_end": True,
+    "started_at": None,
+    "last_checked_at": None,
+    "last_change_at": None,
+    "last_event_at": None,
+    "offset": None,
+    "file_exists": False,
+    "revision": 0,
+    "analyzer": {"type": "import_log"},
+    "summary": {
+        "events_total": 0,
+        "errors_total": 0,
+        "matches_by_rule": {},
+        "errors_by_code": {},
+        "current_import": {},
+        "last_completed_import": {},
+        "recent_imports": [],
+        "imports_total": 0,
+        "imports_with_errors": 0,
+        "imports_without_errors": 0,
+        "last_error": {},
+    },
+    "recent_events": [],
+    "last_error": "",
+}
+
 # ---------------------------------------------------------------------------
 # Logging setup
 # ---------------------------------------------------------------------------
@@ -76,6 +127,906 @@ logging.basicConfig(
 )
 log = logging.getLogger("companion_server")
 SUBPROCESS_HEARTBEAT_SECONDS = 5
+
+
+def _utc_now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _clone_jsonable(data):
+    return json.loads(json.dumps(data, ensure_ascii=False))
+
+
+def _default_documents_dir() -> str:
+    if sys.platform == "win32":
+        try:
+            import ctypes
+            from ctypes import wintypes
+
+            buffer = ctypes.create_unicode_buffer(wintypes.MAX_PATH)
+            result = ctypes.windll.shell32.SHGetFolderPathW(None, 5, None, 0, buffer)
+            if result == 0 and buffer.value:
+                return buffer.value
+        except Exception:
+            pass
+
+        user_profile = os.environ.get("USERPROFILE", "")
+        if user_profile:
+            return os.path.join(user_profile, "Documents")
+
+    return os.path.expanduser("~/Documents")
+
+
+def _split_initial_path(initial_path: str) -> tuple[str, str]:
+    initial_path = os.path.expanduser(initial_path or "")
+    initial_dir = ""
+    initial_file = ""
+    if initial_path:
+        if os.path.isdir(initial_path):
+            initial_dir = initial_path
+        else:
+            initial_dir = os.path.dirname(initial_path)
+            initial_file = os.path.basename(initial_path)
+    return initial_dir, initial_file
+
+
+def _open_path_dialog_tk(selection_type: str, initial_path: str = "", title: str = "") -> str:
+    import tkinter as tk
+    from tkinter import filedialog
+
+    initial_dir, initial_file = _split_initial_path(initial_path)
+
+    root = tk.Tk()
+    root.withdraw()
+    try:
+        root.attributes("-topmost", True)
+    except Exception:
+        pass
+    root.update()
+
+    try:
+        if selection_type == "directory":
+            selected_path = filedialog.askdirectory(
+                title=title or "Select folder",
+                initialdir=initial_dir or _default_documents_dir(),
+                parent=root,
+                mustexist=True,
+            )
+        elif selection_type == "file":
+            selected_path = filedialog.askopenfilename(
+                title=title or "Select file",
+                initialdir=initial_dir or _default_documents_dir(),
+                initialfile=initial_file,
+                parent=root,
+                filetypes=[
+                    ("Log and FileMaker files", "*.log *.fmp12"),
+                    ("All files", "*"),
+                ],
+            )
+        else:
+            raise ValueError("selection_type must be file or directory")
+    finally:
+        root.destroy()
+
+    return selected_path or ""
+
+
+def _apple_script_quote(value: str) -> str:
+    return str(value or "").replace("\\", "\\\\").replace('"', '\\"')
+
+
+def _open_path_dialog_macos(selection_type: str, initial_path: str = "", title: str = "") -> str:
+    initial_dir, _ = _split_initial_path(initial_path)
+    if not initial_dir:
+        initial_dir = _default_documents_dir()
+
+    location_clause = ""
+    if initial_dir and os.path.exists(initial_dir):
+        location_clause = f' default location (POSIX file "{_apple_script_quote(initial_dir)}")'
+
+    prompt = _apple_script_quote(title or ("Select folder" if selection_type == "directory" else "Select file"))
+    if selection_type == "directory":
+        choose_stmt = f'set chosenItem to choose folder with prompt "{prompt}"{location_clause}'
+    elif selection_type == "file":
+        choose_stmt = f'set chosenItem to choose file with prompt "{prompt}"{location_clause}'
+    else:
+        raise ValueError("selection_type must be file or directory")
+
+    script = "\n".join(
+        [
+            "try",
+            f"    {choose_stmt}",
+            "    return POSIX path of chosenItem",
+            "on error number -128",
+            '    return ""',
+            "end try",
+        ]
+    )
+    result = subprocess.run(
+        ["osascript", "-e", script],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        error_message = (result.stderr or result.stdout or "osascript path picker failed").strip()
+        raise RuntimeError(error_message)
+    return (result.stdout or "").strip()
+
+
+def _powershell_single_quote(value: str) -> str:
+    return str(value or "").replace("'", "''")
+
+
+def _open_path_dialog_windows(selection_type: str, initial_path: str = "", title: str = "") -> str:
+    initial_dir, initial_file = _split_initial_path(initial_path)
+    if not initial_dir:
+        initial_dir = _default_documents_dir()
+
+    if selection_type == "file":
+        script = "\n".join(
+            [
+                "Add-Type -AssemblyName System.Windows.Forms",
+                "$dialog = New-Object System.Windows.Forms.OpenFileDialog",
+                f"$dialog.Title = '{_powershell_single_quote(title or 'Select file')}'",
+                f"$dialog.InitialDirectory = '{_powershell_single_quote(initial_dir)}'",
+                f"$dialog.FileName = '{_powershell_single_quote(initial_file)}'",
+                "$dialog.Filter = 'Log and FileMaker files (*.log;*.fmp12)|*.log;*.fmp12|All files (*.*)|*.*'",
+                "if ($dialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { Write-Output $dialog.FileName }",
+            ]
+        )
+    elif selection_type == "directory":
+        script = "\n".join(
+            [
+                "Add-Type -AssemblyName System.Windows.Forms",
+                "$dialog = New-Object System.Windows.Forms.FolderBrowserDialog",
+                f"$dialog.Description = '{_powershell_single_quote(title or 'Select folder')}'",
+                f"$dialog.SelectedPath = '{_powershell_single_quote(initial_dir)}'",
+                "if ($dialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { Write-Output $dialog.SelectedPath }",
+            ]
+        )
+    else:
+        raise ValueError("selection_type must be file or directory")
+
+    result = subprocess.run(
+        ["powershell", "-NoProfile", "-STA", "-Command", script],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        error_message = (result.stderr or result.stdout or "PowerShell path picker failed").strip()
+        raise RuntimeError(error_message)
+    return (result.stdout or "").strip()
+
+
+def _open_path_dialog(selection_type: str, initial_path: str = "", title: str = "") -> str:
+    try:
+        return _open_path_dialog_tk(selection_type, initial_path=initial_path, title=title)
+    except (ImportError, ModuleNotFoundError):
+        if sys.platform == "darwin":
+            return _open_path_dialog_macos(selection_type, initial_path=initial_path, title=title)
+        if sys.platform == "win32":
+            return _open_path_dialog_windows(selection_type, initial_path=initial_path, title=title)
+        raise RuntimeError("No native path picker available on this Python installation. Enter the path manually.")
+
+
+def _new_file_watch_summary() -> dict:
+    return {
+        "events_total": 0,
+        "errors_total": 0,
+        "matches_by_rule": {},
+        "errors_by_code": {},
+        "current_import": {},
+        "last_completed_import": {},
+        "recent_imports": [],
+        "imports_total": 0,
+        "imports_with_errors": 0,
+        "imports_without_errors": 0,
+        "last_error": {},
+    }
+
+
+def _snapshot_file_watch_state() -> dict:
+    with _file_watch_lock:
+        return _clone_jsonable(_file_watch_state)
+
+
+def _watch_results_payload_from_state(state: dict) -> dict:
+    return {
+        "running": state["running"],
+        "path": state["path"],
+        "poll_interval": state["poll_interval"],
+        "start_at_end": state["start_at_end"],
+        "started_at": state["started_at"],
+        "file_exists": state["file_exists"],
+        "revision": state.get("revision", 0),
+        "analyzer": state["analyzer"],
+        "summary": state["summary"],
+        "recent_events": state["recent_events"],
+        "last_change_at": state["last_change_at"],
+        "last_event_at": state["last_event_at"],
+        "last_error": state["last_error"],
+        "platform": {
+            "system": platform.system(),
+            "python_platform": sys.platform,
+        },
+        "defaults": {
+            "documents_dir": _default_documents_dir(),
+        },
+    }
+
+
+def _current_watch_results_payload() -> dict:
+    return _watch_results_payload_from_state(_snapshot_file_watch_state())
+
+
+def _bump_file_watch_revision_locked() -> int:
+    _file_watch_state["revision"] = int(_file_watch_state.get("revision", 0)) + 1
+    _file_watch_condition.notify_all()
+    return _file_watch_state["revision"]
+
+
+def _normalize_analyzer_config(raw_analyzer) -> dict:
+    if not raw_analyzer:
+        return {"type": "import_log"}
+
+    if isinstance(raw_analyzer, str):
+        analyzer = {"type": raw_analyzer}
+    elif isinstance(raw_analyzer, dict):
+        analyzer = dict(raw_analyzer)
+    else:
+        raise ValueError("analyzer must be a string or object")
+
+    analyzer_type = analyzer.get("type", "import_log")
+    if analyzer_type in ("import_log", "import_log_unknown_attributes"):
+        return {"type": analyzer_type}
+
+    if analyzer_type != "regex":
+        raise ValueError("analyzer.type must be import_log, import_log_unknown_attributes, or regex")
+
+    rules = analyzer.get("rules")
+    if not isinstance(rules, list) or not rules:
+        raise ValueError("regex analyzer requires a non-empty rules array")
+
+    normalized_rules = []
+    for index, rule in enumerate(rules, start=1):
+        if not isinstance(rule, dict):
+            raise ValueError(f"regex rule #{index} must be an object")
+        name = str(rule.get("name") or f"rule_{index}")
+        pattern = rule.get("pattern") or rule.get("regex")
+        if not pattern:
+            raise ValueError(f"regex rule {name!r} is missing pattern")
+        flags = str(rule.get("flags", ""))
+        severity = str(rule.get("severity", "info"))
+        re_flags = 0
+        if "i" in flags.lower():
+            re_flags |= re.IGNORECASE
+        try:
+            re.compile(pattern, re_flags)
+        except re.error as exc:
+            raise ValueError(f"regex rule {name!r} is invalid: {exc}") from exc
+        normalized_rules.append(
+            {
+                "name": name,
+                "pattern": pattern,
+                "flags": flags,
+                "severity": severity,
+            }
+        )
+
+    return {"type": "regex", "rules": normalized_rules}
+
+
+def _build_analyzer_runtime(analyzer_config: dict) -> dict:
+    if analyzer_config["type"] != "regex":
+        return analyzer_config
+
+    runtime_rules = []
+    for rule in analyzer_config["rules"]:
+        re_flags = 0
+        if "i" in rule.get("flags", "").lower():
+            re_flags |= re.IGNORECASE
+        runtime_rules.append(
+            {
+                "name": rule["name"],
+                "severity": rule["severity"],
+                "compiled": re.compile(rule["pattern"], re_flags),
+            }
+        )
+    return {"type": "regex", "rules": runtime_rules}
+
+
+def _record_watch_event_locked(event: dict):
+    summary = _file_watch_state["summary"]
+    summary["events_total"] += 1
+    if event.get("severity") == "error":
+        summary["errors_total"] += 1
+        summary["last_error"] = event
+        code = str(event.get("code", "")).strip()
+        if code:
+            summary["errors_by_code"][code] = summary["errors_by_code"].get(code, 0) + 1
+        current_import = summary.get("current_import") or {}
+        if current_import:
+            current_import["error_count"] = int(current_import.get("error_count", 0)) + 1
+            summary["current_import"] = current_import
+
+    rule = event.get("rule", "unknown")
+    summary["matches_by_rule"][rule] = summary["matches_by_rule"].get(rule, 0) + 1
+
+    _file_watch_state["last_event_at"] = event.get("detected_at")
+    _file_watch_state["recent_events"].append(event)
+    if len(_file_watch_state["recent_events"]) > FILE_WATCH_MAX_EVENTS:
+        _file_watch_state["recent_events"] = _file_watch_state["recent_events"][-FILE_WATCH_MAX_EVENTS:]
+    _bump_file_watch_revision_locked()
+
+
+def _parse_import_log_line(line: str) -> dict | None:
+    parts = line.split("\t", 3)
+    if len(parts) != 4:
+        return None
+
+    timestamp_str, source, code, message = (part.strip() for part in parts)
+    if not IMPORT_LOG_TIMESTAMP_RE.match(timestamp_str):
+        return None
+
+    parsed = {
+        "timestamp": timestamp_str,
+        "source": source,
+        "code": code,
+        "message": message,
+        "raw_line": line,
+    }
+
+    source_parts = source.split("::")
+    if len(source_parts) >= 1:
+        parsed["script_name"] = source_parts[0]
+    if len(source_parts) >= 2:
+        parsed["script_line"] = source_parts[1]
+    if len(source_parts) >= 3:
+        parsed["step_name"] = source_parts[2]
+    if len(source_parts) >= 4:
+        parsed["attribute_name"] = source_parts[3]
+
+    unknown_match = IMPORT_LOG_UNKNOWN_VALUE_RE.search(message)
+    if unknown_match:
+        parsed["unknown_value"] = unknown_match.group(1)
+
+    imported_match = re.search(r"script steps imported\s*:\s*(\d+)", message)
+    if imported_match:
+        parsed["imported_steps"] = int(imported_match.group(1))
+
+    return parsed
+
+
+def _classify_import_log_issue(parsed: dict) -> dict:
+    message = parsed["message"]
+    code = parsed["code"]
+
+    if "unknown_value" in parsed:
+        return {
+            "rule": "unknown_attribute_value",
+            "category": "unknown_attribute_value",
+            "attribute_value": parsed.get("unknown_value", ""),
+        }
+
+    attribute_missing_match = IMPORT_LOG_ATTRIBUTE_MISSING_RE.match(message)
+    if attribute_missing_match:
+        return {
+            "rule": "missing_attribute",
+            "category": "missing_attribute",
+            "attribute_name": attribute_missing_match.group(1),
+        }
+
+    field_missing_match = IMPORT_LOG_FIELD_MISSING_RE.match(message)
+    if field_missing_match:
+        return {
+            "rule": "missing_field",
+            "category": "missing_field",
+            "field_name": field_missing_match.group(1),
+        }
+
+    field_reference_missing_match = IMPORT_LOG_FIELD_REFERENCE_MISSING_RE.match(message)
+    if field_reference_missing_match:
+        return {
+            "rule": "missing_field_reference",
+            "category": "missing_field_reference",
+            "field_reference": field_reference_missing_match.group(1),
+        }
+
+    layout_missing_match = IMPORT_LOG_LAYOUT_MISSING_RE.match(message)
+    if layout_missing_match:
+        return {
+            "rule": "missing_layout",
+            "category": "missing_layout",
+            "layout_name": layout_missing_match.group(1),
+        }
+
+    script_missing_match = IMPORT_LOG_SCRIPT_MISSING_RE.match(message)
+    if script_missing_match:
+        return {
+            "rule": "missing_script",
+            "category": "missing_script",
+            "script_reference": script_missing_match.group(1),
+        }
+
+    function_missing_match = IMPORT_LOG_FUNCTION_MISSING_RE.match(message)
+    if function_missing_match:
+        return {
+            "rule": "missing_function",
+            "category": "missing_function",
+            "function_reference": function_missing_match.group(1),
+        }
+
+    table_missing_match = IMPORT_LOG_TABLE_MISSING_RE.match(message)
+    if table_missing_match:
+        return {
+            "rule": "missing_table_reference",
+            "category": "missing_table_reference",
+            "table_reference": table_missing_match.group(1),
+        }
+
+    if IMPORT_LOG_UNKNOWN_ERROR_RE.match(message):
+        return {
+            "rule": "unknown_error",
+            "category": "unknown_error",
+        }
+
+    return {
+        "rule": f"import_log_code_{code}",
+        "category": "other",
+    }
+
+
+def _import_issue_label(issue: dict) -> str:
+    labels = {
+        "unknown_attribute_value": "Unknown attribute value",
+        "missing_attribute": "Missing attribute",
+        "missing_field": "Missing field",
+        "missing_field_reference": "Missing field reference",
+        "missing_layout": "Missing layout",
+        "missing_script": "Missing script",
+        "missing_function": "Missing function",
+        "missing_table_reference": "Missing table reference",
+        "unknown_error": "Unknown error",
+        "other": "Other error",
+    }
+    return labels.get(issue.get("category", "other"), "Import error")
+
+
+def _set_current_import_script_name(current_import: dict, parsed: dict):
+    script_name = str(parsed.get("script_name", "") or "").strip()
+    source = str(parsed.get("source", "") or "").strip()
+    database_name = str(current_import.get("database_name", "") or "").strip()
+    if not script_name and source and "::" not in source and source != database_name:
+        script_name = source
+    if script_name:
+        current_import["script_name"] = script_name
+
+
+def _append_import_error_locked(current_import: dict, parsed: dict, issue: dict):
+    errors = current_import.setdefault("errors", [])
+    errors.append(
+        {
+            "timestamp": parsed["timestamp"],
+            "script_name": parsed.get("script_name", ""),
+            "line_number": parsed.get("script_line", ""),
+            "step_name": parsed.get("step_name", ""),
+            "attribute_name": parsed.get("attribute_name", ""),
+            "code": parsed["code"],
+            "rule": issue["rule"],
+            "category": issue["category"],
+            "label": _import_issue_label(issue),
+            "message": parsed["message"],
+            "raw_line": parsed["raw_line"],
+        }
+    )
+
+
+def _append_recent_import_locked(import_summary: dict):
+    recent_imports = _file_watch_state["summary"].setdefault("recent_imports", [])
+    recent_imports.append(import_summary)
+    if len(recent_imports) > FILE_WATCH_MAX_IMPORTS:
+        _file_watch_state["summary"]["recent_imports"] = recent_imports[-FILE_WATCH_MAX_IMPORTS:]
+
+
+def _record_import_lifecycle_event_locked(parsed: dict, rule: str, severity: str, message: str | None = None, **extra) -> dict:
+    event = {
+        "detected_at": _utc_now_iso(),
+        "event_type": "import_log_lifecycle",
+        "rule": rule,
+        "severity": severity,
+        "timestamp": parsed["timestamp"],
+        "source": parsed["source"],
+        "code": parsed["code"],
+        "message": message if message is not None else parsed["message"],
+        "script_name": parsed.get("script_name", ""),
+        "script_line": parsed.get("script_line", ""),
+        "line_number": parsed.get("script_line", ""),
+        "step_name": parsed.get("step_name", ""),
+        "attribute_name": parsed.get("attribute_name", ""),
+        "unknown_value": parsed.get("unknown_value", ""),
+        "raw_line": parsed["raw_line"],
+    }
+    event.update(extra)
+    _record_watch_event_locked(event)
+    return event
+
+
+def _process_import_log_line(line: str, analyzer_type: str) -> list[dict]:
+    parsed = _parse_import_log_line(line)
+    if not parsed:
+        return []
+
+    events = []
+    with _file_watch_lock:
+        summary = _file_watch_state["summary"]
+        message = parsed["message"]
+        code = parsed["code"]
+        source = parsed["source"]
+
+        if message == "Import of script steps from clipboard started":
+            summary["current_import"] = {
+                "source": source,
+                "database_name": source,
+                "started_at": parsed["timestamp"],
+                "error_count": 0,
+                "errors": [],
+            }
+            events.append(
+                _record_import_lifecycle_event_locked(
+                    parsed,
+                    "import_started",
+                    "info",
+                    import_status="running",
+                )
+            )
+
+        if "imported_steps" in parsed:
+            current_import = summary.get("current_import") or {}
+            if not current_import:
+                current_import = {
+                    "source": source,
+                    "database_name": source,
+                    "started_at": parsed["timestamp"],
+                    "error_count": 0,
+                    "errors": [],
+                }
+            _set_current_import_script_name(current_import, parsed)
+            current_import["imported_steps"] = parsed["imported_steps"]
+            summary["current_import"] = current_import
+            events.append(
+                _record_import_lifecycle_event_locked(
+                    parsed,
+                    "import_steps_imported",
+                    "info",
+                    import_status="running",
+                    imported_steps=parsed["imported_steps"],
+                )
+            )
+
+        if message == "Import completed":
+            current_import = dict(summary.get("current_import") or {})
+            completed_import = {}
+            if current_import:
+                current_import["completed_at"] = parsed["timestamp"]
+                current_import["status"] = "with_errors" if int(current_import.get("error_count", 0)) > 0 else "ok"
+                summary["last_completed_import"] = current_import
+                summary["imports_total"] = int(summary.get("imports_total", 0)) + 1
+                if current_import["status"] == "with_errors":
+                    summary["imports_with_errors"] = int(summary.get("imports_with_errors", 0)) + 1
+                else:
+                    summary["imports_without_errors"] = int(summary.get("imports_without_errors", 0)) + 1
+                _append_recent_import_locked(current_import)
+                completed_import = current_import
+            summary["current_import"] = {}
+            events.append(
+                _record_import_lifecycle_event_locked(
+                    parsed,
+                    "import_completed",
+                    "warn" if int(completed_import.get("error_count", 0)) > 0 else "info",
+                    message=(
+                        f"Import completed with {int(completed_import.get('error_count', 0))} errors."
+                        if completed_import
+                        else "Import completed."
+                    ),
+                    source=completed_import.get("source", source),
+                    database_name=completed_import.get("database_name", source),
+                    script_name=completed_import.get("script_name", ""),
+                    import_status=completed_import.get("status", "unknown"),
+                    imported_steps=completed_import.get("imported_steps"),
+                    error_count=int(completed_import.get("error_count", 0)),
+                )
+            )
+
+        if code == "0":
+            return events
+
+        if analyzer_type == "import_log_unknown_attributes" and "unknown_value" not in parsed:
+            return events
+
+        issue = _classify_import_log_issue(parsed)
+        current_import = summary.get("current_import") or {}
+        if current_import:
+            _set_current_import_script_name(current_import, parsed)
+            _append_import_error_locked(current_import, parsed, issue)
+            summary["current_import"] = current_import
+        event = {
+            "detected_at": _utc_now_iso(),
+            "event_type": "import_log_issue",
+            "rule": issue["rule"],
+            "severity": "error",
+            "timestamp": parsed["timestamp"],
+            "source": source,
+            "code": code,
+            "category": issue["category"],
+            "label": _import_issue_label(issue),
+            "message": message,
+            "script_name": parsed.get("script_name", ""),
+            "script_line": parsed.get("script_line", ""),
+            "line_number": parsed.get("script_line", ""),
+            "step_name": parsed.get("step_name", ""),
+            "attribute_name": parsed.get("attribute_name", ""),
+            "unknown_value": parsed.get("unknown_value", ""),
+            "raw_line": parsed["raw_line"],
+        }
+        event.update(issue)
+        _record_watch_event_locked(event)
+        events.append(event)
+
+    return events
+
+
+def _process_regex_line(line: str, analyzer_runtime: dict) -> list[dict]:
+    events = []
+    for rule in analyzer_runtime["rules"]:
+        match = rule["compiled"].search(line)
+        if not match:
+            continue
+        event = {
+            "detected_at": _utc_now_iso(),
+            "event_type": "regex_match",
+            "rule": rule["name"],
+            "severity": rule["severity"],
+            "message": line,
+            "groups": match.groupdict() or {str(index): value for index, value in enumerate(match.groups(), start=1)},
+            "raw_line": line,
+        }
+        with _file_watch_lock:
+            _record_watch_event_locked(event)
+        events.append(event)
+    return events
+
+
+def _process_watch_lines(lines: list[str], analyzer_runtime: dict) -> list[dict]:
+    events = []
+    import_log_lines = []
+    for line in lines:
+        stripped = line.rstrip("\r\n")
+        if not stripped:
+            continue
+        if analyzer_runtime["type"] in ("import_log", "import_log_unknown_attributes"):
+            if _parse_import_log_line(stripped):
+                import_log_lines.append(stripped)
+            elif import_log_lines:
+                import_log_lines[-1] = f"{import_log_lines[-1]}\n{stripped}"
+        elif analyzer_runtime["type"] == "regex":
+            events.extend(_process_regex_line(stripped, analyzer_runtime))
+    if analyzer_runtime["type"] in ("import_log", "import_log_unknown_attributes"):
+        for import_log_line in import_log_lines:
+            events.extend(_process_import_log_line(import_log_line, analyzer_runtime["type"]))
+    return events
+
+
+def _watch_file_loop(path: str, poll_interval: float, start_at_end: bool, analyzer_runtime: dict, stop_event: threading.Event):
+    carryover = ""
+
+    while True:
+        if stop_event.wait(poll_interval):
+            return
+
+        file_exists = os.path.exists(path)
+        now = _utc_now_iso()
+        with _file_watch_lock:
+            file_exists_changed = _file_watch_state["file_exists"] != file_exists
+            _file_watch_state["last_checked_at"] = now
+            _file_watch_state["file_exists"] = file_exists
+            if file_exists_changed:
+                _bump_file_watch_revision_locked()
+
+        if not file_exists:
+            continue
+
+        try:
+            with _file_watch_lock:
+                current_offset = _file_watch_state["offset"]
+            file_size = os.path.getsize(path)
+
+            if current_offset is not None and file_size < current_offset:
+                carryover = ""
+                with _file_watch_lock:
+                    _file_watch_state["offset"] = 0
+                current_offset = 0
+                log.info("File watch reset offset after truncation: %s", path)
+
+            with open(path, "r", encoding="utf-8", errors="replace") as f:
+                if current_offset is None:
+                    if start_at_end:
+                        f.seek(0, os.SEEK_END)
+                        new_offset = f.tell()
+                        with _file_watch_lock:
+                            _file_watch_state["offset"] = new_offset
+                        log.info("File watch attached to %s at end of file", path)
+                        continue
+                    current_offset = 0
+
+                f.seek(current_offset)
+                chunk = f.read()
+                new_offset = f.tell()
+
+            if new_offset == current_offset:
+                continue
+
+            text = carryover + chunk
+            split_lines = text.splitlines(keepends=True)
+            complete_lines = []
+            carryover = ""
+            for index, split_line in enumerate(split_lines):
+                is_last = index == len(split_lines) - 1
+                if is_last and not split_line.endswith(("\n", "\r")):
+                    carryover = split_line
+                else:
+                    complete_lines.append(split_line)
+
+            with _file_watch_lock:
+                _file_watch_state["offset"] = new_offset
+                _file_watch_state["last_change_at"] = now
+                _bump_file_watch_revision_locked()
+
+            events = _process_watch_lines(complete_lines, analyzer_runtime)
+            for event in events:
+                if event["event_type"] == "import_log_issue":
+                    log.warning(
+                        "File watch match [%s]: script=%s line=%s step=%s attribute=%s value=%s message=%s",
+                        event["rule"],
+                        event.get("script_name", ""),
+                        event.get("script_line", ""),
+                        event.get("step_name", ""),
+                        event.get("attribute_name", ""),
+                        event.get("unknown_value", ""),
+                        event.get("message", ""),
+                    )
+                else:
+                    log.warning(
+                        "File watch match [%s]: %s",
+                        event["rule"],
+                        event.get("message", ""),
+                    )
+        except Exception as exc:
+            with _file_watch_lock:
+                _file_watch_state["last_error"] = str(exc)
+                _bump_file_watch_revision_locked()
+            log.warning("File watch error for %s: %s", path, exc)
+
+
+def _stop_file_watch() -> bool:
+    global _file_watch_thread, _file_watch_stop_event
+    thread = None
+    with _file_watch_lock:
+        if _file_watch_stop_event is not None:
+            _file_watch_stop_event.set()
+        thread = _file_watch_thread
+
+    if thread is not None:
+        thread.join(timeout=2)
+
+    with _file_watch_lock:
+        was_running = _file_watch_state["running"]
+        _file_watch_thread = None
+        _file_watch_stop_event = None
+        _file_watch_state["running"] = False
+        _bump_file_watch_revision_locked()
+
+    return was_running
+
+
+def _start_file_watch(path: str, poll_interval: float, start_at_end: bool, analyzer_config: dict) -> dict:
+    global _file_watch_thread, _file_watch_stop_event
+
+    _stop_file_watch()
+
+    expanded_path = os.path.expanduser(path)
+    analyzer_runtime = _build_analyzer_runtime(analyzer_config)
+    initial_offset = None
+    if os.path.exists(expanded_path):
+        with open(expanded_path, "r", encoding="utf-8", errors="replace") as f:
+            if start_at_end:
+                f.seek(0, os.SEEK_END)
+                initial_offset = f.tell()
+            else:
+                initial_offset = 0
+
+    stop_event = threading.Event()
+    thread = threading.Thread(
+        target=_watch_file_loop,
+        args=(expanded_path, poll_interval, start_at_end, analyzer_runtime, stop_event),
+        daemon=True,
+    )
+
+    with _file_watch_lock:
+        _file_watch_stop_event = stop_event
+        _file_watch_thread = thread
+        _file_watch_state["running"] = True
+        _file_watch_state["path"] = expanded_path
+        _file_watch_state["poll_interval"] = poll_interval
+        _file_watch_state["start_at_end"] = start_at_end
+        _file_watch_state["started_at"] = _utc_now_iso()
+        _file_watch_state["last_checked_at"] = None
+        _file_watch_state["last_change_at"] = None
+        _file_watch_state["last_event_at"] = None
+        _file_watch_state["offset"] = initial_offset
+        _file_watch_state["file_exists"] = os.path.exists(expanded_path)
+        _file_watch_state["revision"] = 0
+        _file_watch_state["analyzer"] = _clone_jsonable(analyzer_config)
+        _file_watch_state["summary"] = _new_file_watch_summary()
+        _file_watch_state["recent_events"] = []
+        _file_watch_state["last_error"] = ""
+        _bump_file_watch_revision_locked()
+
+    thread.start()
+    return _snapshot_file_watch_state()
+
+
+def _resolve_import_log_path(payload: dict) -> dict:
+    explicit_path = payload.get("import_log_path", "")
+    if explicit_path:
+        return {
+            "location": "explicit",
+            "path": os.path.expanduser(explicit_path),
+        }
+
+    database_path = payload.get("database_path", "")
+    database_dir = payload.get("database_dir", "")
+    location = str(payload.get("location", "") or payload.get("mode", "")).strip().lower()
+    if not location:
+        location = "local" if database_path or database_dir else "server"
+
+    if location == "server":
+        documents_dir = os.path.expanduser(payload.get("documents_dir") or _default_documents_dir())
+        return {
+            "location": "server",
+            "path": os.path.join(documents_dir, "Import.log"),
+        }
+
+    if location == "local":
+        local_root = database_dir or database_path
+        if not local_root:
+            raise ValueError("database_path or database_dir is required when location is local")
+        expanded_local_root = os.path.expanduser(local_root)
+        if database_dir:
+            resolved_database_dir = expanded_local_root
+        elif expanded_local_root.endswith(os.sep) or os.path.isdir(expanded_local_root):
+            resolved_database_dir = expanded_local_root
+        elif expanded_local_root.lower().endswith(".fmp12"):
+            resolved_database_dir = os.path.dirname(expanded_local_root)
+        elif "." not in os.path.basename(expanded_local_root):
+            resolved_database_dir = expanded_local_root
+        else:
+            resolved_database_dir = os.path.dirname(expanded_local_root)
+        if not resolved_database_dir:
+            resolved_database_dir = os.getcwd()
+        return {
+            "location": "local",
+            "path": os.path.join(resolved_database_dir, "Import.log"),
+        }
+
+    raise ValueError("location must be server or local")
+
+
+def _build_watch_ui_html() -> str:
+    ui_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "companion_watch_ui.html")
+    with open(ui_path, "r", encoding="utf-8") as f:
+        return f.read()
 
 
 def _stream_pipe(pipe, level, prefix, output_buffer, state):
@@ -161,12 +1112,19 @@ class ThreadingHTTPServer(ThreadingMixIn, HTTPServer):
     """HTTPServer with thread-per-request concurrency."""
     daemon_threads = True
 
+    def handle_error(self, request, client_address):
+        error = sys.exc_info()[1]
+        if isinstance(error, (BrokenPipeError, ConnectionResetError)):
+            return
+        super().handle_error(request, client_address)
+
 
 # ---------------------------------------------------------------------------
 # Request handler
 # ---------------------------------------------------------------------------
 
 class CompanionHandler(BaseHTTPRequestHandler):
+    protocol_version = "HTTP/1.1"
 
     def log_message(self, fmt, *args):
         """Route access log through the standard logger."""
@@ -177,33 +1135,49 @@ class CompanionHandler(BaseHTTPRequestHandler):
     # ------------------------------------------------------------------
 
     def do_GET(self):
-        if self.path == "/health":
+        path = urllib.parse.urlparse(self.path).path
+        if path == "/health":
             self._handle_health()
-        elif self.path == "/pending":
+        elif path == "/pending":
             self._handle_pending_get()
-        elif self.path == "/webviewer/status":
+        elif path == "/watch/status":
+            self._handle_watch_status()
+        elif path == "/watch/results":
+            self._handle_watch_results()
+        elif path == "/watch/stream":
+            self._handle_watch_stream()
+        elif path == "/watch/ui":
+            self._handle_watch_ui()
+        elif path == "/webviewer/status":
             self._handle_webviewer_status()
         else:
             self._send_json({"error": "Not found"}, status=404)
 
     def do_POST(self):
-        if self.path == "/explode":
+        path = urllib.parse.urlparse(self.path).path
+        if path == "/explode":
             self._handle_explode()
-        elif self.path == "/context":
+        elif path == "/context":
             self._handle_context()
-        elif self.path == "/debug":
+        elif path == "/debug":
             self._handle_debug()
-        elif self.path == "/clipboard":
+        elif path == "/clipboard":
             self._handle_clipboard()
-        elif self.path == "/trigger":
+        elif path == "/trigger":
             self._handle_trigger()
-        elif self.path == "/pending":
+        elif path == "/pending":
             self._handle_pending_post()
-        elif self.path == "/webviewer/start":
+        elif path == "/watch/import-log/start":
+            self._handle_watch_import_log_start()
+        elif path == "/watch/pick-path":
+            self._handle_watch_pick_path()
+        elif path == "/watch/stop":
+            self._handle_watch_stop()
+        elif path == "/webviewer/start":
             self._handle_webviewer_start()
-        elif self.path == "/webviewer/stop":
+        elif path == "/webviewer/stop":
             self._handle_webviewer_stop()
-        elif self.path == "/webviewer/push":
+        elif path == "/webviewer/push":
             self._handle_webviewer_push()
         elif self.path == "/lint":
             self._handle_lint()
@@ -216,6 +1190,128 @@ class CompanionHandler(BaseHTTPRequestHandler):
 
     def _handle_health(self):
         self._send_json({"status": "ok", "version": VERSION})
+
+    def _handle_watch_status(self):
+        self._send_json(_snapshot_file_watch_state())
+
+    def _handle_watch_results(self):
+        self._send_json(_current_watch_results_payload())
+
+    def _handle_watch_stream(self):
+        self.send_response(200)
+        self.send_header("Content-Type", "text/event-stream; charset=utf-8")
+        self.send_header("Cache-Control", "no-cache")
+        self.send_header("Connection", "keep-alive")
+        self.end_headers()
+
+        last_revision = -1
+        try:
+            while True:
+                with _file_watch_lock:
+                    current_revision = _file_watch_state.get("revision", 0)
+                    if current_revision == last_revision:
+                        _file_watch_condition.wait(timeout=15)
+                        current_revision = _file_watch_state.get("revision", 0)
+                    payload = _watch_results_payload_from_state(_clone_jsonable(_file_watch_state))
+
+                if current_revision == last_revision:
+                    self._send_sse_event("ping", {"timestamp": _utc_now_iso()})
+                    continue
+
+                self._send_sse_event("results", payload, event_id=current_revision)
+                last_revision = current_revision
+        except (BrokenPipeError, ConnectionResetError, TimeoutError, socket.timeout, OSError):
+            return
+
+    def _handle_watch_ui(self):
+        self._send_html(_build_watch_ui_html())
+
+    def _handle_watch_import_log_start(self):
+        try:
+            body = self._read_body()
+            payload = json.loads(body) if body else {}
+        except (ValueError, OSError) as exc:
+            self._send_json({"success": False, "exit_code": -1, "error": f"Invalid request: {exc}"}, status=400)
+            return
+
+        try:
+            poll_interval = float(payload.get("poll_interval", FILE_WATCH_POLL_INTERVAL_SECONDS))
+        except (TypeError, ValueError):
+            self._send_json({"success": False, "exit_code": -1, "error": "poll_interval must be a number"}, status=400)
+            return
+
+        if poll_interval <= 0:
+            self._send_json({"success": False, "exit_code": -1, "error": "poll_interval must be greater than 0"}, status=400)
+            return
+
+        start_at_end = bool(payload.get("start_at_end", True))
+
+        try:
+            resolved = _resolve_import_log_path(payload)
+            analyzer_config = _normalize_analyzer_config(payload.get("analyzer", "import_log"))
+            state = _start_file_watch(resolved["path"], poll_interval, start_at_end, analyzer_config)
+        except ValueError as exc:
+            self._send_json({"success": False, "exit_code": -1, "error": str(exc)}, status=400)
+            return
+        except Exception as exc:
+            log.exception("Failed to start Import.log watch: %s", exc)
+            self._send_json({"success": False, "exit_code": -1, "error": str(exc)}, status=500)
+            return
+
+        log.info(
+            "Import.log watch started: location=%s path=%s analyzer=%s",
+            resolved["location"],
+            state["path"],
+            state["analyzer"]["type"],
+        )
+        self._send_json(
+            {
+                "success": True,
+                "location": resolved["location"],
+                "resolved_path": state["path"],
+                "watch": state,
+            }
+        )
+
+    def _handle_watch_pick_path(self):
+        try:
+            body = self._read_body()
+            payload = json.loads(body) if body else {}
+        except (ValueError, OSError) as exc:
+            self._send_json({"success": False, "error": f"Invalid request: {exc}"}, status=400)
+            return
+
+        selection_type = str(payload.get("selection_type", "file") or "file").strip().lower()
+        initial_path = str(payload.get("initial_path", "") or "")
+        title = str(payload.get("title", "") or "")
+
+        try:
+            selected_path = _open_path_dialog(selection_type, initial_path=initial_path, title=title)
+        except ValueError as exc:
+            self._send_json({"success": False, "error": str(exc)}, status=400)
+            return
+        except Exception as exc:
+            log.exception("Failed to open watch path picker: %s", exc)
+            self._send_json({"success": False, "error": str(exc)}, status=500)
+            return
+
+        self._send_json(
+            {
+                "success": True,
+                "selected_path": selected_path,
+                "cancelled": not bool(selected_path),
+            }
+        )
+
+    def _handle_watch_stop(self):
+        try:
+            self._read_body()
+        except OSError:
+            pass
+        was_running = _stop_file_watch()
+        if was_running:
+            log.info("File watch stopped")
+        self._send_json({"success": True, "status": "stopped" if was_running else "not_running"})
 
     def _handle_explode(self):
         # Read and parse request body
@@ -704,6 +1800,30 @@ class CompanionHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _send_html(self, html_body: str, status: int = 200):
+        body = html_body.encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _send_sse_event(self, event_name: str, data, event_id=None):
+        if isinstance(data, str):
+            payload = data
+        else:
+            payload = json.dumps(data, ensure_ascii=False)
+        chunks = []
+        if event_id is not None:
+            chunks.append(f"id: {event_id}\n")
+        if event_name:
+            chunks.append(f"event: {event_name}\n")
+        for line in payload.splitlines() or [""]:
+            chunks.append(f"data: {line}\n")
+        chunks.append("\n")
+        self.wfile.write("".join(chunks).encode("utf-8"))
+        self.wfile.flush()
+
 
 # ---------------------------------------------------------------------------
 # Entry point
@@ -744,21 +1864,35 @@ def parse_args():
     return parser.parse_args()
 
 
+def _format_local_url(host: str, port: int, path: str = "") -> str:
+    display_host = (host or "127.0.0.1").strip()
+    if display_host in {"0.0.0.0", "::", ""}:
+        display_host = "127.0.0.1"
+    if ":" in display_host and not display_host.startswith("["):
+        display_host = f"[{display_host}]"
+    normalized_path = path if path.startswith("/") or not path else f"/{path}"
+    return f"http://{display_host}:{port}{normalized_path}"
+
+
 def main():
     args = parse_args()
-    port = args.port
+    requested_port = args.port
 
-    server = ThreadingHTTPServer((BIND_HOST, port), CompanionHandler)
+    server = ThreadingHTTPServer((BIND_HOST, requested_port), CompanionHandler)
+    actual_port = int(server.server_address[1])
+    watch_ui_url = _format_local_url(BIND_HOST, actual_port, "/watch/ui")
 
-    log.info("companion_server v%s listening on %s:%d", VERSION, BIND_HOST, port)
+    log.info("companion_server v%s listening on %s:%d", VERSION, BIND_HOST, actual_port)
+    log.info("Watch UI: %s", watch_ui_url)
     threading.Thread(target=_check_for_updates, daemon=True).start()
-    log.info("Endpoints: GET /health  GET /webviewer/status  POST /explode  POST /context  POST /clipboard  POST /trigger  POST /debug  POST /webviewer/start  POST /webviewer/stop  POST /webviewer/push")
+    log.info("Endpoints: GET /health  GET /pending  GET /watch/status  GET /watch/results  GET /watch/stream  GET /watch/ui  GET /webviewer/status  POST /explode  POST /context  POST /clipboard  POST /trigger  POST /debug  POST /pending  POST /watch/import-log/start  POST /watch/pick-path  POST /watch/stop  POST /webviewer/start  POST /webviewer/stop  POST /webviewer/push")
     log.info("Press Ctrl-C to stop.")
 
     try:
         server.serve_forever()
     except KeyboardInterrupt:
         log.info("Shutting down.")
+        _stop_file_watch()
         server.server_close()
         with _webviewer_lock:
             if _webviewer_proc is not None and _webviewer_proc.poll() is None:
