@@ -619,6 +619,43 @@ def tx_get_file_size(step) -> str:
     return '\n'.join(parts)
 
 
+def tx_save_copy_as_xml(step) -> str:
+    """Save a Copy as XML — emits Option, UniversalPathList, Calculation.
+
+    Generic translator drops UniversalPathList (text type doesn't reach
+    into <Location>) and flagBoolean (no branch). Hand-coded.
+    """
+    enable, sid = step_attrs(step)
+    path_text = ''
+    window_calc = ''
+    option_state = 'False'
+
+    for p in all_params(step):
+        ptype = p.get('type', '')
+        if ptype == 'UniversalPathList':
+            upl = p.find('UniversalPathList')
+            if upl is not None:
+                loc = upl.find('ObjectList/Location')
+                if loc is not None:
+                    path_text = loc.text or ''
+        elif ptype == 'Calculation':
+            window_calc = _extract_saxml_calc(p)
+        elif ptype == 'Boolean':
+            binfo = _extract_saxml_boolean(p)
+            if binfo:
+                _, val = binfo
+                option_state = val
+
+    parts = [
+        f'{S}<Step enable="{enable}" id="{sid}" name="Save a Copy as XML">',
+        f'{L1}<Option state="{option_state}"/>',
+        f'{L1}<UniversalPathList>{escape_xml(path_text)}</UniversalPathList>',
+        f'{L1}<Calculation>{cdata(window_calc)}</Calculation>',
+        f'{S}</Step>',
+    ]
+    return '\n'.join(parts)
+
+
 def tx_insert_file(step) -> str:
     enable, sid = step_attrs(step)
     path_text = ''
@@ -1778,6 +1815,7 @@ TRANSLATORS = {
     'Go to Layout':                       tx_go_to_layout,
     'Set Web Viewer':                     tx_set_web_viewer,
     'Get File Size':                      tx_get_file_size,
+    'Save a Copy as XML':                 tx_save_copy_as_xml,
     'Insert File':                        tx_insert_file,
     'Perform JavaScript in Web Viewer':   tx_perform_js_in_web_viewer,
     'Create Data File':                   tx_create_data_file,
