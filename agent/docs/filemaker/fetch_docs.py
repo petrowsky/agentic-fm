@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from __future__ import annotations
 """
 Fetch FileMaker Pro reference documentation from the Claris help site.
 

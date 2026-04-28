@@ -234,6 +234,10 @@ def _render_params(step):
                 if layout_ref is not None:
                     lname = layout_ref.get('name', '')
                     parts.append(f'"{lname}"')
+                else:
+                    label_el = container_el.find('Label')
+                    if label_el is not None and label_el.text:
+                        parts.append(label_el.text)
 
         # ── Animation ─────────────────────────────────────────────────────────
         elif ptype == 'Animation':
