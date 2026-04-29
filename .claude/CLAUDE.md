@@ -248,6 +248,48 @@ grep -A 60 '"name": "Step Name"' "agent/catalogs/step-catalog-en.json"
 - Look up the step by name, use the `hrSignature` field for the parameter format
 - If `hrSignature` is null, fall back to reading the archival snippet_examples file
 
+# Communicating with the developer
+
+These conventions apply to any AI agent regardless of tool. They've each been the source of recurring mistakes — promote them to working memory before starting a task.
+
+## Use FM Script Workspace step row numbers, NOT HR `.txt` line numbers
+
+When asking the developer to verify a step in FileMaker's Script Workspace, give the **FM editor row number**, not the HR file line number. The two diverge — the HR file unfolds multi-line steps (especially the disabled `// Insert Text` README block at the top of agentic-fm scripts) across many text lines, while FM's editor shows each step as a single row.
+
+To convert an HR line to an FM row, count non-tab-indented lines up to and including the target. Each non-tab line is one FM row (including blank lines = blank `# (comment)` steps). Tab-indented lines are continuation lines of multi-line calcs/params and don't get their own row.
+
+```bash
+# HR line N → FM row count
+awk 'NR<=N && /^[^\t]/' <hr-file> | wc -l
+```
+
+HR line numbers ARE still fine for grep/diff/code review citations — file-based references, not editor references. Cite both when both apply: `Exit Script at HR line 44 / FM row 19`.
+
+## Always resolve real script names from `scripts.index`
+
+The macOS filesystem strips characters that aren't legal in filenames, so the sanitized `.txt` filename in `agent/xml_parsed/scripts_sanitized/` may NOT match the real script name in FM:
+
+| Real name in FM | Sanitized filename |
+|---|---|
+| `DOJO: Create API Log` | `DOJO_ Create API Log - ID *.txt` |
+| `Facebook: Email Campaigns` | `Facebook_ Email Campaigns - ID *.txt` |
+| `Account \| Active Cases` | `Account _ Active Cases - ID *.txt` |
+
+Before passing a script name to `deploy.py`, `MBS OpenScript`, or quoting one in a message to the developer, **resolve the real name from `agent/context/<solution>/scripts.index`** (pipe-delimited; first column is the real name). Pass the sanitized name to the deploy chain and it silently fails to find the script.
+
+```bash
+grep "^DOJO" "agent/context/<solution>/scripts.index"
+# DOJO: Create API Log|236|LOG     ← real name | ID | folder
+```
+
+## "Perform Script — Specified: From list" is the hardcoded variant
+
+The `From list` source for `Perform Script` is the static / hardcoded variant — the called script is baked into the step at design time. Do NOT flag it as a "calculated specifier" or dependency-visibility issue when reviewing scripts; it's a known FM idiom, equivalent to a direct function call.
+
+## `# (comment)` steps support multi-line text
+
+`# (comment)` steps in FM can hold multi-line text — Option-Return adds line breaks within a single comment. Don't claim comments are single-line when describing FM script structure (e.g. when explaining `$README` blocks).
+
 # Clipboard
 
 FileMaker objects are transferred via the macOS clipboard using proprietary binary descriptor classes — **not** plain text. Never use `pbpaste` or `pbcopy`; they corrupt multi-byte UTF-8 characters.
