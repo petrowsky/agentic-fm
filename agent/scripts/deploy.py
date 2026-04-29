@@ -255,14 +255,31 @@ def _switch_to_document(
         f'            click menu item "[Standard FileMaker Menus]" of menu "Custom Menus" of menu item "Custom Menus" of menu "Tools" of menu bar 1\n'
         f'            delay 0.3\n'
         f'        end try\n'
-        # Click the target file in the Window menu
+        # Click the target file in the Window menu (visible files).
+        # Anchored matching: `name contains "A2X_General"` would also match
+        # "A2X_General_data" — use exact / prefix-with-space-paren match instead.
+        # Also exclude Script Workspace entries — they sort first and would
+        # be picked instead of the database window.
+        f'        set _switched to false\n'
         f'        try\n'
-        f'            set _menuItems to every menu item of menu "Window" of menu bar 1 whose name contains "{_esc(target_file)}"\n'
+        f'            set _menuItems to every menu item of menu "Window" of menu bar 1 whose (name is "{_esc(target_file)}" or name starts with "{_esc(target_file)} (") and name does not start with "Script Workspace "\n'
         f'            if (count of _menuItems) > 0 then\n'
         f'                click (item 1 of _menuItems)\n'
         f'                delay 0.5\n'
+        f'                set _switched to true\n'
         f'            end if\n'
         f'        end try\n'
+        # Fallback: hidden files live in Window > Show Window submenu.
+        # Click to unhide and bring forward.
+        f'        if not _switched then\n'
+        f'            try\n'
+        f'                set _showItems to every menu item of menu "Show Window" of menu item "Show Window" of menu "Window" of menu bar 1 whose (name is "{_esc(target_file)}" or name starts with "{_esc(target_file)} (")\n'
+        f'                if (count of _showItems) > 0 then\n'
+        f'                    click (item 1 of _showItems)\n'
+        f'                    delay 0.7\n'
+        f'                end if\n'
+        f'            end try\n'
+        f'        end if\n'
         f'    end tell\n'
         f'end tell\n'
     )
@@ -648,15 +665,26 @@ def _tier3(
             f'            delay 0.3\n'
             f'        end try\n'
             # Use Window menu to bring the target file's window to front.
-            # Menu item name is the window title which may differ from
-            # the file name, but typically contains it.
+            # Anchored matching avoids prefix collisions (e.g. A2X_General vs
+            # A2X_General_data). Show Window submenu fallback for hidden files.
+            f'        set _switched to false\n'
             f'        try\n'
-            f'            set _menuItems to every menu item of menu "Window" of menu bar 1 whose name contains "{_esc(target_file)}"\n'
+            f'            set _menuItems to every menu item of menu "Window" of menu bar 1 whose (name is "{_esc(target_file)}" or name starts with "{_esc(target_file)} (") and name does not start with "Script Workspace "\n'
             f'            if (count of _menuItems) > 0 then\n'
             f'                click (item 1 of _menuItems)\n'
             f'                delay 0.5\n'
+            f'                set _switched to true\n'
             f'            end if\n'
             f'        end try\n'
+            f'        if not _switched then\n'
+            f'            try\n'
+            f'                set _showItems to every menu item of menu "Show Window" of menu item "Show Window" of menu "Window" of menu bar 1 whose (name is "{_esc(target_file)}" or name starts with "{_esc(target_file)} (")\n'
+            f'                if (count of _showItems) > 0 then\n'
+            f'                    click (item 1 of _showItems)\n'
+            f'                    delay 0.7\n'
+            f'                end if\n'
+            f'            end try\n'
+            f'        end if\n'
             # Now the target file is frontmost — switch its menus to
             # standard too (it may have its own custom menu set)
             f'        try\n'
