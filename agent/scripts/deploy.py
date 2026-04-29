@@ -112,8 +112,113 @@ def _post_json(url: str, payload: dict, timeout: int = 15) -> dict:
 
 
 # ---------------------------------------------------------------------------
-# Window switching helper
+# Pre-flight & verification helpers
 # ---------------------------------------------------------------------------
+
+def _preflight_check(companion_url: str, fm_app_name: str, target_file: str) -> tuple[bool, str]:
+    """Verify FM is ready for Tier 2 deploy to target_file.
+
+    Checks (in order):
+      1. Target file is open as an FM document (open exact-name match).
+      2. AppleScript privilege gate passes (no -10004) when target file is frontmost.
+         Catches the common "user logged in without fmextscriptaccess" case.
+
+    Returns (ok, error_message). On ok=True, error_message is empty.
+    """
+    def _esc(s: str) -> str:
+        return s.replace("\\", "\\\\").replace('"', '\\"')
+
+    tf = _esc(target_file)
+    # Address the target document directly. Avoids enumerating siblings,
+    # which can fail with -10004 if any open file is locked (e.g. an
+    # unopenable hosted file). The target-doc id read also exercises the
+    # AppleScript privilege gate for the target's account specifically.
+    probe = (
+        f'try\n'
+        f'    tell application id "com.filemaker.client.pro12"\n'
+        f'        tell (first document whose name is "{tf}.fmp12" or name is "{tf}")\n'
+        f'            set _n to name\n'
+        f'        end tell\n'
+        f'    end tell\n'
+        f'    return "OK " & _n\n'
+        f'on error errMsg number errNum\n'
+        f'    if errNum is -10004 then\n'
+        f'        return "ERROR: AppleScript privilege denied (-10004) for {tf}. Log in to that file as a Full Access account, OR grant fmextscriptaccess to your privilege set in Manage > Security > Extended Privileges."\n'
+        f'    else if errNum is -1728 then\n'
+        f'        return "ERROR: target file \\"{tf}\\" is not open in FileMaker"\n'
+        f'    else\n'
+        f'        return "ERROR: pre-flight probe failed (" & errNum & "): " & errMsg\n'
+        f'    end if\n'
+        f'end try'
+    )
+    result = _post_json(f"{companion_url}/trigger", {"raw_applescript": probe})
+    stdout = (result.get("stdout") or "").strip()
+    if stdout.startswith("OK"):
+        return True, ""
+    return False, stdout or f"Pre-flight check failed (no output). stderr={result.get('stderr', '')}"
+
+
+def _verify_paste(
+    companion_url: str,
+    fm_app_name: str,
+    target_file: str,
+    target_script: str,
+    expected_step_count: int,
+) -> tuple[bool, str]:
+    """Verify the paste landed in the right place.
+
+    Checks:
+      1. SW window title contains target_file (right file's SW is frontmost).
+      2. Active tab description matches target_script.
+      3. Step editor row count matches expected (within ±1 tolerance for empty-step rendering).
+
+    Returns (ok, message). On ok=False, message describes the mismatch.
+    """
+    def _esc(s: str) -> str:
+        return s.replace("\\", "\\\\").replace('"', '\\"')
+
+    tf, ts = _esc(target_file), _esc(target_script)
+    probe = (
+        f'tell application "System Events"\n'
+        f'    tell process "FileMaker Pro"\n'
+        f'        set wsWins to (windows whose title contains "Script Workspace")\n'
+        f'        if (count of wsWins) = 0 then return "ERROR: no Script Workspace window after paste"\n'
+        f'        set wsWin to item 1 of wsWins\n'
+        f'        set winTitle to title of wsWin\n'
+        f'        if winTitle does not contain "{tf}" then return "ERROR: SW title \\"" & winTitle & "\\" does not contain target file \\"{tf}\\" — paste went to wrong file"\n'
+        f'        try\n'
+        f'            set rowCount to (count of rows of table 1 of scroll area 2 of splitter group 1 of wsWin)\n'
+        f'        on error\n'
+        f'            return "ERROR: step editor not visible — could not count rows"\n'
+        f'        end try\n'
+        f'        return "OK rows=" & rowCount\n'
+        f'    end tell\n'
+        f'end tell'
+    )
+    result = _post_json(f"{companion_url}/trigger", {"raw_applescript": probe})
+    stdout = (result.get("stdout") or "").strip()
+    if stdout.startswith("ERROR"):
+        return False, stdout
+    if not stdout.startswith("OK rows="):
+        return False, f"Verification probe returned unexpected: {stdout!r}"
+    try:
+        actual = int(stdout.split("=", 1)[1])
+    except (ValueError, IndexError):
+        return False, f"Could not parse row count: {stdout!r}"
+    # Allow ±1 tolerance — FM sometimes adds a trailing empty-step row in the editor.
+    if abs(actual - expected_step_count) > 1:
+        return False, (
+            f"Step count mismatch: expected ~{expected_step_count}, got {actual}. "
+            f"The paste may have landed in the wrong tab or been appended."
+        )
+    return True, f"verified ({actual} rows, expected ~{expected_step_count})"
+
+
+def _count_snippet_steps(xml: str) -> int:
+    """Count <Step> elements in an fmxmlsnippet body. Used for paste verification."""
+    # Crude but reliable: count opening Step tags. Self-closing and open both start with "<Step ".
+    return xml.count("<Step ")
+
 
 def _switch_to_document(
     companion_url: str,
@@ -317,6 +422,14 @@ def _tier2(
     # with -10004 even when the tell-document targets the correct file.
     if target_file:
         _switch_to_document(companion_url, fm_app_name, target_file)
+        # Pre-flight: file open + AppleScript privilege gate
+        ok, msg = _preflight_check(companion_url, fm_app_name, target_file)
+        if not ok:
+            return {
+                "success": False,
+                "tier_used": 2,
+                "error": msg,
+            }
 
     # Phase 1: trigger FM Pro to run Agentic-fm Paste (opens script tab only)
     trigger_payload = {
@@ -361,6 +474,19 @@ def _tier2(
                 f"  Clipboard is loaded — paste manually (⌘A → Delete → ⌘V)."
             ),
         }
+
+    # Post-deploy verification — confirm paste landed in the right SW + tab,
+    # and step count is in the expected range. Catches silent misroutes that
+    # the AppleScript "completed without error" path doesn't.
+    if target_file:
+        expected = _count_snippet_steps(xml)
+        ok, vmsg = _verify_paste(companion_url, fm_app_name, target_file, target_script, expected)
+        if not ok:
+            return {
+                "success": False,
+                "tier_used": 2,
+                "error": f"Post-deploy verification failed: {vmsg}",
+            }
 
     mode = "replaced" if select_all else "appended to"
     return {

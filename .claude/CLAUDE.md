@@ -182,7 +182,7 @@ The developer always works in **human-readable (HR) script format**. The agent's
 **MANDATORY: After writing or updating a file within agent/sandbox/:**
 
 6. Run `python3 -m agent.fmlint agent/sandbox/<filename>` to validate. Fix any ERROR-severity diagnostics before presenting to the user; review WARNING-severity.
-7. Deploy using `agent/scripts/deploy.py`. Use the tier appropriate for the situation (see `agent/config/automation.json`). When falling back to Tier 1 (manual paste), present instructions in this exact format:
+7. Deploy using `agent/scripts/deploy.py`. Use the tier appropriate for the situation (see `agent/config/automation.json`). **Before any Tier 2 deploy — especially bulk loops — read `agent/docs/TIER2_DEPLOY.md`** for prerequisites (privilege check, real-vs-sanitized script names, custom-menu pitfalls) and the failure-mode table. When falling back to Tier 1 (manual paste), present instructions in this exact format:
 
 > The script is on your clipboard. To install it:
 >
