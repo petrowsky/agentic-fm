@@ -61,6 +61,16 @@ If `PROJECT.md` exists at the project root, read it at session start. It contain
 
 - When writing docs for this project, default audience is END-USERS who download the repo as a tool, NOT collaborative developers/contributors, unless explicitly told otherwise.
 
+## Agent-instructions across multiple AI tools
+
+The canonical agent-instructions file is `.claude/CLAUDE.md`. Three symlinks point to it so each AI tool finds the same content at the path it expects:
+
+- `.cursor/AGENTS.md` → Cursor IDE
+- `AGENTS.md` (root) → Aider, Cline, Continue.dev, OpenAI Codex CLI, generic AGENTS.md-aware tools
+- `.github/copilot-instructions.md` → GitHub Copilot
+
+Edit `.claude/CLAUDE.md` only. The symlinks pick up the change automatically. Run `agent/scripts/sync_agent_docs.sh` to verify all four paths resolve to the same content (useful as a pre-commit/CI check).
+
 # Overview
 
 This project is designed to create FileMaker objects — primarily scripts and calculations — in the clipboard-supported fmxmlsnippet format. Developers reference and use the HR (human-readable) format for scripts. The following folders are used.
