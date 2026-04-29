@@ -356,18 +356,22 @@ def _paste_applescript(fm_app_name: str, target_script: str, select_all: bool, a
         f'\n'
         f'tell application "System Events"\n'
         f'    tell process "{_esc(fm_process)}"\n'
-        # AXPress the script tab to move focus to step editor
+        # AXPress the script tab to move focus to step editor.
+        # If no tab matches target_script, abort with ERROR so deploy.py
+        # surfaces the misroute instead of pasting into whatever's focused.
         f'        set wsWindows to windows whose title contains "Script Workspace"\n'
-        f'        if (count of wsWindows) > 0 then\n'
-        f'            tell item 1 of wsWindows\n'
-        f'                tell splitter group 1\n'
-        f'                    set tabButtons to every button whose description is "{_esc(target_script)}"\n'
-        f'                    if (count of tabButtons) > 0 then\n'
-        f'                        perform action "AXPress" of item 1 of tabButtons\n'
-        f'                    end if\n'
-        f'                end tell\n'
-        f'            end tell\n'
+        f'        if (count of wsWindows) = 0 then\n'
+        f'            return "ERROR: no Script Workspace window open"\n'
         f'        end if\n'
+        f'        tell item 1 of wsWindows\n'
+        f'            tell splitter group 1\n'
+        f'                set tabButtons to every button whose description is "{_esc(target_script)}"\n'
+        f'                if (count of tabButtons) = 0 then\n'
+        f'                    return "ERROR: no SW tab matching \\"{_esc(target_script)}\\" — script likely not in current SW context (wrong file frontmost) or in a collapsed folder; aborting paste to avoid clobbering wrong tab"\n'
+        f'                end if\n'
+        f'                perform action "AXPress" of item 1 of tabButtons\n'
+        f'            end tell\n'
+        f'        end tell\n'
         f'        delay 0.5\n'
         # Paste sequence
         f'{paste_block}'
@@ -463,6 +467,14 @@ def _tier2(
         f"{companion_url}/trigger",
         {"raw_applescript": paste_as},
     )
+    paste_stdout = (paste_result.get("stdout") or "").strip()
+    if paste_stdout.startswith("ERROR:"):
+        # Phase 2 AppleScript aborted before paste (no SW window or no matching tab)
+        return {
+            "success": False,
+            "tier_used": 2,
+            "error": paste_stdout,
+        }
     if not paste_result.get("success"):
         return {
             "success": True,
