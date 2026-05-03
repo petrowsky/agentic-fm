@@ -180,10 +180,12 @@ def detect_class_from_xml(xml_text):
     for element in ('CustomMenuSet', 'CustomMenu'):
         if re.search(rf'<{element}[\s>/]', xml_text):
             return 'ut16'
+    if re.search(r'<Layout[\s>/]', xml_text):
+        return 'XML2'
     if re.search(r'<Script[\s>/]', xml_text):
         return 'XMSC'
     for element, cls in XML_ELEMENT_TO_CLASS.items():
-        if element in ('CustomMenuSet', 'CustomMenu', 'Script'):
+        if element in ('CustomMenuSet', 'CustomMenu', 'Layout', 'Script'):
             continue
         if re.search(rf'<{element}[\s>/]', xml_text):
             return cls
