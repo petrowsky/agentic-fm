@@ -2764,10 +2764,11 @@
         "defaultValue": "SelectedLayout",
         "enumValues": [
           "SelectedLayout",
-          "OriginalLayout",
+          "CurrentLayout",
           "LayoutNameByCalculation",
           "LayoutNumberByCalculation"
-        ]
+        ],
+        "notes": "CurrentLayout (NOT 'OriginalLayout') is FM's actual enum for the HR 'Layout: <original layout>' default — verified via FM round-trip 2026-05-14. When LayoutDestination=CurrentLayout, omit the <Layout> child element entirely; including one breaks the binding silently on paste."
       },
       {
         "xmlElement": "Layout",
@@ -4314,8 +4315,12 @@
         "required": false,
         "defaultValue": "SelectedLayout",
         "enumValues": [
-          "SelectedLayout"
-        ]
+          "SelectedLayout",
+          "CurrentLayout",
+          "LayoutNameByCalculation",
+          "LayoutNumberByCalculation"
+        ],
+        "notes": "CurrentLayout = the layout active when the step runs (HR 'Layout: <original layout>') — verified via FM round-trip 2026-05-14. When LayoutDestination=CurrentLayout, omit the <Layout> child element entirely."
       },
       {
         "xmlElement": "Calculation",

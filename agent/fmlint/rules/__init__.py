@@ -7,3 +7,4 @@ from . import references  # noqa: F401
 from . import best_practices  # noqa: F401
 from . import calculations  # noqa: F401
 from . import live_eval  # noqa: F401
+from . import sl_inventory  # noqa: F401  — SL fork additions (see SL_FORK.md)
