@@ -334,6 +334,250 @@ def tx_perform_script(step) -> str:
     return '\n'.join(parts)
 
 
+def tx_perform_script_on_server(step) -> str:
+    """
+    Translate Perform Script on Server.
+
+    Two script-reference modes — both must be preserved:
+    - "By name": <List name="By name"> wraps a <Calculation> giving the target script name
+      (typically Get(ScriptName) for self-recursion). Emits <Calculated><Calculation>...</Calculated>.
+    - "From list": <List name="From list"> contains <DataSourceReference> + <ScriptReference>.
+      Emits <Script id="N" name="..."/> (and optional FileReference).
+
+    Plus the parameter Calculation (wrapped in <Parameter><Parameter>... in SaXML, emitted
+    as a top-level <Calculation> in fmxmlsnippet) and the Wait for completion boolean.
+
+    The catalog-driven generic translator strips the script reference and parameter calc
+    silently — this is a project-critical step for PSOS self-recursion (see
+    docs/patterns/psos-self-recursion.md) so it needs a dedicated handler.
+    """
+    enable, sid = step_attrs(step)
+
+    list_mode = None  # 'By name' or 'From list'
+    script_name_calc = ''
+    script_id = '0'
+    script_name = ''
+    file_ref_id = None
+    file_ref_name = None
+    param_calc = ''
+    has_param_calc = False
+    wait = 'True'
+
+    list_p = param_by_type(step, 'List')
+    if list_p is not None:
+        lst = list_p.find('List')
+        if lst is not None:
+            list_mode = lst.get('name', '')
+            # By name: <Calculation> direct child
+            calc = lst.find('Calculation')
+            if calc is not None:
+                # Reuse the nested-Calculation extractor
+                inner = calc.find('Calculation')
+                if inner is not None:
+                    t = inner.find('Text')
+                    if t is not None:
+                        script_name_calc = t.text or ''
+            # From list: <DataSourceReference> + <ScriptReference>
+            ds = lst.find('DataSourceReference')
+            if ds is not None:
+                file_ref_id = ds.get('id', '0')
+                file_ref_name = ds.get('name', '')
+            sr = lst.find('ScriptReference')
+            if sr is not None:
+                script_id = sr.get('id', '0')
+                script_name = sr.get('name', '')
+
+    param_p = param_by_type(step, 'Parameter')
+    if param_p is not None:
+        inner = param_p.find('Parameter')
+        if inner is not None:
+            # The inner <Parameter> wraps a <Calculation> directly (one fewer
+            # level of nesting than get_calc_text expects).
+            outer_calc = inner.find('Calculation')
+            if outer_calc is not None:
+                has_param_calc = True
+                deeper = outer_calc.find('Calculation')
+                if deeper is not None:
+                    t = deeper.find('Text')
+                    if t is not None:
+                        param_calc = t.text or ''
+
+    bool_p = param_by_type(step, 'Boolean')
+    if bool_p is not None:
+        b = bool_p.find('Boolean')
+        if b is not None:
+            wait = b.get('value', 'True')
+
+    parts = [f'{S}<Step enable="{enable}" id="{sid}" name="Perform Script on Server">']
+    # By name: emit <Calculated> wrapping a Calculation
+    if list_mode == 'By name':
+        parts.append(
+            f'{L1}<Calculated><Calculation>{cdata(script_name_calc)}</Calculation></Calculated>'
+        )
+    parts.append(f'{L1}<WaitForCompletion state="{wait}"/>')
+    if has_param_calc:
+        parts.append(f'{L1}<Calculation>{cdata(param_calc)}</Calculation>')
+    # From list: emit FileReference (if any) + Script
+    if list_mode == 'From list':
+        if file_ref_id is not None:
+            parts.append(
+                f'{L1}<FileReference id="{file_ref_id}" name="{escape_attr(file_ref_name)}">'
+            )
+            parts.append(
+                f'{L2}<!-- TODO: insert UniversalPathList path for file reference "{escape_xml(file_ref_name)}" -->'
+            )
+            parts.append(f'{L1}</FileReference>')
+        parts.append(
+            f'{L1}<Script id="{script_id}" name="{escape_attr(script_name)}"/>'
+        )
+    parts.append(f'{S}</Step>')
+    return '\n'.join(parts)
+
+
+def tx_new_window(step) -> str:
+    """
+    Translate New Window.
+
+    SaXML structure is a single <WindowReference> param containing Style, Name,
+    LayoutReferenceContainer (with Label "original layout" for CurrentLayout, or
+    a nested Layout for SelectedLayout), Bounds (height/width/top/left), and
+    Options (Close/Minimize/Maximize/Resize/MenuBar/Toolbar/DimParentWindow +
+    numeric Styles bitmask).
+
+    The catalog-driven generic translator strips all of this silently — every
+    transactional workflow in this codebase relies on a properly-configured
+    New Window for the $windowNameForTransaction isolation-window pattern, so
+    this needs a dedicated handler. See docs/patterns/fm-fmxmlsnippet-gotchas.md
+    section "Go to Layout requires LayoutDestination" for the related enum
+    discussion — New Window uses the same LayoutDestination enum.
+    """
+    enable, sid = step_attrs(step)
+
+    style = 'Document'
+    name_calc = ''
+    layout_dest = 'CurrentLayout'
+    layout_id = None
+    layout_name = ''
+    height_calc = ''
+    width_calc = ''
+    top_calc = ''
+    left_calc = ''
+    # Default options (FM's New Window defaults)
+    opt = {
+        'Close': 'Yes',
+        'Minimize': 'Yes',
+        'Maximize': 'Yes',
+        'Resize': 'Yes',
+        'MenuBar': 'Yes',
+        'Toolbars': 'No',
+        'DimParentWindow': 'No',
+    }
+    styles_bitmask = '1074202114'  # default Document-style bitmask
+
+    wr_p = param_by_type(step, 'WindowReference')
+    if wr_p is not None:
+        wr = wr_p.find('WindowReference')
+        if wr is not None:
+            # Style
+            st_el = wr.find('Style')
+            if st_el is not None:
+                style = st_el.get('name', 'Document')
+            # Name calculation
+            name_el = wr.find('Name')
+            if name_el is not None:
+                name_calc = get_calc_text(name_el)
+            # LayoutReferenceContainer
+            lrc = wr.find('LayoutReferenceContainer')
+            if lrc is not None:
+                label = lrc.find('Label')
+                label_txt = label.text if label is not None else ''
+                # SaXML uses "original layout" Label for the CurrentLayout (HR
+                # default) enum; a nested <Layout> indicates SelectedLayout.
+                nested_layout = lrc.find('Layout')
+                if nested_layout is not None:
+                    layout_dest = 'SelectedLayout'
+                    layout_id = nested_layout.get('id', '0')
+                    layout_name = nested_layout.get('name', '')
+                elif label_txt and 'original' in label_txt.lower():
+                    layout_dest = 'CurrentLayout'
+                # else: keep default CurrentLayout
+            # Bounds
+            bounds = wr.find('Bounds')
+            if bounds is not None:
+                for tag, target in (('height', 'height_calc'),
+                                    ('width', 'width_calc'),
+                                    ('top', 'top_calc'),
+                                    ('left', 'left_calc')):
+                    el = bounds.find(tag)
+                    if el is not None:
+                        val = get_calc_text(el)
+                        if target == 'height_calc':
+                            height_calc = val
+                        elif target == 'width_calc':
+                            width_calc = val
+                        elif target == 'top_calc':
+                            top_calc = val
+                        elif target == 'left_calc':
+                            left_calc = val
+            # Options
+            options = wr.find('Options')
+            if options is not None:
+                styles_bitmask = options.get('value', styles_bitmask)
+                # SaXML uses tag text "True"/"False"; fmxmlsnippet wants Yes/No.
+                tag_to_attr = [
+                    ('Close', 'Close'),
+                    ('Minimize', 'Minimize'),
+                    ('Maximize', 'Maximize'),
+                    ('Resize', 'Resize'),
+                    ('MenuBar', 'MenuBar'),
+                    ('Toolbar', 'Toolbars'),         # note SaXML "Toolbar" → fmxmlsnippet "Toolbars"
+                    ('DimParentWindow', 'DimParentWindow'),
+                ]
+                for sa_tag, attr in tag_to_attr:
+                    el = options.find(sa_tag)
+                    if el is not None and el.text:
+                        opt[attr] = 'Yes' if el.text.strip().lower() == 'true' else 'No'
+
+    parts = [f'{S}<Step enable="{enable}" id="{sid}" name="New Window">']
+    parts.append(f'{L1}<LayoutDestination value="{layout_dest}"/>')
+    # Name (always emit — empty calc is fine if no name supplied)
+    parts.append(f'{L1}<Name>')
+    parts.append(f'{L2}<Calculation>{cdata(name_calc)}</Calculation>')
+    parts.append(f'{L1}</Name>')
+    # Height / Width — emit when present
+    if height_calc or width_calc:
+        parts.append(f'{L1}<Height>')
+        parts.append(f'{L2}<Calculation>{cdata(height_calc)}</Calculation>')
+        parts.append(f'{L1}</Height>')
+        parts.append(f'{L1}<Width>')
+        parts.append(f'{L2}<Calculation>{cdata(width_calc)}</Calculation>')
+        parts.append(f'{L1}</Width>')
+    # Top / Left — emit only if non-empty (rare)
+    if top_calc:
+        parts.append(f'{L1}<DistanceFromTop>')
+        parts.append(f'{L2}<Calculation>{cdata(top_calc)}</Calculation>')
+        parts.append(f'{L1}</DistanceFromTop>')
+    if left_calc:
+        parts.append(f'{L1}<DistanceFromLeft>')
+        parts.append(f'{L2}<Calculation>{cdata(left_calc)}</Calculation>')
+        parts.append(f'{L1}</DistanceFromLeft>')
+    # NewWndStyles
+    parts.append(
+        f'{L1}<NewWndStyles DimParentWindow="{opt["DimParentWindow"]}" '
+        f'Toolbars="{opt["Toolbars"]}" MenuBar="{opt["MenuBar"]}" '
+        f'Style="{style}" Close="{opt["Close"]}" Minimize="{opt["Minimize"]}" '
+        f'Maximize="{opt["Maximize"]}" Resize="{opt["Resize"]}" '
+        f'Styles="{styles_bitmask}"/>'
+    )
+    # Layout element only for SelectedLayout per the 2026-05-14 gotcha note
+    if layout_dest == 'SelectedLayout' and layout_id is not None:
+        parts.append(
+            f'{L1}<Layout id="{layout_id}" name="{escape_attr(layout_name)}"/>'
+        )
+    parts.append(f'{S}</Step>')
+    return '\n'.join(parts)
+
+
 def tx_show_custom_dialog(step) -> str:
     enable, sid = step_attrs(step)
     title_calc = ''
@@ -1758,6 +2002,8 @@ TRANSLATORS = {
     'Exit Script':             tx_exit_script,
     'Set Variable':            tx_set_variable,
     'Perform Script':          tx_perform_script,
+    'Perform Script on Server': tx_perform_script_on_server,
+    'New Window':              tx_new_window,
     'Show Custom Dialog':      tx_show_custom_dialog,
     'Set Field':               tx_set_field,
     'Commit Records/Requests': tx_commit,
