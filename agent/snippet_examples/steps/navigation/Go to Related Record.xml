@@ -4,20 +4,20 @@
     <Option state="False"/>
     <MatchAllRecords state="False"/>
     <ShowInNewWindow state="False"/>
-    <Restore state="True"/>
+    <Restore state="False"/>
     <LayoutDestination value="SelectedLayout"/>
     <NewWndStyles Style="Document" Close="Yes" Minimize="Yes" Maximize="Yes" Resize="Yes" Styles="3606018"/>
     <Table id="0" name=""/>
     <Layout id="0" name=""/>
-    <Animation value="None"/>
   </Step>
 </fmxmlsnippet>
 <!-- Option state: "True" shows only related records (Show only related records). "False" does not filter. -->
 <!-- MatchAllRecords state: "True" matches all records in current found set (Match found set). "False" matches current record only. -->
 <!-- ShowInNewWindow state: "True" shows related records in new window (New window). "False" shows in current window. -->
+<!-- Restore state: NOT surfaced in HR. Canonical default is "False" — verified via FM round-trip 2026-05-15. Emitting "True" causes FM HR to render as if "Show only related records" were checked, even when <Option state="False"/>. Prior version of this snippet incorrectly emitted state="True". -->
 <!-- LayoutDestination value: "CurrentLayout" | "SelectedLayout" | "LayoutNameByCalc" | "LayoutNumberByCalc" | "UseExternalTableLayouts" -->
 <!-- NewWndStyles attributes: Style ("Document" | "Floating" | "Dialog" | "Card"), Close/Minimize/Maximize/Resize ("Yes" | "No"), DimParentWindow/Toolbars/MenuBar ("Yes" | "No"), Styles (numeric bitmask). Only applies when ShowInNewWindow is True. -->
-<!-- Animation value: "SlideFromLeft" | "SlideFromRight" | "SlideFromBottom" | "SlideToLeft" | "SlideToRight" | "SlideToBottom" | "FlipFromLeft" | "FlipFromRight" | "ZoomIn" | "ZoomOut" | "CrossDissolve". FileMaker Go only. -->
+<!-- Animation: OMIT the element entirely for the "None" default. Emitting <Animation value="None"/> produces a stray "External" prefix in HR (verified via FM round-trip 2026-05-15). Include only with a non-None value: "SlideFromLeft" | "SlideFromRight" | "SlideFromBottom" | "SlideToLeft" | "SlideToRight" | "SlideToBottom" | "FlipFromLeft" | "FlipFromRight" | "ZoomIn" | "ZoomOut" | "CrossDissolve". FileMaker Go only. -->
 <!-- Required: Table (source relationship to go to). -->
 <!-- Optional: Layout, Option (Show only related records), MatchAllRecords (Match found set), ShowInNewWindow (New window), Animation (Go only), NewWndStyles, Name/Height/Width/DistanceFromTop/DistanceFromLeft (window params when ShowInNewWindow). -->
 <!-- Goes to current related record(s) in related table. -->

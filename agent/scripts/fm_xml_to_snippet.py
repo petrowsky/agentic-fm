@@ -1515,7 +1515,12 @@ def tx_go_to_related_record(step) -> str:
     option          = 'False'
     match_all       = 'False'
     show_new_window = 'False'
-    restore         = 'True'
+    # Restore defaults to False per FM round-trip 2026-05-15. The
+    # snippet_examples archival file lists True; that's wrong — pasting
+    # a step with Restore=True produces "Show only related records" in HR
+    # even when <Option state="False"/>. Apparently Restore controls a
+    # different facet of the step than the snippet_example comment claims.
+    restore         = 'False'
     layout_dest     = 'CurrentLayout'
     table_id        = '0'
     table_name      = ''
@@ -1523,6 +1528,7 @@ def tx_go_to_related_record(step) -> str:
     layout_name     = ''
     has_layout      = False
     animation       = 'None'
+    has_animation   = False  # only emit <Animation> when source explicitly sets it
 
     p = param_by_type(step, 'Related')
     if p is not None:
@@ -1548,14 +1554,27 @@ def tx_go_to_related_record(step) -> str:
         anim = p.find('Animation')
         if anim is not None:
             # "Cross Dissolve" → "CrossDissolve"
-            animation = anim.get('name', 'None').replace(' ', '')
+            anim_name = anim.get('name', 'None').replace(' ', '')
+            if anim_name != 'None':
+                animation = anim_name
+                has_animation = True
+            # Source <Animation name="None" value="0"/> is FM's "no animation"
+            # marker — omit from output so HR doesn't render an empty animation
+            # parameter. FM round-trip 2026-05-15 confirms.
 
         opts = p.find('Options')
         if opts is not None:
-            # ShowRelated="True" means "navigate to related table" (always on),
-            # NOT the "Show only related records" checkbox → Option state is inverted.
-            show_rel = opts.get('ShowRelated', 'False')
-            option   = 'False' if show_rel == 'True' else 'True'
+            # SaXML <Options> child contains attributes for the flag-style
+            # checkboxes in the step's parameter dialog. Empty
+            # <Options></Options> means no flags are set, in which case ALL
+            # boolean checkboxes default to False per the canonical snippet
+            # shape. TODO 2026-05-15: when a script with one of these flags
+            # checked is round-tripped, capture the actual SaXML attribute
+            # name(s) here. Prior `ShowRelated` + inversion logic was
+            # incorrect — it caused empty <Options> to emit
+            # `<Option state="True"/>` (rendering as "Show only related
+            # records" in HR) and bit the 2026-05-15 audit pass.
+            pass
 
     parts = [
         f'{S}<Step enable="{enable}" id="{sid}" name="Go to Related Record">',
@@ -1569,7 +1588,8 @@ def tx_go_to_related_record(step) -> str:
     ]
     if has_layout:
         parts.append(f'{L1}<Layout id="{layout_id}" name="{escape_attr(layout_name)}"/>')
-    parts.append(f'{L1}<Animation value="{animation}"/>')
+    if has_animation:
+        parts.append(f'{L1}<Animation value="{animation}"/>')
     parts.append(f'{S}</Step>')
     return '\n'.join(parts)
 

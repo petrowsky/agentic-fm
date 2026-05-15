@@ -3112,6 +3112,15 @@
         "notes": "Flag-style: shown as \"New window\" when True. Enables window params and NewWndStyles. See window-enums.md."
       },
       {
+        "xmlElement": "Restore",
+        "type": "boolean",
+        "hrLabel": null,
+        "xmlAttr": "state",
+        "required": false,
+        "defaultValue": "False",
+        "notes": "Not surfaced in HR. The canonical default is \"False\" — verified via FM round-trip 2026-05-15. Emitting state=\"True\" causes FM to render the step's HR as if \"Show only related records\" were checked, even when <Option state=\"False\"/>. Always emit state=\"False\" unless a specific need to override is documented."
+      },
+      {
         "xmlElement": "NewWndStyles",
         "type": "complex",
         "hrLabel": null,
@@ -3125,7 +3134,8 @@
         "xmlAttr": "value",
         "required": false,
         "defaultValue": "None",
-        "notes": "FileMaker Go only. See animation-enums.md for values."
+        "omitWhenDefault": true,
+        "notes": "FileMaker Go only. See animation-enums.md for values. Omit the <Animation> element entirely when the value would be \"None\" — emitting <Animation value=\"None\"/> produces a stray \"External\" prefix in HR (verified via FM round-trip 2026-05-15)."
       }
     ],
     "hrSignature": "[ Show only related records ; Match found set ; From table: \"table\" ; Using layout: layout ; New window ]",
