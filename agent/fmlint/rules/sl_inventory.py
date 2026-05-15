@@ -718,3 +718,193 @@ class RedundantElseLabel(LintRule):
                     ),
                 ))
         return diagnostics
+
+
+# ---------------------------------------------------------------------------
+# SL010 — pjsiwv-must-be-wrapped
+# ---------------------------------------------------------------------------
+
+@rule
+class PjsiwvMustBeWrapped(LintRule):
+    """Flag Perform JavaScript in Web Viewer steps that aren't wrapped
+    with the canonical Set Error Capture pattern.
+
+    PJSIWV is silent-failure-prone: if the target object name is wrong,
+    if the JS function name doesn't exist, or if the WV is in a bad
+    state, the step fails with no diagnostic and the caller has no way
+    to know. The canonical wrapper turns Error Capture On before the
+    step, captures FM errors via CreateEventObjectFmErrorsOnly, turns
+    Error Capture Off after, and checks $fmErrorCode for a non-zero
+    result.
+
+    Surfaced 2026-05-15 — a helper script written during the SL
+    Inventory audit missed wrapping the second of two PJSIWV calls in
+    INV_StandardCost_RefreshPayload due to a substring-find bug. Trevor
+    caught it on paste review. Adding this rule means the next time a
+    PJSIWV slips through unwrapped (Claude-generated or human-typed),
+    fmlint catches it instead of relying on human review.
+
+    Heuristic: the step immediately before a PJSIWV (skipping
+    # (comment) steps) must be Set Error Capture with state="True",
+    AND the next non-comment step after must be Set Variable whose
+    value calc references CreateEventObjectFmErrorsOnly.
+    """
+
+    rule_id = "SL010"
+    name = "pjsiwv-must-be-wrapped"
+    category = "sl_fork"
+    default_severity = Severity.ERROR
+    formats = {"xml"}
+    tier = 1
+
+    def check_xml(self, parse_result, catalog, context, config):
+        if not parse_result.ok or not parse_result.steps:
+            return []
+        sev = self.severity(config)
+        diagnostics = []
+        steps = parse_result.steps
+        for idx, step in enumerate(steps):
+            if step.get("name", "") != "Perform JavaScript in Web Viewer":
+                continue
+
+            # Walk backwards skipping comments to find the previous
+            # executable step.
+            prev_idx = idx - 1
+            while prev_idx >= 0 and steps[prev_idx].get("name", "") == "# (comment)":
+                prev_idx -= 1
+            if prev_idx < 0:
+                diagnostics.append(self._diag(sev, idx, "no preceding step"))
+                continue
+
+            prev = steps[prev_idx]
+            if prev.get("name", "") != "Set Error Capture":
+                diagnostics.append(self._diag(sev, idx, f"preceded by '{prev.get('name', '?')}', not Set Error Capture"))
+                continue
+
+            set_el = prev.find("Set")
+            if set_el is None or set_el.get("state", "False") != "True":
+                diagnostics.append(self._diag(sev, idx, "preceded by Set Error Capture but state is not True"))
+                continue
+
+            # Confirm the closing side
+            next_idx = idx + 1
+            while next_idx < len(steps) and steps[next_idx].get("name", "") == "# (comment)":
+                next_idx += 1
+            if next_idx >= len(steps):
+                diagnostics.append(self._diag(sev, idx, "no closer steps follow (script ends abruptly)"))
+                continue
+
+            nxt = steps[next_idx]
+            if nxt.get("name", "") != "Set Variable":
+                diagnostics.append(self._diag(sev, idx, f"followed by '{nxt.get('name', '?')}', not Set Variable [CreateEventObjectFmErrorsOnly]"))
+                continue
+
+            found_closer = False
+            for calc in nxt.iter("Calculation"):
+                if calc.text and "CreateEventObjectFmErrorsOnly" in calc.text:
+                    found_closer = True
+                    break
+            if not found_closer:
+                diagnostics.append(self._diag(sev, idx, "followed by Set Variable, but the value calc doesn't reference CreateEventObjectFmErrorsOnly"))
+
+        return diagnostics
+
+    def _diag(self, severity, step_idx, reason):
+        return Diagnostic(
+            rule_id=self.rule_id,
+            severity=severity,
+            message=(
+                f"Perform JavaScript in Web Viewer is not wrapped with the "
+                f"canonical Set Error Capture pattern — {reason}. PJSIWV is "
+                f"silent-failure-prone (wrong object name / missing JS "
+                f"function / bad WV state surfaces nothing)."
+            ),
+            line=step_idx + 1,
+            fix_hint=(
+                "Insert Set Error Capture [On] immediately before the PJSIWV "
+                "step. After the PJSIWV, add the canonical 5-step closer: "
+                "Set Variable [$eventObjectFmErrorsOnly ; "
+                "CreateEventObjectFmErrorsOnly] / Set Error Capture [Off] / "
+                "Set Variable [$fmErrorCode ; GetFmErrorCode (...)] / "
+                "If [$fmErrorCode <> 0] / ...build error event + "
+                "Exit Loop If [True] / End If."
+            ),
+        )
+
+
+# ---------------------------------------------------------------------------
+# SL011 — no-double-blank-comments
+# ---------------------------------------------------------------------------
+
+@rule
+class NoDoubleBlankComments(LintRule):
+    """Flag runs of 2+ consecutive blank # (comment) steps.
+
+    The TMPL_NewScript templates ship with double-blank lines as visual
+    "insert your code here" markers between sections. A finished script
+    should clean these up — at most one blank line is needed between
+    sections.
+
+    Team convention 2026-05-15.
+
+    A "blank # (comment)" step is one with no <Text> child element
+    (i.e., a self-closing <Step ... name="# (comment)"/>).
+    """
+
+    rule_id = "SL011"
+    name = "no-double-blank-comments"
+    category = "sl_fork"
+    default_severity = Severity.WARNING
+    formats = {"xml"}
+    tier = 1
+
+    def check_xml(self, parse_result, catalog, context, config):
+        if not parse_result.ok or not parse_result.steps:
+            return []
+        sev = self.severity(config)
+        diagnostics = []
+        steps = parse_result.steps
+        run_start = None  # index of the first blank in the current run
+        run_len = 0
+        for idx, step in enumerate(steps):
+            if self._is_blank_comment(step):
+                if run_start is None:
+                    run_start = idx
+                run_len += 1
+            else:
+                if run_len >= 2:
+                    diagnostics.append(self._diag(sev, run_start, run_len))
+                run_start = None
+                run_len = 0
+        # Flush trailing run (script ending with consecutive blanks)
+        if run_len >= 2:
+            diagnostics.append(self._diag(sev, run_start, run_len))
+        return diagnostics
+
+    @staticmethod
+    def _is_blank_comment(step) -> bool:
+        if step.get("name", "") != "# (comment)":
+            return False
+        text_el = step.find("Text")
+        if text_el is None:
+            return True
+        # Some converters / scripts emit <Text></Text> for a blank — treat
+        # that as blank too.
+        return not (text_el.text and text_el.text.strip())
+
+    def _diag(self, severity, run_start_idx, run_len):
+        return Diagnostic(
+            rule_id=self.rule_id,
+            severity=severity,
+            message=(
+                f"Run of {run_len} consecutive blank # (comment) steps. "
+                f"The TMPL_NewScript templates ship with double-blank "
+                f"markers to indicate where dev code goes — a finished "
+                f"script should consolidate these to a single blank."
+            ),
+            line=run_start_idx + 1,
+            fix_hint=(
+                f"Delete {run_len - 1} of the consecutive blank # (comment) "
+                "steps so only one blank separator remains between sections."
+            ),
+        )
