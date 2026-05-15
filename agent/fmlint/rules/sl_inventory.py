@@ -908,3 +908,380 @@ class NoDoubleBlankComments(LintRule):
                 "steps so only one blank separator remains between sections."
             ),
         )
+
+
+# ---------------------------------------------------------------------------
+# SL012 — handle-result-exit-canonical
+# ---------------------------------------------------------------------------
+
+@rule
+class HandleResultExitCanonical(LintRule):
+    """Flag scripts that don't end with the canonical HANDLE RESULT & EXIT
+    block from TMPL_NewScript.
+
+    The template's tail block is highly structured — the cascade shape
+    and Exit Script return value are invariant; only the success-path
+    JSONSetElement is allowed to vary (to return additional values
+    beyond just scriptResult).
+
+    Canonical tail (simplified):
+
+        If [ False ]
+        Else If [ not IsEmpty ( $scriptResultObject ) ]
+          # Already defined.
+        Else If [ IsEmpty ( $errorMessage ) ]
+          Set Variable [ $scriptResult ; OK ]
+          Set Variable [ $scriptResultObject ; JSONSetElement ( ... ) ]
+        Else
+          Set Variable [ $scriptResult ; ERROR ]
+          Set Variable [ $scriptResultMessage ; $errorMessage ]
+          Set Variable [ $scriptResultObject ; JSONSetElement ( ... ) ]
+          Perform Script [ "COM_ScriptResultHandler" ; ... ]
+        End If
+        Exit Script [ $scriptResultObject ]
+
+    Exemption: scripts with NO Loop step are treated as thin wrappers
+    (e.g., INV_OpenNewItemDialog) and are not subject to this rule —
+    they typically Exit Script with Get(ScriptResult) from a sub-script
+    call.
+
+    Surfaced 2026-05-15 — team convention. The HANDLE RESULT block is
+    one of the most distinctive markers of a TMPL_NewScript-conformant
+    script, and divergences here usually mean the caller can't reliably
+    read the result.
+    """
+
+    rule_id = "SL012"
+    name = "handle-result-exit-canonical"
+    category = "sl_fork"
+    default_severity = Severity.ERROR
+    formats = {"xml"}
+    tier = 1
+
+    def check_xml(self, parse_result, catalog, context, config):
+        if not parse_result.ok or not parse_result.steps:
+            return []
+        sev = self.severity(config)
+        steps = parse_result.steps
+
+        # Exemption: scripts with no Loop are thin wrappers.
+        has_loop = any(s.get("name", "") == "Loop" for s in steps)
+        if not has_loop:
+            return []
+
+        diagnostics = []
+
+        # Find the last non-comment step.
+        last_idx = len(steps) - 1
+        while last_idx >= 0 and steps[last_idx].get("name", "") == "# (comment)":
+            last_idx -= 1
+        if last_idx < 0:
+            return []  # script is all comments — odd but not our concern
+
+        last = steps[last_idx]
+        if last.get("name", "") != "Exit Script":
+            diagnostics.append(Diagnostic(
+                rule_id=self.rule_id,
+                severity=sev,
+                message=(
+                    f"Script's final executable step is '{last.get('name', '?')}', "
+                    f"not Exit Script. The canonical TMPL_NewScript tail "
+                    f"ends with Exit Script [ $scriptResultObject ]."
+                ),
+                line=last_idx + 1,
+                fix_hint=(
+                    "Append the canonical HANDLE RESULT & EXIT block: "
+                    "If [False] / Else If [not IsEmpty($scriptResultObject)] / "
+                    "Else If [IsEmpty($errorMessage)] / Else / End If / "
+                    "Exit Script [$scriptResultObject]."
+                ),
+            ))
+            return diagnostics
+
+        # Check Exit Script's calculation is $scriptResultObject.
+        exit_calc = ""
+        for calc in last.iter("Calculation"):
+            if calc.text:
+                exit_calc = calc.text.strip()
+                break
+        if exit_calc != "$scriptResultObject":
+            diagnostics.append(Diagnostic(
+                rule_id=self.rule_id,
+                severity=sev,
+                message=(
+                    f"Exit Script returns {exit_calc or '(empty)'}, not "
+                    f"$scriptResultObject. The canonical TMPL_NewScript "
+                    f"tail returns the structured result object so callers "
+                    f"can read scriptResult / scriptResultMessage / "
+                    f"eventObject keys."
+                ),
+                line=last_idx + 1,
+                fix_hint=(
+                    "Change Exit Script's calculation to $scriptResultObject. "
+                    "The preceding HANDLE RESULT block should populate that "
+                    "variable for both success and error paths."
+                ),
+            ))
+
+        # Walk backwards to find the End If that should close the cascade.
+        prev_idx = last_idx - 1
+        while prev_idx >= 0 and steps[prev_idx].get("name", "") == "# (comment)":
+            prev_idx -= 1
+        if prev_idx < 0 or steps[prev_idx].get("name", "") != "End If":
+            diagnostics.append(Diagnostic(
+                rule_id=self.rule_id,
+                severity=sev,
+                message=(
+                    "Exit Script is not immediately preceded by End If. "
+                    "The canonical HANDLE RESULT cascade closes with End If "
+                    "right before Exit Script."
+                ),
+                line=last_idx + 1,
+                fix_hint="Wrap the result-building logic in an If [False] / Else If / Else / End If cascade before Exit Script.",
+            ))
+            return diagnostics
+
+        # Walk backwards through balanced If/End If pairs to find the
+        # matching If (or Else If at depth 0 — but we want the outer If).
+        depth = 1
+        cascade_open_idx = -1
+        i = prev_idx - 1
+        while i >= 0:
+            name = steps[i].get("name", "")
+            if name == "End If":
+                depth += 1
+            elif name == "If":
+                depth -= 1
+                if depth == 0:
+                    cascade_open_idx = i
+                    break
+            i -= 1
+        if cascade_open_idx < 0:
+            diagnostics.append(Diagnostic(
+                rule_id=self.rule_id,
+                severity=sev,
+                message="Could not find the matching If for the cascade-closing End If before Exit Script.",
+                line=prev_idx + 1,
+                fix_hint="Verify the HANDLE RESULT cascade has a properly-balanced If / End If structure.",
+            ))
+            return diagnostics
+
+        # Determine which cascade pattern is in use:
+        #   Pattern A (TMPL_NewScript verbatim): If [False] / Else If [not
+        #     IsEmpty ($scriptResultObject)] / Else If [IsEmpty ($errorMessage)] /
+        #     Else / End If
+        #   Pattern B (ActionRouter variant): If [not IsEmpty
+        #     ($scriptResultObject)] / Else If [IsEmpty ($errorMessage)] /
+        #     Else / End If
+        # Both are functionally equivalent — Pattern B just skips the no-op
+        # If [False] entry. Team ratified 2026-05-15 that both are
+        # acceptable.
+        if_calc = ""
+        for calc in steps[cascade_open_idx].iter("Calculation"):
+            if calc.text:
+                if_calc = calc.text.strip()
+                break
+        if_calc_norm = self._normalize(if_calc)
+
+        pattern_a = if_calc_norm == "False"
+        pattern_b = if_calc_norm == self._normalize("not IsEmpty ( $scriptResultObject )")
+
+        if not (pattern_a or pattern_b):
+            diagnostics.append(Diagnostic(
+                rule_id=self.rule_id,
+                severity=sev,
+                message=(
+                    f"HANDLE RESULT cascade's opening If has calculation "
+                    f"'{if_calc}', which doesn't match either canonical "
+                    f"entry: 'False' (Pattern A) or 'not IsEmpty ( "
+                    f"$scriptResultObject )' (Pattern B / ActionRouter)."
+                ),
+                line=cascade_open_idx + 1,
+                fix_hint=(
+                    "Set the cascade-opening If to either 'False' (Pattern A; "
+                    "main branches go on the Else If's that follow) or "
+                    "'not IsEmpty ( $scriptResultObject )' (Pattern B; "
+                    "shorter ActionRouter form)."
+                ),
+            ))
+
+        # Collect Else If conditions to verify the success-path branch.
+        else_if_conditions = []
+        for j in range(cascade_open_idx + 1, prev_idx):
+            if steps[j].get("name", "") == "Else If":
+                for calc in steps[j].iter("Calculation"):
+                    if calc.text:
+                        else_if_conditions.append((j, calc.text.strip()))
+                        break
+
+        # Required: an Else If branch for IsEmpty ( $errorMessage ) — the
+        # success-path branch. Same in both Pattern A and Pattern B.
+        success_branch = self._normalize("IsEmpty ( $errorMessage )")
+        if not any(self._normalize(cond) == success_branch for _, cond in else_if_conditions):
+            diagnostics.append(Diagnostic(
+                rule_id=self.rule_id,
+                severity=sev,
+                message=(
+                    "HANDLE RESULT cascade is missing the canonical "
+                    "Else If [ IsEmpty ( $errorMessage ) ] branch (the "
+                    "success path)."
+                ),
+                line=cascade_open_idx + 1,
+                fix_hint=(
+                    "Add an Else If [ IsEmpty ( $errorMessage ) ] branch "
+                    "that sets $scriptResult to OK and builds the success "
+                    "$scriptResultObject."
+                ),
+            ))
+
+        # For Pattern A only: also require Else If [ not IsEmpty (
+        # $scriptResultObject ) ]. Pattern B's opening If already serves
+        # this role, so it doesn't need the Else If duplicate.
+        if pattern_a:
+            already_defined = self._normalize("not IsEmpty ( $scriptResultObject )")
+            if not any(self._normalize(cond) == already_defined for _, cond in else_if_conditions):
+                diagnostics.append(Diagnostic(
+                    rule_id=self.rule_id,
+                    severity=sev,
+                    message=(
+                        "HANDLE RESULT cascade (Pattern A) is missing the "
+                        "canonical Else If [ not IsEmpty ( $scriptResultObject ) ] "
+                        "branch (the already-defined path)."
+                    ),
+                    line=cascade_open_idx + 1,
+                    fix_hint=(
+                        "Add an Else If [ not IsEmpty ( $scriptResultObject ) ] "
+                        "branch after the If [False] entry — it allows callers "
+                        "to pre-populate the result and short-circuit the rest "
+                        "of the cascade."
+                    ),
+                ))
+
+        # Verify the error (Else) branch includes a Perform Script call to
+        # COM_ScriptResultHandler.
+        has_handler_call = False
+        for j in range(cascade_open_idx, prev_idx):
+            step = steps[j]
+            if step.get("name", "") != "Perform Script":
+                continue
+            script_ref = step.find("Script")
+            if script_ref is not None and "COM_ScriptResultHandler" in (script_ref.get("name", "") or ""):
+                has_handler_call = True
+                break
+        if not has_handler_call:
+            diagnostics.append(Diagnostic(
+                rule_id=self.rule_id,
+                severity=sev,
+                message=(
+                    "HANDLE RESULT cascade does not call COM_ScriptResultHandler. "
+                    "The canonical tail invokes it on the error path so the "
+                    "centralized result-handler can do dialog / notification "
+                    "/ logging work based on the eventObject."
+                ),
+                line=cascade_open_idx + 1,
+                fix_hint=(
+                    "In the Else (error) branch, after building "
+                    "$scriptResultObject, add: Perform Script [ "
+                    "\"COM_ScriptResultHandler\" ; Parameter: "
+                    "PassSubscriptParameterObject ( $scriptResultObject ) ]."
+                ),
+            ))
+
+        return diagnostics
+
+    @staticmethod
+    def _normalize(s: str) -> str:
+        """Normalize whitespace for comparing calculations — FM is loose
+        about spaces around operators and parens."""
+        return " ".join(s.split())
+
+
+# ---------------------------------------------------------------------------
+# SL013 — no-calc-alignment-padding
+# ---------------------------------------------------------------------------
+
+@rule
+class NoCalcAlignmentPadding(LintRule):
+    """Flag Calculation contents with vertical-alignment padding (runs of
+    2+ consecutive interior spaces).
+
+    Some FM developers format JSONSetElement (and similar multi-line
+    calcs) with extra spaces to vertically align the `;` separators and
+    the `JSONString`/`JSONObject` type tokens, e.g.:
+
+        JSONSetElement ( "{}"
+            ; [ "scriptResult"        ; "ERROR"                                                              ; JSONString ]
+            ; [ "scriptResultMessage" ; $errorMessage                                                        ; JSONString ]
+            ; [ "eventObject"         ; If ( IsEmpty ( $eventObject ) ; CreateEventObjectFm ; $eventObject ) ; JSONObject ]
+        )
+
+    Team convention 2026-05-15 — use single spaces between tokens, no
+    alignment padding:
+
+        JSONSetElement ( "{}"
+            ; [ "scriptResult" ; "ERROR" ; JSONString ]
+            ; [ "scriptResultMessage" ; $errorMessage ; JSONString ]
+            ; [ "eventObject" ; If ( IsEmpty ( $eventObject ) ; CreateEventObjectFm ; $eventObject ) ; JSONObject ]
+        )
+
+    Alignment padding hurts diffs (any change to a long line forces the
+    alignment to re-pad the whole block), reading speed (eyes scan
+    long blank spaces), and the value of the leading tab indentation
+    (the actual code starts well after the visual indent).
+
+    Heuristic: any Calculation whose CDATA text contains a line where —
+    after stripping leading whitespace (tabs/spaces, legitimate
+    indentation) — there are 2+ consecutive interior spaces, is
+    flagged. False positives could occur on multi-space string literals
+    (e.g., \"hello  world\") but those are rare; the diagnostic message
+    explains the false-positive case so devs can recognize it.
+    """
+
+    rule_id = "SL013"
+    name = "no-calc-alignment-padding"
+    category = "sl_fork"
+    default_severity = Severity.WARNING
+    formats = {"xml"}
+    tier = 1
+
+    def check_xml(self, parse_result, catalog, context, config):
+        if not parse_result.ok or not parse_result.steps:
+            return []
+        sev = self.severity(config)
+        diagnostics = []
+        for idx, step in enumerate(parse_result.steps):
+            flagged_this_step = False
+            for calc in step.iter("Calculation"):
+                if calc.text is None or not calc.text:
+                    continue
+                # Walk lines, look for 2+ consecutive interior spaces
+                for line in calc.text.split("\n"):
+                    stripped = line.lstrip(" \t")
+                    if "  " in stripped:
+                        diagnostics.append(Diagnostic(
+                            rule_id=self.rule_id,
+                            severity=sev,
+                            message=(
+                                "Calculation contains vertical-alignment "
+                                "padding (2+ consecutive interior spaces). "
+                                "Team convention 2026-05-15 — use single "
+                                "spaces between tokens, no alignment. "
+                                "Alignment padding hurts diffs and "
+                                "readability."
+                            ),
+                            line=idx + 1,
+                            fix_hint=(
+                                "Collapse runs of multiple spaces to single "
+                                "spaces in the calculation. Note: legitimate "
+                                "multi-space string literals (e.g., "
+                                "\"hello  world\") will also trigger — if "
+                                "that's the case, disable this rule on the "
+                                "specific occurrence or treat the warning "
+                                "as informational."
+                            ),
+                        ))
+                        flagged_this_step = True
+                        break
+                if flagged_this_step:
+                    break  # one diagnostic per step is enough
+        return diagnostics
