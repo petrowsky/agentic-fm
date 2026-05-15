@@ -1288,6 +1288,120 @@ class NoCalcAlignmentPadding(LintRule):
 
 
 # ---------------------------------------------------------------------------
+# SL017 — leftover-template-scaffolding
+# ---------------------------------------------------------------------------
+
+@rule
+class LeftoverTemplateScaffolding(LintRule):
+    """Flag scripts that still contain TMPL_NewScript scaffolding markers
+    instructing the developer to delete unused template steps.
+
+    The TMPL_NewScript / TMPL_NewScript - Transactions templates include
+    "DELETE THE BELOW IF NO USER DIALOGS IN THIS SCRIPT" as a literal
+    comment in the DISPLAY NOTIFICATION / ERROR section, followed by a
+    block of disabled scaffolding steps. The marker is an instruction to
+    the developer authoring the script: if the script doesn't display
+    user dialogs, delete the marker AND the disabled steps below it.
+
+    A finished, non-template script that still contains this marker is
+    a finished-script smell — either:
+      (a) the disabled scaffolding below was left in by accident
+          (compliance failure), or
+      (b) the marker itself was left in (style failure).
+
+    The fix is mechanical:
+      - If the script doesn't display user dialogs: replace the entire
+        block (marker + disabled steps) with a single
+        '# No user notifications in this script.' comment.
+      - If the script DOES display dialogs: enable the relevant steps
+        (so they're no longer commented out) and remove the marker.
+
+    The TMPL_NewScript and TMPL_NewScript - Transactions templates
+    themselves are exempt from this rule via the TMPL filename prefix.
+
+    Team convention 2026-05-15 (after rebuilding INV_SupplierPriceDates_
+    SaveAllWorker on TMPL_NewScript - Transactions surfaced the marker
+    as leftover scaffolding).
+    """
+
+    rule_id = "SL017"
+    name = "leftover-template-scaffolding"
+    category = "sl_fork"
+    default_severity = Severity.WARNING
+    formats = {"xml"}
+    tier = 1
+
+    _MARKER_SUBSTRINGS = (
+        "DELETE THE BELOW IF NO USER DIALOGS",
+        "DELETE THE BELOW IF NO USER DIALOG",  # tolerate singular
+    )
+
+    # If the script's PURPOSE comment matches one of these template
+    # signatures, it IS the template itself — exempt.
+    _TEMPLATE_PURPOSE_SIGNATURES = (
+        "development template to use",
+    )
+
+    def check_xml(self, parse_result, catalog, context, config):
+        if not parse_result.ok or not parse_result.steps:
+            return []
+        sev = self.severity(config)
+        steps = parse_result.steps
+
+        # Content-based exemption: the TMPL_NewScript / TMPL_NewScript -
+        # Transactions templates carry a distinct PURPOSE comment that no
+        # finished script reproduces. Scan the first ~8 comment steps for
+        # one of the template signatures; if found, this IS the template
+        # and we skip the rule.
+        for step in steps[:20]:
+            if step.get("name", "") != "# (comment)":
+                continue
+            text_el = step.find("Text")
+            if text_el is None or text_el.text is None:
+                continue
+            if any(sig in text_el.text for sig in self._TEMPLATE_PURPOSE_SIGNATURES):
+                return []
+
+        diagnostics = []
+        for i, step in enumerate(steps):
+            if step.get("name", "") != "# (comment)":
+                continue
+            text_el = step.find("Text")
+            if text_el is None or text_el.text is None:
+                continue
+            txt = text_el.text.upper()
+            if not any(m in txt for m in self._MARKER_SUBSTRINGS):
+                continue
+
+            diagnostics.append(Diagnostic(
+                rule_id=self.rule_id,
+                severity=sev,
+                message=(
+                    "Leftover TMPL_NewScript scaffolding marker found: "
+                    "'DELETE THE BELOW IF NO USER DIALOGS IN THIS SCRIPT'. "
+                    "This is an instruction to the developer to remove "
+                    "the disabled scaffolding steps below it (or enable "
+                    "them if the script does display dialogs) and delete "
+                    "the marker itself. A finished script should never "
+                    "contain this marker."
+                ),
+                line=i + 1,
+                fix_hint=(
+                    "If this script doesn't display user dialogs, replace "
+                    "the marker AND the disabled steps below it with a "
+                    "single '# No user notifications in this script.' "
+                    "comment. If it DOES display dialogs, enable the "
+                    "relevant Set Variable / If / Perform Script steps "
+                    "and delete the marker."
+                ),
+            ))
+            # One diagnostic per script — the marker is a single point of fix.
+            break
+
+        return diagnostics
+
+
+# ---------------------------------------------------------------------------
 # Helpers for SL014/SL015 (post-Loop section detection)
 # ---------------------------------------------------------------------------
 
