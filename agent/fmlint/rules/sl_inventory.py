@@ -329,3 +329,392 @@ class PsosSelfRecursionEmptyParameter(LintRule):
         # sanitized output (renders as "⚠️ PARAMETER 'Parameter' NOT
         # PARSED ⚠️"), so we skip HR mode. XML mode is authoritative.
         return []
+
+
+# ---------------------------------------------------------------------------
+# SL003 — banned-readme-doc-block
+# ---------------------------------------------------------------------------
+
+@rule
+class BannedReadmeDocBlock(LintRule):
+    """Flag the disabled <Step name="Insert Text"> with <Field>$README</Field>
+    pattern that some legacy scripts used for header documentation
+    (PARAMETER FORMAT / NOTES / HISTORY duplicates).
+
+    Banned by team convention 2026-05-13 — "no other scripts are documenting
+    like this; let the code speak for itself." The legitimate header
+    comments (# # PURPOSE / # # NOTES / # # HISTORY / # # TODO) are the
+    canonical location.
+    """
+
+    rule_id = "SL003"
+    name = "banned-readme-doc-block"
+    category = "sl_fork"
+    default_severity = Severity.WARNING
+    formats = {"xml"}
+    tier = 1
+
+    def check_xml(self, parse_result, catalog, context, config):
+        if not parse_result.ok or not parse_result.steps:
+            return []
+        sev = self.severity(config)
+        diagnostics = []
+        for idx, step in enumerate(parse_result.steps):
+            if step.get("name", "") != "Insert Text":
+                continue
+            if step.get("enable", "True") != "False":
+                continue  # only flag the disabled-step variant of the pattern
+            field = step.find("Field")
+            if field is None or field.text != "$README":
+                continue
+            diagnostics.append(Diagnostic(
+                rule_id=self.rule_id,
+                severity=sev,
+                message=(
+                    "Disabled Insert Text step targeting $README — banned "
+                    "doc-block pattern (PARAMETER FORMAT / NOTES / HISTORY "
+                    "duplicates). Banned by team convention 2026-05-13."
+                ),
+                line=idx + 1,
+                fix_hint=(
+                    "Remove the disabled <Step name=\"Insert Text\"> with "
+                    "<Field>$README</Field>. Move any genuinely useful "
+                    "content into the # # PURPOSE / # # NOTES comment "
+                    "block at the top of the script."
+                ),
+            ))
+        return diagnostics
+
+    def check_hr(self, lines, catalog, context, config):
+        # HR sanitized output renders the disabled Insert Text as a
+        # `// Insert Text [...]` line, which is a strong textual signal.
+        sev = self.severity(config)
+        diagnostics = []
+        for ln in lines:
+            raw = (ln.raw or "").strip()
+            if raw.startswith("// Insert Text") and "$README" in raw:
+                diagnostics.append(Diagnostic(
+                    rule_id=self.rule_id,
+                    severity=sev,
+                    message=(
+                        "Disabled Insert Text step targeting $README — "
+                        "banned doc-block pattern. Banned by team "
+                        "convention 2026-05-13."
+                    ),
+                    line=ln.line_number,
+                    fix_hint=(
+                        "Remove the disabled Insert Text step. Move any "
+                        "useful content into the # # PURPOSE / # # NOTES "
+                        "comment block at the top of the script."
+                    ),
+                ))
+        return diagnostics
+
+
+# ---------------------------------------------------------------------------
+# SL004 — boilerplate-placeholder
+# ---------------------------------------------------------------------------
+
+_BOILERPLATE_RE = re.compile(
+    r"YYYY-MM-DD\s+by\s+FName\s+LName",
+    re.IGNORECASE,
+)
+
+
+@rule
+class BoilerplatePlaceholder(LintRule):
+    """Flag the uncleaned template-boilerplate "Modified" placeholder
+    line that TMPL_NewScript ships with: "# Modified: YYYY-MM-DD by
+    FName LName [REF#]".
+
+    Should be replaced with a real history entry (or deleted) when the
+    script is first modified after creation. Bit the 2026-05-15 audit
+    where it appeared in 5 scripts that had been edited since creation
+    but never had this line cleaned up.
+    """
+
+    rule_id = "SL004"
+    name = "boilerplate-placeholder"
+    category = "sl_fork"
+    default_severity = Severity.WARNING
+    formats = {"xml", "hr"}
+    tier = 1
+
+    def check_xml(self, parse_result, catalog, context, config):
+        if not parse_result.ok or not parse_result.steps:
+            return []
+        sev = self.severity(config)
+        diagnostics = []
+        for idx, step in enumerate(parse_result.steps):
+            if step.get("name", "") != "# (comment)":
+                continue
+            text_el = step.find("Text")
+            if text_el is None or text_el.text is None:
+                continue
+            if _BOILERPLATE_RE.search(text_el.text):
+                diagnostics.append(Diagnostic(
+                    rule_id=self.rule_id,
+                    severity=sev,
+                    message=(
+                        "Uncleaned template-boilerplate Modified line "
+                        "(\"YYYY-MM-DD by FName LName [REF#]\"). Replace "
+                        "with a real history entry or delete."
+                    ),
+                    line=idx + 1,
+                    fix_hint=(
+                        "Replace this # (comment) step's text with a real "
+                        "Modified entry: "
+                        "\"Modified: 2026-MM-DD by <name> / Claude — "
+                        "<what changed and why>.\""
+                    ),
+                ))
+        return diagnostics
+
+    def check_hr(self, lines, catalog, context, config):
+        sev = self.severity(config)
+        diagnostics = []
+        for ln in lines:
+            raw = ln.raw or ""
+            if _BOILERPLATE_RE.search(raw):
+                diagnostics.append(Diagnostic(
+                    rule_id=self.rule_id,
+                    severity=sev,
+                    message=(
+                        "Uncleaned template-boilerplate Modified line. "
+                        "Replace with a real history entry or delete."
+                    ),
+                    line=ln.line_number,
+                    fix_hint=(
+                        "Replace with a real Modified entry or remove the "
+                        "comment step entirely."
+                    ),
+                ))
+        return diagnostics
+
+
+# ---------------------------------------------------------------------------
+# SL005 — missing-pseudo-loop-markers
+# ---------------------------------------------------------------------------
+
+@rule
+class MissingPseudoLoopMarkers(LintRule):
+    """Flag scripts that have a top-level Loop step but lack the
+    canonical BEGIN PSEUDO LOOP / END PSEUDO LOOP marker comments.
+
+    The TMPL_NewScript and TMPL_NewScript - Transactions templates both
+    wrap the script body in a "pseudo-loop" — a Loop step that runs once
+    and uses Exit Loop If steps for early-exit control flow. The marker
+    comment blocks make this structure scannable in Script Workspace:
+
+        # =====================================================
+        # BEGIN PSEUDO LOOP
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        Loop [ ... ]
+           ...body...
+        End Loop
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # END PSEUDO LOOP
+        # =====================================================
+
+    Missing markers usually means the script is using a Loop but not
+    following the template convention (or was hand-rolled before the
+    convention existed). Surfaced 2026-05-15 in the RefreshPayload
+    rebuild pass.
+    """
+
+    rule_id = "SL005"
+    name = "missing-pseudo-loop-markers"
+    category = "sl_fork"
+    default_severity = Severity.WARNING
+    formats = {"xml"}
+    tier = 1
+
+    def check_xml(self, parse_result, catalog, context, config):
+        if not parse_result.ok or not parse_result.steps:
+            return []
+        sev = self.severity(config)
+
+        # Does the script have any Loop step?
+        has_loop = any(s.get("name", "") == "Loop" for s in parse_result.steps)
+        if not has_loop:
+            return []
+
+        # Search comment text for the BEGIN/END markers
+        has_begin_marker = False
+        has_end_marker = False
+        for step in parse_result.steps:
+            if step.get("name", "") != "# (comment)":
+                continue
+            text_el = step.find("Text")
+            if text_el is None or text_el.text is None:
+                continue
+            txt = text_el.text.strip().upper()
+            # Accept the typo "PSUEDO" too — older scripts have it
+            if txt.startswith("BEGIN PSEUDO LOOP") or txt.startswith("BEGIN PSUEDO LOOP"):
+                has_begin_marker = True
+            elif txt.startswith("END PSEUDO LOOP") or txt.startswith("END PSUEDO LOOP"):
+                has_end_marker = True
+
+        diagnostics = []
+        if not has_begin_marker:
+            diagnostics.append(Diagnostic(
+                rule_id=self.rule_id,
+                severity=sev,
+                message=(
+                    "Script has a Loop step but no \"BEGIN PSEUDO LOOP\" "
+                    "marker comment block. The TMPL_NewScript templates "
+                    "wrap the pseudo-loop in marker comments for "
+                    "scannability."
+                ),
+                line=0,
+                fix_hint=(
+                    "Add three # (comment) steps immediately before the "
+                    "Loop step: a row of \"=\" characters, the text "
+                    "\"BEGIN PSEUDO LOOP\", and a row of \"~\" characters."
+                ),
+            ))
+        if not has_end_marker:
+            diagnostics.append(Diagnostic(
+                rule_id=self.rule_id,
+                severity=sev,
+                message=(
+                    "Script has a Loop step but no \"END PSEUDO LOOP\" "
+                    "marker comment block."
+                ),
+                line=0,
+                fix_hint=(
+                    "Add three # (comment) steps immediately after the "
+                    "matching End Loop step: a row of \"~\" characters, "
+                    "the text \"END PSEUDO LOOP\", and a row of \"=\" "
+                    "characters."
+                ),
+            ))
+        return diagnostics
+
+
+# ---------------------------------------------------------------------------
+# SL006 — script-top-global-allow-or-capture
+# ---------------------------------------------------------------------------
+
+@rule
+class ScriptTopGlobalAllowOrCapture(LintRule):
+    """Flag Allow User Abort or Set Error Capture steps placed at the
+    script top level (before the outer Loop), in scripts that also have
+    a Loop. The TMPL_NewScript convention places these steps INSIDE the
+    pseudo-loop where they apply to specific risky steps — not as
+    "global preamble" before the loop starts.
+
+    Top-level globals were the old hand-rolled pattern from before the
+    template existed. Bit the 2026-05-15 RefreshPayload rebuild pass.
+
+    Scripts that have NO Loop (e.g., thin Open*Dialog wrappers like
+    INV_OpenNewItemDialog) are exempt — for those, top-level
+    Allow User Abort / Set Error Capture is the intentional pattern.
+    """
+
+    rule_id = "SL006"
+    name = "script-top-global-allow-or-capture"
+    category = "sl_fork"
+    default_severity = Severity.WARNING
+    formats = {"xml"}
+    tier = 1
+
+    def check_xml(self, parse_result, catalog, context, config):
+        if not parse_result.ok or not parse_result.steps:
+            return []
+        sev = self.severity(config)
+
+        # Find the index of the first Loop step. If none, the script is
+        # a thin wrapper and this rule doesn't apply.
+        loop_idx = None
+        for idx, step in enumerate(parse_result.steps):
+            if step.get("name", "") == "Loop":
+                loop_idx = idx
+                break
+        if loop_idx is None:
+            return []
+
+        # Scan steps BEFORE the Loop for Allow User Abort / Set Error Capture
+        diagnostics = []
+        for idx in range(loop_idx):
+            name = parse_result.steps[idx].get("name", "")
+            if name in ("Allow User Abort", "Set Error Capture"):
+                diagnostics.append(Diagnostic(
+                    rule_id=self.rule_id,
+                    severity=sev,
+                    message=(
+                        f"'{name}' step appears at script top level "
+                        f"(before the outer Loop). The TMPL_NewScript "
+                        f"templates don't use top-level globals — these "
+                        f"steps belong INSIDE the pseudo-loop, paired with "
+                        f"specific risky steps that need them."
+                    ),
+                    line=idx + 1,
+                    fix_hint=(
+                        f"Remove this top-level {name} step. If a risky "
+                        f"step inside the loop needs error suppression, "
+                        f"wrap THAT step with a Set Error Capture [On] / "
+                        f"CreateEventObjectFmErrorsOnly / [Off] pair."
+                    ),
+                ))
+        return diagnostics
+
+
+# ---------------------------------------------------------------------------
+# SL009 — redundant-else-label
+# ---------------------------------------------------------------------------
+
+_ELSE_LABEL_RE = re.compile(r"^//\s*Else\s*$", re.IGNORECASE)
+
+
+@rule
+class RedundantElseLabel(LintRule):
+    """Flag a # (comment) step with text "// Else" immediately preceding
+    a bare Else step.
+
+    Banned by team convention 2026-05-14 ("the Else step itself is the
+    label; the comment adds nothing"). The blank-line-above-Else
+    convention (FM script style Rule 1) provides the visual separation
+    the // Else label was meant to add.
+    """
+
+    rule_id = "SL009"
+    name = "redundant-else-label"
+    category = "sl_fork"
+    default_severity = Severity.WARNING
+    formats = {"xml"}
+    tier = 1
+
+    def check_xml(self, parse_result, catalog, context, config):
+        if not parse_result.ok or not parse_result.steps:
+            return []
+        sev = self.severity(config)
+        diagnostics = []
+        steps = parse_result.steps
+        for idx in range(len(steps) - 1):
+            cur = steps[idx]
+            nxt = steps[idx + 1]
+            if cur.get("name", "") != "# (comment)":
+                continue
+            if nxt.get("name", "") != "Else":
+                continue
+            text_el = cur.find("Text")
+            if text_el is None or text_el.text is None:
+                continue
+            if _ELSE_LABEL_RE.match(text_el.text.strip()):
+                diagnostics.append(Diagnostic(
+                    rule_id=self.rule_id,
+                    severity=sev,
+                    message=(
+                        "Redundant \"// Else\" comment immediately above "
+                        "a bare Else step. Banned by team convention "
+                        "2026-05-14 — the Else step itself is the label."
+                    ),
+                    line=idx + 1,
+                    fix_hint=(
+                        "Remove the # (comment) step. If visual separation "
+                        "is wanted, the blank-line-above-Else convention "
+                        "(empty # (comment) step) is the canonical way."
+                    ),
+                ))
+        return diagnostics
