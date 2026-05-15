@@ -230,6 +230,8 @@ Every script follows this documentation pattern at the top:
 </Step>
 ```
 
+> **SL_Core fork override (2026-05-15):** This pattern is **deprecated** for SL_Core scripts. The team's preference is comment-step-only headers; the script's own `JSONGetElement` calls and HANDLE RESULT JSON construction are the parameter/result contract. Header doc blocks (whether `Insert Text [$README]` or `# (comment)` steps with `PARAMETER FORMAT` / `RESULT JSON` / `INPUT:` / `OUTPUT:` / `PARAMS:` / `RETURNS:`) drift the moment the script is modified and create a second source of truth that has to be maintained in lockstep. Enforced deterministically by `fmlint` **SL018 — header-parameter-doc-block**. See [SL_FORK.md](../../SL_FORK.md) for fork divergences.
+
 **3. Blank lines** — empty self-closing `# (comment)` steps used as visual separators between logical sections:
 ```xml
 <Step enable="True" id="89" name="# (comment)"/>

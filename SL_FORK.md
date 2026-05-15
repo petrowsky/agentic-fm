@@ -44,6 +44,7 @@ A short ledger of what differs from `petrowsky/agentic-fm`. Update this whenever
 | 2026-05-15 | `agent/scripts/fm_xml_to_snippet.py` — added `tx_perform_script_on_server` and `tx_new_window` translators | Catalog-driven generic translator silently dropped PSOS script reference + parameter calc, and dropped New Window's Style/Name/Bounds/Options. Both broke transactional workflows on every SaXML → fmxmlsnippet round-trip. |
 | 2026-05-15 | `agent/catalogs/step-catalog-en.json` — added `CurrentLayout`, `LayoutNameByCalculation`, `LayoutNumberByCalculation` to the `LayoutDestination` enum | Verified via FM round-trip 2026-05-14 (see sl-inventory `docs/patterns/fm-fmxmlsnippet-gotchas.md` §1). Upstream catalog only listed `SelectedLayout`. |
 | 2026-05-15 | `agent/fmlint/rules/sl_*` — SL-specific lint rules | Pattern A polarity bug (`Set Error Capture [OFF]` before record-mutating step) and empty PSOS parameter calc are both silent-failure classes that have bitten this codebase 3+ times. Lint catches them deterministically. |
+| 2026-05-15 | `agent/docs/CODING_CONVENTIONS.md` — deprecated `Insert Text [$README]` doc-block pattern + ban `PARAMETER FORMAT` / `RESULT JSON` / `INPUT:` / `OUTPUT:` / `PARAMS:` / `RETURNS:` header comments | Header parameter/result documentation drifts the moment the script is modified — second source of truth has to be maintained in lockstep with the script's own `JSONGetElement` / HANDLE RESULT JSON. SL_Core convention is comment-step-only headers. Enforced by `fmlint` SL018. |
 
 ## Cross-references
 

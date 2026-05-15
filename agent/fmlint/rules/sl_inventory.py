@@ -1288,6 +1288,262 @@ class NoCalcAlignmentPadding(LintRule):
 
 
 # ---------------------------------------------------------------------------
+# SL017 — leftover-template-scaffolding
+# ---------------------------------------------------------------------------
+
+@rule
+class LeftoverTemplateScaffolding(LintRule):
+    """Flag scripts that still contain TMPL_NewScript scaffolding markers
+    instructing the developer to delete unused template steps.
+
+    The TMPL_NewScript / TMPL_NewScript - Transactions templates include
+    "DELETE THE BELOW IF NO USER DIALOGS IN THIS SCRIPT" as a literal
+    comment in the DISPLAY NOTIFICATION / ERROR section, followed by a
+    block of disabled scaffolding steps. The marker is an instruction to
+    the developer authoring the script: if the script doesn't display
+    user dialogs, delete the marker AND the disabled steps below it.
+
+    A finished, non-template script that still contains this marker is
+    a finished-script smell — either:
+      (a) the disabled scaffolding below was left in by accident
+          (compliance failure), or
+      (b) the marker itself was left in (style failure).
+
+    The fix is mechanical:
+      - If the script doesn't display user dialogs: replace the entire
+        block (marker + disabled steps) with a single
+        '# No user notifications in this script.' comment.
+      - If the script DOES display dialogs: enable the relevant steps
+        (so they're no longer commented out) and remove the marker.
+
+    The TMPL_NewScript and TMPL_NewScript - Transactions templates
+    themselves are exempt from this rule via the TMPL filename prefix.
+
+    Team convention 2026-05-15 (after rebuilding INV_SupplierPriceDates_
+    SaveAllWorker on TMPL_NewScript - Transactions surfaced the marker
+    as leftover scaffolding).
+    """
+
+    rule_id = "SL017"
+    name = "leftover-template-scaffolding"
+    category = "sl_fork"
+    default_severity = Severity.WARNING
+    formats = {"xml"}
+    tier = 1
+
+    _MARKER_SUBSTRINGS = (
+        "DELETE THE BELOW IF NO USER DIALOGS",
+        "DELETE THE BELOW IF NO USER DIALOG",  # tolerate singular
+    )
+
+    # If the script's PURPOSE comment matches one of these template
+    # signatures, it IS the template itself — exempt.
+    _TEMPLATE_PURPOSE_SIGNATURES = (
+        "development template to use",
+    )
+
+    def check_xml(self, parse_result, catalog, context, config):
+        if not parse_result.ok or not parse_result.steps:
+            return []
+        sev = self.severity(config)
+        steps = parse_result.steps
+
+        # Content-based exemption: the TMPL_NewScript / TMPL_NewScript -
+        # Transactions templates carry a distinct PURPOSE comment that no
+        # finished script reproduces. Scan the first ~8 comment steps for
+        # one of the template signatures; if found, this IS the template
+        # and we skip the rule.
+        for step in steps[:20]:
+            if step.get("name", "") != "# (comment)":
+                continue
+            text_el = step.find("Text")
+            if text_el is None or text_el.text is None:
+                continue
+            if any(sig in text_el.text for sig in self._TEMPLATE_PURPOSE_SIGNATURES):
+                return []
+
+        diagnostics = []
+        for i, step in enumerate(steps):
+            if step.get("name", "") != "# (comment)":
+                continue
+            text_el = step.find("Text")
+            if text_el is None or text_el.text is None:
+                continue
+            txt = text_el.text.upper()
+            if not any(m in txt for m in self._MARKER_SUBSTRINGS):
+                continue
+
+            diagnostics.append(Diagnostic(
+                rule_id=self.rule_id,
+                severity=sev,
+                message=(
+                    "Leftover TMPL_NewScript scaffolding marker found: "
+                    "'DELETE THE BELOW IF NO USER DIALOGS IN THIS SCRIPT'. "
+                    "This is an instruction to the developer to remove "
+                    "the disabled scaffolding steps below it (or enable "
+                    "them if the script does display dialogs) and delete "
+                    "the marker itself. A finished script should never "
+                    "contain this marker."
+                ),
+                line=i + 1,
+                fix_hint=(
+                    "If this script doesn't display user dialogs, replace "
+                    "the marker AND the disabled steps below it with a "
+                    "single '# No user notifications in this script.' "
+                    "comment. If it DOES display dialogs, enable the "
+                    "relevant Set Variable / If / Perform Script steps "
+                    "and delete the marker."
+                ),
+            ))
+            # One diagnostic per script — the marker is a single point of fix.
+            break
+
+        return diagnostics
+
+
+# ---------------------------------------------------------------------------
+# SL018 — header-parameter-doc-block
+# ---------------------------------------------------------------------------
+
+@rule
+class HeaderParameterDocBlock(LintRule):
+    """Flag parameter / result documentation blocks in script header
+    comments and disabled $README Insert Text doc steps.
+
+    SL_Core convention: a script's own JSONGetElement calls and
+    HANDLE RESULT JSON construction ARE the parameter/result contract.
+    Header documentation that enumerates field names, types, or shapes
+    (e.g. PARAMETER FORMAT, RESULT JSON, INPUT/OUTPUT, PARAMS, RETURNS)
+    is a second source of truth that drifts the moment the script is
+    modified. Same goes for disabled `Insert Text [ $README ]` doc-block
+    steps — they accumulate stale prose without enforcement.
+
+    The fix is to delete the doc block. Let the script speak for itself.
+
+    Architectural notes that don't enumerate fields (e.g.
+    "ATOMICITY: outer transaction wraps both sub-script calls" or a
+    one-sentence PURPOSE line) are fine — they describe behavior, not
+    contract.
+
+    Team convention 2026-05-15.
+    """
+
+    rule_id = "SL018"
+    name = "header-parameter-doc-block"
+    category = "sl_fork"
+    default_severity = Severity.WARNING
+    formats = {"xml"}
+    tier = 1
+
+    # Substrings (uppercase) that, when starting a header # (comment) Text,
+    # indicate a parameter/result enumeration that should not be there.
+    _BANNED_PREFIXES = (
+        "PARAMETER FORMAT",
+        "PARAMETERS:",
+        "PARAMS:",
+        "RESULT JSON",
+        "RETURN VALUE",
+        "RETURN VALUES",
+        "RETURNS:",
+        "INPUT:",
+        "INPUTS:",
+        "OUTPUT:",
+        "OUTPUTS:",
+        "ARGUMENTS:",
+        "ARGS:",
+    )
+
+    def check_xml(self, parse_result, catalog, context, config):
+        if not parse_result.ok or not parse_result.steps:
+            return []
+        sev = self.severity(config)
+        steps = parse_result.steps
+
+        # Find the boundary between header and body. Header ends at the
+        # first `Loop` step (the BEGIN PSEUDO LOOP). If there's no Loop,
+        # treat the entire script as header (rare — thin wrappers).
+        body_start = len(steps)
+        for i, s in enumerate(steps):
+            if s.get("name", "") == "Loop":
+                body_start = i
+                break
+
+        diagnostics = []
+
+        for i in range(body_start):
+            step = steps[i]
+            name = step.get("name", "")
+
+            # Case 1: # (comment) step with text starting with a banned prefix.
+            if name == "# (comment)":
+                text_el = step.find("Text")
+                if text_el is None or text_el.text is None:
+                    continue
+                txt_stripped = text_el.text.lstrip("# ").strip()
+                if not txt_stripped:
+                    continue
+                upper = txt_stripped.upper()
+                if any(upper.startswith(p) for p in self._BANNED_PREFIXES):
+                    diagnostics.append(Diagnostic(
+                        rule_id=self.rule_id,
+                        severity=sev,
+                        message=(
+                            "Script header contains a parameter/result "
+                            f"documentation block ('{txt_stripped[:60]}...'). "
+                            "SL_Core convention is that the script's own "
+                            "JSONGetElement calls and HANDLE RESULT JSON "
+                            "construction are the contract. Header "
+                            "documentation drifts the moment the script "
+                            "is modified — delete it and let the script "
+                            "speak for itself."
+                        ),
+                        line=i + 1,
+                        fix_hint=(
+                            "Delete this comment step (and any sibling "
+                            "comment steps that continue the same "
+                            "PARAMETER FORMAT / RESULT JSON / INPUT / "
+                            "OUTPUT block). The NOTES section ships "
+                            "intentionally empty in TMPL_NewScript; "
+                            "keep it that way unless there's a genuinely "
+                            "architectural note that doesn't enumerate "
+                            "field names, types, or shapes."
+                        ),
+                    ))
+
+            # Case 2: disabled `Insert Text` step targeting $README — the
+            # legacy doc-block pattern. Flag regardless of content.
+            elif name == "Insert Text":
+                field_el = step.find("Field")
+                if field_el is not None and (field_el.text or "").strip() == "$README":
+                    diagnostics.append(Diagnostic(
+                        rule_id=self.rule_id,
+                        severity=sev,
+                        message=(
+                            "Disabled Insert Text [ $README ] doc-block "
+                            "step found in script header. SL_Core "
+                            "convention deprecated this pattern in favor "
+                            "of inline # (comment) steps. The $README "
+                            "target was a convention from the upstream "
+                            "agentic-fm style guide; it accumulates "
+                            "stale prose because no lint or runtime "
+                            "check enforces alignment with the script's "
+                            "actual JSON shape."
+                        ),
+                        line=i + 1,
+                        fix_hint=(
+                            "Delete the Insert Text [ $README ] step. "
+                            "If a genuinely architectural note is worth "
+                            "preserving (one that doesn't enumerate "
+                            "fields/types/shapes), move it to a # "
+                            "(comment) step in the PURPOSE or NOTES "
+                            "section."
+                        ),
+                    ))
+
+        return diagnostics
+
+
+# ---------------------------------------------------------------------------
 # Helpers for SL014/SL015 (post-Loop section detection)
 # ---------------------------------------------------------------------------
 
