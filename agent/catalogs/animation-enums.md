@@ -32,6 +32,9 @@ Attribute: `LayoutDestination/@value`
 | HR Label | XML Value | Layout Element |
 |---|---|---|
 | `<Current Layout>` | `CurrentLayout` | *(none)* |
+| `<Original Layout>` | `OriginalLayout` | *(none)* |
 | `"Layout Name" (TableOccurrence)` | `SelectedLayout` | `<Layout id="" name=""/>` |
 | `"layout_name"` (by calc) | `LayoutNameByCalc` | `<Layout><Calculation>` |
 | `1` (by number) | `LayoutNumberByCalc` | `<Layout><Calculation>` |
+
+**`<DistanceFromTop>` and `<DistanceFromLeft>` are independent of `LayoutDestination`.** They are optional positioning siblings for `New Window` and for new-window mode of `Go to List of Records` / `Go to Related Record`. Omit them unless the script needs a specific screen offset — FileMaker uses default placement when they are absent. The standard `TMPL_NewScript - Transactions` template form omits both.

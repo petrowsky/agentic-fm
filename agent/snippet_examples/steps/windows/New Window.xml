@@ -1,30 +1,28 @@
 <?xml version="1.0"?>
 <fmxmlsnippet type="FMObjectList">
   <Step enable="True" id="122" name="New Window">
-    <LayoutDestination value="SelectedLayout"/>
+    <LayoutDestination value="CurrentLayout"/>
     <Name>
-      <Calculation><![CDATA[]]></Calculation>
+      <Calculation><![CDATA[$windowNameForTransaction]]></Calculation>
     </Name>
     <Height>
-      <Calculation><![CDATA[]]></Calculation>
+      <Calculation><![CDATA[200]]></Calculation>
     </Height>
     <Width>
-      <Calculation><![CDATA[]]></Calculation>
+      <Calculation><![CDATA[200]]></Calculation>
     </Width>
-    <DistanceFromTop>
-      <Calculation><![CDATA[]]></Calculation>
-    </DistanceFromTop>
-    <DistanceFromLeft>
-      <Calculation><![CDATA[]]></Calculation>
-    </DistanceFromLeft>
-    <NewWndStyles DimParentWindow="No" Toolbars="Yes" MenuBar="Yes" Style="Document" Close="Yes" Minimize="Yes" Maximize="Yes" Resize="Yes" Styles="1076299266"/>
-    <Layout id="0" name=""/>
+    <NewWndStyles DimParentWindow="No" Toolbars="No" MenuBar="Yes" Style="Document" Close="Yes" Minimize="Yes" Maximize="Yes" Resize="Yes" Styles="1074202114"/>
   </Step>
 </fmxmlsnippet>
-<!-- LayoutDestination enumeration: "SelectedLayout" specifies layout by name from list; other values similar to Go to Layout step. -->
+<!-- TEMPLATE FORM (this example): LayoutDestination value="CurrentLayout" — emit no <Layout> child and no <DistanceFromTop>/<DistanceFromLeft> siblings. Just Name, Height, Width, NewWndStyles. This is the form used by TMPL_NewScript - Transactions (id 513) and all scripts derived from it. Default to this shape unless the script explicitly needs a different layout or screen position. -->
+<!-- LayoutDestination value="OriginalLayout" — same shape as the template form (no <Layout>, positioning still optional). Used by existing INV_* workflow scripts when returning to the originating window's layout context. -->
+<!-- LayoutDestination value="SelectedLayout" — add <Layout id="..." name="..."/> sibling. Use only when targeting a specific layout by id/name. -->
+<!-- LayoutDestination value="LayoutNameByCalc" | "LayoutNumberByCalc" — add <Layout><Calculation><![CDATA[...]]></Calculation></Layout>. -->
+<!-- <DistanceFromTop> and <DistanceFromLeft> are optional positioning siblings, independent of LayoutDestination. Omit them unless the script needs a specific screen offset; FileMaker uses default placement when they are absent. -->
+<!-- See agent/catalogs/animation-enums.md for the full LayoutDestination value table. -->
 <!-- NewWndStyles attributes: DimParentWindow ("Yes" darkens layout area of parent window for card, "No" does not); Toolbars ("Yes" shows FileMaker Pro status toolbar and FileMaker Go toolbar/editing toolbar, "No" does not); MenuBar ("Yes" shows area at top displaying installed menu set, "No" does not; not supported in macOS or when active window is card); Style ("Document" opens document window; "FloatingDocument" opens floating document window; "Dialog" opens dialog window; "Card" opens card); Close ("Yes" enables close button in window's title bar, "No" does not); Minimize ("Yes" enables minimize button in window's title bar, "No" does not); Maximize ("Yes" enables maximize button in window's title bar, "No" does not); Resize ("Yes" allows users to resize window, "No" does not); Styles (numeric style flags). -->
 <!-- NewWndStyles Style="Document | Floating | Dialog | Card" -->
-<!-- Optional: LayoutDestination, Layout (layout to be used), Name (window name; does not have to be unique), Height (height of new window in points), Width (width of new window in points), DistanceFromTop (new window's distance in points from top of screen; or for card, from top of layout in parent window), DistanceFromLeft (new window's distance in points from left of screen; or for card, from left of parent window), NewWndStyles. -->
+<!-- Optional elements: LayoutDestination, Layout (only with SelectedLayout / LayoutNameByCalc / LayoutNumberByCalc), Name (window name; does not have to be unique), Height (height of new window in points), Width (width of new window in points), DistanceFromTop, DistanceFromLeft, NewWndStyles. -->
 <!-- Creates new window based on foreground window. Can create document window, floating document window, dialog window, or card. -->
 <!-- Not necessary to enter values for each option. When no value entered, FileMaker Pro uses default value associated with Window menu > New Window command. -->
 <!-- When both maximize and minimize buttons disabled, these buttons do not appear in window's title bar. -->

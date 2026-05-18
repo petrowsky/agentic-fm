@@ -33,7 +33,7 @@ Note: Document and Floating Document do not support DimParentWindow. Only Card s
 
 ## New Window Params
 
-When `ShowInNewWindow state="True"`, these additional sibling calc elements appear:
+When `ShowInNewWindow state="True"` (or on the standalone `New Window` step), these sibling calc elements **may** appear. All five are optional. The standard `TMPL_NewScript - Transactions` template form emits only `Name`, `Height`, and `Width`; `DistanceFromTop` and `DistanceFromLeft` are omitted so FileMaker uses default placement.
 
 | Element | Notes |
 |---|---|
