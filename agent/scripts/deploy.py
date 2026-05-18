@@ -242,6 +242,10 @@ def _paste_applescript(fm_app_name: str, target_script: str, select_all: bool, a
             f'        keystroke "s" using {{command down}}\n'
         )
 
+    # SAFETY: poll for the target tab up to ~3 seconds. If the tab never
+    # appears, abort with an error — DO NOT press Cmd+A blindly, or the
+    # focused script-list panel will receive the keystroke and the
+    # subsequent Delete will wipe the entire script tree.
     return (
         f'tell application "{_esc(fm_app_name)}"\n'
         f'    activate\n'
@@ -251,20 +255,33 @@ def _paste_applescript(fm_app_name: str, target_script: str, select_all: bool, a
         f'\n'
         f'tell application "System Events"\n'
         f'    tell process "{_esc(fm_process)}"\n'
-        # AXPress the script tab to move focus to step editor
-        f'        set wsWindows to windows whose title contains "Script Workspace"\n'
-        f'        if (count of wsWindows) > 0 then\n'
-        f'            tell item 1 of wsWindows\n'
-        f'                tell splitter group 1\n'
-        f'                    set tabButtons to every button whose description is "{_esc(target_script)}"\n'
-        f'                    if (count of tabButtons) > 0 then\n'
-        f'                        perform action "AXPress" of item 1 of tabButtons\n'
-        f'                    end if\n'
-        f'                end tell\n'
-        f'            end tell\n'
+        f'        set tabFound to false\n'
+        f'        set attemptCount to 0\n'
+        f'        repeat while (tabFound is false) and (attemptCount < 15)\n'
+        f'            set wsWindows to windows whose title contains "Script Workspace"\n'
+        f'            if (count of wsWindows) > 0 then\n'
+        f'                try\n'
+        f'                    tell item 1 of wsWindows\n'
+        f'                        tell splitter group 1\n'
+        f'                            set tabButtons to every button whose description is "{_esc(target_script)}"\n'
+        f'                            if (count of tabButtons) > 0 then\n'
+        f'                                perform action "AXPress" of item 1 of tabButtons\n'
+        f'                                set tabFound to true\n'
+        f'                            end if\n'
+        f'                        end tell\n'
+        f'                    end tell\n'
+        f'                end try\n'
+        f'            end if\n'
+        f'            if tabFound is false then\n'
+        f'                delay 0.2\n'
+        f'                set attemptCount to attemptCount + 1\n'
+        f'            end if\n'
+        f'        end repeat\n'
+        f'        if tabFound is false then\n'
+        f'            error "AGENTIC_FM_ABORT: target script tab \'{_esc(target_script)}\' not found in Script Workspace — refusing to send keystrokes" number 5001\n'
         f'        end if\n'
         f'        delay 0.5\n'
-        # Paste sequence
+        # Paste sequence — only reached when the tab is confirmed focused
         f'{paste_block}'
         f'{save_block}'
         f'    end tell\n'

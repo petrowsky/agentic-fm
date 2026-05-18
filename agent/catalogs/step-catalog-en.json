@@ -2765,8 +2765,8 @@
         "enumValues": [
           "SelectedLayout",
           "OriginalLayout",
-          "LayoutNameByCalculation",
-          "LayoutNumberByCalculation"
+          "LayoutNameByCalc",
+          "LayoutNumberByCalc"
         ]
       },
       {

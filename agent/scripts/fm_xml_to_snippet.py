@@ -520,17 +520,27 @@ def tx_go_to_layout(step) -> str:
     layout_name  = ''
     has_layout   = False
     animation    = ''
+    calc_text    = ''  # for LayoutNameByCalc / LayoutNumberByCalc
 
     p = param_by_type(step, 'LayoutReferenceContainer')
     if p is not None:
         lrc = p.find('LayoutReferenceContainer')
         if lrc is not None:
+            lrc_value = lrc.get('value', '')
             lr = lrc.find('LayoutReference')
             if lr is not None:
+                # value=2 — explicit selected layout by id/name
                 layout_dest = 'SelectedLayout'
                 layout_id   = lr.get('id', '0')
                 layout_name = lr.get('name', '')
                 has_layout  = True
+            elif lrc_value in ('3', '4'):
+                # value=3 → LayoutNameByCalc, value=4 → LayoutNumberByCalc.
+                # SaXML nests the formula at LayoutReferenceContainer/Calculation/Calculation/Text.
+                layout_dest = 'LayoutNameByCalc' if lrc_value == '3' else 'LayoutNumberByCalc'
+                text_el = lrc.find('Calculation/Calculation/Text')
+                if text_el is not None and text_el.text:
+                    calc_text = text_el.text
             else:
                 label_el   = lrc.find('Label')
                 label_text = (label_el.text or '').strip() if label_el is not None else ''
@@ -548,6 +558,11 @@ def tx_go_to_layout(step) -> str:
     ]
     if has_layout:
         parts.append(f'{L1}<Layout id="{layout_id}" name="{escape_attr(layout_name)}"/>')
+    elif calc_text:
+        # Calculated layout name/number — wrap in <Layout id="0" name=""> with inner <Calculation>
+        parts.append(f'{L1}<Layout id="0" name="">')
+        parts.append(f'{L2}<Calculation><![CDATA[{calc_text}]]></Calculation>')
+        parts.append(f'{L1}</Layout>')
     if animation:
         parts.append(f'{L1}<Animation value="{animation}"/>')
     parts.append(f'{S}</Step>')
@@ -1740,6 +1755,99 @@ def tx_unknown(step) -> str:
     return _tx_unknown_inner(name, enable, sid)
 
 
+def tx_perform_find_natural_language(step) -> str:
+    """
+    Perform Find by Natural Language (id=221).
+
+    SaXML params (each <Parameter type="X">):
+      Target              → <Field>$VARIABLE</Field>  (variable; field-ref form not yet observed)
+      LLMAccountName      → <AccountName><Calculation/></AccountName>          (inside LLMCreateFind)
+      LLMModel            → <Model><Calculation/></Model>                      (inside LLMCreateFind)
+      LLMMessage          → <PromptMessage><Calculation/></PromptMessage>      (inside LLMCreateFind)
+      Parameters          → <Parameters><Calculation/></Parameters>            (inside LLMCreateFind)
+      LLMAction           → <Action>Query|Data API|None</Action>               (inside LLMCreateFind)
+      TemplateName        → <PromptTemplateName><Calculation/></PromptTemplateName> (inside LLMCreateFind)
+
+    LLMAction list name → Action element value:
+      "Found Set"            → "Query"
+      "Found Set as JSON"    → "Data API"
+      "Find Request as JSON" → "None"
+
+    Option state is "True" when Parameters present, else "False". SelectAll always "True".
+    """
+    enable, sid = step_attrs(step)
+
+    target_var = ''
+    account_calc = ''
+    model_calc = ''
+    prompt_calc = ''
+    parameters_calc = ''
+    template_calc = ''
+    action_value = 'Query'
+
+    action_map = {
+        'Found Set':            'Query',
+        'Found Set as JSON':    'Data API',
+        'Find Request as JSON': 'None',
+    }
+
+    for p in all_params(step):
+        ptype = p.get('type', '')
+        if ptype == 'Target':
+            kind, val = _extract_saxml_target(p)
+            if kind == 'variable':
+                target_var = val or ''
+        elif ptype == 'LLMAccountName':
+            account_calc = _extract_saxml_calc(p)
+        elif ptype == 'LLMModel':
+            model_calc = _extract_saxml_calc(p)
+        elif ptype == 'LLMMessage':
+            prompt_calc = _extract_saxml_calc(p)
+        elif ptype == 'Parameters':
+            parameters_calc = _extract_saxml_calc(p)
+        elif ptype == 'TemplateName':
+            template_calc = _extract_saxml_calc(p)
+        elif ptype == 'LLMAction':
+            li = _extract_saxml_list(p)
+            if li:
+                action_value = action_map.get(li.get('name', ''), 'Query')
+
+    option_state = 'True' if parameters_calc else 'False'
+
+    parts = [
+        f'{S}<Step enable="{enable}" id="{sid}" name="Perform Find by Natural Language">',
+        f'{L1}<Option state="{option_state}"/>',
+        f'{L1}<SelectAll state="True"/>',
+    ]
+    if target_var:
+        parts.append(f'{L1}<Field>{escape_attr(target_var)}</Field>')
+    else:
+        parts.append(f'{L1}<Field table="" id="0" name=""/>')
+
+    parts.append(f'{L1}<LLMCreateFind>')
+    parts.append(f'{L2}<AccountName>')
+    parts.append(f'{L3}<Calculation><![CDATA[{account_calc}]]></Calculation>')
+    parts.append(f'{L2}</AccountName>')
+    parts.append(f'{L2}<Model>')
+    parts.append(f'{L3}<Calculation><![CDATA[{model_calc}]]></Calculation>')
+    parts.append(f'{L2}</Model>')
+    parts.append(f'{L2}<PromptMessage>')
+    parts.append(f'{L3}<Calculation><![CDATA[{prompt_calc}]]></Calculation>')
+    parts.append(f'{L2}</PromptMessage>')
+    if parameters_calc:
+        parts.append(f'{L2}<Parameters>')
+        parts.append(f'{L3}<Calculation><![CDATA[{parameters_calc}]]></Calculation>')
+        parts.append(f'{L2}</Parameters>')
+    parts.append(f'{L2}<Action>{action_value}</Action>')
+    if template_calc:
+        parts.append(f'{L2}<PromptTemplateName>')
+        parts.append(f'{L3}<Calculation><![CDATA[{template_calc}]]></Calculation>')
+        parts.append(f'{L2}</PromptTemplateName>')
+    parts.append(f'{L1}</LLMCreateFind>')
+    parts.append(f'{S}</Step>')
+    return '\n'.join(parts)
+
+
 # ---------------------------------------------------------------------------
 # Dispatch table
 # ---------------------------------------------------------------------------
@@ -1763,6 +1871,7 @@ TRANSLATORS = {
     'Commit Records/Requests': tx_commit,
     'Refresh Object':          tx_refresh_object,
     'Insert Calculated Result': tx_insert_calculated_result,
+    'Perform Find by Natural Language': tx_perform_find_natural_language,
     'Insert Text':             tx_insert_text,
     'Insert from URL':         tx_insert_from_url,
     'Open URL':                tx_open_url,
