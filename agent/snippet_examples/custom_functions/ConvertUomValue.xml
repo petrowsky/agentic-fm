@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<fmxmlsnippet type="FMObjectList">
+  <CustomFunction id="0" functionArity="3" visible="True" parameters="~value;~quantityBaseUnits;~quantityAltUnits" name="ConvertUomValue">
+    <Calculation><![CDATA[~value * ~quantityBaseUnits / ~quantityAltUnits]]></Calculation>
+  </CustomFunction>
+</fmxmlsnippet>
+<!-- id: always "0" for new custom functions; FileMaker auto-assigns on paste. -->
+<!-- name: the custom function's name (no parameter list — that comes from the parameters attribute). -->
+<!-- functionArity: integer count of parameters declared in the parameters attribute. Must match. -->
+<!-- visible: "True" for normal CFs (shown in autocomplete and Manage Custom Functions). "False" hides from autocomplete; rarely useful for new CFs. -->
+<!-- parameters: semicolon-delimited parameter names. SL_Core convention prefixes each with a tilde (~paramName) to indicate Let-variable usage in the calc body. The order in this attribute is the order callers must pass arguments. -->
+<!-- Calculation: the CF body, wrapped in <![CDATA[...]]>. Use the same parameter names as the parameters attribute (with the leading tilde). Hard tab indentation per SL_Core CODING_CONVENTIONS for multi-line calcs. -->
+<!-- Pastes via «class XMFN» (Custom Function) — see agent/docs/CLIPBOARD.md. Open Manage → Custom Functions in FileMaker Pro, then ⌘V. -->
+<!-- DDR vs clipboard: the format under agent/xml_parsed/custom_function_stubs/ uses richer attributes (UUID, Display, ObjectList/Parameter children) for archival. The clipboard format above is the minimal subset FM accepts on paste. Do NOT mix the two — emitting <ObjectList><Parameter/></ObjectList> produces an empty-parameter CF on paste. -->

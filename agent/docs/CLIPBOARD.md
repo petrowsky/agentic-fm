@@ -75,6 +75,44 @@ Auto-detection reads the first XML element inside the fmxmlsnippet wrapper and m
 
 ---
 
+## Object-type formats
+
+### Script steps (`XMSS`)
+
+The dominant format in this project. Steps live inside `<fmxmlsnippet type="FMObjectList">`. Refer to `agent/catalogs/step-catalog-en.json` for the canonical structure of each step and `agent/snippet_examples/steps/` for archival examples.
+
+### Custom Functions (`XMFN`)
+
+A custom function's clipboard XML is **minimal** — far simpler than the richer DDR / Save-As-XML representation under `agent/xml_parsed/custom_function_stubs/`. The clipboard format uses attribute-based parameters; the DDR format uses `<ObjectList><Parameter/></ObjectList>` children. **They are not interchangeable on paste** — emitting the DDR shape produces an empty-parameter CF in FM.
+
+```xml
+<?xml version="1.0"?>
+<fmxmlsnippet type="FMObjectList">
+  <CustomFunction id="0" functionArity="3" visible="True" parameters="~value;~quantityBaseUnits;~quantityAltUnits" name="ConvertUomValue">
+    <Calculation><![CDATA[~value * ~quantityBaseUnits / ~quantityAltUnits]]></Calculation>
+  </CustomFunction>
+</fmxmlsnippet>
+```
+
+| Attribute | Value | Notes |
+|---|---|---|
+| `id` | `"0"` | Always `0` for new CFs — FM auto-assigns on paste. |
+| `name` | Function name | No parameter list embedded — that comes from `parameters`. |
+| `functionArity` | Parameter count (integer as string) | Must match the number of names in `parameters`. |
+| `visible` | `"True"` or `"False"` | `True` for normal CFs (shown in autocomplete and Manage Custom Functions). `False` hides from autocomplete; rarely useful for new CFs. |
+| `parameters` | Semicolon-delimited parameter names | Order in this attribute is the order callers must pass arguments. SL_Core convention prefixes each name with a tilde (`~paramName`) to indicate Let-variable usage in the calc body. |
+| Child `<Calculation>` | The CF body in `<![CDATA[...]]>` | Use the same parameter names (with the leading tilde) as `parameters`. Hard tab indentation per `agent/docs/CODING_CONVENTIONS.md` for multi-line calcs. |
+
+To deploy: copy the XML to clipboard via `clipboard.py write` (auto-detects `XMFN`), then in FileMaker Pro open **File → Manage → Custom Functions...** and ⌘V.
+
+Canonical reference: `agent/snippet_examples/custom_functions/ConvertUomValue.xml` (captured 2026-05-18 from FM round-trip).
+
+### Other object types
+
+Layouts (`XML2`), Layout Objects (`XMLO`), Field Definitions (`XMFD`), Tables (`XMTB`), Value Lists (`XMVL`), and Themes (`XMTH`) all share the same `<fmxmlsnippet type="FMObjectList">` outer wrapper but have their own first-element shapes. These are less commonly authored from XML — most layout / schema work goes through the FM Pro UI directly. When examples are added, they live under `agent/snippet_examples/{type}/`.
+
+---
+
 ## How it works (low-level)
 
 Understanding the encoding helps when diagnosing issues or working outside of `clipboard.py`.
