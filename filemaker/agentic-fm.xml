@@ -271,20 +271,69 @@
       <Step enable="True" id="103" name="Exit Script"/>
       <Step enable="True" id="70" name="End If"/>
       <Step enable="True" id="89" name="# (comment)"/>
+      <Step enable="True" id="89" name="# (comment)">
+        <Text>Ensure ~/Desktop/agentic-fm/ exists for the XML export.</Text>
+      </Step>
+      <Step enable="True" id="67" name="Perform AppleScript">
+        <ContentType value="Text"/>
+        <Text>do shell script "mkdir -p ~/Desktop/agentic-fm"</Text>
+      </Step>
       <Step enable="True" id="141" name="Set Variable">
         <Value>
-          <Calculation><![CDATA[Get ( DesktopPath ) & Get ( FileName ) & ".xml"]]></Calculation>
+          <Calculation><![CDATA[Get ( DesktopPath ) & "agentic-fm/" & Get ( FileName ) & ".xml"]]></Calculation>
         </Value>
         <Repetition>
           <Calculation><![CDATA[1]]></Calculation>
         </Repetition>
         <Name>$output</Name>
       </Step>
+      <Step enable="True" id="89" name="# (comment)">
+        <Text>Pre-clean: Save a Copy as XML won't overwrite an existing file.</Text>
+      </Step>
+      <Step enable="True" id="86" name="Set Error Capture">
+        <Set state="True"/>
+      </Step>
+      <Step enable="True" id="197" name="Delete File">
+        <UniversalPathList>$output</UniversalPathList>
+      </Step>
+      <Step enable="True" id="86" name="Set Error Capture">
+        <Set state="False"/>
+      </Step>
       <Step enable="True" id="3" name="Save a Copy as XML">
         <Option state="False"/>
         <UniversalPathList>$output</UniversalPathList>
         <Calculation><![CDATA[Get ( WindowName )]]></Calculation>
       </Step>
+      <Step enable="True" id="141" name="Set Variable">
+        <Value>
+          <Calculation><![CDATA[Get ( LastError )]]></Calculation>
+        </Value>
+        <Repetition>
+          <Calculation><![CDATA[1]]></Calculation>
+        </Repetition>
+        <Name>$saveError</Name>
+      </Step>
+      <Step enable="True" id="68" name="If">
+        <Restore state="False"/>
+        <Calculation><![CDATA[$saveError ≠ 0]]></Calculation>
+      </Step>
+      <Step enable="True" id="87" name="Show Custom Dialog">
+        <Title>
+          <Calculation><![CDATA["Save as XML failed"]]></Calculation>
+        </Title>
+        <Message>
+          <Calculation><![CDATA["FileMaker could not write the XML export to:¶¶" & $output & "¶¶Error " & $saveError & ": " & Get ( LastErrorDetail ) & "¶¶Common causes: stale file at the target path, missing Files-and-Folders permission for FileMaker on Desktop, or read-only volume."]]></Calculation>
+        </Message>
+        <Buttons>
+          <Button CommitState="True">
+            <Calculation><![CDATA["OK"]]></Calculation>
+          </Button>
+          <Button CommitState="False"/>
+          <Button CommitState="False"/>
+        </Buttons>
+      </Step>
+      <Step enable="True" id="103" name="Exit Script"/>
+      <Step enable="True" id="70" name="End If"/>
       <Step enable="True" id="89" name="# (comment)"/>
       <Step enable="True" id="141" name="Set Variable">
         <Value>

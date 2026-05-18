@@ -339,6 +339,9 @@ def tx_show_custom_dialog(step) -> str:
     title_calc = ''
     message_calc = ''
     buttons = []  # list of (label_str, commit_state_str)
+    # input_fields[i] = {'use_password': str, 'kind': 'field'|'variable'|'empty',
+    #                    'table': str, 'id': str, 'name': str, 'var': str, 'label': str}
+    input_fields = {1: None, 2: None, 3: None}
 
     for p in all_params(step):
         ptype = p.get('type', '')
@@ -353,6 +356,40 @@ def tx_show_custom_dialog(step) -> str:
             if b is not None:
                 commit = b.get('value', 'False')
             buttons.append((label, commit))
+        elif ptype in ('Field1', 'Field2', 'Field3'):
+            slot = int(ptype[-1])
+            entry = {
+                'use_password': 'False',
+                'kind': 'empty',
+                'table': '',
+                'id': '0',
+                'name': '',
+                'var': '',
+                'label': '',
+            }
+            # Password flag
+            for b in p.findall('Boolean'):
+                if b.get('type', '') == 'Password':
+                    entry['use_password'] = b.get('value', 'False')
+            # Target (field or variable)
+            for sub in p.findall('Parameter'):
+                if sub.get('type', '') == 'Target':
+                    var_el = sub.find('Variable')
+                    if var_el is not None:
+                        entry['kind'] = 'variable'
+                        entry['var'] = var_el.get('value', '')
+                        continue
+                    fr = sub.find('FieldReference')
+                    if fr is not None:
+                        entry['kind'] = 'field'
+                        entry['id'] = fr.get('id', '0')
+                        entry['name'] = fr.get('name', '')
+                        tor = fr.find('TableOccurrenceReference')
+                        if tor is not None:
+                            entry['table'] = tor.get('name', '')
+                elif sub.get('type', '') == 'Label':
+                    entry['label'] = get_calc_text(sub)
+            input_fields[slot] = entry
 
     parts = [
         f'{S}<Step enable="{enable}" id="{sid}" name="Show Custom Dialog">',
@@ -375,7 +412,42 @@ def tx_show_custom_dialog(step) -> str:
             ]
         else:
             parts.append(f'{L2}<Button CommitState="{commit}"/>')
-    parts += [f'{L1}</Buttons>', f'{S}</Step>']
+    parts.append(f'{L1}</Buttons>')
+
+    # Emit InputFields only when at least one slot is populated. FM's
+    # canonical snippet shows three slots even when only one is used, so
+    # mirror that — empty slots become <Field table="" id="0" name=""/>.
+    if any(f is not None for f in input_fields.values()):
+        parts.append(f'{L1}<InputFields>')
+        for slot in (1, 2, 3):
+            f = input_fields[slot]
+            if f is None:
+                parts += [
+                    f'{L2}<InputField UsePasswordCharacter="False">',
+                    f'{L3}<Field table="" id="0" name=""/>',
+                    f'{L2}</InputField>',
+                ]
+                continue
+            parts.append(f'{L2}<InputField UsePasswordCharacter="{f["use_password"]}">')
+            if f['kind'] == 'variable':
+                parts.append(f'{L3}<Field>{escape_attr(f["var"])}</Field>')
+            elif f['kind'] == 'field':
+                parts.append(
+                    f'{L3}<Field table="{escape_attr(f["table"])}" id="{f["id"]}"'
+                    f' name="{escape_attr(f["name"])}"/>'
+                )
+            else:
+                parts.append(f'{L3}<Field table="" id="0" name=""/>')
+            if f['label']:
+                parts += [
+                    f'{L3}<Label>',
+                    f'{L1}{L3}<Calculation>{cdata(f["label"])}</Calculation>',
+                    f'{L3}</Label>',
+                ]
+            parts.append(f'{L2}</InputField>')
+        parts.append(f'{L1}</InputFields>')
+
+    parts.append(f'{S}</Step>')
     return '\n'.join(parts)
 
 
