@@ -1820,3 +1820,135 @@ class PostLoopSectionOrdering(LintRule):
                 # One diagnostic per inversion is enough — keep going
                 # to catch additional misorderings.
         return diagnostics
+
+
+# ---------------------------------------------------------------------------
+# SL019 — json-key-no-leading-underscore
+# ---------------------------------------------------------------------------
+
+@rule
+class JsonKeyNoLeadingUnderscore(LintRule):
+    """Flag JSONSetElement calls that emit JSON keys with leading
+    underscores (e.g., `[ "_id_inventoryItem" ; $val ; JSONString ]`).
+
+    SL_Core JSON key convention (per CLAUDE.md):
+        camelCase, no leading underscores, no double-underscore suffixes.
+        `_id_InventoryLocation__to` field → `id_inventoryLocationTo` JSON key.
+
+    **Exception — log object construction:**
+    Keys passed to LOG_Create MUST match the log table's field names, which
+    DO have leading underscores (`_id_appProcess`, `_id_inventoryItemUom`,
+    etc.). To exempt a JSONSetElement from this rule, the target Set Variable
+    name must contain "log" or "Log" (heuristic — e.g., `$logObject`,
+    `$logArray`, `$logEntry`, `$logRevert`).
+
+    Why the rule exists: the convention drift came from devs copying FM
+    field names verbatim into JSON keys. Producer + consumer scripts then
+    propagate the leading underscore as a contract. SL_Core's intent is
+    that field names and JSON keys are distinct namespaces with different
+    conventions.
+
+    Team convention 2026-05-19 (drift discovered during UOM v2 Phase 3
+    audit on INV_NewInventoryItemUom — ~60+ occurrences across ~18
+    workflow scripts).
+    """
+
+    rule_id = "SL019"
+    name = "json-key-no-leading-underscore"
+    category = "sl_fork"
+    default_severity = Severity.WARNING
+    formats = {"xml"}
+    tier = 1
+
+    # If the target Set Variable name contains any of these substrings,
+    # treat as log-object construction (exempt). Case-sensitive intentional —
+    # FM convention is $logObject, $LogArray, etc. — both forms exempt.
+    _LOG_VAR_PATTERNS = ("log", "Log", "LOG")
+
+    def check_xml(self, parse_result, catalog, context, config):
+        if not parse_result.ok or not parse_result.steps:
+            return []
+        sev = self.severity(config)
+        steps = parse_result.steps
+        diagnostics = []
+
+        import re
+        # Quoted JSON key starting with underscore. Will match the key text
+        # inside JSONSetElement calls; we filter further by context.
+        key_re = re.compile(r'"(_[A-Za-z_][A-Za-z0-9_]*)"')
+
+        for i, step in enumerate(steps):
+            if step.get("name", "") != "Set Variable":
+                continue
+
+            # Identify target variable name; skip if it looks like a log object.
+            name_el = step.find("Name")
+            var_name = (name_el.text or "") if name_el is not None else ""
+            if any(p in var_name for p in self._LOG_VAR_PATTERNS):
+                continue
+
+            # Find the Calculation element inside Value
+            calc_el = step.find("Value/Calculation")
+            if calc_el is None or not calc_el.text:
+                continue
+            calc = calc_el.text
+
+            # Must reference JSONSetElement (otherwise leading-underscore
+            # strings are just data, not JSON keys).
+            if "JSONSetElement" not in calc:
+                continue
+
+            seen_keys = set()
+            for m in key_re.finditer(calc):
+                key = m.group(1)
+                if key in seen_keys:
+                    continue
+
+                # Is this match in a commented-out (//...) calc line?
+                line_start = calc.rfind("\n", 0, m.start()) + 1
+                line_prefix = calc[line_start:m.start()]
+                if "//" in line_prefix:
+                    continue
+
+                # Is this match in JSON key position?
+                # Two valid key positions in JSONSetElement:
+                #   (a) Scalar form: `JSONSetElement ( JSON ; "key" ; value ; type )`
+                #       → the key is preceded by ; and followed by ;
+                #   (b) Array form:  `[ "key" ; value ; type ]`
+                #       → the key is preceded by [ (with optional whitespace) and followed by ;
+                #
+                # Quick filter: check char after the closing quote — must be
+                # `;` (with whitespace) to be a key.
+                after = calc[m.end():m.end()+5].lstrip()
+                if not after.startswith(";"):
+                    continue
+
+                seen_keys.add(key)
+
+                suggested = key.lstrip("_")
+                diagnostics.append(Diagnostic(
+                    rule_id=self.rule_id,
+                    severity=sev,
+                    message=(
+                        f"JSONSetElement key '{key}' has a leading underscore. "
+                        f"SL_Core JSON key convention is camelCase with no "
+                        f"leading underscores (suggest '{suggested}'). "
+                        f"Exception: keys in log-object construction (passed "
+                        f"to LOG_Create) MUST match the log table's field "
+                        f"names — for those, the target Set Variable name "
+                        f"must contain 'log' / 'Log' / 'LOG' to exempt this "
+                        f"rule. Current Set Variable target: "
+                        f"{var_name or '(unnamed)'}."
+                    ),
+                    line=i + 1,
+                    fix_hint=(
+                        f"Change key '{key}' to '{suggested}'. If this "
+                        f"script's $scriptResultObject is consumed by "
+                        f"another script or web viewer (grep "
+                        f"'JSONGetElement.*\"{key}\"'), update the consumer's "
+                        f"JSONGetElement call in the same change to avoid "
+                        f"contract breakage."
+                    ),
+                ))
+
+        return diagnostics
