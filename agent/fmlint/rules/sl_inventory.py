@@ -1952,3 +1952,121 @@ class JsonKeyNoLeadingUnderscore(LintRule):
                 ))
 
         return diagnostics
+
+
+# ---------------------------------------------------------------------------
+# SL020 — psos-must-have-script-reference
+# ---------------------------------------------------------------------------
+
+@rule
+class PsosMustHaveScriptReference(LintRule):
+    """Flag Perform Script on Server steps that have no script to call.
+
+    A `Perform Script on Server` step must specify WHICH script to execute,
+    in one of two valid forms:
+
+      1. **Calculated mode** — `<Calculated><Calculation>...</Calculation></Calculated>`
+         child element with a non-empty calc body (e.g., `Get ( ScriptName )`
+         for the canonical SL self-recursion pattern).
+
+      2. **From list mode** — `<Script id="N" name="..."/>` child with both
+         `id` and `name` populated (a real script reference, not the
+         placeholder `id="0" name=""`).
+
+    A PSOS step with NEITHER of these is silently broken: when invoked,
+    FM has no script to execute, so the step is a no-op. The caller sees
+    OK / no error, but nothing happened. This is the same silent-failure
+    class as the Pattern A polarity bug (SL003) — invisible until something
+    downstream depends on the PSOS having actually run.
+
+    **How this bug gets authored:**
+
+    Two pathways have produced empty PSOS steps in the SL_Core codebase
+    over time:
+
+      (a) The pre-`tx_perform_script_on_server` SaXML → fmxmlsnippet
+          converter silently dropped the PSOS script reference and parameter
+          calc during round-trip. Scripts pasted back into FM from that
+          converter had empty PSOS steps. The converter fix (agentic-fm
+          fork main, 2026-05-15) closed this pathway for new generations,
+          but pre-fix-era scripts may still carry the bug.
+
+      (b) An author starts a PSOS step in FM Pro from the step list and
+          forgets to fill in the Specify… dialog. The step paints in the
+          script with the placeholder text and is easy to miss on visual
+          review.
+
+    **Found in the wild during 2026-05-19 audit:** 6 hits across SL_Core,
+    one in a production script (`INV_ReceiveGoods`, id 1027), one in an
+    audit-pass-touched script (`INV_EditInventoryItemStandardCostLine`,
+    id 1041 — fixed same day), and the rest in dev/test scripts.
+
+    Team convention 2026-05-19.
+    """
+
+    rule_id = "SL020"
+    name = "psos-must-have-script-reference"
+    category = "sl_fork"
+    default_severity = Severity.WARNING
+    formats = {"xml"}
+    tier = 1
+
+    def check_xml(self, parse_result, catalog, context, config):
+        if not parse_result.ok or not parse_result.steps:
+            return []
+        sev = self.severity(config)
+        steps = parse_result.steps
+        diagnostics = []
+
+        for i, step in enumerate(steps):
+            if step.get("name", "") != "Perform Script on Server":
+                continue
+
+            # Check for Calculated mode: <Calculated><Calculation>...</Calculation></Calculated>
+            calculated_el = step.find("Calculated")
+            if calculated_el is not None:
+                calc_el = calculated_el.find("Calculation")
+                calc_text = (calc_el.text or "").strip() if calc_el is not None else ""
+                if calc_text:
+                    continue  # Calculated mode, non-empty calc → OK
+
+            # Check for From-list mode: <Script id="N" name="..."/>
+            # Must have BOTH non-zero id AND non-empty name to be a real reference.
+            script_el = step.find("Script")
+            if script_el is not None:
+                script_id = (script_el.get("id") or "").strip()
+                script_name = (script_el.get("name") or "").strip()
+                if script_id and script_id != "0" and script_name:
+                    continue  # From-list mode, real script ref → OK
+
+            # If we reach here, neither form has a valid script reference.
+            diagnostics.append(Diagnostic(
+                rule_id=self.rule_id,
+                severity=sev,
+                message=(
+                    "Perform Script on Server step has no script to call. "
+                    "PSOS step requires either Calculated mode "
+                    "(`<Calculated><Calculation>...</Calculation></Calculated>` "
+                    "with a non-empty calc — typically `Get ( ScriptName )` "
+                    "for the SL self-recursion pattern) OR From-list mode "
+                    "(`<Script id=\"N\" name=\"...\"/>` with a real script "
+                    "reference). The current step has neither, so it will "
+                    "silently no-op when invoked — same silent-failure "
+                    "class as the Pattern A polarity bug."
+                ),
+                line=i + 1,
+                fix_hint=(
+                    "Canonical SL pattern (matches TMPL_NewScript - "
+                    "Transactions): use Calculated mode for self-recursion. "
+                    "Replace the step body with:\n"
+                    "  <Calculated><Calculation><![CDATA[Get ( ScriptName )]]></Calculation></Calculated>\n"
+                    "  <WaitForCompletion state=\"True\"/>\n"
+                    "  <Calculation><![CDATA[Get ( ScriptParameter )]]></Calculation>\n"
+                    "Or, if this PSOS is supposed to call a specific named "
+                    "script (not self-recursion), open the step's Specify... "
+                    "dialog in FM Pro Script Workspace and pick the target "
+                    "script + parameter."
+                ),
+            ))
+
+        return diagnostics
