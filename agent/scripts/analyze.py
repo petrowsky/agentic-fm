@@ -234,7 +234,8 @@ def load_value_lists_index(solution_dir):
 def load_custom_functions_index(solution_dir):
     return _parse_index(
         solution_dir / "custom_functions.index",
-        ["name", "id", "parameters", "access", "display", "category"],
+        ["name", "id", "parameters", "access", "display", "category",
+         "folder_path"],
     )
 
 
@@ -1429,13 +1430,25 @@ def analyze_custom_functions(solution_name):
 
     stub_dir = XML_PARSED_DIR / "custom_function_stubs" / solution_name
 
-    cf_files = sorted(cf_dir.glob("*.txt"))
+    # Recurse into folder subdirectories — CFs organised into FileMaker
+    # folders are nested in "{FolderName} - ID N/" subdirs, and a flat
+    # glob would silently skip them.
+    cf_files = sorted(cf_dir.rglob("*.txt"))
     functions = {}
     all_cf_names = set()
 
     # First pass: collect names and read all content
-    cf_data = []  # (name, id, text, param_count) — single pass I/O
+    cf_data = []  # (name, id, text, param_count, folder_path) — single pass I/O
     for cf_path in cf_files:
+        # Folder/separator pseudo-files (e.g. "ACCOUNTS - ID 39.txt",
+        # "-- - ID 37.txt") are emitted at the flat level by fmparse.sh
+        # alongside the per-folder subdirs. They have no backing stub XML
+        # and are not real custom functions — skip them.
+        rel_parent = cf_path.parent.relative_to(cf_dir)
+        stub_path = stub_dir / rel_parent / f"{cf_path.stem}.xml"
+        if not stub_path.exists():
+            continue
+
         name = cf_path.stem.rsplit(" - ID ", 1)[0]
         all_cf_names.add(name)
         cf_id = None
@@ -1448,19 +1461,21 @@ def analyze_custom_functions(solution_name):
         except (OSError, UnicodeDecodeError):
             continue
 
-        # Read param count from stub XML (ObjectList/@membercount)
-        param_count = 0
-        stub_path = stub_dir / f"{cf_path.stem}.xml"
-        if stub_path.exists():
-            try:
-                stub_text = stub_path.read_text(encoding="utf-8")
-                mc_match = re.search(r'membercount="(\d+)"', stub_text)
-                if mc_match:
-                    param_count = int(mc_match.group(1))
-            except (OSError, UnicodeDecodeError):
-                pass
+        # Derive the folder path (parent dirs between the solution root and
+        # the file), stripping " - ID N" suffixes to match scripts/layouts.
+        folder_path = re.sub(r' - ID \d+', '', str(rel_parent)) if str(rel_parent) != '.' else ''
 
-        cf_data.append((name, cf_id, text, param_count))
+        # Read param count from stub XML (ObjectList/@membercount).
+        param_count = 0
+        try:
+            stub_text = stub_path.read_text(encoding="utf-8")
+            mc_match = re.search(r'membercount="(\d+)"', stub_text)
+            if mc_match:
+                param_count = int(mc_match.group(1))
+        except (OSError, UnicodeDecodeError):
+            pass
+
+        cf_data.append((name, cf_id, text, param_count, folder_path))
 
     # Patterns for classification
     _FIELD_REF_RE = re.compile(r'[A-Za-z_][A-Za-z0-9_ ]*::[A-Za-z_]')
@@ -1473,7 +1488,7 @@ def analyze_custom_functions(solution_name):
         re.IGNORECASE,
     )
 
-    for name, cf_id, text, param_count in cf_data:
+    for name, cf_id, text, param_count, folder_path in cf_data:
 
         # Find references to other custom functions (substring match)
         deps = sorted(
@@ -1487,6 +1502,7 @@ def analyze_custom_functions(solution_name):
             "id": cf_id,
             "param_count": param_count,
             "line_count": line_count,
+            "folder_path": folder_path,
             "dependencies": deps,
             "text": text,
         }

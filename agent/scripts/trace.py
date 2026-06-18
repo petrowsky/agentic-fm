@@ -212,12 +212,11 @@ def build_cf_names(solution_name):
     cfs = []
     if not cf_dir.exists():
         return cfs
-    for f in cf_dir.iterdir():
-        if f.suffix == ".txt":
-            # Parse "FuncName - ID NNN.txt"
-            m = re.match(r'^(.+?)\s*-\s*ID\s+(\d+)\.txt$', f.name)
-            if m:
-                cfs.append({"name": m.group(1), "id": m.group(2), "path": f})
+    for f in cf_dir.rglob("*.txt"):
+        # Parse "FuncName - ID NNN.txt"
+        m = re.match(r'^(.+?)\s*-\s*ID\s+(\d+)\.txt$', f.name)
+        if m:
+            cfs.append({"name": m.group(1), "id": m.group(2), "path": f})
     return cfs
 
 
@@ -383,7 +382,7 @@ def parse_scripts(solution_name, scripts_index, to_map, cf_names):
                 ))
 
             # --- Custom function references in expressions ---
-            if "[" in line:  # Only scan lines with parameters
+            if "[" in line or "]" in line:  # Catch both opening and continuation lines
                 for cf in cf_name_set:
                     # Match CF name with parens (function call) or standalone (zero-param)
                     pattern = re.compile(

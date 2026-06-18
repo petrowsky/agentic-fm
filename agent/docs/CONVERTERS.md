@@ -67,11 +67,13 @@ python3 agent/scripts/fm_xml_to_snippet.py \
   "agent/sandbox/OutputName.xml"
 ```
 
-- 48 hand-coded translators for high-priority steps (control flow, Set Variable, Perform Script, etc.)
+- 49 hand-coded translators for high-priority steps (control flow, Set Variable, Perform Script, Save a Copy as XML, etc.)
 - Catalog-driven generic fallback handles all remaining steps automatically
 - 100% coverage across all step types found in the codebase (128 unique types across 2,325 scripts)
 - Maps nested SaXML `<ParameterValues>` to flat fmxmlsnippet child elements
 - See `agent/scripts/XML_TRANSFORMATION.md` for the structural mapping reference
+
+> **⚠️ Generic translator silent-drop risk.** `tx_generic` only handles a fixed set of param types: `boolean`, `enum`, `calculation`, `namedCalc`, `text`, `field`, `flagElement`, `script`, `layout`. Param types outside that list (e.g. `flagBoolean`, certain `text`-typed params whose data lives in nested elements like `UniversalPathList > ObjectList > Location`) are **silently dropped** from the output snippet. This caused `Save a Copy as XML` to lose its destination path for years — verify hand-coded translators exist for any step whose catalog params reference unhandled types. When adding a new hand-coded translator, register it in the `TRANSLATORS` dispatch table near the bottom of the file.
 
 ### `agent/scripts/snippet_to_hr.py`
 

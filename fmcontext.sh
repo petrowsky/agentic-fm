@@ -145,7 +145,11 @@ mkdir -p "$CONTEXT_DIR"
 # Discover solutions to process
 # ---------------------------------------------------------------------------
 if [[ -z "$SOLUTION_NAME" ]]; then
-    mapfile -t SOLUTIONS < <(
+    # Avoid `mapfile` — it requires bash 4+, and macOS ships bash 3.2.
+    SOLUTIONS=()
+    while IFS= read -r _solution_line; do
+        SOLUTIONS+=("$_solution_line")
+    done < <(
         find "$XML_PARSED_DIR" -mindepth 2 -maxdepth 2 -type d \
             | sed 's|.*/||' | sort -u
     )
@@ -392,7 +396,7 @@ for SOLUTION in "${SOLUTIONS[@]}"; do
     #   functional       – everything else
     # ---------------------------------------------------------------------------
     {
-        echo "# FunctionName|FunctionID|Parameters|Access|Display|Category"
+        echo "# FunctionName|FunctionID|Parameters|Access|Display|Category|FolderPath"
 
         STUB_DIR="$XML_PARSED_DIR/custom_function_stubs/$SOLUTION"
         SANITIZED_DIR="$XML_PARSED_DIR/custom_functions_sanitized/$SOLUTION"
@@ -403,6 +407,8 @@ for SOLUTION in "${SOLUTIONS[@]}"; do
             cf_id=$(xval 'string(/CustomFunction/@id)' "$file")
             cf_access=$(xval 'string(/CustomFunction/@access)' "$file")
             cf_display=$(xval 'string(/CustomFunction/Display)' "$file")
+
+            folder_path=$(get_folder_path "$file" "$XML_PARSED_DIR/custom_function_stubs")
 
             # Extract parameter names from stub
             param_count=$(xval 'string(/CustomFunction/ObjectList/@membercount)' "$file")
@@ -418,9 +424,13 @@ for SOLUTION in "${SOLUTIONS[@]}"; do
                 done
             fi
 
-            # Classify using the sanitized body
+            # Classify using the sanitized body — derive the body path from the
+            # stub path so nested-in-folder CFs resolve correctly (flat lookup
+            # silently misses them and leaves every folder-nested CF mis-
+            # classified as "functional").
             category="functional"
-            txt_file="$SANITIZED_DIR/${cf_name} - ID ${cf_id}.txt"
+            stub_rel="${file#"$STUB_DIR/"}"
+            txt_file="$SANITIZED_DIR/${stub_rel%.xml}.txt"
 
             if [[ -f "$txt_file" ]]; then
                 body=$(<"$txt_file")
@@ -451,7 +461,7 @@ for SOLUTION in "${SOLUTIONS[@]}"; do
                 fi
             fi
 
-            echo "${cf_name}|${cf_id}|${params}|${cf_access}|${cf_display}|${category}"
+            echo "${cf_name}|${cf_id}|${params}|${cf_access}|${cf_display}|${category}|${folder_path}"
         done
         fi
     } > "$SOLUTION_CONTEXT_DIR/custom_functions.index"
