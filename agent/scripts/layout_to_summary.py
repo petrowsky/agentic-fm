@@ -330,6 +330,17 @@ def parse_portal(obj_el):
     if to_ref is not None:
         result["relatedTO"] = to_ref.get("name", "")
 
+    # Filter calculation ("Filter portal records"). Stored as a <Calculation>
+    # that is a *direct* child of <Portal> (siblings: TableOccurrenceReference,
+    # Options, SortSpecification, ObjectList). It reads the fields it names at
+    # display time, so without capturing it a field used only in a portal filter
+    # is invisible to the xref index and false-flagged as dead.
+    filter_calc = portal.find("Calculation")
+    if filter_calc is not None:
+        calc_text = filter_calc.find(".//Text")
+        if calc_text is not None and calc_text.text and calc_text.text.strip():
+            result["filter"] = calc_text.text.strip()
+
     # Row count
     opts = portal.find("Options")
     if opts is not None:
@@ -398,12 +409,22 @@ def parse_conditions(obj_el):
         if find_mode == "True":
             result["hideInFind"] = True
 
-    # Conditional formatting (just count, not full details)
+    # Conditional formatting. Keep the count for the compact view, plus the
+    # condition calc text — each <Condition> carries a <Calculation> that reads
+    # the fields it names, so dropping it hides conditional-format-only fields
+    # from the xref index (false "dead" verdicts).
     formatting = conds.find("Formatting")
     if formatting is not None:
         count = formatting.get("membercount", "0")
         if int(count) > 0:
             result["conditionalFormats"] = int(count)
+        cf_calcs = []
+        for cond in formatting.findall("Condition"):
+            calc = cond.find(".//Text")
+            if calc is not None and calc.text and calc.text.strip():
+                cf_calcs.append(calc.text.strip())
+        if cf_calcs:
+            result["conditionalFormatCalcs"] = cf_calcs
 
     return result if result else None
 
@@ -471,10 +492,15 @@ def parse_action_script(el):
             if child.tag == "action":
                 script_ref = child.find("ScriptReference")
                 if script_ref is not None and script_ref.get("name"):
-                    result.append({
+                    entry = {
                         "script": script_ref.get("name"),
                         "scriptId": int(script_ref.get("id", 0)),
-                    })
+                    }
+                    # Script parameter calc — reads the fields it names.
+                    calc = child.find(".//Text")
+                    if calc is not None and calc.text and calc.text.strip().strip('"'):
+                        entry["param"] = calc.text.strip().strip('"')
+                    result.append(entry)
                     return
             else:
                 _find(child)

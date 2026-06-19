@@ -498,6 +498,21 @@ def parse_layouts(solution_dir, solution_name, to_map):
     return refs
 
 
+# Layout-object properties whose value is a calculation (or list of calcs).
+# Field references inside these are LIVE reads — a portal filter, hide condition,
+# conditional-format rule, tooltip, or button parameter all read the fields they
+# name at runtime. Without mining them, a field used *only* in one of these is
+# false-flagged as dead (the dangerous direction — deleting live schema). Maps
+# the summary key to the xref source_location label.
+LAYOUT_CALC_KEYS = {
+    "filter": "portal filter",
+    "hideWhen": "hide calc",
+    "tooltip": "tooltip calc",
+    "param": "button param calc",
+    "conditionalFormatCalcs": "conditional format calc",
+}
+
+
 def _walk_layout_json(obj, source_name, to_map, refs):
     """Recursively walk layout JSON for field/script references."""
     if isinstance(obj, dict):
@@ -523,6 +538,26 @@ def _walk_layout_json(obj, source_name, to_map, refs):
                 "layout", source_name, location,
                 "script", obj["script"], "",
             ))
+
+        # Calc-valued properties (portal filter, hide condition, conditional
+        # formatting, tooltip, button param). Tokenise each for TO::Field reads
+        # and resolve to the canonical base field — the same resolution the
+        # script-step and auto-enter parsers use.
+        for key, location in LAYOUT_CALC_KEYS.items():
+            val = obj.get(key)
+            if val is None:
+                continue
+            calc_strings = val if isinstance(val, list) else [val]
+            for calc in calc_strings:
+                if not isinstance(calc, str):
+                    continue
+                for m in RE_TO_FIELD.finditer(calc):
+                    to_name, field_name = m.group(1).strip(), m.group(2).strip()
+                    canonical, context = resolve_to_field(to_name, field_name, to_map)
+                    refs.append(XRef(
+                        "layout", source_name, location,
+                        "field", canonical, context,
+                    ))
 
         # Recurse into all values
         for v in obj.values():
