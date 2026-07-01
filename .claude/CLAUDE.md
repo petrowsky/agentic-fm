@@ -53,6 +53,18 @@ uname -s 2>/dev/null; command -v osascript &>/dev/null && echo "OSASCRIPT" || ec
 
 If `uname` returns `Linux` or `osascript` is not found, read `agent/docs/SANDBOXED_ENVIRONMENT.md` before proceeding. That document covers setup paths, platform limitations, and the filesystem bridge workflow for sandboxed agents.
 
+## Embedded agentic-fm freshness
+
+The agentic-fm scripts (`AGFM*`, `Push Context`, `Explode XML`, the menu, …) and the `Context` custom function are pasted into each host solution during setup and do **not** update automatically when the bundled versions in `filemaker/` change. An embedded copy can silently fall behind and cause confusing failures.
+
+Also at session start, once a solution has been exploded, run the freshness check:
+
+```bash
+python3 agent/scripts/check_embedded_agfm.py
+```
+
+It compares the embedded objects (from `agent/xml_parsed/`) against the bundled reference and reports `OK` / `STALE` / `MISSING` per object. If it finds any `STALE` or `MISSING` object, notify the user that the solution's embedded agentic-fm code is out of date and should be re-deployed from `filemaker/`. It exits `0` and prints "nothing to check" when no solution is exploded — in that case, skip silently. Do this **once per session**.
+
 ## Plug-in detection (optional enhancement)
 
 Also at session start, ask the companion server whether the optional AgenticFM plug-in is present and **usable**. The companion is the single detection broker — one call answers it:
