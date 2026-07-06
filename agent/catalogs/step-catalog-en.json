@@ -2755,6 +2755,13 @@
         "required": false,
         "defaultValue": "False",
         "notes": "True when WebScript present. Not shown in HR."
+      },
+      {
+        "xmlElement": "UniversalPathList",
+        "type": "complex",
+        "hrLabel": null,
+        "required": false,
+        "notes": "Serialized among the leading boolean flags in the reference example (type='Reference'). Mirrors the Fine-Tune Model param; not shown in HR."
       }
     ],
     "hrSignature": "Generate Response from Model [ Account Name: {calc} ; Model: {calc} ; User Prompt: {calc} ; Agentic mode ; Response: {field|$variable} ; Tool Calls from Model: {$variable} ; Instructions: {calc} ; Messages: {$variable} ; Save Message History To: {$variable} ; Message History Count: {calc} ; Temperature: {calc} ; Tool Definitions: {calc} ; Stream ; Parameters: {calc} ; Web Viewer: {$object} ; Function Name: {calc} ]",
@@ -4470,6 +4477,14 @@
         "type": "text",
         "hrLabel": null,
         "required": false
+      },
+      {
+        "xmlElement": "Layout",
+        "type": "layout",
+        "hrLabel": null,
+        "required": false,
+        "discriminator": "LayoutDestination",
+        "notes": "Presence + shape governed by the sibling LayoutDestination (discriminator): none for Current/Original, <Layout id name/> for SelectedLayout, <Layout><Calculation/></Layout> for the by-calc forms. Without an explicit <LayoutDestination> FileMaker defaults to CurrentLayout and silently ignores this element."
       }
     ],
     "hrSignature": "[ Name: \"name\" ; Style: Document ]",
