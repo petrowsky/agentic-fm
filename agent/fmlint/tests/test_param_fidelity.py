@@ -115,7 +115,7 @@ class ParamFidelityTestCase(unittest.TestCase):
             '<Step enable="True" id="1" name="Perform Script">'
             '<Calculation><![CDATA[$param]]></Calculation>'
             '<Script id="1363" name="Some Script">'
-            '<FileReference id="10" name="Controlador"/></Script></Step>'
+            '<FileReference id="10" name="OtherFile"/></Script></Step>'
         )
         msgs = [d.message for d in x_diags(result) if d.rule_id == "X003"]
         self.assertTrue(any("SIBLING" in m for m in msgs),
@@ -124,7 +124,7 @@ class ParamFidelityTestCase(unittest.TestCase):
     def test_x003_fileref_without_universal_path_list(self):
         result = self.lint(
             '<Step enable="True" id="1" name="Perform Script">'
-            '<FileReference id="10" name="Controlador"/>'
+            '<FileReference id="10" name="OtherFile"/>'
             '<Calculation><![CDATA[$param]]></Calculation>'
             '<Script id="1363" name="Some Script"/></Step>'
         )
@@ -135,8 +135,8 @@ class ParamFidelityTestCase(unittest.TestCase):
     def test_x003_crossfile_correct_form_passes(self):
         result = self.lint(
             '<Step enable="True" id="1" name="Perform Script">'
-            '<FileReference id="10" name="Controlador">'
-            '<UniversalPathList>file:Borneo-Controller</UniversalPathList>'
+            '<FileReference id="10" name="OtherFile">'
+            '<UniversalPathList>file:OtherFile</UniversalPathList>'
             '</FileReference>'
             '<Calculation><![CDATA[$param]]></Calculation>'
             '<Script id="1363" name="Some Script"/></Step>'
