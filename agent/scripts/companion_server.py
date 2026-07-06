@@ -27,6 +27,7 @@ import sys
 import threading
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -188,6 +189,17 @@ _PLUGIN_GATE_KEYS = (
     "agenticActions", "scriptExecution", "scriptModification",
     "schemaModification", "uiInteraction", "hostCapture",
 )
+
+
+def _load_automation_config() -> dict:
+    """Read agent/config/automation.json. Returns {} if missing/invalid."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    path = os.path.join(here, "..", "config", "automation.json")
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return {}
 
 
 def _plugin_http_get_json(url: str, token: str = "", timeout: int = 3) -> dict:
@@ -486,6 +498,8 @@ class CompanionHandler(BaseHTTPRequestHandler):
             self._handle_preview_get(layout_name)
         elif self.path.startswith("/plugin/"):
             self._handle_plugin_proxy("GET", self.path[len("/plugin/"):])
+        elif self.path.startswith("/whoami"):
+            self._handle_whoami()
         else:
             self._send_json({"error": "Not found"}, status=404)
 
@@ -525,6 +539,32 @@ class CompanionHandler(BaseHTTPRequestHandler):
 
     def _handle_health(self):
         self._send_json({"status": "ok", "version": VERSION, "plugin": _check_plugin()})
+
+    def _handle_whoami(self):
+        """Resolve per-developer config (repo path, companion host/port) by account.
+
+        Lets `Get agentic-fm path` ask the companion who it's talking to
+        instead of hardcoding a chain of `If Get(AccountName) = "..."`
+        branches inside the FM script. Reads the optional `users` section of
+        automation.json, keyed by the FileMaker account name:
+
+            GET /whoami?account=<name>
+
+        Returns the matching block, or 400 if the account isn't configured
+        (or automation.json has no `users` section at all) — callers should
+        fall back to the existing folder-picker/cached-global behavior.
+        """
+        query = urllib.parse.urlparse(self.path).query
+        account = (urllib.parse.parse_qs(query).get("account") or [""])[0]
+        if not account:
+            self._send_json({"error": "Missing required 'account' query parameter"}, status=400)
+            return
+        users = _load_automation_config().get("users", {})
+        user_block = users.get(account)
+        if user_block is None:
+            self._send_json({"error": f"Account '{account}' not configured"}, status=400)
+            return
+        self._send_json({"account": account, **user_block})
 
     def _handle_plugin_proxy(self, method: str, subpath: str):
         """Thin pass-through to the plug-in's HTTP server, bearer token injected.

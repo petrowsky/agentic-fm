@@ -27,5 +27,13 @@
       "description": "Full autonomy — AppleScript creates script placeholders, MBS auto-pastes",
       "requires": ["mbs_plugin", "accessibility_permission"]
     }
+  },
+  "users": {
+    "_comment": "Optional — for teams where multiple developers share one FMS-hosted solution, each from their own machine with their own repo and companion. Keyed by the FileMaker account name (Get(AccountName)). The companion's GET /whoami?account=<name> endpoint resolves this block for the current developer; see filemaker/README.md's 'Multi-developer setup' section.",
+    "jsmith": {
+      "repo_path": "/Users/jsmith/GITs/agentic-fm",
+      "companion_host": "192.168.1.42",
+      "companion_port": 8765
+    }
   }
 }
