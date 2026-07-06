@@ -2954,7 +2954,7 @@
         "type": "layout",
         "hrLabel": null,
         "required": false,
-        "notes": "Sibling of LayoutDestination — NOT nested inside it. Must use explicit open/close tags: <Layout id=\"N\" name=\"Name\"></Layout>. Self-closing form is silently dropped by FileMaker on paste."
+        "notes": "Sibling of LayoutDestination — NOT nested inside it. Must use explicit open/close tags: <Layout id=\"N\" name=\"Name\"></Layout>. Self-closing form is silently dropped by FileMaker on paste.",
         "discriminator": "LayoutDestination"
       },
       {
