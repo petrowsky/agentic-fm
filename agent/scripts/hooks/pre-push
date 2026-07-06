@@ -1,0 +1,55 @@
+#!/bin/bash
+# agentic-fm pre-push hook — sanity gate for critical machine-readable artifacts
+#
+# Motivated by a real incident: a single missing comma silently turned
+# step-catalog-en.json into invalid JSON, and nothing caught it before it
+# reached collaborators (every tool that loads the catalog broke at once).
+#
+# If the push touches one of the critical artifacts below, this hook runs
+# agent/scripts/ci_checks.py (catalog JSON validation + converter tests +
+# fmlint test suite) and blocks the push if anything fails.
+#
+# Install:
+#   bash agent/scripts/install-hooks.sh
+#
+# Bypass (emergency, on you):
+#   git push --no-verify
+
+set -e
+
+CRITICAL_REGEX='^(agent/catalogs/.*\.json$|agent/scripts/fm_xml_to_snippet\.py$|agent/scripts/snippet_to_hr\.py$|agent/fmlint/)'
+
+ZERO_SHA="0000000000000000000000000000000000000000"
+all_pushed_files=""
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+    # Deleted branch — nothing to check
+    if [ "$local_sha" = "$ZERO_SHA" ]; then
+        continue
+    fi
+
+    if [ "$remote_sha" = "$ZERO_SHA" ]; then
+        # New branch — check commits not already on any other remote branch
+        commits=$(git rev-list "$local_sha" --not --remotes 2>/dev/null || git rev-list "$local_sha")
+    else
+        commits=$(git rev-list "${remote_sha}..${local_sha}")
+    fi
+
+    [ -z "$commits" ] && continue
+
+    files=$(echo "$commits" | xargs -I {} git diff-tree --no-commit-id --name-only -r {} 2>/dev/null | sort -u)
+    all_pushed_files="$all_pushed_files
+$files"
+done
+
+if echo "$all_pushed_files" | grep -qE "$CRITICAL_REGEX" 2>/dev/null; then
+    echo "🔎 pre-push: push touches critical artifacts — running sanity checks…"
+    if ! python3 agent/scripts/ci_checks.py; then
+        echo ""
+        echo "❌ PUSH BLOCKED — sanity checks failed (agent/scripts/ci_checks.py)"
+        echo "   Fix the failures and retry. Emergency bypass: git push --no-verify"
+        exit 1
+    fi
+fi
+
+exit 0
