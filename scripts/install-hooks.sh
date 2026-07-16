@@ -3,9 +3,9 @@
 # Installs (or reinstalls) the repo's protective git hooks.
 #
 # Usage:
-#   bash agent/scripts/install-hooks.sh
+#   bash scripts/install-hooks.sh
 #
-# Hooks are versioned in agent/scripts/hooks/ and copied to .git/hooks/ in
+# Hooks are versioned in scripts/hooks/ and copied to .git/hooks/ in
 # the current repo. Re-run this script after pulling if a hook has changed.
 
 set -euo pipefail
@@ -16,7 +16,7 @@ if ! REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"; then
     exit 1
 fi
 
-HOOKS_SRC="$REPO_ROOT/agent/scripts/hooks"
+HOOKS_SRC="$REPO_ROOT/scripts/hooks"
 
 # Resolve the COMMON git directory (supports git worktrees, where .git is a
 # pointer file and hooks live in the main repo's .git instead).

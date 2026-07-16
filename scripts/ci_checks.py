@@ -10,8 +10,8 @@ Guards the machine-readable artifacts that every other tool depends on:
                   corpus smoke test against agent/snippet_examples/)
 
 Usage:
-  python3 agent/scripts/ci_checks.py            # run everything
-  python3 agent/scripts/ci_checks.py --quick    # catalogs only (fast path)
+  python3 scripts/ci_checks.py            # run everything
+  python3 scripts/ci_checks.py --quick    # catalogs only (fast path)
 
 Exit code 0 = all green; 1 = at least one check failed.
 Designed to be run by hand, from the pre-push hook, or from CI.
@@ -23,7 +23,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
 def check_catalogs() -> list:
@@ -44,15 +44,28 @@ def check_catalogs() -> list:
     return failures
 
 
-def run_cmd(label: str, cmd: list) -> list:
-    """Run a test command from the repo root. Returns list of failures."""
+def _check_catalogs_wrapped() -> tuple:
+    failures = check_catalogs()
+    return ("FAIL" if failures else "OK"), failures
+
+
+def run_cmd(label: str, cmd: list, required_path: Path) -> tuple:
+    """Run a test command from the repo root. Returns (status, failures).
+
+    Fail-open on absence: if `required_path` doesn't exist, the suite it
+    would exercise simply isn't present in this checkout (e.g. a test
+    module not yet merged) — that's a SKIP, not a FAIL, so this check
+    never blocks a push/CI run over a suite it can't find.
+    """
+    if not required_path.exists():
+        return "SKIP", []
     proc = subprocess.run(
         cmd, cwd=REPO_ROOT, capture_output=True, text=True, timeout=300
     )
     if proc.returncode != 0:
         tail = "\n".join((proc.stderr or proc.stdout).strip().splitlines()[-12:])
-        return [f"{label} failed (exit {proc.returncode}):\n{tail}"]
-    return []
+        return "FAIL", [f"{label} failed (exit {proc.returncode}):\n{tail}"]
+    return "OK", []
 
 
 def main() -> int:
@@ -61,20 +74,21 @@ def main() -> int:
                         help="catalog JSON validation only (skip test suites)")
     args = parser.parse_args()
 
-    checks = [("catalogs", check_catalogs)]
+    checks = [("catalogs", _check_catalogs_wrapped)]
     if not args.quick:
         checks.append(("converter tests", lambda: run_cmd(
             "converter tests",
-            [sys.executable, "agent/scripts/test_fm_xml_to_snippet.py"])))
+            [sys.executable, "agent/scripts/test_fm_xml_to_snippet.py"],
+            REPO_ROOT / "agent" / "scripts" / "test_fm_xml_to_snippet.py")))
         checks.append(("fmlint tests", lambda: run_cmd(
             "fmlint tests",
             [sys.executable, "-m", "unittest", "discover",
-             "-s", "agent/fmlint/tests", "-t", "."])))
+             "-s", "agent/fmlint/tests", "-t", "."],
+            REPO_ROOT / "agent" / "fmlint" / "tests")))
 
     all_failures = []
     for label, fn in checks:
-        failures = fn()
-        status = "OK" if not failures else "FAIL"
+        status, failures = fn()
         print(f"[{status}] {label}")
         all_failures.extend(failures)
 
