@@ -7,8 +7,9 @@ summary the agent (or a human) can act on:
 
   1. git       — pending commits on origin/main
   2. env       — platform + AppleScript availability (sandbox detection)
-  3. companion — companion server health on :8765 + AgenticFM plug-in block
-                 (usable / installed / absent)
+  3. companion — companion server health + AgenticFM plug-in block
+                 (usable / installed / absent), reached via the same
+                 client-reach resolution chain as deploy.py
   4. project   — PROJECT.md presence (local-only context)
   5. context   — CONTEXT.json presence, age, and task description
 
@@ -16,6 +17,12 @@ Replaces four-plus separate round-trips at session start with one:
 
   python3 agent/scripts/session_start.py           # human summary
   python3 agent/scripts/session_start.py --json    # machine-readable
+
+The companion address is resolved the same way deploy.py resolves it
+(precedence, highest wins): --companion-url or --port on this script's own
+CLI → COMPANION_URL env → agent/config/companion.json (advertise_host +
+port) → legacy automation.json companion_url → built-in default. See
+agent/docs/COMPANION_SERVER.md for the full model.
 
 Every check is isolated and failure-tolerant: network being down or a
 service being absent yields WARN/SKIP, never a crash. Exit code is 0
@@ -31,11 +38,13 @@ import shutil
 import subprocess
 import sys
 import time
+import urllib.parse
 import urllib.request
 from datetime import datetime
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+SCRIPT_DIR = Path(__file__).resolve().parent
 
 OK, WARN, FAIL, SKIP = "OK", "WARN", "FAIL", "SKIP"
 
@@ -89,14 +98,32 @@ def check_env():
     return OK, "native macOS with osascript", data
 
 
-def check_companion():
-    health = None
-    for base in ("http://127.0.0.1:8765", "http://local.hub:8765"):
-        health = _http_json(base + "/health")
-        if health:
-            break
+def _resolve_companion_base(cli_url=None, cli_port=None):
+    """Resolve the companion base URL via deploy.py's canonical client-reach chain.
+
+    Precedence (highest wins): --companion-url → --port (combined with the
+    resolved host) → COMPANION_URL env → agent/config/companion.json
+    (advertise_host + port) → legacy automation.json companion_url →
+    built-in default. Reuses deploy.py's _resolve_companion_url() instead of
+    re-deriving it, so every consumer resolves identically.
+    """
+    if cli_url:
+        return cli_url.rstrip("/")
+
+    sys.path.insert(0, str(SCRIPT_DIR))
+    import deploy  # noqa: E402 — sibling script, canonical companion resolution
+
+    resolved = deploy._resolve_companion_url(deploy._load_config())
+    if cli_port:
+        parsed = urllib.parse.urlsplit(resolved)
+        resolved = urllib.parse.urlunsplit(parsed._replace(netloc=f"{parsed.hostname}:{cli_port}"))
+    return resolved
+
+
+def check_companion(base_url):
+    health = _http_json(base_url + "/health")
     if not health:
-        return WARN, "companion not responding on :8765 — Tier 2/3 automation unavailable (manual paste)", {}
+        return WARN, f"companion not responding at {base_url} — Tier 2/3 automation unavailable (manual paste)", {}
     plugin = health.get("plugin") or {}
     data = {"version": health.get("version"), "plugin": plugin}
     if plugin.get("usable"):
@@ -132,24 +159,29 @@ def check_context():
     return OK, msg, info
 
 
-CHECKS = [
-    ("git", check_git),
-    ("env", check_env),
-    ("companion", check_companion),
-    ("project", check_project_md),
-    ("context", check_context),
-]
-
-
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--json", action="store_true", help="JSON output")
     parser.add_argument("--strict", action="store_true",
                         help="exit 1 if any check FAILs")
+    parser.add_argument("--companion-url", default=None,
+                        help="override the companion base URL (highest precedence)")
+    parser.add_argument("--port", type=int, default=None,
+                        help="override just the companion port, keeping the resolved host")
     args = parser.parse_args()
 
+    companion_base = _resolve_companion_base(args.companion_url, args.port)
+
+    checks = [
+        ("git", check_git),
+        ("env", check_env),
+        ("companion", lambda: check_companion(companion_base)),
+        ("project", check_project_md),
+        ("context", check_context),
+    ]
+
     results = {}
-    for name, fn in CHECKS:
+    for name, fn in checks:
         try:
             status, msg, data = fn()
         except Exception as exc:  # noqa: BLE001 — one check must never take down the rest
