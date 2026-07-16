@@ -191,15 +191,20 @@ _PLUGIN_GATE_KEYS = (
 )
 
 
-def _load_automation_config() -> dict:
-    """Read agent/config/automation.json. Returns {} if missing/invalid."""
-    here = os.path.dirname(os.path.abspath(__file__))
-    path = os.path.join(here, "..", "config", "automation.json")
+def _load_companion_users() -> dict:
+    """Read the `users` block from agent/config/companion.json (fail-open → {}).
+
+    Sibling of `_load_companion_config()` (which reads the `companion` block
+    of the same file) — kept separate since callers only ever want one block
+    or the other, never both.
+    """
     try:
-        with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
+        with open(COMPANION_CONFIG_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
     except (OSError, ValueError):
         return {}
+    users = data.get("users") if isinstance(data, dict) else None
+    return users if isinstance(users, dict) else {}
 
 
 def _plugin_http_get_json(url: str, token: str = "", timeout: int = 3) -> dict:
@@ -545,21 +550,31 @@ class CompanionHandler(BaseHTTPRequestHandler):
 
         Lets `Get agentic-fm path` ask the companion who it's talking to
         instead of hardcoding a chain of `If Get(AccountName) = "..."`
-        branches inside the FM script. Reads the optional `users` section of
-        automation.json, keyed by the FileMaker account name:
+        branches inside the FM script. Reads the optional `users` block of
+        agent/config/companion.json (sibling of the `companion` block — see
+        `_load_companion_users()`), keyed by the FileMaker account name:
 
             GET /whoami?account=<name>
 
         Returns the matching block, or 400 if the account isn't configured
-        (or automation.json has no `users` section at all) — callers should
+        (or companion.json has no `users` block at all) — callers should
         fall back to the existing folder-picker/cached-global behavior.
+
+        `users[account]` is a client-reach override layer only — it
+        overrides the reach host/port a *client* dials for that developer,
+        the same way `COMPANION_URL` or the base `companion.advertise_host`
+        do (see agent/docs/COMPANION_SERVER.md). It does not affect how
+        *this* server binds, and it never routes plug-in detection: `/health`
+        carries no account, the plug-in detection cache is process-global,
+        and this companion brokers the one plug-in it shares a macOS login
+        with — the same answer for every account.
         """
         query = urllib.parse.urlparse(self.path).query
         account = (urllib.parse.parse_qs(query).get("account") or [""])[0]
         if not account:
             self._send_json({"error": "Missing required 'account' query parameter"}, status=400)
             return
-        users = _load_automation_config().get("users", {})
+        users = _load_companion_users()
         user_block = users.get(account)
         if user_block is None:
             self._send_json({"error": f"Account '{account}' not configured"}, status=400)
