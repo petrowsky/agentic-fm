@@ -1,0 +1,706 @@
+<!doctype html>
+<html>
+<head>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<script src='https://cdn.jsdelivr.net/npm/chart.js'></script>
+<style>
+html,body{
+  margin:0;padding:0;width:100%;height:100%;
+  font-family:-apple-system,BlinkMacSystemFont,Helvetica Neue,Segoe UI,Arial,sans-serif;
+  background:radial-gradient(circle at top left,#11263a 0%,#07121c 46%,#050b12 100%);
+  color:white;overflow:hidden;font-weight:300;
+}
+
+html.web-scroll,html.web-scroll body{
+  height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto;
+}
+.wrapper{box-sizing:border-box;width:100%;height:100%;padding:20px 24px 18px;display:flex;flex-direction:column;}
+.header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:14px;flex:0 0 auto;}
+.header-main{min-width:0;flex:1 1 auto}
+.title{font-size:29px;font-weight:400;letter-spacing:-0.7px;line-height:1.1}
+.subtitle{margin-top:4px;color:#b7c5d3;font-size:14px;font-weight:300}
+.header-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px;flex:0 0 auto}
+
+.chrome{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.chip-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.chip{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:28px;padding:5px 12px;border-radius:8px;
+  border:1px solid rgba(255,255,255,0.14);
+  background:rgba(255,255,255,0.06);
+  color:#dce6ee;font-size:12.5px;font-weight:400;cursor:pointer;
+  transition:background .15s ease,border-color .15s ease,color .15s ease;
+}
+.chip:hover{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.22)}
+.chip.active{background:rgba(88,151,230,0.28);border-color:rgba(147,197,253,0.55);color:#fff}
+.chip:disabled,.chip.disabled{opacity:0.38;cursor:not-allowed}
+.chrome-note{display:none;margin-top:2px;color:#93c5fd;font-size:12px;font-weight:300;line-height:1.35}
+.chrome-note.show{display:block}
+.updated{color:#9aacbb;font-size:12px;text-align:right;line-height:1.35;font-weight:300}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:10px;flex:0 0 auto}
+.kpis2{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px;flex:0 0 auto}
+.kpi,.kpi-small,.card{
+  background:linear-gradient(145deg,rgba(27,47,66,.96),rgba(16,34,50,.96));
+  border:1px solid rgba(255,255,255,.055);
+  box-shadow:0 10px 28px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.04);
+}
+.kpi{border-radius:14px;padding:9px 12px;min-height:54px}
+.kpi-small{border-radius:12px;padding:9px 13px;min-height:48px}
+.kpi-label{color:#aebdca;font-size:11px;margin-bottom:2px;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi-value{font-size:22px;font-weight:400;letter-spacing:-0.5px;line-height:1.05}
+.kpi-small .kpi-label{font-size:11px;margin-bottom:2px}
+.kpi-small .kpi-value{font-size:19px}
+.grid{display:grid;grid-template-columns:1.55fr .78fr;gap:14px;flex:1 1 auto;min-height:0;align-items:stretch}
+.card{border-radius:18px;padding:16px 20px;min-height:0;display:flex;flex-direction:column}
+#typeChartCard{min-height:480px}
+#typeChartCard.drilled-in{min-height:500px}
+.card-title{font-size:18px;font-weight:400;margin-bottom:8px;letter-spacing:-0.3px;flex:0 0 auto}
+.chart-wrap{width:100%;flex:0 0 auto;overflow:visible;padding-bottom:4px;box-sizing:border-box}
+.chart-inner{position:relative;width:100%}
+.chart-inner canvas{display:block;width:100% !important;height:100% !important;pointer-events:none}
+.type-hitlayer{position:absolute;left:0;top:0;right:0;bottom:0;z-index:3}
+.type-hitcol{position:absolute;top:0;bottom:0;cursor:pointer;background:transparent}
+.type-hitcol:hover{background:rgba(255,255,255,.05)}
+.table{margin-top:6px;font-size:12.5px;color:#dce6ee;overflow:auto;flex:1 1 auto;min-height:0}
+.table-header,.row{
+  display:grid;grid-template-columns:1.05fr .62fr .72fr .72fr 1.08fr 1.14fr 1.08fr;
+  column-gap:8px;align-items:center;
+}
+.table-header{color:#8fa2b3;font-size:11px;font-weight:400;padding:0 0 8px 0;border-bottom:1px solid rgba(255,255,255,.18)}
+.table-header span{text-align:center}
+.table-header span:first-child{text-align:left}
+.row{border-bottom:1px solid rgba(255,255,255,.07);padding:6px 0;font-weight:300}
+.row span:first-child{text-align:left}
+.row span:not(:first-child){text-align:center}
+.row span:nth-child(2),.row span:nth-child(3),.row span:nth-child(4),.row span:nth-child(5),.row span:nth-child(6),.row span:nth-child(7){font-weight:400}
+.row.type-row{cursor:pointer;border-radius:6px;padding:6px 4px;transition:background .15s ease}
+.row.type-row:hover{background:rgba(255,255,255,.06)}
+.row.type-row.selected{background:rgba(88,151,230,.14)}
+.row.top-type span:first-child{color:#93c5fd}
+.name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.type-detail{display:none;flex:1 1 auto;flex-direction:column;min-height:300px}
+.type-detail.open{display:flex !important}
+.chart-overview{display:flex;flex-direction:column;flex:1 1 auto;min-height:0}
+.chart-overview.hidden{display:none !important}
+.back-btn,.drill-btn{
+  align-self:flex-start;margin-bottom:10px;padding:6px 12px;border-radius:8px;
+  border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.07);
+  color:#dce6ee;font-size:12.5px;font-weight:400;cursor:pointer;
+}
+.back-btn:hover,.drill-btn:hover{background:rgba(255,255,255,.14)}
+.drill-btn{margin-top:4px;border-color:rgba(147,197,253,.35);background:rgba(88,151,230,.14);color:#e2e8f0}
+.detail-charts{display:grid;grid-template-columns:1.25fr .75fr;gap:16px;flex:1 1 auto;min-height:340px}
+.detail-chart-col{display:flex;flex-direction:column;min-height:0}
+.detail-col-title{color:#aebdca;font-size:12px;margin-bottom:8px;font-weight:400}
+.detail-chart-wrap{flex:1 1 auto;min-height:300px;position:relative}
+.detail-chart-wrap canvas{width:100% !important;height:100% !important;pointer-events:none}
+.detail-subtitle{color:#8fa2b3;font-size:12px;margin:-2px 0 8px}
+.detail-hint{color:#6b8296;font-size:11.5px;margin-top:8px;font-style:italic}
+.bases-table,.pilots-table{margin-top:8px;font-size:13px;color:#dce6ee;overflow:auto;flex:1 1 auto;min-height:200px}
+.bases-table .table-header,.bases-table .row,.pilots-table .table-header,.pilots-table .row{grid-template-columns:1.5fr .8fr .8fr}
+.bases-table .table-header span:not(:first-child),.bases-table .row span:not(:first-child),
+.pilots-table .table-header span:not(:first-child),.pilots-table .row span:not(:first-child){text-align:right}
+.note{margin-top:10px;color:#8fa2b3;font-size:12px;line-height:1.4;font-weight:300;flex:0 0 auto}
+@media(max-width:1200px){
+  .kpis{grid-template-columns:repeat(3,1fr)}
+  .kpis2{grid-template-columns:repeat(2,1fr)}
+  .grid{grid-template-columns:1fr}
+  .card{min-height:380px}
+}
+</style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='header'>
+    <div class='header-main'>
+      <div class='title'>AvinOps Statistics</div>
+      <div class='subtitle' id='period'>Loading...</div>
+      <div class='chrome' id='chrome'>
+        <div class='chip-row' id='periodRow' role='group' aria-label='Period'>
+          <button class='chip' type='button' data-period='7d' onclick="setPeriod('7d')">7d</button>
+          <button class='chip' type='button' data-period='30d' onclick="setPeriod('30d')">30d</button>
+          <button class='chip' type='button' data-period='year' id='yearChip' onclick="setPeriod('year')">2026</button>
+        </div>
+        <div class='chip-row' id='viewRow' role='group' aria-label='View'>
+          <button class='chip' type='button' data-view='bases' onclick="setView('bases')">Bases</button>
+          <button class='chip' type='button' data-view='pilots' onclick="setView('pilots')">Pilots</button>
+          <button class='chip' type='button' data-view='htc' onclick="setView('htc')">HTC</button>
+          <button class='chip disabled' type='button' data-view='medical' disabled title='Coming soon'>Medical</button>
+          <button class='chip' type='button' data-view='types' onclick="setView('types')">Types</button>
+        </div>
+        <div class='chrome-note' id='chromeNote'></div>
+      </div>
+    </div>
+    <div class='header-right'>
+      <div class='updated'>Updated:<br>%%UPDATED%%</div>
+    </div>
+  </div>
+
+  <div class='kpis'>
+    <div class='kpi'><div class='kpi-label'>Missions</div><div class='kpi-value' id='missions'>0</div></div>
+    <div class='kpi'><div class='kpi-label'>Flight Hours</div><div class='kpi-value' id='flightHours'>0.0</div></div>
+    <div class='kpi'><div class='kpi-label'>IFR Hours</div><div class='kpi-value' id='ifrHours'>0.0</div></div>
+    <div class='kpi'><div class='kpi-label'>Night Hours</div><div class='kpi-value' id='nightHours'>0.0</div></div>
+    <div class='kpi'><div class='kpi-label'>NVG Hours</div><div class='kpi-value' id='nvgHours'>0.0</div></div>
+  </div>
+
+  <div class='kpis2'>
+    <div class='kpi-small'><div class='kpi-label'>Types</div><div class='kpi-value' id='typeCount'>0</div></div>
+    <div class='kpi-small'><div class='kpi-label'>IFR Share</div><div class='kpi-value' id='ifrShare'>0%</div></div>
+    <div class='kpi-small'><div class='kpi-label'>Night Share</div><div class='kpi-value' id='nightShare'>0%</div></div>
+    <div class='kpi-small'><div class='kpi-label'>NVG Share</div><div class='kpi-value' id='nvgShare'>0%</div></div>
+  </div>
+
+  <div class='grid'>
+    <div class='card' id='typeChartCard'>
+      <div class='chart-overview' id='chartOverview'>
+        <div class='card-title'>Missions and Flight Hours per Helicopter Type</div>
+        <div class='chart-wrap'><div class='chart-inner' id='typeChartHost'><canvas id='typeChart'></canvas><div class='type-hitlayer' id='typeHitLayer'></div></div></div>
+        <div class='note' style='margin-top:8px'>Click type: details, again: pilots, again: overview.</div>
+      </div>
+      <div class='type-detail' id='typeDetail'>
+        <button class='back-btn' type='button' id='btnBackFromDetail'>Back to all types</button>
+        <div class='card-title' id='detailTypeName'>Type</div>
+        <div class='detail-subtitle' id='detailTypeRank'></div>
+        <div class='detail-charts' id='detailCharts'>
+          <div class='detail-chart-col'>
+            <div class='detail-col-title'>Missions</div>
+            <div class='detail-chart-wrap'><canvas id='detailCountChart'></canvas></div>
+          </div>
+          <div class='detail-chart-col'>
+            <div class='detail-col-title'>Flight Hours</div>
+            <div class='detail-chart-wrap'><canvas id='detailHoursChart'></canvas></div>
+          </div>
+        </div>
+        <button class='drill-btn' type='button' id='btnShowPilots'>Show pilots for this type</button>
+      </div>
+    </div>
+    <div class='card' id='rightCard'>
+      <div class='card-title' id='rightCardTitle'>Helicopter Types</div>
+      <div id='typeTableWrap'>
+        <div class='table'>
+          <div class='table-header'>
+            <span>Type</span><span>Mis</span><span>Hours</span><span>Avg/Mis</span>
+            <span>IFR</span><span>Night</span><span>NVG</span>
+          </div>
+          <div id='typeList'></div>
+        </div>
+      </div>
+      <div id='basesRightWrap' style='display:none'>
+        <div class='bases-table'>
+          <div class='table-header'>
+            <span>Base</span><span>Missions</span><span>Hours</span>
+          </div>
+          <div id='basesRightList'></div>
+        </div>
+      </div>
+      <div id='pilotsRightWrap' style='display:none'>
+        <div class='pilots-table'>
+          <div class='table-header'>
+            <span>Pilot</span><span>Missions</span><span>Hours</span>
+          </div>
+          <div id='pilotsRightList'></div>
+        </div>
+      </div>
+      <div class='note' id='rightNote'>Ranked by missions. Click: stats / pilots / overview.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function fm(script,param){
+  if(param===undefined || param===null){param='';}
+  try{
+    if(window.FileMaker && FileMaker.PerformScript){
+      FileMaker.PerformScript(script,param);
+      return true;
+    }
+  }catch(e){}
+  return false;
+}
+
+var YEAR = String(new Date().getFullYear());
+var INITIAL_CACHE = String('%%CACHE%%');
+var uiState = { period: '7d', view: 'bases' };
+var PERIOD_LABELS = { '7d': '7 days', '30d': '30 days', year: YEAR };
+var VIEW_LABELS = {
+  bases: 'Bases', pilots: 'Pilots', htc: 'HTC', medical: 'Medical', types: 'Types'
+};
+function periodFromSuffix(suf){
+  suf = String(suf || '').trim().toUpperCase();
+  if(suf === '7D'){ return '7d'; }
+  if(suf === '30D'){ return '30d'; }
+  return 'year';
+}
+function cacheKeyFor(view, p){
+  var s = (p === '7d') ? '7D' : (p === '30d') ? '30D' : YEAR;
+  if(view === 'pilots'){ return 'PilotStats_' + s; }
+  if(view === 'htc'){ return 'HTCStats_' + s; }
+  if(view === 'types'){ return 'HELI_TYPE_' + s; }
+  return 'OPS_' + s;
+}
+function resolveFromCache(name){
+  name = String(name || '').trim();
+  if(!name || name.indexOf('%%') === 0){ return null; }
+  if(name.indexOf('OPS_') === 0){
+    return { view: 'bases', period: periodFromSuffix(name.slice(4)) };
+  }
+  if(name.indexOf('PilotStats') === 0){
+    var pp = (name === 'PilotStats') ? '7d' : periodFromSuffix(name.split('_').pop());
+    return { view: 'pilots', period: pp };
+  }
+  if(name.indexOf('HTCStats') === 0){
+    var hp = (name === 'HTCStats') ? '7d' : periodFromSuffix(name.split('_').pop());
+    return { view: 'htc', period: hp };
+  }
+  if(name.indexOf('HELI_TYPE_') === 0){
+    return { view: 'types', period: periodFromSuffix(name.slice(10)) };
+  }
+  return null;
+}
+function showChromeNote(msg){
+  var el = document.getElementById('chromeNote');
+  if(!el){ return; }
+  if(!msg){ el.textContent = ''; el.classList.remove('show'); return; }
+  el.textContent = msg; el.classList.add('show');
+}
+function syncChrome(){
+  document.querySelectorAll('#periodRow .chip').forEach(function(btn){
+    btn.classList.toggle('active', btn.getAttribute('data-period') === uiState.period);
+  });
+  document.querySelectorAll('#viewRow .chip').forEach(function(btn){
+    var v = btn.getAttribute('data-view');
+    btn.classList.toggle('active', v === uiState.view && !btn.disabled);
+  });
+  updateSubtitle();
+}
+function updateSubtitle(){
+  var label = (period && period.label) ? String(period.label) : (PERIOD_LABELS[uiState.period] || '7 days');
+  var text = VIEW_LABELS[uiState.view] + ' | ' + label;
+  if(period && period.start && period.end){
+    text += ' | ' + fmtDate(period.start) + ' - ' + fmtDate(period.end);
+  }
+  var el = document.getElementById('period');
+  if(el){ el.textContent = text; }
+}
+function setPeriod(p){
+  if(p !== '7d' && p !== '30d' && p !== 'year'){ return; }
+  var key = cacheKeyFor(uiState.view, p);
+  if(!fm('AM Dashboard Go To Cache', key)){
+    showChromeNote('Install Go To Cache; halt Show stat loop');
+  }
+}
+function setView(v){
+  if(v === 'medical' || !VIEW_LABELS[v]){ return; }
+  var key = cacheKeyFor(v, uiState.period);
+  if(!fm('AM Dashboard Go To Cache', key)){
+    showChromeNote('Install Go To Cache; halt Show stat loop');
+  }
+}
+function initChrome(){
+  var yearBtn = document.getElementById('yearChip');
+  if(yearBtn){ yearBtn.textContent = YEAR; }
+  var resolved = resolveFromCache(INITIAL_CACHE);
+  if(resolved){
+    uiState.view = resolved.view;
+    uiState.period = resolved.period;
+  }
+  syncChrome();
+}
+
+const dashboard = %%JSON%%;
+const kpi = dashboard.kpi || {};
+const period = dashboard.period || {};
+const types = dashboard.types || [];
+const typeBaseFlights = dashboard.typeBaseFlights || [];
+const typePilotFlights = dashboard.typePilotFlights || [];
+var typeChart = null;
+var detailCountChart = null;
+var detailHoursChart = null;
+var drillLevel = 0;
+var selectedTypeIdx = -1;
+
+function num(x){ return Number(x || 0); }
+function pct(part,total){
+  if(!total || total <= 0){ return 0; }
+  return (num(part) / num(total)) * 100;
+}
+function hPct(hours,total){
+  return num(hours).toFixed(1) + ' (' + pct(hours,total).toFixed(0) + '%)';
+}
+function fmtDate(s){ return s ? String(s) : ''; }
+initChrome();
+
+function typeBasesList(t){
+  var typeName = String(t.type || '').trim();
+  return typeBaseFlights.filter(function(r){
+    return String(r.type || '').trim() === typeName;
+  }).slice().sort(function(a,b){
+    return num(b.missions) - num(a.missions) || num(b.hours) - num(a.hours);
+  });
+}
+
+function typePilotsList(t){
+  var typeName = String(t.type || '').trim();
+  return typePilotFlights.filter(function(r){
+    return String(r.type || '').trim() === typeName;
+  }).slice().sort(function(a,b){
+    return num(b.missions) - num(a.missions) || num(b.hours) - num(a.hours);
+  });
+}
+
+types.forEach(function(t){
+  t.type = String(t.type || 'Unknown').trim();
+  t.missions = num(t.missions);
+  t.hours = num(t.hours);
+  t.ifr = num(t.ifr);
+  t.night = num(t.night);
+  t.nvg = num(t.nvg);
+  t.day = num(t.day);
+});
+types.sort(function(a,b){ return b.missions - a.missions || b.hours - a.hours; });
+
+function destroyDetailCharts(){
+  if(detailCountChart){ detailCountChart.destroy(); detailCountChart = null; }
+  if(detailHoursChart){ detailHoursChart.destroy(); detailHoursChart = null; }
+}
+
+function chartDefaults(){
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: function(ctx){ return ctx.label + ': ' + ctx.formattedValue; }
+        }
+      }
+    },
+    scales: {
+      x: {
+        ticks: { color: '#dce6ee', font: { size: 11, weight: '300' } },
+        grid: { color: 'rgba(255,255,255,.045)' }
+      },
+      y: {
+        beginAtZero: true,
+        ticks: { color: '#dce6ee', font: { weight: '300' } },
+        grid: { color: 'rgba(255,255,255,.07)' }
+      }
+    }
+  };
+}
+
+function renderDetailCharts(t){
+  destroyDetailCharts();
+  var countCanvas = document.getElementById('detailCountChart');
+  var hoursCanvas = document.getElementById('detailHoursChart');
+  if(!countCanvas || !hoursCanvas){ return; }
+
+  detailCountChart = new Chart(countCanvas, {
+    type: 'bar',
+    data: {
+      labels: ['Missions'],
+      datasets: [{
+        data: [t.missions],
+        backgroundColor: ['rgba(147,197,253,.88)'],
+        borderColor: ['rgba(147,197,253,1)'],
+        borderWidth: 1,
+        borderRadius: 7,
+        barPercentage: 0.55
+      }]
+    },
+    options: chartDefaults()
+  });
+
+  detailHoursChart = new Chart(hoursCanvas, {
+    type: 'bar',
+    data: {
+      labels: ['Total', 'IFR', 'Night', 'NVG'],
+      datasets: [{
+        data: [t.hours, t.ifr, t.night, t.nvg],
+        backgroundColor: [
+          'rgba(88,151,230,.88)',
+          'rgba(56,189,248,.85)',
+          'rgba(99,102,241,.85)',
+          'rgba(45,212,191,.82)'
+        ],
+        borderColor: [
+          'rgba(147,197,253,1)',
+          'rgba(56,189,248,1)',
+          'rgba(99,102,241,1)',
+          'rgba(45,212,191,1)'
+        ],
+        borderWidth: 1,
+        borderRadius: 7,
+        barPercentage: 0.55
+      }]
+    },
+    options: chartDefaults()
+  });
+}
+
+function highlightTableRow(idx){
+  document.querySelectorAll('.type-row').forEach(function(row){
+    row.classList.toggle('selected', Number(row.getAttribute('data-idx')) === idx);
+  });
+}
+
+function renderDrillState(){
+  var overview = document.getElementById('chartOverview');
+  var detail = document.getElementById('typeDetail');
+  var card = document.getElementById('typeChartCard');
+
+  overview.classList.toggle('hidden', drillLevel > 0);
+  overview.style.display = drillLevel === 0 ? 'flex' : 'none';
+  detail.classList.toggle('open', drillLevel >= 1);
+  detail.style.display = drillLevel >= 1 ? 'flex' : 'none';
+
+  if(card){ card.classList.toggle('drilled-in', drillLevel > 0); }
+  document.documentElement.classList.toggle('web-scroll', drillLevel > 0 || String('%%IS_WEB%%')==='1');
+  window.__avinopsDrilledIn = drillLevel > 0;
+  highlightTableRow(drillLevel > 0 ? selectedTypeIdx : -1);
+
+  if(drillLevel >= 1 && selectedTypeIdx >= 0){
+    var t = types[selectedTypeIdx];
+    document.getElementById('detailTypeName').textContent = t.type;
+    document.getElementById('detailTypeRank').textContent =
+      '#' + (selectedTypeIdx + 1) + ' by missions | ' + t.missions + ' missions | ' + t.hours.toFixed(1) + ' h';
+    setTimeout(function(){ renderDetailCharts(t); }, 0);
+  }else{
+    destroyDetailCharts();
+  }
+
+  var btnPilots = document.getElementById('btnShowPilots');
+  if(btnPilots){
+    btnPilots.style.display = drillLevel === 1 ? 'inline-flex' : 'none';
+    btnPilots.onclick = function(){ onTypeClick(selectedTypeIdx); };
+  }
+  var btnBackDetail = document.getElementById('btnBackFromDetail');
+  if(btnBackDetail){ btnBackDetail.onclick = function(){ resetDrill(); }; }
+
+  var rightCard = document.getElementById('rightCard');
+  var rightTitle = document.getElementById('rightCardTitle');
+  var typeTable = document.getElementById('typeTableWrap');
+  var basesRight = document.getElementById('basesRightWrap');
+  var pilotsRight = document.getElementById('pilotsRightWrap');
+  var rightNote = document.getElementById('rightNote');
+  if(rightTitle && typeTable && basesRight && pilotsRight){
+    if(drillLevel === 2 && selectedTypeIdx >= 0){
+      var sel = types[selectedTypeIdx];
+      rightTitle.textContent = sel.type + ' - Pilots';
+      typeTable.style.display = 'none';
+      basesRight.style.display = 'none';
+      pilotsRight.style.display = 'block';
+      var pr = typePilotsList(sel);
+      var prhtml = '';
+      pr.forEach(function(p){
+        prhtml += '<div class="row"><span class="name">' + (p.pilot || 'Unknown') + '</span>' +
+          '<span>' + num(p.missions) + '</span><span>' + num(p.hours).toFixed(1) + '</span></div>';
+      });
+      document.getElementById('pilotsRightList').innerHTML = prhtml ||
+        '<div class="row"><span class="name">No pilots found - run AM Build Helicopter Type Dashboard JSON</span><span></span><span></span></div>';
+      if(rightNote){ rightNote.textContent = 'PIC/Copilot hours for selected type. Click type again to return.'; }
+    }else if(drillLevel === 1 && selectedTypeIdx >= 0){
+      var selType = types[selectedTypeIdx];
+      rightTitle.textContent = selType.type + ' - Bases';
+      typeTable.style.display = 'none';
+      basesRight.style.display = 'block';
+      pilotsRight.style.display = 'none';
+      var br = typeBasesList(selType);
+      var brhtml = '';
+      br.forEach(function(b){
+        brhtml += '<div class="row"><span class="name">' + (b.base || 'Unknown') + '</span>' +
+          '<span>' + num(b.missions) + '</span><span>' + num(b.hours).toFixed(1) + '</span></div>';
+      });
+      document.getElementById('basesRightList').innerHTML = brhtml ||
+        '<div class="row"><span class="name">No base data - run AM Build Helicopter Type Dashboard JSON</span><span></span><span></span></div>';
+      if(rightNote){ rightNote.textContent = 'Bases for selected type. Click type again for pilots.'; }
+    }else{
+      rightTitle.textContent = 'Helicopter Types';
+      typeTable.style.display = 'block';
+      basesRight.style.display = 'none';
+      pilotsRight.style.display = 'none';
+      if(rightNote){ rightNote.textContent = 'Ranked by missions. Click: stats / pilots / overview.'; }
+    }
+  }
+}
+
+function onTypeClick(idx){
+  if(idx < 0 || idx >= types.length){ return; }
+  if(drillLevel === 0 || selectedTypeIdx !== idx){
+    selectedTypeIdx = idx;
+    drillLevel = 1;
+  }else if(drillLevel === 1){
+    drillLevel = 2;
+  }else{
+    drillLevel = 0;
+    selectedTypeIdx = -1;
+  }
+  renderDrillState();
+}
+
+function resetDrill(){
+  drillLevel = 0;
+  selectedTypeIdx = -1;
+  window.__avinopsDrilledIn = false;
+  renderDrillState();
+  setTimeout(buildTypeHitLayer, 50);
+}
+
+var COL_PITCH = 56;
+var chartHost = document.getElementById('typeChartHost');
+chartHost.style.height = Math.max(480, 360) + 'px';
+if(types.length > 8){
+  chartHost.style.minWidth = (types.length * COL_PITCH + 80) + 'px';
+}
+
+function buildTypeHitLayer(){
+  var layer = document.getElementById('typeHitLayer');
+  var host = document.getElementById('typeChartHost');
+  if(!layer || !host || !typeChart || drillLevel > 0 || types.length < 1){ return; }
+  var xScale = typeChart.scales.x;
+  if(!xScale || host.offsetHeight <= 0 || typeChart.height <= 0){ return; }
+  var cssScale = host.clientWidth / typeChart.width;
+  var n = types.length;
+  var html = '';
+  types.forEach(function(t, i){
+    var center = xScale.getPixelForValue(i);
+    if(isNaN(center)){ center = xScale.getPixelForValue(t.type); }
+    center *= cssScale;
+    var left, right;
+    if(n === 1){
+      left = xScale.left * cssScale;
+      right = xScale.right * cssScale;
+    }else if(i === 0){
+      left = xScale.left * cssScale;
+      var next = xScale.getPixelForValue(1);
+      if(isNaN(next)){ next = xScale.getPixelForValue(types[1].type); }
+      right = (center + next * cssScale) / 2;
+    }else if(i === n - 1){
+      var prev = xScale.getPixelForValue(n - 2);
+      if(isNaN(prev)){ prev = xScale.getPixelForValue(types[n - 2].type); }
+      left = (prev * cssScale + center) / 2;
+      right = xScale.right * cssScale;
+    }else{
+      var prev = xScale.getPixelForValue(i - 1);
+      var next = xScale.getPixelForValue(i + 1);
+      if(isNaN(prev)){ prev = xScale.getPixelForValue(i - 1); }
+      if(isNaN(next)){ next = xScale.getPixelForValue(i + 1); }
+      left = (prev * cssScale + center) / 2;
+      right = (center + next * cssScale) / 2;
+    }
+    var l = Math.round(left);
+    var w = Math.max(24, Math.round(right - left));
+    html += '<div class="type-hitcol" data-idx="' + i + '" style="left:' + l + 'px;width:' + w + 'px"></div>';
+  });
+  layer.style.height = host.clientHeight + 'px';
+  layer.innerHTML = html;
+  layer.querySelectorAll('.type-hitcol').forEach(function(col){
+    col.addEventListener('click', function(ev){
+      ev.stopPropagation();
+      onTypeClick(Number(col.getAttribute('data-idx')));
+    });
+  });
+}
+
+const missions = num(kpi.missions);
+const flightHours = num(kpi.flightHours);
+const ifrHours = num(kpi.ifrHours);
+const nightHours = num(kpi.nightHours);
+const nvgHours = num(kpi.nvgHours);
+const ifrShare = flightHours > 0 ? (ifrHours / flightHours) * 100 : 0;
+const nightShare = flightHours > 0 ? (nightHours / flightHours) * 100 : 0;
+const nvgShare = flightHours > 0 ? (nvgHours / flightHours) * 100 : 0;
+
+updateSubtitle();
+document.getElementById('missions').textContent = missions.toLocaleString('en-GB');
+document.getElementById('flightHours').textContent = flightHours.toFixed(1);
+document.getElementById('ifrHours').textContent = ifrHours.toFixed(1);
+document.getElementById('nightHours').textContent = nightHours.toFixed(1);
+document.getElementById('nvgHours').textContent = nvgHours.toFixed(1);
+document.getElementById('typeCount').textContent = types.length;
+document.getElementById('ifrShare').textContent = ifrShare.toFixed(1) + '%';
+document.getElementById('nightShare').textContent = nightShare.toFixed(1) + '%';
+document.getElementById('nvgShare').textContent = nvgShare.toFixed(1) + '%';
+
+let listHTML = '';
+types.slice(0,10).forEach(function(x,idx){
+  const typeHours = x.hours;
+  const avgMission = x.missions > 0 ? typeHours / x.missions : 0;
+  const rowClass = idx === 0 ? 'row type-row top-type' : 'row type-row';
+  listHTML += '<div class="' + rowClass + '" data-idx="' + idx + '" onclick="onTypeClick(' + idx + ')"><span class="name">' +
+    x.type + '</span><span>' + x.missions + '</span><span>' + typeHours.toFixed(1) +
+    '</span><span>' + avgMission.toFixed(2) + '</span><span>' + hPct(x.ifr, typeHours) +
+    '</span><span>' + hPct(x.night, typeHours) + '</span><span>' + hPct(x.nvg, typeHours) + '</span></div>';
+});
+document.getElementById('typeList').innerHTML = listHTML || '<div class="row"><span class="name">No type data</span></div>';
+
+typeChart = new Chart(document.getElementById('typeChart'), {
+  type:'bar',
+  data:{
+    labels:types.map(x => x.type),
+    datasets:[
+      {
+        label:'Missions',
+        data:types.map(x => x.missions),
+        backgroundColor:'rgba(88,151,230,0.74)',
+        borderColor:'rgba(147,197,253,1)',
+        borderWidth:1,borderRadius:7,
+        barPercentage:0.42,categoryPercentage:0.58,yAxisID:'y'
+      },
+      {
+        label:'Flight Hours',
+        data:types.map(x => x.hours),
+        backgroundColor:'rgba(45,212,191,0.68)',
+        borderColor:'rgba(94,234,212,1)',
+        borderWidth:1,borderRadius:7,
+        barPercentage:0.42,categoryPercentage:0.58,yAxisID:'y1'
+      }
+    ]
+  },
+  options:{
+    responsive:true,
+    maintainAspectRatio:false,
+    layout:{padding:{top:8,bottom:96,left:6,right:8}},
+    interaction:{mode:'index',intersect:false},
+    plugins:{
+      legend:{labels:{color:'#ffffff',boxWidth:14,boxHeight:14,font:{size:13,weight:'300'}}},
+      tooltip:{enabled:false}
+    },
+    scales:{
+      x:{
+        offset:true,
+        ticks:{
+          display:true,color:'#dce6ee',padding:16,maxRotation:45,minRotation:0,autoSkip:false,
+          font:{size:10.5,weight:'300'}
+        },
+        grid:{color:'rgba(255,255,255,.045)'}
+      },
+      y:{
+        beginAtZero:true,position:'left',
+        title:{display:true,text:'Missions',color:'#ffffff',font:{weight:'300'}},
+        ticks:{color:'#dce6ee',precision:0,font:{weight:'300'}},
+        grid:{color:'rgba(255,255,255,.07)'}
+      },
+      y1:{
+        beginAtZero:true,position:'right',
+        title:{display:true,text:'Flight Hours',color:'#ffffff',font:{weight:'300'}},
+        ticks:{color:'#dce6ee',font:{weight:'300'}},
+        grid:{drawOnChartArea:false}
+      }
+    },
+    animation:{
+      onComplete:function(){ buildTypeHitLayer(); }
+    }
+  }
+});
+
+setTimeout(function(){ buildTypeHitLayer(); }, 100);
+
+window.resetDrill = resetDrill;
+window.onTypeClick = onTypeClick;
+</script>
+</body>
+</html>
