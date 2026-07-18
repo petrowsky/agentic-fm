@@ -429,7 +429,7 @@ ORDER BY SUM ( AM_FlightPersonnel.MissionCount ) DESC"]]></Calculation>
   <Step enable="True" id="89" name="# (comment)"/>
   <Step enable="True" id="141" name="Set Variable">
     <Value>
-      <Calculation><![CDATA[GetAsNumber ( GetValue ( $parts ; 2 ) )/100]]></Calculation>
+      <Calculation><![CDATA[GetAsNumber ( Substitute ( GetValue ( $parts ; 2 ) ; "." ; "," ) )]]></Calculation>
     </Value>
     <Repetition>
       <Calculation><![CDATA[1]]></Calculation>
@@ -438,7 +438,7 @@ ORDER BY SUM ( AM_FlightPersonnel.MissionCount ) DESC"]]></Calculation>
   </Step>
   <Step enable="True" id="141" name="Set Variable">
     <Value>
-      <Calculation><![CDATA[GetAsNumber ( GetValue ( $parts ; 3 ) )/100]]></Calculation>
+      <Calculation><![CDATA[GetAsNumber ( Substitute ( GetValue ( $parts ; 3 ) ; "." ; "," ) )]]></Calculation>
     </Value>
     <Repetition>
       <Calculation><![CDATA[1]]></Calculation>
@@ -471,7 +471,7 @@ ORDER BY SUM ( AM_FlightPersonnel.MissionCount ) DESC"]]></Calculation>
   </Step>
   <Step enable="True" id="141" name="Set Variable">
     <Value>
-      <Calculation><![CDATA[GetAsNumber ( GetValue ( $parts ; 5 ) )/100]]></Calculation>
+      <Calculation><![CDATA[GetAsNumber ( Substitute ( GetValue ( $parts ; 5 ) ; "." ; "," ) )]]></Calculation>
     </Value>
     <Repetition>
       <Calculation><![CDATA[1]]></Calculation>
@@ -480,7 +480,7 @@ ORDER BY SUM ( AM_FlightPersonnel.MissionCount ) DESC"]]></Calculation>
   </Step>
   <Step enable="True" id="141" name="Set Variable">
     <Value>
-      <Calculation><![CDATA[GetAsNumber ( GetValue ( $parts ; 6 ) )/100]]></Calculation>
+      <Calculation><![CDATA[GetAsNumber ( Substitute ( GetValue ( $parts ; 6 ) ; "." ; "," ) )]]></Calculation>
     </Value>
     <Repetition>
       <Calculation><![CDATA[1]]></Calculation>

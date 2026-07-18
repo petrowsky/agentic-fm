@@ -973,7 +973,7 @@ ORDER BY AM_FlightPersonnel.FlightId, SUM ( AM_FlightPersonnel.MissionCount ) DE
   </Step>
   <Step enable="True" id="141" name="Set Variable">
     <Value>
-      <Calculation><![CDATA[( GetAsNumber ( GetValue ( $tpfParts ; 4 ) ) + GetAsNumber ( GetValue ( $tpfParts ; 5 ) ) ) / 100]]></Calculation>
+      <Calculation><![CDATA[GetAsNumber ( Substitute ( GetValue ( $tpfParts ; 4 ) ; "." ; "," ) ) + GetAsNumber ( Substitute ( GetValue ( $tpfParts ; 5 ) ; "." ; "," ) )]]></Calculation>
     </Value>
     <Repetition>
       <Calculation><![CDATA[1]]></Calculation>

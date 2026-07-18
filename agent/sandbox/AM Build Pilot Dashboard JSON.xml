@@ -429,7 +429,7 @@ ORDER BY SUM ( AM_FlightPersonnel.MissionCount ) DESC, SUM ( AM_FlightPersonnel.
   </Step>
   <Step enable="True" id="141" name="Set Variable">
     <Value>
-      <Calculation><![CDATA[GetAsNumber ( GetValue ( $parts ; 2 ) ) / 100]]></Calculation>
+      <Calculation><![CDATA[GetAsNumber ( Substitute ( GetValue ( $parts ; 2 ) ; "." ; "," ) )]]></Calculation>
     </Value>
     <Repetition>
       <Calculation><![CDATA[1]]></Calculation>
@@ -438,7 +438,7 @@ ORDER BY SUM ( AM_FlightPersonnel.MissionCount ) DESC, SUM ( AM_FlightPersonnel.
   </Step>
   <Step enable="True" id="141" name="Set Variable">
     <Value>
-      <Calculation><![CDATA[GetAsNumber ( GetValue ( $parts ; 3 ) ) / 100]]></Calculation>
+      <Calculation><![CDATA[GetAsNumber ( Substitute ( GetValue ( $parts ; 3 ) ; "." ; "," ) )]]></Calculation>
     </Value>
     <Repetition>
       <Calculation><![CDATA[1]]></Calculation>
@@ -474,7 +474,7 @@ ORDER BY SUM ( AM_FlightPersonnel.MissionCount ) DESC, SUM ( AM_FlightPersonnel.
   </Step>
   <Step enable="True" id="141" name="Set Variable">
     <Value>
-      <Calculation><![CDATA[GetAsNumber ( GetValue ( $parts ; 6 ) )/100]]></Calculation>
+      <Calculation><![CDATA[GetAsNumber ( Substitute ( GetValue ( $parts ; 6 ) ; "." ; "," ) )]]></Calculation>
     </Value>
     <Repetition>
       <Calculation><![CDATA[1]]></Calculation>
@@ -483,7 +483,7 @@ ORDER BY SUM ( AM_FlightPersonnel.MissionCount ) DESC, SUM ( AM_FlightPersonnel.
   </Step>
   <Step enable="True" id="141" name="Set Variable">
     <Value>
-      <Calculation><![CDATA[GetAsNumber ( GetValue ( $parts ; 7 ) )/100]]></Calculation>
+      <Calculation><![CDATA[GetAsNumber ( Substitute ( GetValue ( $parts ; 7 ) ; "." ; "," ) )]]></Calculation>
     </Value>
     <Repetition>
       <Calculation><![CDATA[1]]></Calculation>
@@ -492,7 +492,7 @@ ORDER BY SUM ( AM_FlightPersonnel.MissionCount ) DESC, SUM ( AM_FlightPersonnel.
   </Step>
   <Step enable="True" id="141" name="Set Variable">
     <Value>
-      <Calculation><![CDATA[GetAsNumber ( GetValue ( $parts ; 8 ) )/100]]></Calculation>
+      <Calculation><![CDATA[GetAsNumber ( Substitute ( GetValue ( $parts ; 8 ) ; "." ; "," ) )]]></Calculation>
     </Value>
     <Repetition>
       <Calculation><![CDATA[1]]></Calculation>
