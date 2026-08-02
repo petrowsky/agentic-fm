@@ -7,17 +7,107 @@
   <Step enable="True" id="85" name="Allow User Abort">
     <Set state="False"/>
   </Step>
-  <Step enable="True" id="89" name="# (comment)"/>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text>PSOS: skip Air Maestro import on server (use existing flights). Client still imports.</Text>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[Let ( [
+	~p = Lower ( Trim ( Get ( ScriptParameter ) ) ) ;
+	~onServer = LeftWords ( Get ( ApplicationVersion ) ; 1 ) = "Server"
+] ;
+If (
+	PatternCount ( ~p ; "noimport" ) > 0
+	or ( ~onServer and ( ~p = "yoy" or PatternCount ( ~p ; "yoy" ) > 0 ) ) ;
+	1 ;
+	0
+)
+)]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$skipImport</Name>
+  </Step>
+  <Step enable="True" id="68" name="If">
+    <Restore state="False"/>
+    <Calculation><![CDATA[$skipImport = 0]]></Calculation>
+  </Step>
   <Step enable="True" id="1" name="Perform Script">
     <Script id="788" name="AM Import Full Flights and Legs"/>
   </Step>
+  <Step enable="True" id="70" name="End If"/>
   <Step enable="True" id="89" name="# (comment)"/>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text>HISTORICAL YEAR: ScriptParameter = full calendar year (e.g. 2025)</Text>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[Let ( [
+	~p = Trim ( Get ( ScriptParameter ) ) ;
+	~y = If ( IsEmpty ( ~p ) ; 0 ; GetAsNumber ( ~p ) )
+] ;
+If ( ~y < 2000 or ~y > 2100 ; 0 ; ~y )
+)]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$histYear</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[0]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$useEndDate</Name>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text>YOY: ScriptParameter = yoy → YTD prior year + YTD current → *_YOY</Text>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[If ( Lower ( Trim ( Get ( ScriptParameter ) ) ) = "yoy" ; 1 ; 0 )]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$yoyMode</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA["{}"]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$yoyPriorJson</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[Let ( [
+	~today = Get ( CurrentDate ) ;
+	~py = Year ( ~today ) - 1 ;
+	~m = Month ( ~today ) ;
+	~d = Day ( ~today ) ;
+	~last = Day ( Date ( ~m + 1 ; 1 ; ~py ) - 1 )
+] ;
+Date ( ~m ; Min ( ~d ; ~last ) ; ~py )
+)]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$yoyPriorEnd</Name>
+  </Step>
   <Step enable="True" id="89" name="# (comment)">
     <Text>PERIOD LOOP: build OPS_7D, OPS_30D, OPS_YYYY from same imported flights</Text>
   </Step>
   <Step enable="True" id="141" name="Set Variable">
     <Value>
-      <Calculation><![CDATA["7d¶30d¶year"]]></Calculation>
+      <Calculation><![CDATA[If ( $yoyMode ; "yoy_prior¶yoy_curr" ; If ( $histYear > 0 ; "hist" ; "7d¶30d¶year" ) )]]></Calculation>
     </Value>
     <Repetition>
       <Calculation><![CDATA[1]]></Calculation>
@@ -120,6 +210,155 @@
     </Repetition>
     <Name>$periodLabel</Name>
   </Step>
+  <Step enable="True" id="125" name="Else If">
+    <Restore state="False"/>
+    <Calculation><![CDATA[$period = "yoy_prior"]]></Calculation>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[Date ( 1 ; 1 ; Year ( Get ( CurrentDate ) ) - 1 )]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$startDate</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[$yoyPriorEnd]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$endDate</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA["OPS_YOY"]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$cacheKey</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA["YTD " & ( Year ( Get ( CurrentDate ) ) - 1 )]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$periodLabel</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$useEndDate</Name>
+  </Step>
+  <Step enable="True" id="125" name="Else If">
+    <Restore state="False"/>
+    <Calculation><![CDATA[$period = "yoy_curr"]]></Calculation>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[Date ( 1 ; 1 ; Year ( Get ( CurrentDate ) ) )]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$startDate</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[Get ( CurrentDate )]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$endDate</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA["OPS_YOY"]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$cacheKey</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA["YTD " & Year ( Get ( CurrentDate ) )]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$periodLabel</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$useEndDate</Name>
+  </Step>
+
+  <Step enable="True" id="125" name="Else If">
+    <Restore state="False"/>
+    <Calculation><![CDATA[$period = "hist"]]></Calculation>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[Date ( 1 ; 1 ; $histYear )]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$startDate</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[Date ( 12 ; 31 ; $histYear )]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$endDate</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA["OPS_" & $histYear]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$cacheKey</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[GetAsText ( $histYear )]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$periodLabel</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$useEndDate</Name>
+  </Step>
+
   <Step enable="True" id="69" name="Else">
     <Restore state="False"/>
   </Step>
@@ -169,6 +408,23 @@
     <Restore state="False"/>
   </Step>
   <Step enable="True" id="89" name="# (comment)"/>
+  <Step enable="True" id="68" name="If">
+    <Restore state="False"/>
+    <Calculation><![CDATA[$useEndDate = 1]]></Calculation>
+  </Step>
+  <Step enable="True" id="22" name="Enter Find Mode">
+    <Pause state="False"/>
+    <Restore state="False"/>
+  </Step>
+  <Step enable="True" id="76" name="Set Field">
+    <Calculation><![CDATA["≤" & $endDate]]></Calculation>
+    <Field table="AM_Imported_Flights" id="12" name="FlightDate"/>
+  </Step>
+  <Step enable="True" id="126" name="Constrain Found Set">
+    <Restore state="False"/>
+  </Step>
+  <Step enable="True" id="70" name="End If"/>
+
   <Step enable="True" id="141" name="Set Variable">
     <Value>
       <Calculation><![CDATA[0]]></Calculation>
@@ -294,9 +550,28 @@
     <FlushType value="Always"/>
   </Step>
   <Step enable="True" id="89" name="# (comment)"/>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text>STOCKHOLM: DutyType Dygn(24hr) → STO 24h, else STO Day (also remaps STO ####)</Text>
+  </Step>
   <Step enable="True" id="141" name="Set Variable">
     <Value>
-      <Calculation><![CDATA[Trim ( AM_Imported_Flights::BaseName )]]></Calculation>
+      <Calculation><![CDATA[Let ( [
+	~raw = Trim ( AM_Imported_Flights::BaseName ) ;
+	~duty = Trim ( AM_Imported_Flights::DutyType ) ;
+	~isSto = ~raw = "Stockholm"
+		or Left ( ~raw ; 4 ) = "STO "
+] ;
+	If ( ~isSto ;
+		If (
+			PatternCount ( ~duty ; "Dygn" ) > 0
+			or PatternCount ( ~duty ; "24hr" ) > 0
+			or PatternCount ( Lower ( ~duty ) ; "24h" ) > 0 ;
+			"STO 24h" ;
+			"STO Day"
+		) ;
+		~raw
+	)
+)]]></Calculation>
     </Value>
     <Repetition>
       <Calculation><![CDATA[1]]></Calculation>
@@ -316,19 +591,16 @@
   <Step enable="True" id="89" name="# (comment)"/>
   <Step enable="True" id="68" name="If">
     <Restore state="False"/>
-    <Calculation><![CDATA[IsEmpty ( $base ) 
-
-or
-
-PatternCount ( $base ; "Arlanda" ) > 0
-
-or
-
-PatternCount ( $base ; "Simu" ) > 0
-
-or
-
-PatternCount ( $base ; "Tech" ) > 0]]></Calculation>
+    <Calculation><![CDATA[IsEmpty ( $base )
+or PatternCount ( $base ; "Arlanda" ) > 0
+or PatternCount ( $base ; "Simu" ) > 0
+or PatternCount ( $base ; "Tech" ) > 0
+or PatternCount ( $base ; "Touring" ) > 0
+or PatternCount ( $base ; "Frösön" ) > 0
+or PatternCount ( $base ; "Frosön" ) > 0
+or PatternCount ( $base ; "ON LEAVE" ) > 0
+or PatternCount ( $base ; "Training Base" ) > 0
+or PatternCount ( $base ; "Training" ) > 0]]></Calculation>
   </Step>
   <Step enable="True" id="141" name="Set Variable">
     <Value>
@@ -345,56 +617,131 @@ PatternCount ( $base ; "Tech" ) > 0]]></Calculation>
     <Restore state="False"/>
     <Calculation><![CDATA[$skip = 0]]></Calculation>
   </Step>
-  <Step enable="True" id="89" name="# (comment)"/>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text>MISSIONS: STO Day/24h = Legs from JsonFlightRaw; other bases = MissionCount (default 1)</Text>
+  </Step>
   <Step enable="True" id="141" name="Set Variable">
     <Value>
-      <Calculation><![CDATA[AM_Imported_Flights::MissionCount]]></Calculation>
+      <Calculation><![CDATA[Let ( [
+	~stored = GetAsNumber ( AM_Imported_Flights::MissionCount ) ;
+	~isSto = Left ( $base ; 4 ) = "STO "
+		or $base = "Stockholm"
+		or PatternCount ( $base ; "Stockholm" ) > 0 ;
+	~legs = If (
+		~isSto
+		and not IsEmpty ( AM_Imported_Flights::JsonFlightRaw )
+		and JSONGetElementType ( AM_Imported_Flights::JsonFlightRaw ; "Legs" ) = JSONArray ;
+		ValueCount ( JSONListKeys ( AM_Imported_Flights::JsonFlightRaw ; "Legs" ) ) ;
+		""
+	) ;
+	~legsN = GetAsNumber ( ~legs )
+] ;
+Case (
+	~isSto and ~legsN > 0 ; ~legsN ;
+	~stored > 0 ; ~stored ;
+	1
+)
+)]]></Calculation>
     </Value>
     <Repetition>
       <Calculation><![CDATA[1]]></Calculation>
     </Repetition>
     <Name>$missions</Name>
   </Step>
-  <Step enable="True" id="89" name="# (comment)"/>
   <Step enable="True" id="68" name="If">
     <Restore state="False"/>
-    <Calculation><![CDATA[ IsEmpty ( $missions ) or GetAsNumber ( $missions ) = 0]]></Calculation>
+    <Calculation><![CDATA[Left ( $base ; 4 ) = "STO "
+and $missions > 0
+and GetAsNumber ( AM_Imported_Flights::MissionCount ) ≠ $missions]]></Calculation>
   </Step>
-  <Step enable="True" id="141" name="Set Variable">
-    <Value>
-      <Calculation><![CDATA[1]]></Calculation>
-    </Value>
-    <Repetition>
-      <Calculation><![CDATA[1]]></Calculation>
-    </Repetition>
-    <Name>$missions</Name>
-  </Step>
-  <Step enable="True" id="69" name="Else">
-    <Restore state="False"/>
-  </Step>
-  <Step enable="True" id="141" name="Set Variable">
-    <Value>
-      <Calculation><![CDATA[GetAsNumber ( $missions )]]></Calculation>
-    </Value>
-    <Repetition>
-      <Calculation><![CDATA[1]]></Calculation>
-    </Repetition>
-    <Name>$missions</Name>
+  <Step enable="True" id="76" name="Set Field">
+    <Calculation><![CDATA[$missions]]></Calculation>
+    <Field table="AM_Imported_Flights" id="72" name="MissionCount"/>
   </Step>
   <Step enable="True" id="70" name="End If"/>
   <Step enable="True" id="89" name="# (comment)"/>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text>Hours: PIC only (CommandDay+Night) via FlightId — avoid double-count with copilot; fallback HH:MM / FlightTimeDecimal</Text>
+  </Step>
   <Step enable="True" id="141" name="Set Variable">
     <Value>
-      <Calculation><![CDATA[AM_Imported_Flights::FlightTimeDecimal]]></Calculation>
+      <Calculation><![CDATA[Let ( [
+	~sql = ExecuteSQL ( "SELECT SUM ( CommandDay + CommandNight )
+FROM AM_FlightPersonnel
+WHERE Deleted = 0
+ AND FlightId = ?
+ AND ( CommandDay > 0 OR CommandNight > 0 )" ; "" ; "" ; AM_Imported_Flights::FlightId ) ;
+	~pers = GetAsNumber ( Substitute ( ~sql ; "." ; "," ) ) ;
+	~persOk = If ( IsEmpty ( ~pers ) or ~pers ≤ 0 or ~pers > 24 ; "" ; Round ( ~pers ; 2 ) ) ;
+	~t = Trim ( AM_Imported_Flights::FlightTimeText ) ;
+	~c = Position ( ~t ; ":" ; 1 ; 1 ) ;
+	~th = If ( ~c ; GetAsNumber ( Left ( ~t ; ~c - 1 ) ) ; -1 ) ;
+	~tm = If ( ~c ; GetAsNumber ( Middle ( ~t ; ~c + 1 ; 2 ) ) ; -1 ) ;
+	~fromText = If ( ~c and Length ( ~t ) ≤ 8 and ~th ≥ 0 and ~th < 24 and ~tm ≥ 0 and ~tm < 60 ; Round ( ~th + ~tm / 60 ; 2 ) ; "" ) ;
+	~dec = GetAsNumber ( AM_Imported_Flights::FlightTimeDecimal ) ;
+	~decOk = If ( IsEmpty ( ~dec ) or ~dec ≤ 0 or ~dec > 24 ; "" ; ~dec )
+] ;
+Case (
+	not IsEmpty ( ~persOk ) ; ~persOk ;
+	not IsEmpty ( ~fromText ) ; ~fromText ;
+	not IsEmpty ( ~decOk ) ; ~decOk ;
+	0
+)
+)]]></Calculation>
     </Value>
     <Repetition>
       <Calculation><![CDATA[1]]></Calculation>
     </Repetition>
     <Name>$hours</Name>
   </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text>IFR/NVG/Night/Landings: flight fields first; else PIC from AM_FlightPersonnel (fixes empty 2025 imports)</Text>
+  </Step>
   <Step enable="True" id="141" name="Set Variable">
     <Value>
-      <Calculation><![CDATA[AM_Imported_Flights::IFRTimeDecimal]]></Calculation>
+      <Calculation><![CDATA[Let ( [
+	~fIfr = GetAsNumber ( AM_Imported_Flights::IFRTimeDecimal ) ;
+	~fNvg = GetAsNumber ( AM_Imported_Flights::NVGTimeDecimal ) ;
+	~fNight = GetAsNumber ( AM_Imported_Flights::NightTimeDecimal ) ;
+	~fLdg = GetAsNumber ( AM_Imported_Flights::LandingsDay ) + GetAsNumber ( AM_Imported_Flights::LandingsNight ) ;
+	~need = ( IsEmpty ( ~fIfr ) or ~fIfr ≤ 0 )
+		or ( IsEmpty ( ~fNvg ) or ~fNvg ≤ 0 )
+		or ( IsEmpty ( ~fNight ) or ~fNight ≤ 0 )
+		or ( IsEmpty ( ~fLdg ) or ~fLdg ≤ 0 ) ;
+	~sql = If ( ~need ;
+		ExecuteSQL ( "SELECT
+ SUM ( LandingsDay + LandingsNight ),
+ SUM ( IFRHours ),
+ SUM ( CommandNight ),
+ SUM ( NVGHours )
+FROM AM_FlightPersonnel
+WHERE Deleted = 0
+ AND FlightId = ?
+ AND ( CommandDay > 0 OR CommandNight > 0 )" ; "|" ; "" ; AM_Imported_Flights::FlightId ) ;
+		""
+	) ;
+	~parts = If ( IsEmpty ( ~sql ) or ~sql = "?" ; "" ; Substitute ( ~sql ; "|" ; "¶" ) ) ;
+	~pLdg = GetAsNumber ( Substitute ( GetValue ( ~parts ; 1 ) ; "." ; "," ) ) ;
+	~pIfr = GetAsNumber ( Substitute ( GetValue ( ~parts ; 2 ) ; "." ; "," ) ) ;
+	~pNight = GetAsNumber ( Substitute ( GetValue ( ~parts ; 3 ) ; "." ; "," ) ) ;
+	~pNvg = GetAsNumber ( Substitute ( GetValue ( ~parts ; 4 ) ; "." ; "," ) )
+] ;
+JSONSetElement ( "{}" ;
+	[ "ifr" ; If ( ~fIfr > 0 and ~fIfr ≤ 24 ; ~fIfr ; If ( ~pIfr > 0 and ~pIfr ≤ 24 ; Round ( ~pIfr ; 2 ) ; 0 ) ) ; JSONNumber ] ;
+	[ "nvg" ; If ( ~fNvg > 0 and ~fNvg ≤ 24 ; ~fNvg ; If ( ~pNvg > 0 and ~pNvg ≤ 24 ; Round ( ~pNvg ; 2 ) ; 0 ) ) ; JSONNumber ] ;
+	[ "night" ; If ( ~fNight > 0 and ~fNight ≤ 24 ; ~fNight ; If ( ~pNight > 0 and ~pNight ≤ 24 ; Round ( ~pNight ; 2 ) ; 0 ) ) ; JSONNumber ] ;
+	[ "landings" ; If ( ~fLdg > 0 ; ~fLdg ; If ( ~pLdg > 0 ; ~pLdg ; 0 ) ) ; JSONNumber ]
+)
+)]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$catJson</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[GetAsNumber ( JSONGetElement ( $catJson ; "ifr" ) )]]></Calculation>
     </Value>
     <Repetition>
       <Calculation><![CDATA[1]]></Calculation>
@@ -403,7 +750,7 @@ PatternCount ( $base ; "Tech" ) > 0]]></Calculation>
   </Step>
   <Step enable="True" id="141" name="Set Variable">
     <Value>
-      <Calculation><![CDATA[AM_Imported_Flights::NVGTimeDecimal]]></Calculation>
+      <Calculation><![CDATA[GetAsNumber ( JSONGetElement ( $catJson ; "nvg" ) )]]></Calculation>
     </Value>
     <Repetition>
       <Calculation><![CDATA[1]]></Calculation>
@@ -412,7 +759,7 @@ PatternCount ( $base ; "Tech" ) > 0]]></Calculation>
   </Step>
   <Step enable="True" id="141" name="Set Variable">
     <Value>
-      <Calculation><![CDATA[AM_Imported_Flights::NightTimeDecimal]]></Calculation>
+      <Calculation><![CDATA[GetAsNumber ( JSONGetElement ( $catJson ; "night" ) )]]></Calculation>
     </Value>
     <Repetition>
       <Calculation><![CDATA[1]]></Calculation>
@@ -421,7 +768,7 @@ PatternCount ( $base ; "Tech" ) > 0]]></Calculation>
   </Step>
   <Step enable="True" id="141" name="Set Variable">
     <Value>
-      <Calculation><![CDATA[GetAsNumber ( AM_Imported_Flights::LandingsDay ) + GetAsNumber ( AM_Imported_Flights::LandingsNight )]]></Calculation>
+      <Calculation><![CDATA[GetAsNumber ( JSONGetElement ( $catJson ; "landings" ) )]]></Calculation>
     </Value>
     <Repetition>
       <Calculation><![CDATA[1]]></Calculation>
@@ -593,38 +940,95 @@ PatternCount ( $base ; "Tech" ) > 0]]></Calculation>
   <Step enable="True" id="141" name="Set Variable">
     <Value>
       <Calculation><![CDATA["SELECT
- AM_Imported_Flights.BaseName,
- AM_FlightPersonnel.PilotName,
- SUM ( AM_FlightPersonnel.MissionCount ),
- SUM ( AM_FlightPersonnel.CommandHours ),
- SUM ( AM_FlightPersonnel.CopilotHours )
+ CASE
+  WHEN AM_Imported_Flights.BaseName = 'Stockholm'
+    OR AM_Imported_Flights.BaseName LIKE 'STO %'
+  THEN CASE
+    WHEN AM_Imported_Flights.DutyType LIKE '%Dygn%'
+      OR AM_Imported_Flights.DutyType LIKE '%24hr%'
+      OR AM_Imported_Flights.DutyType LIKE '%24h%'
+    THEN 'STO 24h'
+    ELSE 'STO Day'
+  END
+  ELSE AM_Imported_Flights.BaseName
+ END,
+ COALESCE ( AM_Personnel.FullName, 'Unknown' ),
+ SUM ( AM_Imported_Flights.MissionCount ),
+ SUM ( AM_FlightPersonnel.CommandDay + AM_FlightPersonnel.CommandNight )
 FROM AM_FlightPersonnel
 INNER JOIN AM_Imported_Flights ON AM_FlightPersonnel.FlightId = AM_Imported_Flights.FlightId
+LEFT JOIN AM_Personnel ON AM_FlightPersonnel.PersonnelID = AM_Personnel.PersonnelID
 WHERE AM_FlightPersonnel.Deleted = 0
- AND AM_Imported_Flights.FlightDate >= ?
+ AND AM_Imported_Flights.FlightDate >= ?/*ENDDATE*/
  AND ( AM_FlightPersonnel.CommandDay > 0
-	OR AM_FlightPersonnel.CommandNight > 0
-	OR AM_FlightPersonnel.CoPilotDay > 0
-	OR AM_FlightPersonnel.CopilotNight > 0 )
-GROUP BY AM_Imported_Flights.BaseName, AM_FlightPersonnel.PilotName
-HAVING SUM ( AM_FlightPersonnel.CommandHours ) > 0
- OR SUM ( AM_FlightPersonnel.CopilotHours ) > 0
-ORDER BY AM_Imported_Flights.BaseName, SUM ( AM_FlightPersonnel.MissionCount ) DESC"]]></Calculation>
+	OR AM_FlightPersonnel.CommandNight > 0 )
+GROUP BY
+ CASE
+  WHEN AM_Imported_Flights.BaseName = 'Stockholm'
+    OR AM_Imported_Flights.BaseName LIKE 'STO %'
+  THEN CASE
+    WHEN AM_Imported_Flights.DutyType LIKE '%Dygn%'
+      OR AM_Imported_Flights.DutyType LIKE '%24hr%'
+      OR AM_Imported_Flights.DutyType LIKE '%24h%'
+    THEN 'STO 24h'
+    ELSE 'STO Day'
+  END
+  ELSE AM_Imported_Flights.BaseName
+ END,
+ COALESCE ( AM_Personnel.FullName, 'Unknown' )
+HAVING SUM ( AM_FlightPersonnel.CommandDay + AM_FlightPersonnel.CommandNight ) > 0
+ORDER BY 1, SUM ( AM_Imported_Flights.MissionCount ) DESC"]]></Calculation>
     </Value>
     <Repetition>
       <Calculation><![CDATA[1]]></Calculation>
     </Repetition>
     <Name>$pilotSQL</Name>
   </Step>
+  <Step enable="True" id="68" name="If">
+    <Restore state="False"/>
+    <Calculation><![CDATA[$useEndDate = 1]]></Calculation>
+  </Step>
   <Step enable="True" id="141" name="Set Variable">
     <Value>
-      <Calculation><![CDATA[ExecuteSQL ( $pilotSQL ; "|" ; "¶" ; $startDate )]]></Calculation>
+      <Calculation><![CDATA[Substitute ( $pilotSQL ; "/*ENDDATE*/" ; " AND AM_Imported_Flights.FlightDate <= ?" )]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$pilotSQLRun</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[ExecuteSQL ( $pilotSQLRun ; "|" ; "¶" ; GetAsText ( $startDate ) ; GetAsText ( $endDate ) )]]></Calculation>
     </Value>
     <Repetition>
       <Calculation><![CDATA[1]]></Calculation>
     </Repetition>
     <Name>$pilotRows</Name>
   </Step>
+  <Step enable="True" id="125" name="Else If">
+    <Restore state="False"/>
+    <Calculation><![CDATA[1]]></Calculation>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[Substitute ( $pilotSQL ; "/*ENDDATE*/" ; "" )]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$pilotSQLRun</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[ExecuteSQL ( $pilotSQLRun ; "|" ; "¶" ; GetAsText ( $startDate ) )]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$pilotRows</Name>
+  </Step>
+  <Step enable="True" id="70" name="End If"/>
   <Step enable="True" id="89" name="# (comment)"/>
   <Step enable="True" id="68" name="If">
     <Restore state="False"/>
@@ -696,7 +1100,7 @@ ORDER BY AM_Imported_Flights.BaseName, SUM ( AM_FlightPersonnel.MissionCount ) D
   </Step>
   <Step enable="True" id="141" name="Set Variable">
     <Value>
-      <Calculation><![CDATA[GetAsNumber ( Substitute ( GetValue ( $pfParts ; 4 ) ; "." ; "," ) ) + GetAsNumber ( Substitute ( GetValue ( $pfParts ; 5 ) ; "." ; "," ) )]]></Calculation>
+      <Calculation><![CDATA[GetAsNumber ( Substitute ( GetValue ( $pfParts ; 4 ) ; "." ; "," ) )]]></Calculation>
     </Value>
     <Repetition>
       <Calculation><![CDATA[1]]></Calculation>
@@ -715,18 +1119,15 @@ ORDER BY AM_Imported_Flights.BaseName, SUM ( AM_FlightPersonnel.MissionCount ) D
   <Step enable="True" id="68" name="If">
     <Restore state="False"/>
     <Calculation><![CDATA[IsEmpty ( $pilotBase )
-
-or
-
-PatternCount ( $pilotBase ; "Arlanda" ) > 0
-
-or
-
-PatternCount ( $pilotBase ; "Simu" ) > 0
-
-or
-
-PatternCount ( $pilotBase ; "Tech" ) > 0]]></Calculation>
+or PatternCount ( $pilotBase ; "Arlanda" ) > 0
+or PatternCount ( $pilotBase ; "Simu" ) > 0
+or PatternCount ( $pilotBase ; "Tech" ) > 0
+or PatternCount ( $pilotBase ; "Touring" ) > 0
+or PatternCount ( $pilotBase ; "Frösön" ) > 0
+or PatternCount ( $pilotBase ; "Frosön" ) > 0
+or PatternCount ( $pilotBase ; "ON LEAVE" ) > 0
+or PatternCount ( $pilotBase ; "Training Base" ) > 0
+or PatternCount ( $pilotBase ; "Training" ) > 0]]></Calculation>
   </Step>
   <Step enable="True" id="141" name="Set Variable">
     <Value>
@@ -930,6 +1331,55 @@ or IsEmpty ( GetValue ( $baseKeys ; $i ) )]]></Calculation>
     <RowPageLocation value="First"/>
   </Step>
   <Step enable="True" id="89" name="# (comment)"/>
+  <Step enable="True" id="68" name="If">
+    <Restore state="False"/>
+    <Calculation><![CDATA[$period = "yoy_prior"]]></Calculation>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[$result]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$yoyPriorJson</Name>
+  </Step>
+  <Step enable="True" id="125" name="Else If">
+    <Restore state="False"/>
+    <Calculation><![CDATA[$period = "yoy_curr"]]></Calculation>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[JSONSetElement ( "{}" ;
+	[ "ok" ; 1 ; JSONNumber ] ;
+	[ "mode" ; "yoy" ; JSONString ] ;
+	[ "period.key" ; "yoy" ; JSONString ] ;
+	[ "period.label" ; "YTD " & ( Year ( Get ( CurrentDate ) ) - 1 ) & " vs " & Year ( Get ( CurrentDate ) ) ; JSONString ] ;
+	[ "period.through" ; GetAsText ( Get ( CurrentDate ) ) ; JSONString ] ;
+	[ "period.priorYear" ; Year ( Get ( CurrentDate ) ) - 1 ; JSONNumber ] ;
+	[ "period.currYear" ; Year ( Get ( CurrentDate ) ) ; JSONNumber ] ;
+	[ "period.priorStart" ; JSONGetElement ( $yoyPriorJson ; "period.start" ) ; JSONString ] ;
+	[ "period.priorEnd" ; JSONGetElement ( $yoyPriorJson ; "period.end" ) ; JSONString ] ;
+	[ "period.currStart" ; JSONGetElement ( $result ; "period.start" ) ; JSONString ] ;
+	[ "period.currEnd" ; JSONGetElement ( $result ; "period.end" ) ; JSONString ] ;
+	[ "kpi.prior" ; JSONGetElement ( $yoyPriorJson ; "kpi" ) ; JSONObject ] ;
+	[ "kpi.curr" ; JSONGetElement ( $result ; "kpi" ) ; JSONObject ] ;
+	[ "basesPrior" ; JSONGetElement ( $yoyPriorJson ; "bases" ) ; JSONArray ] ;
+	[ "basesCurr" ; JSONGetElement ( $result ; "bases" ) ; JSONArray ] ;
+	[ "pilotFlightsPrior" ; JSONGetElement ( $yoyPriorJson ; "pilotFlights" ) ; JSONArray ] ;
+	[ "pilotFlightsCurr" ; JSONGetElement ( $result ; "pilotFlights" ) ; JSONArray ]
+)]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$result</Name>
+  </Step>
+  <Step enable="True" id="70" name="End If"/>
+  <Step enable="True" id="68" name="If">
+    <Restore state="False"/>
+    <Calculation><![CDATA[$period ≠ "yoy_prior"]]></Calculation>
+  </Step>
   <Step enable="True" id="76" name="Set Field">
     <Calculation><![CDATA[$result]]></Calculation>
     <Field table="AM_Dashboard_Cache" id="3" name="DashboardJSON"/>
@@ -955,6 +1405,7 @@ or IsEmpty ( GetValue ( $baseKeys ; $i ) )]]></Calculation>
   <Step enable="True" id="89" name="# (comment)">
     <Text>Next period</Text>
   </Step>
+  <Step enable="True" id="70" name="End If"/>
   <Step enable="True" id="141" name="Set Variable">
     <Value>
       <Calculation><![CDATA[$p + 1]]></Calculation>
@@ -965,6 +1416,10 @@ or IsEmpty ( GetValue ( $baseKeys ; $i ) )]]></Calculation>
     <Name>$p</Name>
   </Step>
   <Step enable="True" id="73" name="End Loop"/>
+  <Step enable="True" id="68" name="If">
+    <Restore state="False"/>
+    <Calculation><![CDATA[$histYear = 0 and $yoyMode = 0]]></Calculation>
+  </Step>
   <Step enable="True" id="89" name="# (comment)">
     <Text>Downstream dashboards (still 7d / existing keys)</Text>
   </Step>
@@ -980,6 +1435,7 @@ or IsEmpty ( GetValue ( $baseKeys ; $i ) )]]></Calculation>
   <Step enable="True" id="1" name="Perform Script">
     <Script id="862" name="AM Build Helicopter Type Dashboard JSON"/>
   </Step>
+  <Step enable="True" id="70" name="End If"/>
   <Step enable="True" id="89" name="# (comment)"/>
   <Step enable="True" id="103" name="Exit Script">
     <Calculation><![CDATA[$result]]></Calculation>

@@ -26,19 +26,31 @@ CALC_TEMPLATE = """Let ( [
 \t~cache = AM_Dashboard_Cache::CacheName ;
 \t~twoPhaseFlag = If ( not IsEmpty ( FilterValues ( "PilotStats¶HTCStats¶PilotStats_7D¶PilotStats_30D¶HTCStats_7D¶HTCStats_30D" ; ~cache ) ) or PatternCount ( ~cache ; "PilotStats_" ) or PatternCount ( ~cache ; "HTCStats_" ) ; "1" ; "0" ) ;
 \t~isWebFlag = If ( PatternCount ( Get ( ApplicationVersion ) ; "Web" ) > 0 ; "1" ; "0" ) ;
+\t~jsonB64 = Substitute (
+\t\tBase64EncodeRFC ( 4648 ; ~json ) ;
+\t\t[ Char ( 13 ) ; "" ] ;
+\t\t[ Char ( 10 ) ; "" ] ;
+\t\t[ "¶" ; "" ]
+\t) ;
 \t~html = "{html}" ;
 \t~html = Substitute ( ~html ;
-\t\t[ "%%JSON%%" ; ~json ] ;
+\t\t[ "%%JSON_B64%%" ; ~jsonB64 ] ;
 \t\t[ "%%UPDATED%%" ; ~updated ] ;
 \t\t[ "%%CACHE%%" ; ~cache ] ;
 \t\t[ "%%TWO_PHASE%%" ; ~twoPhaseFlag ] ;
 \t\t[ "%%IS_WEB%%" ; ~isWebFlag ]
+\t) ;
+\t~htmlB64 = Substitute (
+\t\tBase64EncodeRFC ( 4648 ; ~html ) ;
+\t\t[ Char ( 13 ) ; "" ] ;
+\t\t[ Char ( 10 ) ; "" ] ;
+\t\t[ "¶" ; "" ]
 \t)
 ] ;
 
 Case (
 \tPatternCount ( Get ( ApplicationVersion ) ; "Web" ) > 0 ;
-\t"data:text/html;charset=utf-8," & GetAsURLEncoded ( ~html ) ;
+\t"data:text/html;base64," & ~htmlB64 ;
 \t~html
 )
 
@@ -49,18 +61,30 @@ CALC_TEMPLATE_NO_CAROUSEL = """Let ( [
 \t~updated = GetAsText ( AM_Dashboard_Cache::LastUpdated_ts ) ;
 \t~cache = AM_Dashboard_Cache::CacheName ;
 \t~isWebFlag = If ( PatternCount ( Get ( ApplicationVersion ) ; "Web" ) > 0 ; "1" ; "0" ) ;
+\t~jsonB64 = Substitute (
+\t\tBase64EncodeRFC ( 4648 ; ~json ) ;
+\t\t[ Char ( 13 ) ; "" ] ;
+\t\t[ Char ( 10 ) ; "" ] ;
+\t\t[ "¶" ; "" ]
+\t) ;
 \t~html = "{html}" ;
 \t~html = Substitute ( ~html ;
-\t\t[ "%%JSON%%" ; ~json ] ;
+\t\t[ "%%JSON_B64%%" ; ~jsonB64 ] ;
 \t\t[ "%%UPDATED%%" ; ~updated ] ;
 \t\t[ "%%CACHE%%" ; ~cache ] ;
 \t\t[ "%%IS_WEB%%" ; ~isWebFlag ]
+\t) ;
+\t~htmlB64 = Substitute (
+\t\tBase64EncodeRFC ( 4648 ; ~html ) ;
+\t\t[ Char ( 13 ) ; "" ] ;
+\t\t[ Char ( 10 ) ; "" ] ;
+\t\t[ "¶" ; "" ]
 \t)
 ] ;
 
 Case (
 \tPatternCount ( Get ( ApplicationVersion ) ; "Web" ) > 0 ;
-\t"data:text/html;charset=utf-8," & GetAsURLEncoded ( ~html ) ;
+\t"data:text/html;base64," & ~htmlB64 ;
 \t~html
 )
 
@@ -78,7 +102,7 @@ html.two-phase-scroll .scroll-spacer{display:block;height:72vh;}
 
 def minify_html(html: str) -> str:
     html = html.strip()
-    # Strip // comments inside <script> blocks before collapsing newlines —
+    # Strip // comments inside <script> blocks before collapsing newlines -
     # otherwise a // comment eats the rest of the minified one-line script.
     def strip_js_line_comments(match: re.Match) -> str:
         body = match.group(1)
@@ -169,7 +193,7 @@ def ensure_carousel_block(html: str) -> str:
         return html
     pattern = re.compile(
         r"<script>\s*var _carouselTopMs = 4000;.*?"
-        r"(?=const dashboard = %%JSON%%;)",
+        r"(?=const dashboard=JSON.parse(decodeURIComponent(escape(atob('%%JSON_B64%%'))));)",
         re.DOTALL,
     )
     if not pattern.search(html):

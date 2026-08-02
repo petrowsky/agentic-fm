@@ -7,49 +7,45 @@
 <style>
 html,body{
   margin:0;padding:0;width:100%;height:100%;
-  font-family:-apple-system,BlinkMacSystemFont,Helvetica Neue,Segoe UI,Arial,sans-serif;
-  background:radial-gradient(circle at top left,#11263a 0%,#07121c 46%,#050b12 100%);
+  font-family:-apple-system,BlinkMacSystemFont,Helvetica Neue,sans-serif;
+  background:#07121c;
   color:white;overflow:hidden;font-weight:300;
 }
 html.web-scroll,html.web-scroll body{
   height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto;
 }
-.wrapper{box-sizing:border-box;width:100%;height:100%;padding:20px 24px 18px;display:flex;flex-direction:column;}
+.wrapper{box-sizing:border-box;width:100%;height:100%;padding:16px 18px 14px;display:flex;flex-direction:column}
 
 .header{display:flex;flex-direction:column;gap:0;margin-bottom:12px;flex:0 0 auto;}
 .header-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;}
 .header-main{min-width:0;flex:1 1 auto}
-.title{font-size:28px;font-weight:400;letter-spacing:-0.7px;line-height:1.1}
+.title{font-size:26px;font-weight:400;letter-spacing:-.5px;line-height:1.1}
 .subtitle{margin-top:4px;color:#b7c5d3;font-size:13.5px;font-weight:300}
 .updated{color:#9aacbb;font-size:12px;text-align:right;line-height:1.35;font-weight:300;flex:0 0 auto;padding-top:4px}
 .chrome{display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px 10px;margin-top:12px;width:100%}
-.chip-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
-.chip-sep{width:1px;height:22px;background:rgba(255,255,255,0.18);margin:0 2px;flex:0 0 auto}
+.chip-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.chip-sep{width:1px;height:28px;background:rgba(255,255,255,0.18);margin:0 4px;flex:0 0 auto}
 .chip{
   display:inline-flex;align-items:center;justify-content:center;
-  min-height:28px;padding:5px 12px;border-radius:8px;
+  min-height:34px;padding:7px 16px;border-radius:9px;
   border:1px solid rgba(255,255,255,0.14);
   background:rgba(255,255,255,0.06);
-  color:#dce6ee;font-size:12.5px;font-weight:400;cursor:pointer;
-  transition:background .15s ease,border-color .15s ease,color .15s ease;
-}
-.chip:hover{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.22)}
+  color:#dce6ee;font-size:13.5px;font-weight:400;cursor:pointer;
+  }
 .chip.active{background:rgba(88,151,230,0.28);border-color:rgba(147,197,253,0.55);color:#fff}
 .chip:disabled,.chip.disabled{opacity:0.38;cursor:not-allowed}
 .chrome-note{display:none;margin-top:2px;color:#93c5fd;font-size:12px;font-weight:300;line-height:1.35}
 .chrome-note.show{display:block}
-.kpis{display:grid;grid-template-columns:repeat(8,1fr);gap:10px;margin-bottom:12px;flex:0 0 auto}
-.kpi,.card{
-  background:linear-gradient(145deg,rgba(27,47,66,.96),rgba(16,34,50,.96));
-  border:1px solid rgba(255,255,255,.055);
-  box-shadow:0 10px 28px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.04);
-}
-.kpi{border-radius:14px;padding:9px 12px;min-height:54px}
-.kpi-label{color:#aebdca;font-size:11px;margin-bottom:2px;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.kpi-value{font-size:22px;font-weight:400;letter-spacing:-0.5px;line-height:1.05}
+.kpis{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;margin-bottom:8px;flex:0 0 auto}
+.kpi,.card{background:rgba(16,34,50,.96);border:1px solid rgba(255,255,255,.055)}
+.kpi{border-radius:10px;padding:5px 8px;min-height:0}
+.kpi-label{color:#aebdca;font-size:10.5px;margin-bottom:1px;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi-value{font-size:16px;font-weight:400;letter-spacing:-.3px;line-height:1.05}
 .grid{display:grid;grid-template-columns:1.18fr .95fr;gap:14px;flex:1 1 auto;min-height:0;align-items:start}
-.card{border-radius:18px;padding:16px 20px;min-height:0;display:flex;flex-direction:column}
+.card{border-radius:14px;padding:12px 14px;min-height:0;display:flex;flex-direction:column}
 .card-title{font-size:18px;font-weight:400;margin-bottom:8px;letter-spacing:-0.3px;flex:0 0 auto}
+.chart-leg{margin:0 0 6px;color:#8fa2b3;font-size:12px;flex:0 0 auto}
+.yl-p{color:#93c5fd}.yl-c{color:#5eead4}
 .chart-wrap{width:100%;flex:0 0 auto;overflow:visible;padding-bottom:4px;box-sizing:border-box}
 .chart-inner{position:relative;width:100%}
 .chart-inner canvas{display:block;width:100% !important;height:100% !important;pointer-events:none}
@@ -63,10 +59,14 @@ html.web-scroll,html.web-scroll body{
 }
 .table-header{color:#8fa2b3;font-size:11px;font-weight:400;padding:0 0 8px 0;border-bottom:1px solid rgba(255,255,255,.18)}
 .table-header span:not(:first-child){text-align:right}
+.table-header .sort-hdr{
+  cursor:pointer;user-select:none;
+}
+.table-header .sort-hdr.active{color:#93c5fd;font-weight:400}
+.table-header .sort-hdr .sort-ind{display:inline-block;min-width:0.9em;margin-left:2px;opacity:0.85;font-size:10px}
 .row{border-bottom:1px solid rgba(255,255,255,.07);padding:6px 0;font-weight:300}
 .row span:not(:first-child){text-align:right}
-.row.pilot-row{cursor:pointer;border-radius:6px;padding:6px 4px;transition:background .15s ease}
-.row.pilot-row:hover{background:rgba(255,255,255,.06)}
+.row.pilot-row{cursor:pointer;border-radius:6px;padding:6px 4px}
 .row.pilot-row.selected{background:rgba(88,151,230,.14)}
 .row.top-pilot span.name{color:#93c5fd}
 .name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -79,28 +79,23 @@ html.web-scroll,html.web-scroll body{
   border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.07);
   color:#dce6ee;font-size:12.5px;font-weight:400;cursor:pointer;
 }
-.back-btn:hover{background:rgba(255,255,255,.14)}
 .detail-metrics{flex:1 1 auto;overflow-y:auto;padding:4px 2px 8px}
-.metric-row{display:grid;grid-template-columns:108px 1fr 72px;gap:10px;align-items:center;margin-bottom:12px}
-.metric-label{color:#aebdca;font-size:12px}
-.metric-val{text-align:right;color:#e2e8f0;font-size:12.5px;font-weight:400;font-variant-numeric:tabular-nums}
-.metric-bar-bg{height:14px;border-radius:7px;background:rgba(255,255,255,.08);overflow:hidden}
-.metric-bar{height:100%;border-radius:7px;min-width:2px}
-.metric-bar.missions{background:rgba(147,197,253,.92)}
-.metric-bar.hours{background:rgba(88,151,230,.88)}
-.metric-bar.landings{background:rgba(129,140,248,.88)}
-.metric-bar.ifr{background:rgba(56,189,248,.85)}
-.metric-bar.night{background:rgba(99,102,241,.85)}
-.metric-bar.nvg{background:rgba(45,212,191,.82)}
-.metric-bar.pic{background:rgba(88,151,230,.88)}
-.metric-bar.copilot{background:rgba(45,212,191,.82)}
+.mr{display:grid;grid-template-columns:108px 1fr 72px;gap:10px;align-items:center;margin:0 0 10px}
+.ml{color:#aebdca;font-size:12px}
+.mv{text-align:right;color:#e2e8f0;font-size:12px;font-variant-numeric:tabular-nums}
+.mbg{height:14px;border-radius:7px;background:rgba(255,255,255,.08);overflow:hidden}
+.mb{height:100%;border-radius:7px;min-width:2px}
+.mb.m{background:rgba(147,197,253,.92)}.mb.h{background:rgba(88,151,230,.88)}.mb.l{background:rgba(129,140,248,.88)}
+.mb.i{background:rgba(56,189,248,.85)}.mb.n{background:rgba(99,102,241,.85)}.mb.g{background:rgba(45,212,191,.82)}
+.mb.p{background:rgba(88,151,230,.88)}.mb.c{background:rgba(45,212,191,.82)}
+.yb{display:flex;flex-direction:column;gap:3px}.mb.yp{background:rgba(147,197,253,.85)}.mb.yc{background:rgba(45,212,191,.82)}
+.yr{grid-template-columns:108px 1fr auto}.yr .mv{font-size:11px}.dl{color:#93c5fd}
 .detail-subtitle{color:#8fa2b3;font-size:12px;margin:-2px 0 12px}
 .note{margin-top:10px;color:#8fa2b3;font-size:12px;line-height:1.4;font-weight:300;flex:0 0 auto}
-@media(max-width:1200px){
-  .kpis{grid-template-columns:repeat(4,1fr)}
-  .grid{grid-template-columns:1fr}
-  .card{min-height:380px}
-}
+.kpi-dual{font-size:11px;line-height:1.3;font-weight:300;color:#b7c5d3}
+.kpi-dual strong{color:#e8eef4;font-weight:400}
+.kpi-dual .delta{color:#93c5fd;margin-left:3px}
+.table.yoy .table-header,.table.yoy .row{grid-template-columns:1.3fr .55fr .55fr .55fr .65fr .65fr .55fr}
 </style>
 </head>
 <body>
@@ -114,17 +109,18 @@ html.web-scroll,html.web-scroll body{
       <div class='updated'>Updated: %%UPDATED%%</div>
     </div>
     <div class='chrome' id='chrome'>
-      <div class='chip-row' id='periodRow' role='group' aria-label='Period'>
+      <div class='chip-row' id='periodRow' >
         <button class='chip' type='button' data-period='7d' onclick="setPeriod('7d')">7d</button>
         <button class='chip' type='button' data-period='30d' onclick="setPeriod('30d')">30d</button>
         <button class='chip' type='button' data-period='year' id='yearChip' onclick="setPeriod('year')">2026</button>
+        <button class='chip' type='button' data-period='yoy' onclick="setPeriod('yoy')">YoY</button>
       </div>
-      <div class='chip-sep' aria-hidden='true'></div>
-      <div class='chip-row' id='viewRow' role='group' aria-label='View'>
+      <div class='chip-sep' ></div>
+      <div class='chip-row' id='viewRow' role='group' >
         <button class='chip' type='button' data-view='bases' onclick="setView('bases')">Bases</button>
         <button class='chip' type='button' data-view='pilots' onclick="setView('pilots')">Pilots</button>
         <button class='chip' type='button' data-view='htc' onclick="setView('htc')">HTC</button>
-        <button class='chip disabled' type='button' data-view='medical' disabled title='Coming soon'>Medical</button>
+        <button class='chip disabled' type='button' data-view='medical' disabled >Med</button>
         <button class='chip' type='button' data-view='types' onclick="setView('types')">Types</button>
       </div>
       <div class='chrome-note' id='chromeNote'></div>
@@ -145,9 +141,10 @@ html.web-scroll,html.web-scroll body{
   <div class='grid'>
     <div class='card' id='pilotChartCard'>
       <div class='chart-overview' id='chartOverview'>
-        <div class='card-title'>All Pilots - PIC and Copilot Hours, A-Z by surname</div>
+        <div class='card-title'>All Pilots - PIC / Copilot</div>
+        <div class='chart-leg' id='chartLegend'></div>
         <div class='chart-wrap'><div class='chart-inner' id='pilotChartHost'><canvas id='pilotChart'></canvas><div class='pilot-hitlayer' id='pilotHitLayer'></div></div></div>
-        <div class='note' style='margin-top:8px'>Click a bar to see pilot details.</div>
+        <div class='note' style='margin-top:8px'>Click bar/row for detail.</div>
       </div>
       <div class='pilot-detail' id='pilotDetail'>
         <button class='back-btn' type='button' onclick='closePilotDetail()'><- All pilots</button>
@@ -157,15 +154,21 @@ html.web-scroll,html.web-scroll body{
       </div>
     </div>
     <div class='card'>
-      <div class='card-title'>Top 20 Pilots by Missions</div>
+      <div class='card-title' id='topListTitle'>Top 20 Pilots by Missions</div>
       <div class='table'>
-        <div class='table-header'>
-          <span>Pilot</span><span>Mis</span><span>Total</span><span>PIC</span>
-          <span>Copilot</span><span>IFR</span><span>Night</span><span>NVG</span>
+        <div class='table-header' id='topListHeader'>
+          <span class='sort-hdr' data-sort='pilot' onclick="sortTopList('pilot')">Pilot<span class='sort-ind'></span></span>
+          <span class='sort-hdr' data-sort='missions' onclick="sortTopList('missions')">Mis<span class='sort-ind'></span></span>
+          <span class='sort-hdr' data-sort='total' onclick="sortTopList('total')">Total<span class='sort-ind'></span></span>
+          <span class='sort-hdr' data-sort='pic' onclick="sortTopList('pic')">PIC<span class='sort-ind'></span></span>
+          <span class='sort-hdr' data-sort='copilot' onclick="sortTopList('copilot')">Copilot<span class='sort-ind'></span></span>
+          <span class='sort-hdr' data-sort='ifr' onclick="sortTopList('ifr')">IFR<span class='sort-ind'></span></span>
+          <span class='sort-hdr' data-sort='night' onclick="sortTopList('night')">Night<span class='sort-ind'></span></span>
+          <span class='sort-hdr' data-sort='nvg' onclick="sortTopList('nvg')">NVG<span class='sort-ind'></span></span>
         </div>
         <div id='topList'></div>
       </div>
-      <div class='note'>Ranked by missions. Click a row for pilot details. IFR, Night and NVG show hours with percentage of each pilot's total flight time.</div>
+      <div class='note' id='topListNote'>Click header to sort.</div>
     </div>
   </div>
 </div>
@@ -174,27 +177,12 @@ html.web-scroll,html.web-scroll body{
 function fm(script,param){
   if(param===undefined || param===null){param='';}
   try{
-    if(window.FileMaker && FileMaker.PerformScript){
-      FileMaker.PerformScript(script,param);
-      return true;
-    }
+    var FM=window.FileMaker;
+    try{if(!FM)FM=parent.FileMaker;}catch(e1){}
+    if(FM&&FM.PerformScript){FM.PerformScript(script,param);return true;}
   }catch(e){}
   return false;
 }
-function maxScrollTop(){
-  var el=document.documentElement;
-  var body=document.body;
-  var h=Math.max(el?el.scrollHeight:0, body?body.scrollHeight:0);
-  var vh=window.innerHeight||(el?el.clientHeight:0);
-  return Math.max(0,h-vh);
-}
-function avinopsScrollToEnd(){
-  var y=maxScrollTop();
-  window.scrollTo(0,y);
-  if(document.documentElement){ document.documentElement.scrollTop=y; }
-  if(document.body){ document.body.scrollTop=y; }
-}
-window.avinopsScrollToEnd=avinopsScrollToEnd;
 if(String('%%IS_WEB%%')==='1'){
   document.documentElement.classList.add('web-scroll');
 }
@@ -203,41 +191,28 @@ window.__avinopsDrilledIn=false;
 var YEAR = String(new Date().getFullYear());
 var INITIAL_CACHE = String('%%CACHE%%');
 var uiState = { period: '7d', view: 'bases' };
-var PERIOD_LABELS = { '7d': '7 days', '30d': '30 days', year: YEAR };
-var VIEW_LABELS = {
-  bases: 'Bases', pilots: 'Pilots', htc: 'HTC', medical: 'Medical', types: 'Types'
-};
+var PERIOD_LABELS = { '7d': '7 days', '30d': '30 days', year: YEAR, yoy: 'YoY' };
+var VIEW_LABELS = { bases:'Bases', pilots:'Pilots', htc:'HTC', medical:'Medical', types:'Types' };
 function periodFromSuffix(suf){
   suf = String(suf || '').trim().toUpperCase();
   if(suf === '7D'){ return '7d'; }
   if(suf === '30D'){ return '30d'; }
+  if(suf === 'YOY'){ return 'yoy'; }
   return 'year';
 }
 function cacheKeyFor(view, p){
-  var s = (p === '7d') ? '7D' : (p === '30d') ? '30D' : YEAR;
-  if(view === 'pilots'){ return 'PilotStats_' + s; }
-  if(view === 'htc'){ return 'HTCStats_' + s; }
-  if(view === 'types'){ return 'HELI_TYPE_' + s; }
-  return 'OPS_' + s;
+  var pref = view==='pilots'?'PilotStats_':view==='htc'?'HTCStats_':view==='types'?'HELI_TYPE_':'OPS_';
+  if(p==='yoy'){ return pref+'YOY'; }
+  return pref + ((p==='7d')?'7D':(p==='30d')?'30D':YEAR);
 }
 function resolveFromCache(name){
-  name = String(name || '').trim();
-  if(!name || name.indexOf('%%') === 0){ return null; }
-  if(name.indexOf('OPS_') === 0){
-    return { view: 'bases', period: periodFromSuffix(name.slice(4)) };
-  }
-  if(name.indexOf('PilotStats') === 0){
-    var pp = (name === 'PilotStats') ? '7d' : periodFromSuffix(name.split('_').pop());
-    return { view: 'pilots', period: pp };
-  }
-  if(name.indexOf('HTCStats') === 0){
-    var hp = (name === 'HTCStats') ? '7d' : periodFromSuffix(name.split('_').pop());
-    return { view: 'htc', period: hp };
-  }
-  if(name.indexOf('HELI_TYPE_') === 0){
-    return { view: 'types', period: periodFromSuffix(name.slice(10)) };
-  }
-  return null;
+  name = String(name||'').trim();
+  if(!name || name.indexOf('%%')===0){ return null; }
+  var view = name.indexOf('PilotStats')===0?'pilots':name.indexOf('HTCStats')===0?'htc':name.indexOf('HELI_TYPE')===0?'types':name.indexOf('OPS_')===0?'bases':null;
+  if(!view){ return null; }
+  if(/_YOY$/.test(name)){ return {view:view,period:'yoy'}; }
+  var suf = name.split('_').pop();
+  return {view:view, period:(name==='PilotStats'||name==='HTCStats')?'7d':periodFromSuffix(suf)};
 }
 function showChromeNote(msg){
   var el = document.getElementById('chromeNote');
@@ -258,24 +233,26 @@ function syncChrome(){
 function updateSubtitle(){
   var label = (period && period.label) ? String(period.label) : (PERIOD_LABELS[uiState.period] || '7 days');
   var text = VIEW_LABELS[uiState.view] + ' | ' + label;
-  if(period && period.start && period.end){
+  if(isYoy && period.priorStart && period.currEnd){
+    text += ' | ' + fmtDate(period.priorStart) + '/' + fmtDate(period.currStart) + ' - ' + fmtDate(period.through || period.currEnd);
+  }else if(period && period.start && period.end){
     text += ' | ' + fmtDate(period.start) + ' - ' + fmtDate(period.end);
   }
   var el = document.getElementById('period');
   if(el){ el.textContent = text; }
 }
 function setPeriod(p){
-  if(p !== '7d' && p !== '30d' && p !== 'year'){ return; }
+  if(p !== '7d' && p !== '30d' && p !== 'year' && p !== 'yoy'){ return; }
   var key = cacheKeyFor(uiState.view, p);
   if(!fm('AM Dashboard Go To Cache', key)){
-    showChromeNote('Install Go To Cache; halt Show stat loop');
+    showChromeNote('Missing Go To Cache');
   }
 }
 function setView(v){
   if(v === 'medical' || !VIEW_LABELS[v]){ return; }
   var key = cacheKeyFor(v, uiState.period);
   if(!fm('AM Dashboard Go To Cache', key)){
-    showChromeNote('Install Go To Cache; halt Show stat loop');
+    showChromeNote('Missing Go To Cache');
   }
 }
 function initChrome(){
@@ -290,10 +267,37 @@ function initChrome(){
 }
 
 
-const dashboard = %%JSON%%;
-const kpi = dashboard.kpi || {};
+const dashboard=JSON.parse(decodeURIComponent(escape(atob('%%JSON_B64%%'))));
+const isYoy = dashboard.mode === 'yoy' || String('%%CACHE%%').indexOf('_YOY') >= 0;
 const period = dashboard.period || {};
-const pilots = dashboard.pilots || [];
+var kpi = dashboard.kpi || {};
+var pilots = dashboard.pilots || [];
+var PY = String((period.priorYear != null) ? period.priorYear : (Number(YEAR) - 1));
+var CY = String((period.currYear != null) ? period.currYear : YEAR);var ym=PY.slice(2),yc=CY.slice(2);
+if(isYoy){
+  var map = {};
+  function ingest(arr, side){
+    (arr||[]).forEach(function(r){
+      var n = String(r.pilot||'').replace(/\s+/g,' ').trim(); if(!n) return;
+      if(!map[n]) map[n] = { pilot:n, prior:{}, curr:{} };
+      var t = map[n][side];
+      ['missions','total','pic','copilot','ifr','night','nvg','landings'].forEach(function(k){ t[k]=Number(r[k]||0); });
+    });
+  }
+  ingest(dashboard.pilotsPrior,'prior'); ingest(dashboard.pilotsCurr,'curr');
+  // Fallback: some caches only have pilots[] (or curr under pilots)
+  if(!Object.keys(map).length){
+    ingest(dashboard.pilotsCurr||dashboard.pilots||[],'curr');
+    ingest(dashboard.pilotsPrior||[],'prior');
+  }
+  pilots = Object.keys(map).map(function(k){
+    var o = map[k], c = o.curr||{}, pr = o.prior||{};
+    o.missions=c.missions||0; o.total=c.total||0; o.pic=c.pic||0; o.copilot=c.copilot||0;
+    o.ifr=c.ifr||0; o.night=c.night||0; o.nvg=c.nvg||0; o.landings=c.landings||0;
+    return o;
+  });
+  kpi = { prior:(dashboard.kpi&&dashboard.kpi.prior)||{}, curr:(dashboard.kpi&&dashboard.kpi.curr)||kpi };
+}
 var pilotChart = null;
 var selectedPilotIdx = -1;
 var pilotByName = {};
@@ -316,76 +320,38 @@ function scrollDashboardToTop(){
 }
 
 function buildPilotHitLayer(){
-  var layer = document.getElementById('pilotHitLayer');
-  var host = document.getElementById('pilotChartHost');
-  if(!layer || !host || !pilotChart || chartPilots.length < 1){ return; }
-  var yScale = pilotChart.scales.y;
-  if(!yScale || host.offsetHeight <= 0 || pilotChart.height <= 0){ return; }
-  var cssScale = host.clientHeight / pilotChart.height;
-  var n = chartPilots.length;
-  var html = '';
-  chartPilots.forEach(function(p, i){
-    var center = yScale.getPixelForValue(p.pilot);
-    if(isNaN(center)){ center = yScale.getPixelForValue(i); }
-    center *= cssScale;
-    var top, bottom;
-    if(n === 1){
-      top = yScale.top * cssScale;
-      bottom = yScale.bottom * cssScale;
-    }else if(i === 0){
-      top = yScale.top * cssScale;
-      var next = yScale.getPixelForValue(chartPilots[1].pilot);
-      if(isNaN(next)){ next = yScale.getPixelForValue(1); }
-      bottom = (center + next * cssScale) / 2;
-    }else if(i === n - 1){
-      var prev = yScale.getPixelForValue(chartPilots[n - 2].pilot);
-      if(isNaN(prev)){ prev = yScale.getPixelForValue(n - 2); }
-      top = (prev * cssScale + center) / 2;
-      bottom = yScale.bottom * cssScale;
-    }else{
-      var prev = yScale.getPixelForValue(chartPilots[i - 1].pilot);
-      var next = yScale.getPixelForValue(chartPilots[i + 1].pilot);
-      if(isNaN(prev)){ prev = yScale.getPixelForValue(i - 1); }
-      if(isNaN(next)){ next = yScale.getPixelForValue(i + 1); }
-      top = (prev * cssScale + center) / 2;
-      bottom = (center + next * cssScale) / 2;
-    }
-    var t = Math.round(top);
-    var h = Math.max(20, Math.round(bottom - top));
-    var idx = pilotIndexByName(p.pilot);
-    html += '<div class=\"pilot-hitrow\" data-idx=\"' + idx + '\" style=\"top:' + t + 'px;height:' + h + 'px\"></div>';
+  var layer=document.getElementById('pilotHitLayer'), host=document.getElementById('pilotChartHost');
+  if(!layer||!host||!pilotChart||!chartPilots.length){ return; }
+  var y=pilotChart.scales.y; if(!y||host.offsetHeight<=0){ return; }
+  var s=host.clientHeight/pilotChart.height, n=chartPilots.length, html='';
+  chartPilots.forEach(function(p,i){
+    var c=y.getPixelForValue(p.pilot); if(isNaN(c)) c=y.getPixelForValue(i); c*=s;
+    var top,bot;
+    if(n===1){ top=y.top*s; bot=y.bottom*s; }
+    else if(i===0){ top=y.top*s; var nx=y.getPixelForValue(chartPilots[1].pilot); if(isNaN(nx)) nx=y.getPixelForValue(1); bot=(c+nx*s)/2; }
+    else if(i===n-1){ var pv=y.getPixelForValue(chartPilots[n-2].pilot); if(isNaN(pv)) pv=y.getPixelForValue(n-2); top=(pv*s+c)/2; bot=y.bottom*s; }
+    else { var pv=y.getPixelForValue(chartPilots[i-1].pilot), nx=y.getPixelForValue(chartPilots[i+1].pilot);
+      if(isNaN(pv)) pv=y.getPixelForValue(i-1); if(isNaN(nx)) nx=y.getPixelForValue(i+1);
+      top=(pv*s+c)/2; bot=(c+nx*s)/2; }
+    html+='<div class="pilot-hitrow" data-idx="'+pilotIndexByName(p.pilot)+'" style="top:'+Math.round(top)+'px;height:'+Math.max(20,Math.round(bot-top))+'px"></div>';
   });
-  layer.style.height = host.clientHeight + 'px';
-  layer.innerHTML = html;
+  layer.style.height=host.clientHeight+'px'; layer.innerHTML=html;
   layer.querySelectorAll('.pilot-hitrow').forEach(function(row){
-    row.addEventListener('click', function(ev){
-      ev.stopPropagation();
-      openPilotDetail(Number(row.getAttribute('data-idx')));
-    });
+    row.onclick=function(ev){ ev.stopPropagation(); openPilotDetail(Number(row.getAttribute('data-idx'))); };
   });
 }
-
 function fleetMax(field){
   var m = 0;
   pilots.forEach(function(p){ m = Math.max(m, num(p[field])); });
   return m > 0 ? m : 1;
 }
-var maxMissions = 1;
-var maxTotal = 1;
-var maxLandings = 1;
-var maxIfr = 1;
-var maxNight = 1;
-var maxNvg = 1;
-var maxPic = 1;
-var maxCopilot = 1;
 
-function metricBar(label, value, maxVal, cssClass, display){
-  var pct = Math.max(2, Math.round((num(value) / maxVal) * 100));
-  return '<div class=\"metric-row\">' +
-    '<span class=\"metric-label\">' + label + '</span>' +
-    '<div class=\"metric-bar-bg\"><div class=\"metric-bar ' + cssClass + '\" style=\"width:' + pct + '%\"></div></div>' +
-    '<span class=\"metric-val\">' + display + '</span></div>';
+function yMx(){var m=1,i,v;for(i=0;i<arguments.length;i++){v=num(arguments[i]);if(v>m)m=v;}return m;}
+function yBar(l,a,b,f,mx){
+  var av=f?num(a).toFixed(1):''+num(a),bv=f?num(b).toFixed(1):''+num(b),d=num(b)-num(a),ds=(d>0?'+':'')+(f?d.toFixed(1):''+d),pa=mx&&num(a)?Math.max(1,Math.round(num(a)/mx*100)):0,pb=mx&&num(b)?Math.max(1,Math.round(num(b)/mx*100)):0;
+  return '<div class="mr yr"><span class="ml">'+l+'</span><div class="yb"><div class="mbg"><div class="mb yp" style="width:'+pa+'%"></div></div><div class="mbg"><div class="mb yc" style="width:'+pb+'%"></div></div></div><span class="mv">'+av+'->'+bv+' <span class="dl">('+ds+')</span></span></div>';
 }
+function mBar(l,v,mx,c,d){var p=(mx>0&&v>0)?Math.max(1,Math.round(v/mx*100)):0;return '<div class="mr"><span class="ml">'+l+'</span><div class="mbg"><div class="mb '+c+'" style="width:'+p+'%"></div></div><span class="mv">'+d+'</span></div>';}
 
 function highlightTableRow(idx){
   document.querySelectorAll('.pilot-row').forEach(function(row){
@@ -398,28 +364,37 @@ function openPilotDetail(idx){
   window.__avinopsDrilledIn = true;
   selectedPilotIdx = idx;
   var p = pilots[idx];
+  var scaleMax = Math.max(
+    num(p.missions), num(p.total), num(p.landings),
+    num(p.ifr), num(p.night), num(p.nvg),
+    num(p.pic), num(p.copilot), 1
+  );
   document.getElementById('chartOverview').classList.add('hidden');
   document.getElementById('pilotDetail').classList.add('open');
   document.getElementById('detailPilotName').textContent = p.pilot;
-  document.getElementById('detailPilotRank').textContent =
-    '#' + (idx + 1) + ' by missions | ' + p.missions + ' missions | ' + p.total.toFixed(1) + ' h total';
-  document.getElementById('detailMetrics').innerHTML =
-    metricBar('Missions', p.missions, maxMissions, 'missions', p.missions.toLocaleString('en-GB')) +
-    metricBar('Total hours', p.total, maxTotal, 'hours', p.total.toFixed(1) + ' h') +
-    metricBar('Landings', p.landings, maxLandings, 'landings', p.landings.toLocaleString('en-GB')) +
-    metricBar('IFR hours', p.ifr, maxIfr, 'ifr', hPct(p.ifr, p.total)) +
-    metricBar('Night hours', p.night, maxNight, 'night', hPct(p.night, p.total)) +
-    metricBar('NVG hours', p.nvg, maxNvg, 'nvg', hPct(p.nvg, p.total)) +
-    metricBar('PIC hours', p.pic, maxPic, 'pic', p.pic.toFixed(1) + ' h') +
-    metricBar('Copilot hours', p.copilot, maxCopilot, 'copilot', p.copilot.toFixed(1) + ' h');
+  if(isYoy){
+    var pr=p.prior||{}, cr=p.curr||{};
+    var mx=yMx(pr.missions,cr.missions,pr.total,cr.total,pr.pic,cr.pic,pr.copilot,cr.copilot,pr.ifr,cr.ifr,pr.night,cr.night,pr.nvg,cr.nvg);
+    document.getElementById('detailPilotRank').textContent = 'YoY ' + PY + ' vs ' + CY;
+    document.getElementById('detailMetrics').innerHTML =
+      yBar('Missions',pr.missions,cr.missions,0,mx)+yBar('Total h',pr.total,cr.total,1,mx)+
+      yBar('PIC',pr.pic,cr.pic,1,mx)+yBar('Copilot',pr.copilot,cr.copilot,1,mx)+
+      yBar('IFR',pr.ifr,cr.ifr,1,mx)+yBar('Night',pr.night,cr.night,1,mx)+yBar('NVG',pr.nvg,cr.nvg,1,mx);
+  }else{
+    document.getElementById('detailPilotRank').textContent =
+      '#' + (idx + 1) + ' by missions | ' + p.missions + ' missions | ' + p.total.toFixed(1) + ' h total';
+    document.getElementById('detailMetrics').innerHTML =
+      mBar('Missions', p.missions, scaleMax, 'm', p.missions.toLocaleString('en-GB')) +
+      mBar('Total hours', p.total, scaleMax, 'h', p.total.toFixed(1) + ' h') +
+      mBar('Landings', p.landings, scaleMax, 'l', p.landings.toLocaleString('en-GB')) +
+      mBar('IFR hours', p.ifr, scaleMax, 'i', hPct(p.ifr, p.total)) +
+      mBar('Night hours', p.night, scaleMax, 'n', hPct(p.night, p.total)) +
+      mBar('NVG hours', p.nvg, scaleMax, 'g', hPct(p.nvg, p.total)) +
+      mBar('PIC hours', p.pic, scaleMax, 'p', p.pic.toFixed(1) + ' h') +
+      mBar('Copilot hours', p.copilot, scaleMax, 'c', p.copilot.toFixed(1) + ' h');
+  }
   highlightTableRow(idx);
   scrollDashboardToTop();
-  var card = document.getElementById('pilotChartCard');
-  if(card){
-    try{ card.scrollIntoView({block:'start', behavior:'auto'}); }catch(e){ card.scrollIntoView(true); }
-  }
-  setTimeout(scrollDashboardToTop, 0);
-  setTimeout(scrollDashboardToTop, 100);
 }
 
 function closePilotDetail(){
@@ -471,96 +446,136 @@ pilots.forEach(function(p, i){
   pilotByName[p.pilot] = i;
 });
 
-maxMissions = fleetMax('missions');
-maxTotal = fleetMax('total');
-maxLandings = fleetMax('landings');
-maxIfr = fleetMax('ifr');
-maxNight = fleetMax('night');
-maxNvg = fleetMax('nvg');
-maxPic = fleetMax('pic');
-maxCopilot = fleetMax('copilot');
 
+function deltaPct(a,b){
+  a=num(a); b=num(b);
+  if(a===0){ return b===0?'0%':'+inf'; }
+  var d=((b-a)/a)*100;
+  return (d>0?'+':'')+d.toFixed(1)+'%';
+}
+function fillKpiDual(id, priorVal, currVal, fix){
+  var el=document.getElementById(id); if(!el) return;
+  el.className='kpi-value kpi-dual';
+  var pv=fix?num(priorVal).toFixed(1):num(priorVal).toLocaleString('en-GB');
+  var cv=fix?num(currVal).toFixed(1):num(currVal).toLocaleString('en-GB');
+  el.innerHTML='<div>'+PY+': <strong>'+pv+'</strong></div><div>'+CY+': <strong>'+cv+'</strong><span class="delta">'+deltaPct(priorVal,currVal)+'</span></div>';
+}
 updateSubtitle();
+if(isYoy){
+  var kp=kpi.prior||{}, kc=kpi.curr||{};
+  fillKpiDual('pilots', kp.pilots, kc.pilots, false);
+  fillKpiDual('missions', kp.missions, kc.missions, false);
+  fillKpiDual('totalHours', kp.totalHours, kc.totalHours, true);
+  fillKpiDual('picHours', kp.picHours, kc.picHours, true);
+  fillKpiDual('copilotHours', kp.copilotHours, kc.copilotHours, true);
+  fillKpiDual('ifrHours', kp.ifrHours, kc.ifrHours, true);
+  fillKpiDual('nightHours', kp.nightHours, kc.nightHours, true);
+  fillKpiDual('nvgHours', kp.nvgHours, kc.nvgHours, true);
+  var ct=document.querySelector('#chartOverview .card-title');
+  if(ct){ ct.textContent='YoY Total Hours per Pilot'; }
+}else{
+  document.getElementById('pilots').textContent = (kpi.pilots || pilots.length).toLocaleString('en-GB');
+  document.getElementById('missions').textContent = num(kpi.missions).toLocaleString('en-GB');
+  document.getElementById('totalHours').textContent = num(kpi.totalHours).toFixed(1);
+  document.getElementById('picHours').textContent = num(kpi.picHours).toFixed(1);
+  document.getElementById('copilotHours').textContent = num(kpi.copilotHours).toFixed(1);
+  document.getElementById('ifrHours').textContent = num(kpi.ifrHours).toFixed(1);
+  document.getElementById('nightHours').textContent = num(kpi.nightHours).toFixed(1);
+  document.getElementById('nvgHours').textContent = num(kpi.nvgHours).toFixed(1);
+}
+var leg=document.getElementById('chartLegend');
+if(leg){ leg.innerHTML=isYoy
+  ? '<span class="yl-p">&#9632;</span> '+PY+' <span class="yl-c">&#9632;</span> '+CY+' h'
+  : '<span class="yl-p">&#9632;</span> PIC <span class="yl-c">&#9632;</span> Copilot'; }
 
-document.getElementById('pilots').textContent = (kpi.pilots || pilots.length).toLocaleString('en-GB');
-document.getElementById('missions').textContent = num(kpi.missions).toLocaleString('en-GB');
-document.getElementById('totalHours').textContent = num(kpi.totalHours).toFixed(1);
-document.getElementById('picHours').textContent = num(kpi.picHours).toFixed(1);
-document.getElementById('copilotHours').textContent = num(kpi.copilotHours).toFixed(1);
-document.getElementById('ifrHours').textContent = num(kpi.ifrHours).toFixed(1);
-document.getElementById('nightHours').textContent = num(kpi.nightHours).toFixed(1);
-document.getElementById('nvgHours').textContent = num(kpi.nvgHours).toFixed(1);
+var tableSort = { key: 'missions', dir: -1 };
+var SORT_LABELS={pilot:'Name',missions:'Missions',missionsPrior:'25M',missionsCurr:'26M',total:'Total',totalPrior:'25H',totalCurr:'26H',pic:'PIC',copilot:'Copilot',ifr:'IFR',night:'Night',nvg:'NVG',dMis:'dM',dHrs:'dH'};
 
-let listHTML = '';
-pilots.slice(0,20).forEach(function(p,idx){
-  const rowClass = idx === 0 ? 'row pilot-row top-pilot' : 'row pilot-row';
-  listHTML += '<div class=\"' + rowClass + '\" data-idx=\"' + idx + '\" onclick=\"openPilotDetail(' + idx + ')\">' +
-    '<span class=\"name\">' + p.pilot + '</span>' +
-    '<span>' + p.missions + '</span>' +
-    '<span>' + p.total.toFixed(1) + '</span>' +
-    '<span>' + p.pic.toFixed(1) + '</span>' +
-    '<span>' + p.copilot.toFixed(1) + '</span>' +
-    '<span>' + hPct(p.ifr,p.total) + '</span>' +
-    '<span>' + hPct(p.night,p.total) + '</span>' +
-    '<span>' + hPct(p.nvg,p.total) + '</span>' +
-  '</div>';
-});
-document.getElementById('topList').innerHTML = listHTML || '<div class=\"row\"><span class=\"name\">No pilot data</span></div>';
+function sortTopList(key){if(tableSort.key===key)tableSort.dir=-tableSort.dir;else{tableSort.key=key;tableSort.dir=key==='pilot'?1:-1;}renderTopList();}
+
+function pilotSortVal(p,key){
+  if(isYoy){var pr=p.prior||{},cr=p.curr||{},o=/Prior/.test(key)?pr:cr;if(/^m/.test(key))return num(o.missions);if(/^t/.test(key))return num(o.total);if(key==='dMis')return num(cr.missions)-num(pr.missions);if(key==='dHrs')return num(cr.total)-num(pr.total);}
+  return num(p[key]);
+}
+function renderTopList(){
+  var key=tableSort.key, dir=tableSort.dir;
+  var sorted=pilots.slice().sort(function(a,b){
+    if(key==='pilot'){ return dir*a.pilot.localeCompare(b.pilot,'sv',{sensitivity:'base'}); }
+    var d=pilotSortVal(a,key)-pilotSortVal(b,key);
+    if(d!==0){ return dir*d; }
+    return a.pilot.localeCompare(b.pilot,'sv',{sensitivity:'base'});
+  });
+  var hdr=document.getElementById('topListHeader');
+  var tbl=hdr&&hdr.parentElement;
+  if(isYoy&&hdr){
+    if(tbl){ tbl.classList.add('yoy'); }
+    function sh(k,lab){ return '<span class="sort-hdr" data-sort="'+k+'" onclick="sortTopList(\''+k+'\')">'+lab+'<span class="sort-ind"></span></span>'; }
+    hdr.innerHTML=sh('pilot','Pilot')+sh('missionsPrior',ym+'M')+sh('missionsCurr',yc+'M')+sh('dMis','dM')+sh('totalPrior',ym+'H')+sh('totalCurr',yc+'H')+sh('dHrs','dH');
+  }
+  var listHTML='';
+  sorted.slice(0,20).forEach(function(p, displayIdx){
+    var idx=pilotByName[p.pilot]; if(idx===undefined){ idx=pilots.indexOf(p); }
+    var rowClass=displayIdx===0?'row pilot-row top-pilot':'row pilot-row';
+    if(isYoy){
+      var pr=p.prior||{}, cr=p.curr||{};
+      var dm=num(cr.missions)-num(pr.missions), dh=num(cr.total)-num(pr.total);
+      listHTML+='<div class="'+rowClass+'" data-idx="'+idx+'" onclick="openPilotDetail('+idx+')"><span class="name">'+p.pilot+
+        '</span><span>'+num(pr.missions)+'</span><span>'+num(cr.missions)+'</span><span>'+(dm>0?'+':'')+dm+
+        '</span><span>'+num(pr.total).toFixed(1)+'</span><span>'+num(cr.total).toFixed(1)+
+        '</span><span>'+(dh>0?'+':'')+dh.toFixed(1)+'</span></div>';
+    }else{
+      listHTML+='<div class="'+rowClass+'" data-idx="'+idx+'" onclick="openPilotDetail('+idx+')"><span class="name">'+p.pilot+
+        '</span><span>'+p.missions+'</span><span>'+p.total.toFixed(1)+'</span><span>'+p.pic.toFixed(1)+
+        '</span><span>'+p.copilot.toFixed(1)+'</span><span>'+hPct(p.ifr,p.total)+'</span><span>'+hPct(p.night,p.total)+
+        '</span><span>'+hPct(p.nvg,p.total)+'</span></div>';
+    }
+  });
+  document.getElementById('topList').innerHTML=listHTML||'<div class="row"><span class="name">No pilot data</span></div>';
+  var title=document.getElementById('topListTitle');
+  if(title){ title.textContent=(isYoy?'Top 20 YoY by ':'Top 20 Pilots by ')+(SORT_LABELS[key]||key)+(dir>0?' (asc)':' (desc)'); }
+  document.querySelectorAll('#topListHeader .sort-hdr').forEach(function(el){
+    var active=el.getAttribute('data-sort')===key;
+    el.classList.toggle('active', active);
+    var ind=el.querySelector('.sort-ind');
+    if(ind){ ind.textContent=active?(dir>0?'^':'v'):''; }
+  });
+  if(selectedPilotIdx>=0){ highlightTableRow(selectedPilotIdx); }
+}
+
+renderTopList();
 
 var BAR_THICKNESS = 16;
 var ROW_PITCH = 32;
 var chartHost = document.getElementById('pilotChartHost');
 chartHost.style.height = Math.max(280, chartPilots.length * ROW_PITCH + 36) + 'px';
 
+var chartDatasets = isYoy ? [
+  { label:PY+' Total', data:chartPilots.map(function(p){ return num((p.prior||{}).total); }),
+    backgroundColor:'rgba(88,151,230,.35)', borderColor:'rgba(147,197,253,.7)', borderWidth:1, borderRadius:4,
+    maxBarThickness:BAR_THICKNESS, barPercentage:0.9, categoryPercentage:0.75 },
+  { label:CY+' Total', data:chartPilots.map(function(p){ return num((p.curr||{}).total); }),
+    backgroundColor:'rgba(45,212,191,.8)', borderColor:'rgba(94,234,212,1)', borderWidth:1, borderRadius:4,
+    maxBarThickness:BAR_THICKNESS, barPercentage:0.9, categoryPercentage:0.75 }
+] : [
+  { label:'PIC', data:chartPilots.map(function(p){ return p.pic; }),
+    backgroundColor:'rgba(88,151,230,.78)', borderColor:'rgba(147,197,253,1)', borderWidth:1, borderRadius:4,
+    maxBarThickness:BAR_THICKNESS, barPercentage:0.88, categoryPercentage:0.72 },
+  { label:'Copilot', data:chartPilots.map(function(p){ return p.copilot; }),
+    backgroundColor:'rgba(45,212,191,.72)', borderColor:'rgba(94,234,212,1)', borderWidth:1, borderRadius:4,
+    maxBarThickness:BAR_THICKNESS, barPercentage:0.88, categoryPercentage:0.72 }
+];
 pilotChart = new Chart(document.getElementById('pilotChart'), {
   type:'bar',
-  data:{
-    labels:chartPilots.map(p => p.pilot),
-    datasets:[
-      {
-        label:'PIC',
-        data:chartPilots.map(p => p.pic),
-        backgroundColor:'rgba(88,151,230,0.78)',
-        borderColor:'rgba(147,197,253,1)',
-        borderWidth:1,borderRadius:4,
-        maxBarThickness:BAR_THICKNESS,barPercentage:0.88,categoryPercentage:0.72
-      },
-      {
-        label:'Copilot',
-        data:chartPilots.map(p => p.copilot),
-        backgroundColor:'rgba(45,212,191,0.72)',
-        borderColor:'rgba(94,234,212,1)',
-        borderWidth:1,borderRadius:4,
-        maxBarThickness:BAR_THICKNESS,barPercentage:0.88,categoryPercentage:0.72
-      }
-    ]
-  },
+  data:{ labels:chartPilots.map(function(p){ return p.pilot; }), datasets:chartDatasets },
   options:{
-    indexAxis:'y',
-    responsive:true,
-    maintainAspectRatio:false,
-    layout:{padding:{top:8,bottom:6,left:4,right:14}},
-    interaction:{mode:'index',axis:'y',intersect:false},
-    plugins:{
-      legend:{position:'bottom',labels:{color:'#ffffff',boxWidth:14,boxHeight:14,font:{size:13,weight:'300'},padding:12}},
-      tooltip:{enabled:false}
-    },
+    indexAxis:'y', responsive:true, maintainAspectRatio:false,
+    layout:{padding:{top:6,bottom:4,left:4,right:10}},
+    plugins:{ legend:{display:false}, tooltip:{enabled:false} },
     scales:{
-      x:{
-        stacked:true,beginAtZero:true,
-        ticks:{color:'#dce6ee',font:{size:12,weight:'300'}},
-        title:{display:true,text:'Flight Hours',color:'#ffffff',font:{weight:'300'}},
-        grid:{color:'rgba(255,255,255,.07)'}
-      },
-      y:{
-        stacked:true,
-        ticks:{color:'#dce6ee',autoSkip:false,font:{size:10.5,weight:'300'}},
-        grid:{color:'rgba(255,255,255,.035)'}
-      }
+      x:{ stacked:!isYoy, beginAtZero:true, ticks:{color:'#dce6ee',font:{size:11}}, grid:{color:'rgba(255,255,255,.07)'} },
+      y:{ stacked:!isYoy, ticks:{color:'#dce6ee',autoSkip:false,font:{size:10}}, grid:{color:'rgba(255,255,255,.035)'} }
     },
-    animation:{
-      onComplete:function(){ buildPilotHitLayer(); }
-    }
+    animation:{ onComplete:function(){ buildPilotHitLayer(); } }
   }
 });
 
