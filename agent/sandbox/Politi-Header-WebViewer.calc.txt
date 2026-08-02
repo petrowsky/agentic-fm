@@ -1,0 +1,54 @@
+/* Politi header Web Viewer calculation
+   Paste HTML from Politi-HeaderHTML.html into Helicop::HeaderHTML.
+   Optional: helicopter photo in Helicop::HeaderHeli (container) — injects Base64 into /*HELI_BG*/.
+   WebDirect: data:text/html;base64, + Base64EncodeRFC (4648) with CR/LF/¶ stripped.
+   Do NOT use charset= or GetAsURLEncoded — breaks FileMaker.PerformScript on WebDirect.
+   Pro: return raw HTML string.
+*/
+
+Let ( [
+
+html = Helicop::HeaderHTML ;
+
+/* Optional container photo — leave empty if using the inline SVG silhouette only */
+heliRaw = Base64EncodeRFC ( 4648 ; Helicop::HeaderHeli ) ;
+
+heliB64 = Substitute (
+	heliRaw ;
+	[ Char ( 13 ) ; "" ] ;
+	[ Char ( 10 ) ; "" ] ;
+	[ "¶" ; "" ]
+) ;
+
+heliCSS = If (
+	not IsEmpty ( heliB64 ) ;
+	"background-image:url(data:image/jpeg;base64," & heliB64 & ");" ;
+	""
+) ;
+
+svgDisplay = If ( not IsEmpty ( heliB64 ) ; "display:none;" ; "" ) ;
+
+html = Substitute (
+	html ;
+	[ "/*HELI_BG*/" ; heliCSS ] ;
+	[ "/*HELI_SVG_DISPLAY*/" ; svgDisplay ]
+) ;
+
+htmlBase64 = Substitute (
+	Base64EncodeRFC ( 4648 ; html ) ;
+	[ Char ( 13 ) ; "" ] ;
+	[ Char ( 10 ) ; "" ] ;
+	[ "¶" ; "" ]
+) ;
+
+result = Case (
+	PatternCount ( Get ( ApplicationVersion ) ; "Web" ) > 0 ;
+	"data:text/html;base64," & htmlBase64 ;
+	html
+)
+
+] ;
+
+result
+
+)
