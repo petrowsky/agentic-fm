@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- politi-header v2026-08-03-hover2 -->
 <!--
   Politiets helikoptertjeneste — Flight log header menu (Web Viewer)
   Script names/params mapped from FM button wiring (fm(script, param)).
@@ -20,9 +21,9 @@ html,body{
   background:transparent;overflow:hidden;color:#111;
 }
 :root{
-  --lime:#C8E000;
-  --lime-hi:#D4F868;
-  --lime-deep:#A8C000;
+  --lime:#CDEF63;
+  --lime-hi:#DCF492;
+  --lime-deep:#A8C451;
   --ink:#111111;
   --stripe:#9aa3ad;
   --brand-bg:#d8dde3;
@@ -35,6 +36,13 @@ html,body{
   --radius:6px;
   --sub-gap:10px;
   --seg-bg:linear-gradient(180deg,var(--lime-hi) 0%,var(--lime) 55%,var(--lime-deep) 100%);
+  /* Shared hot state: hover + .menu-open (darker lime, ring, shadow) */
+  --seg-hot-bg:linear-gradient(180deg,#AECB54 0%,#94AC47 55%,#778B39 100%);
+  --seg-hot-border:rgba(0,0,0,.48);
+  --seg-hot-shadow:
+    inset 0 0 0 2px rgba(17,17,17,.65),
+    inset 0 1px 0 rgba(255,255,255,.18),
+    0 3px 14px rgba(0,0,0,.45);
 }
 .wrap{position:fixed;inset:0;overflow:hidden;isolation:isolate;background:#0e141c}
 .scene{position:absolute;inset:0}
@@ -66,7 +74,7 @@ html,body{
   font-weight:800;font-size:13px;letter-spacing:.22em;color:#e8edf3;
   text-transform:uppercase;line-height:1.1;
 }
-.politi span{display:inline-block;border-left:3px solid #C8E000;padding-left:8px}
+.politi span{display:inline-block;border-left:3px solid var(--lime);padding-left:8px}
 .title{
   margin-top:6px;font-size:clamp(16px,2.1vw,22px);font-weight:700;
   color:#f4f7fa;letter-spacing:.01em;line-height:1.15;white-space:nowrap;
@@ -135,25 +143,40 @@ html,body{
   box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 2px 8px rgba(0,0,0,.28);
   font:600 var(--font)/1.05 Helvetica Neue,Helvetica,Arial,sans-serif;
   cursor:pointer;user-select:none;white-space:nowrap;
-  transition:filter .12s ease,box-shadow .12s ease;
+  transition:filter .12s ease,box-shadow .12s ease,border-color .12s ease,transform .12s ease,background .12s ease;
 }
-.seg:hover{filter:brightness(.96)}
-.seg:active{filter:brightness(.9)}
-.seg.menu-open{
-  filter:brightness(.9);
-  box-shadow:inset 0 -3px 0 #111,inset 0 1px 0 rgba(255,255,255,.25),0 2px 8px rgba(0,0,0,.28);
+/* .seg.is-hot / :hover / .menu-open — same darker-lime ring highlight */
+.seg:hover,
+.seg.menu-open,
+.subbtn:hover{
+  filter:none;
+  border-color:var(--seg-hot-border);
+  background:var(--seg-hot-bg);
+  box-shadow:var(--seg-hot-shadow);
+  transform:scale(1.05);
+}
+.seg.menu-open{z-index:2}
+.seg:active,
+.subbtn:active{
+  filter:none;
+  background:linear-gradient(180deg,var(--lime) 0%,var(--lime-deep) 100%);
+  border-color:rgba(0,0,0,.42);
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.22),0 1px 5px rgba(0,0,0,.32);
+  transform:scale(1.02);
 }
 .seg .ico{width:16px;height:16px;flex:0 0 16px;display:block}
 .seg .lbl{display:block;max-width:92px;overflow:hidden;text-overflow:ellipsis}
 .seg .chev{font-size:8px;opacity:.7;margin-left:2px}
 .seg.exit{margin-left:8px;min-width:58px}
 .submenu-host{
-  display:flex;justify-content:center;width:100%;margin-top:10px;min-height:0;
+  position:relative;display:block;width:100%;margin-top:10px;min-height:0;
 }
 .submenu{
+  position:absolute;top:0;left:50%;
   display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;
   gap:var(--sub-gap);max-width:min(980px,100%);
   background:transparent;border:0;box-shadow:none;padding:0;
+  transform:translateX(-50%);
 }
 .subbtn{
   display:flex;align-items:center;gap:6px;
@@ -163,15 +186,14 @@ html,body{
   box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 2px 8px rgba(0,0,0,.28);
   font:600 var(--font-sub)/1.15 Helvetica Neue,Helvetica,Arial,sans-serif;
   cursor:pointer;user-select:none;white-space:nowrap;
-  transition:filter .12s ease;
+  transition:filter .12s ease,box-shadow .12s ease,border-color .12s ease,transform .12s ease,background .12s ease;
 }
-.subbtn:hover{filter:brightness(.96)}
-.subbtn:active{filter:brightness(.9)}
+/* .subbtn:hover handled with .seg:hover / .menu-open shared hot rule above */
 .subbtn .ico{width:14px;height:14px;flex:0 0 14px}
 .menu-anim-in{animation:menuIn .14s ease-out;transform-origin:top center}
 @keyframes menuIn{
-  from{opacity:0;transform:translateY(-6px)}
-  to{opacity:1;transform:translateY(0)}
+  from{opacity:0;transform:translateX(-50%) translateY(-6px)}
+  to{opacity:1;transform:translateX(-50%) translateY(0)}
 }
 .hidden{display:none!important}
 @media (max-width:900px){
@@ -202,9 +224,31 @@ function closeAllMenus(){
   for(var i=0;i<menus.length;i++){
     menus[i].classList.add('hidden');
     menus[i].classList.remove('menu-anim-in');
+    menus[i].style.left='';
+    menus[i].style.transform='';
   }
   var btns=document.querySelectorAll('.seg.menu-open');
   for(var j=0;j<btns.length;j++){ btns[j].classList.remove('menu-open'); }
+}
+function positionSubmenu(menu,btn){
+  var host=menu.parentElement;
+  if(!host||!btn) return;
+  var hostRect=host.getBoundingClientRect();
+  var btnRect=btn.getBoundingClientRect();
+  var pad=6;
+  var center=btnRect.left+btnRect.width*0.5-hostRect.left;
+  menu.style.left=center+'px';
+  menu.style.transform='translateX(-50%)';
+  var menuW=menu.offsetWidth;
+  var hostW=host.clientWidth;
+  if(menuW<=0||hostW<=0) return;
+  var half=menuW*0.5;
+  var minC=pad+half;
+  var maxC=hostW-pad-half;
+  if(maxC<minC) center=hostW*0.5;
+  else if(center<minC) center=minC;
+  else if(center>maxC) center=maxC;
+  menu.style.left=Math.round(center)+'px';
 }
 function toggleMenu(menuId,btn,event){
   if(event){ event.stopPropagation(); event.preventDefault(); }
@@ -215,6 +259,7 @@ function toggleMenu(menuId,btn,event){
   if(wasHidden){
     btn.classList.add('menu-open');
     menu.classList.remove('hidden');
+    positionSubmenu(menu,btn);
     void menu.offsetWidth;
     menu.classList.add('menu-anim-in');
   }
@@ -223,6 +268,13 @@ document.addEventListener('click',function(e){
   if(!e.target.closest('.submenu') && !e.target.closest('.seg[data-menu]')) closeAllMenus();
 });
 document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeAllMenus(); });
+window.addEventListener('resize',function(){
+  var open=document.querySelector('.seg.menu-open');
+  if(!open) return;
+  var menuId=open.getAttribute('data-menu');
+  var menu=menuId?document.getElementById(menuId):null;
+  if(menu&&!menu.classList.contains('hidden')) positionSubmenu(menu,open);
+});
 
 </script>
 </head>
