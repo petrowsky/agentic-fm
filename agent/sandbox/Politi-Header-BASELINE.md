@@ -1,7 +1,7 @@
 # Politi header — locked restore point
 
 **Trigger phrase:** `Gå tillbaka`  
-**Locked version:** `v2026-08-08-zoom30`
+**Locked version:** `v2026-08-08-test-fill-scale`
 
 When the developer says **Gå tillbaka**, restore from the locked copies (do not invent an older look):
 
@@ -9,12 +9,13 @@ When the developer says **Gå tillbaka**, restore from the locked copies (do not
 2. Copy `Politi-Header-WebViewer.calc.locked.txt` → `Politi-Header-WebViewer.calc.txt`
 3. Put HTML on clipboard for paste into `Helicop::HeaderHTML`
 
-## Visual (zoom30)
+## Visual (locked)
 - Soft blend heli ↔ dark bg
-- ~30% zoom on helicopter, Politiet logo, and staplar
+- Heli: `background-size:cover` + `transform:scale(1.3)` (~30% zoom, full box fill)
+- Politiet logo + staplar at ~30% larger than pre-zoom baseline
 - Lime main buttons vertically centered
 - Grey sub-buttons centered under active parent
-- Full 200 px fill, no white gap
+- Full 200 px WV target
 
 ## FileMaker
 - WV object: **`ww_header`**

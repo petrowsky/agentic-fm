@@ -53,7 +53,7 @@ heliB64 = Substitute (
 
 heliCSS = If (
 	not IsEmpty ( heliB64 ) ;
-	"background-image:url(data:image/jpeg;base64," & heliB64 & ")!important;background-size:130%!important;background-position:64% 38%!important;background-repeat:no-repeat!important;" ;
+	"background-image:url(data:image/jpeg;base64," & heliB64 & ")!important;background-size:cover!important;background-position:64% 38%!important;background-repeat:no-repeat!important;" ;
 	""
 ) ;
 
