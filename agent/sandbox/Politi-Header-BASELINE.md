@@ -33,3 +33,27 @@ If a cleaner in-HTML fix appears later (true transparent WV chrome, different as
 | Locked HTML | `Politi-HeaderHTML.locked.html` |
 | Working calc | `Politi-Header-WebViewer.calc.txt` |
 | Locked calc | `Politi-Header-WebViewer.calc.locked.txt` |
+
+## Research notes (bottom edge) — 2026-08-08
+
+### What is NOT solvable in pure HTML/CSS
+FileMaker Web Viewer is an opaque OS web view (WebKit/WebView2). True transparency through to layout objects behind it is **not** a native capability (Claris Community consensus). CSS `transparent` / `rgba(...,0)` does not punch through the WV chrome.
+
+MBS `WebView.SetDrawsBackground` exists on macOS/iOS only and is historically unreliable across FM versions — not a portable “correct” fix for Helicop.
+
+### Documented FM causes of a bottom line/gap (check these first)
+In **Web Viewer Setup** (right-click WV → Web Viewer Setup / Inspector):
+
+1. Uncheck **Display progress bar** — known to draw a persistent bottom line (esp. Windows; reported on Mac too).
+2. Uncheck **Display status messages** — known to reserve a bottom “footer” strip the HTML cannot paint into.
+3. Appearance: **Line = None**, **Padding = 0**, corner radius 0.
+
+Community threads: “annoying black line at the bottom of a webviewer” (progress bar); “footer that wont go away” (status messages).
+
+### Correct opaque integration (if not using send-to-back)
+- Match **WV Appearance Fill** + HTML `background` to the **exact** hex of the FM band under the seam (list/column header may not be `#0e141c`).
+- Prefer `height:100%` fill of the WV over a hardcoded `max-height:200px` that can fight a resized WV.
+- Optional: let the WV **own** the dark band including the column-header row so the HTML/FM boundary is not at the visual seam.
+
+### Current workaround (valid)
+Extend WV downward, Fill none, send to **back** so FM paints the band; HTML UI sits where needed. Accept this when see-through is required.
