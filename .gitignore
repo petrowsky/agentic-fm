@@ -77,6 +77,7 @@ lerna-debug.log*
 .pnpm-debug.log*
 package-lock.json
 !website/package-lock.json
+!webviewer/package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
