@@ -1,7 +1,7 @@
 Let ( [
 	~json = AM_Dashboard_Cache::DashboardJSON ;
 	~updated = GetAsText ( AM_Dashboard_Cache::LastUpdated_ts ) ;
-	~cache = AM_Dashboard_Cache::CacheName ;
+	~cache = AM_Dashboard_Cache::CasheName ;
 	~isWebFlag = If ( PatternCount ( Get ( ApplicationVersion ) ; "Web" ) > 0 ; "1" ; "0" ) ;
 	~jsonB64 = Substitute (
 		Base64EncodeRFC ( 4648 ; ~json ) ;

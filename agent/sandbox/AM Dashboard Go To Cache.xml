@@ -141,7 +141,7 @@
   </Step>
   <Step enable="True" id="68" name="If">
     <Restore state="False"/>
-    <Calculation><![CDATA[AM_Dashboard_Cache::CacheName ≠ $cacheName]]></Calculation>
+    <Calculation><![CDATA[AM_Dashboard_Cache::CasheName ≠ $cacheName]]></Calculation>
   </Step>
   <Step enable="True" id="87" name="Show Custom Dialog">
     <Title>
@@ -150,7 +150,7 @@
     <Message>
       <Calculation><![CDATA["Go To Cache landed on wrong record." & ¶ &
 "Wanted: " & $cacheName & ¶ &
-"Got: " & AM_Dashboard_Cache::CacheName]]></Calculation>
+"Got: " & AM_Dashboard_Cache::CasheName]]></Calculation>
     </Message>
     <Buttons>
       <Button CommitState="True">
