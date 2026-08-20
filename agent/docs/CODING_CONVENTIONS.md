@@ -2,6 +2,8 @@
 
 Source: [filemakerstandards.org/code](https://filemakerstandards.org/code)
 
+> **Want your own conventions without editing this checked-in file?** Create `agent/docs/CODING_CONVENTIONS.local.md` (gitignored). When present, the agent reads that file instead of this one — see `.claude/CLAUDE.md`.
+
 > **CRITICAL — Hard Tabs for Indentation**
 >
 > All indentation inside calculations and expressions MUST use hard tab characters (ASCII 0x09), never spaces. This applies to `Let()` variables, `Case()` branches, `List()` arguments, and any nested function content that appears inside CDATA blocks in fmxmlsnippet output. AI-generated code must use literal `\t` tab characters for calculation indentation. In the FileMaker calculation dialog, use Option-Tab (Mac) or Ctrl-Tab (Win) to insert a tab.

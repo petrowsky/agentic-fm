@@ -193,7 +193,12 @@ agentic-fm/
 
 All AI-generated FileMaker code (scripts and calculations) follows the conventions defined in `agent/docs/CODING_CONVENTIONS.md`. These are "initially set" based on the community standard at [filemakerstandards.org](https://filemakerstandards.org/code) and cover variable naming prefixes (`$`, `$$`, `~`, `$$~`), `Let()` formatting, operator spacing, boolean values, and control structure style.
 
-**You can, and probably should, customize these conventions to your preferred style.** Edit `agent/docs/CODING_CONVENTIONS.md` to match your team's standards. AI reads this file before writing any calculation or script logic and will follow whatever rules you define there. Common customizations include:
+**You can, and probably should, customize these conventions to your preferred style.** There are two ways to do this:
+
+- **Team-wide, checked in:** Edit `agent/docs/CODING_CONVENTIONS.md` directly. Changes are committed and shared with everyone who clones the repo.
+- **Personal, local-only:** Create `agent/docs/CODING_CONVENTIONS.local.md` (gitignored — never committed). When this file exists, AI reads it *instead of* the checked-in version, so you can keep your own preferences without affecting collaborators or the repo.
+
+AI reads whichever file applies before writing any calculation or script logic and follows whatever rules are defined there. Common customizations include:
 
 - Changing variable naming conventions or casing style
 - Adding project-specific prefixes or naming patterns
