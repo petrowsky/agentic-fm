@@ -1,0 +1,83 @@
+/* Politi header Web Viewer calculation — BASELINE 200px
+   Object name: ww_header  (Inspector)
+   Layout: Height 200, Top 0, Corner radius 0, Line None, Padding 0
+   Appearance Fill: #0e141c  (avoids white gap if HTML short)
+*/
+
+Let ( [
+
+headerH = 200 ;
+
+html = Helicop::HeaderHTML ;
+
+wvH = GetLayoutObjectAttribute ( "ww_header" ; "height" ) ;
+
+fillH = Case (
+	not IsEmpty ( wvH ) and wvH > 0 ; wvH ;
+	headerH
+) ;
+
+fillH = If ( fillH < 200 ; 200 ; fillH ) ;
+
+/* Paint every layer full WV height — no white strip under heli */
+fillTag =
+	"<style id=\"wv-fill\">" &
+	"html,body,.wrap,.scene,.brand,.brand-bg,.brand-heli,.brand-heli .heli-photo{" &
+	"height:" & fillH & "px!important;" &
+	"min-height:" & fillH & "px!important;" &
+	"max-height:" & fillH & "px!important;" &
+	"}" &
+	"html,body,.wrap,.scene,.brand{background-color:#0e141c!important;margin:0!important;padding:0!important;}" &
+	".brand-heli{top:0!important;bottom:0!important;height:100%!important;}" &
+	".nav-overlay{display:flex!important;justify-content:center!important;align-items:center!important;visibility:visible!important;z-index:30!important;}" &
+	".streck{display:block!important;visibility:visible!important;z-index:4!important;}" &
+	".seg{display:flex!important;visibility:visible!important;}" &
+	"</style>" ;
+
+html = Substitute ( html ; "<!--WV_FILL_STYLE-->" ; fillTag ) ;
+
+html = If (
+	PatternCount ( html ; "id=\"wv-fill\">" ) > 0 ;
+	html ;
+	Substitute ( html ; "<head>" ; "<head>" & fillTag )
+) ;
+
+heliRaw = Base64EncodeRFC ( 4648 ; Helicop::HeaderHeli ) ;
+
+heliB64 = Substitute (
+	heliRaw ;
+	[ Char ( 13 ) ; "" ] ;
+	[ Char ( 10 ) ; "" ] ;
+	[ "¶" ; "" ]
+) ;
+
+heliCSS = If (
+	not IsEmpty ( heliB64 ) ;
+	"background-image:url(data:image/jpeg;base64," & heliB64 & ")!important;background-size:cover!important;background-position:64% 58%!important;background-repeat:no-repeat!important;" ;
+	""
+) ;
+
+html = Substitute (
+	html ;
+	[ "/*HELI_BG*/" ; heliCSS ] ;
+	[ "/*HELI_SVG_DISPLAY*/" ; "" ]
+) ;
+
+htmlBase64 = Substitute (
+	Base64EncodeRFC ( 4648 ; html ) ;
+	[ Char ( 13 ) ; "" ] ;
+	[ Char ( 10 ) ; "" ] ;
+	[ "¶" ; "" ]
+) ;
+
+result = Case (
+	PatternCount ( Get ( ApplicationVersion ) ; "Web" ) > 0 ;
+	"data:text/html;base64," & htmlBase64 ;
+	html
+)
+
+] ;
+
+result
+
+)
