@@ -1543,6 +1543,27 @@
         </Step>
         <Step enable="True" id="89" name="# (comment)"/>
         <Step enable="True" id="88" name="Open Script Workspace"/>
+        <Step enable="True" id="89" name="# (comment)">
+          <Text>Expand all script folders (call 3x to cascade through nested sub-folders)</Text>
+        </Step>
+        <Step enable="True" id="141" name="Set Variable">
+          <Value>
+            <Calculation><![CDATA[MBS ( "ScriptWorkspace.ExpandScriptFolders" )]]></Calculation>
+          </Value>
+          <Name>$expandResult</Name>
+        </Step>
+        <Step enable="True" id="141" name="Set Variable">
+          <Value>
+            <Calculation><![CDATA[MBS ( "ScriptWorkspace.ExpandScriptFolders" )]]></Calculation>
+          </Value>
+          <Name>$expandResult</Name>
+        </Step>
+        <Step enable="True" id="141" name="Set Variable">
+          <Value>
+            <Calculation><![CDATA[MBS ( "ScriptWorkspace.ExpandScriptFolders" )]]></Calculation>
+          </Value>
+          <Name>$expandResult</Name>
+        </Step>
         <Step enable="True" id="141" name="Set Variable">
           <Value>
             <Calculation><![CDATA[MBS ( "ScriptWorkspace.OpenScript" ; $target )]]></Calculation>

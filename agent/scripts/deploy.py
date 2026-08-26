@@ -218,14 +218,26 @@ def _switch_to_document(
         f'            click menu item "[Standard FileMaker Menus]" of menu "Custom Menus" of menu item "Custom Menus" of menu "Tools" of menu bar 1\n'
         f'            delay 0.3\n'
         f'        end try\n'
-        # Click the target file in the Window menu
+        # Click the target file in the Window menu (visible files)
+        f'        set _switched to false\n'
         f'        try\n'
-        f'            set _menuItems to every menu item of menu "Window" of menu bar 1 whose name contains "{_esc(target_file)}"\n'
+        f'            set _menuItems to every menu item of menu "Window" of menu bar 1 whose (name is "{_esc(target_file)}" or name starts with "{_esc(target_file)} (")\n'
         f'            if (count of _menuItems) > 0 then\n'
         f'                click (item 1 of _menuItems)\n'
         f'                delay 0.5\n'
+        f'                set _switched to true\n'
         f'            end if\n'
         f'        end try\n'
+        # Fallback: hidden files live in Window > Show Window submenu — click to unhide
+        f'        if not _switched then\n'
+        f'            try\n'
+        f'                set _showItems to every menu item of menu "Show Window" of menu item "Show Window" of menu "Window" of menu bar 1 whose (name is "{_esc(target_file)}" or name starts with "{_esc(target_file)} (")\n'
+        f'                if (count of _showItems) > 0 then\n'
+        f'                    click (item 1 of _showItems)\n'
+        f'                    delay 0.7\n'
+        f'                end if\n'
+        f'            end try\n'
+        f'        end if\n'
         f'    end tell\n'
         f'end tell\n'
     )
@@ -277,68 +289,107 @@ def _tier1(
 # ---------------------------------------------------------------------------
 
 def _paste_applescript(fm_app_name: str, target_script: str, select_all: bool, auto_save: bool) -> str:
-    """Build the raw AppleScript for Phase 2: AXPress tab + paste.
+    """Build the raw AppleScript for Phase 2: wait for step editor, then paste.
 
-    This runs from outside FM (via companion osascript), not from within
-    a Perform AppleScript step. AXPress only works from outside FM —
-    Perform AppleScript within FM causes Script Workspace to lose focus.
+    Phase 1 (Agentic-fm Paste FM script) already opened the correct script tab
+    via ScriptWorkspace.ExpandScriptFolders + ScriptWorkspace.OpenScript.
+    Phase 2 just needs to focus the step editor and paste.
     """
     def _esc(s: str) -> str:
         return s.replace("\\", "\\\\").replace('"', '\\"')
 
-    fm_process = fm_app_name.split(" \u2014 ")[0].strip()
+    fm_process = fm_app_name.split(" — ")[0].strip()
 
-    # Build the select+delete block if replacing
     if select_all:
         paste_block = (
-            f'        keystroke "a" using {{command down}}\n'
-            f'        delay 0.2\n'
-            f'        key code 51\n'
-            f'        delay 0.2\n'
-            f'        keystroke "v" using {{command down}}\n'
+            # Use menu actions instead of keystrokes to avoid triggering
+            # OnLayoutKeystroke script triggers on the active FM layout
+            '        click menu item "Select All" of menu "Edit" of menu bar 1\n'
+            '        delay 0.3\n'
+            '        key code 51\n'  # Delete selected steps (not a layout shortcut)
+            '        delay 0.3\n'
+            '        click menu item "Paste" of menu "Edit" of menu bar 1\n'
         )
     else:
-        paste_block = (
-            f'        keystroke "v" using {{command down}}\n'
-        )
+        paste_block = '        click menu item "Paste" of menu "Edit" of menu bar 1\n'
 
-    # Build auto-save block
     save_block = ""
     if auto_save:
         save_block = (
-            f'        delay 0.5\n'
-            f'        keystroke "s" using {{command down}}\n'
+            '        delay 0.5\n'
+            '        keystroke "s" using {command down}\n'
         )
 
-    return (
-        f'tell application "{_esc(fm_app_name)}"\n'
-        f'    activate\n'
-        f'end tell\n'
-        f'\n'
-        f'delay 0.3\n'
-        f'\n'
-        f'tell application "System Events"\n'
-        f'    tell process "{_esc(fm_process)}"\n'
-        # AXPress the script tab to move focus to step editor
-        f'        set wsWindows to windows whose title contains "Script Workspace"\n'
-        f'        if (count of wsWindows) > 0 then\n'
-        f'            tell item 1 of wsWindows\n'
-        f'                tell splitter group 1\n'
-        f'                    set tabButtons to every button whose description is "{_esc(target_script)}"\n'
-        f'                    if (count of tabButtons) > 0 then\n'
-        f'                        perform action "AXPress" of item 1 of tabButtons\n'
-        f'                    end if\n'
-        f'                end tell\n'
-        f'            end tell\n'
-        f'        end if\n'
-        f'        delay 0.5\n'
-        # Paste sequence
-        f'{paste_block}'
-        f'{save_block}'
-        f'    end tell\n'
-        f'end tell\n'
-    )
+    app = _esc(fm_app_name)
+    proc = _esc(fm_process)
 
+    lines = [
+        f'tell application "{app}"',
+        '    activate',
+        'end tell',
+        'delay 0.5',
+        '',
+        'tell application "System Events"',
+        f'    tell process "{proc}"',
+        '        set wsWindows to windows whose title contains "Script Workspace"',
+        '        if (count of wsWindows) = 0 then return',
+        '        set wsWin to item 1 of wsWindows',
+        '        -- Poll until scroll area 2 (step editor) appears',
+        '        -- Phase 1 already opened the correct script via MBS OpenScript',
+        '        set editorReady to false',
+        '        repeat 20 times',
+        '            if (count of scroll areas of splitter group 1 of wsWin) >= 2 then',
+        '                set editorReady to true',
+        '                exit repeat',
+        '            end if',
+        '            delay 0.3',
+        '        end repeat',
+        '        if not editorReady then return',
+        '        delay 1.0',
+        f'        -- Activate the target script tab (description matches "{_esc(target_script)}")',
+        f'        set tabBtns to (buttons of splitter group 1 of wsWin whose description is "{_esc(target_script)}")',
+        '        if (count of tabBtns) = 0 then',
+        f'            return "ERROR: no SW tab matching \\"{_esc(target_script)}\\" — script likely in collapsed folder; aborting paste to avoid clobbering wrong tab"',
+        '        end if',
+        '        click (item 1 of tabBtns)',
+        '        delay 0.5',
+        '        -- After tab switch, wait for the new tab\'s step editor to settle',
+        '        repeat 15 times',
+        '            try',
+        '                if (count of rows of table 1 of scroll area 2 of splitter group 1 of wsWin) > 0 then exit repeat',
+        '            end try',
+        '            delay 0.2',
+        '        end repeat',
+        '        delay 0.5',
+        '        -- Give the step editor keyboard focus',
+        '        tell splitter group 1 of wsWin',
+        '            tell scroll area 2',
+        '                tell table 1',
+        '                    -- Try set focused first',
+        '                    try',
+        '                        set focused of it to true',
+        '                    end try',
+        '                    -- Then click the first cell in row 1 for physical focus',
+        '                    if (count of rows) > 0 then',
+        '                        try',
+        '                            click UI element 1 of row 1',
+        '                        on error',
+        '                            click row 1',
+        '                        end try',
+        '                    else',
+        '                        click',
+        '                    end if',
+        '                end tell',
+        '            end tell',
+        '        end tell',
+        '        delay 0.5',
+        '        -- Paste into focused step editor',
+    ]
+    script = "\n".join(lines) + "\n"
+    script += paste_block
+    script += save_block
+    script += "    end tell\nend tell\n"
+    return script
 
 def _tier2(
     xml: str,
@@ -379,12 +430,28 @@ def _tier2(
             ),
         }
 
-    # Step 2: if targeting a specific file, switch its window to front first.
-    # FM gates do-script privilege checks on the frontmost document — if the
-    # wrong file is frontmost and lacks fmextscriptaccess, do-script fails
-    # with -10004 even when the tell-document targets the correct file.
+    # Step 2: if targeting a specific file, switch its window to front first,
+    # then open Script Workspace from that file's context.
+    # FM gates do-script privilege checks on the frontmost document.
+    # Opening SW while the target file is frontmost ensures SW shows that
+    # file's scripts — not agentic-fm's — when Agentic-fm Paste runs.
     if target_file:
         _switch_to_document(companion_url, fm_app_name, target_file)
+        # Open Script Workspace while target file is frontmost
+        def _esc(s: str) -> str:
+            return s.replace("\\", "\\\\").replace('"', '\\"')
+        fm_process = fm_app_name.split(" — ")[0].strip()
+        open_sw_script = (
+            f'tell application "System Events"\n'
+            f'    tell process "{_esc(fm_process)}"\n'
+            f'        try\n'
+            f'            click menu item "Script Workspace..." of menu "Scripts" of menu bar 1\n'
+            f'            delay 1.0\n'
+            f'        end try\n'
+            f'    end tell\n'
+            f'end tell\n'
+        )
+        _post_json(f"{companion_url}/trigger", {"raw_applescript": open_sw_script})
 
     # Phase 1: trigger FM Pro to run Agentic-fm Paste (opens script tab only)
     trigger_payload = {
@@ -412,12 +479,20 @@ def _tier2(
             ),
         }
 
-    # Phase 2: AXPress tab + paste from outside FM
+    # Phase 2: wait for Agentic-fm Paste to finish opening Script Workspace, then paste
+    import time as _time; _time.sleep(1.0)
     paste_as = _paste_applescript(fm_app_name, target_script, select_all, auto_save)
     paste_result = _post_json(
         f"{companion_url}/trigger",
         {"raw_applescript": paste_as},
     )
+    paste_stdout = paste_result.get("stdout", "") or ""
+    if paste_stdout.startswith("ERROR:"):
+        return {
+            "success": False,
+            "tier_used": 2,
+            "error": paste_stdout,
+        }
     if not paste_result.get("success"):
         return {
             "success": True,
@@ -429,6 +504,10 @@ def _tier2(
                 f"  Clipboard is loaded — paste manually (⌘A → Delete → ⌘V)."
             ),
         }
+
+    # Bring Claude back to the front after a successful deploy
+    subprocess.run(["osascript", "-e", 'tell application "Claude" to activate'],
+                   capture_output=True)
 
     mode = "replaced" if select_all else "appended to"
     return {
@@ -580,13 +659,25 @@ def _tier3(
             # Use Window menu to bring the target file's window to front.
             # Menu item name is the window title which may differ from
             # the file name, but typically contains it.
+            f'        set _switched to false\n'
             f'        try\n'
-            f'            set _menuItems to every menu item of menu "Window" of menu bar 1 whose name contains "{_esc(target_file)}"\n'
+            f'            set _menuItems to every menu item of menu "Window" of menu bar 1 whose (name is "{_esc(target_file)}" or name starts with "{_esc(target_file)} (")\n'
             f'            if (count of _menuItems) > 0 then\n'
             f'                click (item 1 of _menuItems)\n'
             f'                delay 0.5\n'
+            f'                set _switched to true\n'
             f'            end if\n'
             f'        end try\n'
+            # Fallback: hidden files live in Window > Show Window submenu — click to unhide
+            f'        if not _switched then\n'
+            f'            try\n'
+            f'                set _showItems to every menu item of menu "Show Window" of menu item "Show Window" of menu "Window" of menu bar 1 whose (name is "{_esc(target_file)}" or name starts with "{_esc(target_file)} (")\n'
+            f'                if (count of _showItems) > 0 then\n'
+            f'                    click (item 1 of _showItems)\n'
+            f'                    delay 0.7\n'
+            f'                end if\n'
+            f'            end try\n'
+            f'        end if\n'
             # Now the target file is frontmost — switch its menus to
             # standard too (it may have its own custom menu set)
             f'        try\n'

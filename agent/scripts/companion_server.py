@@ -849,8 +849,11 @@ class CompanionHandler(BaseHTTPRequestHandler):
             # by name instead of positional document 1. This ensures the
             # correct file is targeted when multiple files are open.
             if target_file:
-                doc_clause = f'tell (first document whose name contains "{as_str(target_file)}")'
-                log.info("Trigger: targeting document %r", target_file)
+                # Match by exact name (with .fmp12) or bare name to avoid
+                # prefix collisions like "A2X_General" matching "A2X_General_data".
+                tf = as_str(target_file)
+                doc_clause = f'tell (first document whose name is "{tf}.fmp12" or name is "{tf}")'
+                log.info("Trigger: targeting document %r (exact match)", target_file)
             else:
                 doc_clause = "tell document 1"
                 log.info("Trigger: no target_file — using document 1")
