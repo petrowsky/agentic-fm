@@ -150,6 +150,12 @@ Run the **Explode XML** script to perform the first Save as XML export and popul
 
 Navigate to the layout you are working on and run the **Push Context** script. A dialog will prompt you for a task description. After you click OK, the context is written to `agent/CONTEXT.json` and you are ready to work with AI.
 
+## Multi-developer setup (optional)
+
+For teams where several developers share one FMS-hosted solution, each from their own machine with their own local repo and companion server, `agent/config/companion.json` can carry an optional `users` block keyed by FileMaker account name, resolved via the companion's `GET /whoami?account=<name>` endpoint. See "Multi-developer override" in `agent/docs/COMPANION_SERVER.md` for the full config shape and resolution precedence.
+
+This is the config side of the feature; wiring it into **Get agentic-fm path** (so it calls `/whoami` instead of only relying on the folder-picker dialog) is left as a follow-up FM script change once this direction lands — the existing folder-picker flow keeps working unchanged in the meantime, since `users` is entirely optional.
+
 ---
 
 ## Optional: agentic-fm web viewer
