@@ -89,6 +89,47 @@ This is the pattern used in `AGFMScriptBridge` to validate that the parameter is
 
 ---
 
+## Building JSON arrays with JSONSetElement
+
+FileMaker uses special key notation to append to and reference elements in JSON arrays:
+
+| Key | Meaning |
+|-----|---------|
+| `[+]` | Append a new element at the end of the array |
+| `[:]` | Reference the last element in the array |
+
+**Use `[+]` for the first property of a new object, then `[:]` for all remaining properties on that same object:**
+
+```
+// Correct — [+] creates the new element, [:] addresses the same element
+JSONSetElement ( $input ;
+    [ "[+].id"       ; "10001" ; JSONNumber ] ;
+    [ "[:].name"     ; "Name"      ; JSONString ] ;
+    [ "[:].category" ; "Category""  ; JSONString ]
+)
+```
+
+**Do NOT use `[+]` for every property** — each `[+]` appends an entirely new element:
+
+```
+// Wrong — creates three separate array elements instead of one object
+JSONSetElement ( $input ;
+    [ "[+].id"       ; 10001 ; JSONNumber ] ;
+    [ "[+].name"     ; "Name"      ; JSONString ] ;
+    [ "[+].category" ; "Category""  ; JSONString ]
+)
+```
+
+**Do NOT use numeric index keys** (`"0.id"`, `"1.id"`) — FileMaker treats these as object keys, not array indices, resulting in `{"0":{"id":...}}` instead of `[{"id":...}]`. When returned as `JSONArray` type, FileMaker collapses the object to `[]`.
+
+**Initialise** the accumulator variable as `"[]"` before the loop:
+
+```
+Set Variable [ $input ; "[]" ]
+```
+
+---
+
 ## References
 
 | Name | Type | Local doc | Claris help |
