@@ -241,7 +241,7 @@ When extending this project, keep the following principles in mind:
 
 4. **Update documentation together.** When adding a new artifact or changing the pipeline:
    - Update this file (`ARCHITECTURE.md`) with the new artifact and its role.
-   - Update `.cursor/AGENTS.md` so the AI knows how to use the new artifact.
+   - Update the canonical agent-instructions doc at `.claude/CLAUDE.md` so AIs know how to use the new artifact. Three symlinks (`.cursor/AGENTS.md`, root `AGENTS.md`, `.github/copilot-instructions.md`) point to the canonical so Cursor, Aider/Cline/Continue/Codex CLI, and GitHub Copilot all see the same content. Run `agent/scripts/sync_agent_docs.sh` to verify the symlinks are intact.
    - Update `README.md` if the change affects end-user workflow or project structure.
 
 5. **The step catalog is the single source of truth for step structure.** `agent/catalogs/step-catalog-en.json` is the definitive reference for step XML structure, parameter definitions, enums, and behavioral notes. `snippet_examples/` is archival — it serves as a fallback only for complex steps with `"auto"`/`"unfinished"` catalog status or where the catalog entry remains insufficient. If you add support for a new script step type, add its catalog entry (including behavioral notes in the `notes` field) and a corresponding snippet_examples template for reference. All snippet files must follow the conventions in `agent/snippet_examples/steps/CONVENTIONS.md`.
