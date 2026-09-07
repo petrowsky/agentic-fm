@@ -414,7 +414,14 @@ PYFIELDS
     {
         echo "# FunctionName|FunctionID|Parameters|Access|Display|Category|FolderPath"
 
-        STUB_DIR="$XML_PARSED_DIR/custom_function_stubs/$SOLUTION"
+        # SaXML >= 2.2.3.4 (FileMaker 21+) writes custom function stubs to
+        # custom_functions/; older exports use custom_function_stubs/. Prefer
+        # the modern layout and fall back so both export vintages index.
+        STUB_BASE="$XML_PARSED_DIR/custom_functions"
+        if [[ ! -d "$STUB_BASE/$SOLUTION" ]]; then
+            STUB_BASE="$XML_PARSED_DIR/custom_function_stubs"
+        fi
+        STUB_DIR="$STUB_BASE/$SOLUTION"
         SANITIZED_DIR="$XML_PARSED_DIR/custom_functions_sanitized/$SOLUTION"
 
         if [[ -d "$STUB_DIR" ]]; then
@@ -424,7 +431,7 @@ PYFIELDS
             cf_access=$(xval 'string(/CustomFunction/@access)' "$file")
             cf_display=$(xval 'string(/CustomFunction/Display)' "$file")
 
-            folder_path=$(get_folder_path "$file" "$XML_PARSED_DIR/custom_function_stubs")
+            folder_path=$(get_folder_path "$file" "$STUB_BASE")
 
             # Extract parameter names from stub
             param_count=$(xval 'string(/CustomFunction/ObjectList/@membercount)' "$file")
