@@ -60,6 +60,9 @@ FM_CLASSES = {
 # Elements that map to 'ut16' are stored as UTF-16 Unicode text, not binary descriptors.
 XML_ELEMENT_TO_CLASS = {
     'Step':              'XMSS',
+    # A script folder exported from the Script Workspace wraps its <Script>
+    # elements in a <Group>, so <Group> is the root child for those snippets.
+    'Group':             'XMSC',
     'Script':            'XMSC',
     'CustomFunction':    'XMFN',
     'Field':             'XMFD',
@@ -182,8 +185,12 @@ def detect_class_from_xml(xml_text):
     for element in ('CustomMenuSet', 'CustomMenu'):
         if re.search(rf'<{element}[\s>/]', xml_text):
             return 'ut16'
+    # 'Group' must also be checked before 'Step': a script-folder snippet holds
+    # a <Step> inside every <Script>, which would otherwise match XMSS first.
+    if re.search(r'<Group[\s>/]', xml_text):
+        return 'XMSC'
     for element, cls in XML_ELEMENT_TO_CLASS.items():
-        if element in ('CustomMenuSet', 'CustomMenu'):
+        if element in ('CustomMenuSet', 'CustomMenu', 'Group'):
             continue
         if re.search(rf'<{element}[\s>/]', xml_text):
             return cls
