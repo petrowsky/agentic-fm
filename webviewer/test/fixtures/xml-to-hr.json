@@ -172,7 +172,7 @@
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"1\" name=\"Perform Script\">\n    <Calculation><![CDATA[$parameter]]></Calculation>\n    <Script id=\"0\" name=\"\"/>\n  </Step>\n</fmxmlsnippet>"
   },
   "control/Revert Transaction.xml": {
-    "hr": "Revert Transaction [ On ; Condition: \"condition\" ; Error Code: 0 ; Error Message: \"Error message\" ]",
+    "hr": "Revert Transaction [ Condition: \"condition\" ; Error Code: 0 ; Error Message: \"Error message\" ]",
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"207\" name=\"Revert Transaction\">\n    <Option state=\"True\"/>\n    <Condition>\n      <Calculation><![CDATA[\"condition\"]]></Calculation>\n    </Condition>\n    <ErrorCode>\n      <Calculation><![CDATA[0]]></Calculation>\n    </ErrorCode>\n    <ErrorMessage>\n      <Calculation><![CDATA[\"Error message\"]]></Calculation>\n    </ErrorMessage>\n  </Step>\n</fmxmlsnippet>"
   },
   "control/Set Error Capture.xml": {

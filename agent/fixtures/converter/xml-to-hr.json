@@ -42,7 +42,7 @@
   "control/Perform Script on Server with Callback.xml": "Perform Script on Server with Callback [ State: Continue ; Parameter: $optional_parameter ; Callback script: Parameter=$optional_parameter ]",
   "control/Perform Script on Server.xml": "Perform Script on Server [ Wait for completion: On ; $optional_parameter ]",
   "control/Perform Script.xml": "Perform Script [ Parameter: $parameter ]",
-  "control/Revert Transaction.xml": "Revert Transaction [ On ; Condition: \"condition\" ; Error Code: 0 ; Error Message: \"Error message\" ]",
+  "control/Revert Transaction.xml": "Revert Transaction [ Condition: \"condition\" ; Error Code: 0 ; Error Message: \"Error message\" ]",
   "control/Set Error Capture.xml": "Set Error Capture [ On ]",
   "control/Set Error Logging.xml": "Set Error Logging [ Logging: On ; \"custom_debug_info\" ]",
   "control/Set Layout Object Animation.xml": "Set Layout Object Animation [ Animation: On ]",

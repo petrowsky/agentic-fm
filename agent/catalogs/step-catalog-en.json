@@ -6530,7 +6530,8 @@
     "params": [
       {
         "xmlElement": "Option",
-        "type": "flagBoolean",
+        "type": "boolean",
+        "hrHidden": true,
         "hrLabel": null,
         "xmlAttr": "state",
         "required": false,
@@ -6542,6 +6543,7 @@
         "type": "namedCalc",
         "hrLabel": "Condition",
         "wrapperElement": "Condition",
+        "visibleWhen": {"param": "Option", "values": ["True"]},
         "required": false,
         "note": "Only present when Option state=True"
       },
@@ -6550,6 +6552,7 @@
         "type": "namedCalc",
         "hrLabel": "Error Code",
         "wrapperElement": "ErrorCode",
+        "visibleWhen": {"param": "Option", "values": ["True"]},
         "required": false,
         "note": "Custom error code for Get(LastError); must be 5000–5499"
       },
@@ -6558,6 +6561,7 @@
         "type": "namedCalc",
         "hrLabel": "Error Message",
         "wrapperElement": "ErrorMessage",
+        "visibleWhen": {"param": "Option", "values": ["True"]},
         "required": false,
         "note": "Custom message for Get(LastErrorDetail); requires ErrorCode in range 5000–5499"
       }

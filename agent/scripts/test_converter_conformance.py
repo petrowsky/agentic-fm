@@ -358,8 +358,7 @@ def test_saxml_unsupported_fixtures_fail_loud():
     ``agent/fixtures/converter/saxml_unsupported/`` holds real FileMaker exports
     carrying a value the reader cannot attach to any catalog param. Two shapes:
 
-    *A boolean with no param to land on.* ``Revert Transaction``'s Condition / Error
-    Code are presence flags for its optional calcs, and ``Print PDF``'s Password / Use
+    *A boolean with no param to land on.* ``Print PDF``'s Password / Use
     print options from / Save print options to belong to params marked ``hrHidden``
     (which the reader skips, leaving their booleans unclaimed).
 
