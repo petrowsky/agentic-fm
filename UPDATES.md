@@ -2,7 +2,21 @@
 
 ## Recent Changes
 
+### Windows clipboard + companion path fixes (2026-09-29)
+
+**Action: optional on macOS; recommended on Windows.**
+
+1. **fmxmlsnippet XML** in `filemaker/agentic-fm.xml` now uses ASCII `<>` instead of Unicode `≠`, so Windows clipboard pastes do not corrupt inequality checks (FileMaker was observed wrapping mojibake `â‰` calculations in `/* ... */`).
+2. **`Get agentic-fm path`** re-prompts for the folder when the stored path does not contain `fmparse.sh`, instead of only showing an error.
+3. **`Explode XML`** falls back to a manual `/C:/...` → `/c/...` path conversion when `ConvertFromFileMakerPath(...; 1)` returns `?` on Windows.
+4. **Companion server** resolves Desktop/export paths on native Windows (not only WSL2), respects `repo_path_override` / `export_dir_override` for invalid paths, and forces UTF-8 for `fmparse`/`fmcontext` subprocesses.
+
+**If you develop on Windows:** copy `agent/config/automation.json.example` to `agent/config/automation.json` and set `repo_path_override` / `export_dir_override` to your local paths, then re-paste the `agentic-fm` script folder from the updated `filemaker/agentic-fm.xml`.
+
+---
+
 ### Companion config — `agent/config/companion.json` (2026-07-15, v0.8.1)
+
 
 **Action: optional — existing setups keep working with no changes.**
 

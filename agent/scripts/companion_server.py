@@ -70,18 +70,31 @@ VERSION = _read_local_version()
 # Path helpers (WSL2 / Windows compatibility)
 # ---------------------------------------------------------------------------
 
-def _wsl_translate_path(path: str) -> str:
-    """Translate FileMaker's Windows-POSIX paths (/C:/...) to WSL2 mount points (/mnt/c/...).
+def _running_under_wsl() -> bool:
+    """True when this Python process is inside WSL (not native Windows / Git Bash)."""
+    if os.environ.get("WSL_DISTRO_NAME") or os.environ.get("WSL_INTEROP"):
+        return True
+    try:
+        with open("/proc/version", "r", encoding="utf-8") as f:
+            return "microsoft" in f.read().lower()
+    except OSError:
+        return False
 
-    FileMaker on Windows uses ConvertFromFileMakerPath(...; 1) which produces paths
-    like /C:/Users/... instead of the WSL2 equivalent /mnt/c/Users/...
+
+def _wsl_translate_path(path: str) -> str:
+    """Translate FileMaker's Windows-POSIX paths (/C:/...) for the local shell.
+
+    Under WSL2: /C:/Users/... -> /mnt/c/Users/...
+    Under native Windows / Git Bash: /C:/Users/... -> /c/Users/...
     """
     m = re.match(r"^/([A-Za-z]):(.*)", path)
-    if m:
-        drive = m.group(1).lower()
-        rest = m.group(2)
+    if not m:
+        return path
+    drive = m.group(1).lower()
+    rest = m.group(2)
+    if _running_under_wsl():
         return f"/mnt/{drive}{rest}"
-    return path
+    return f"/{drive}{rest}"
 
 
 def _load_automation_config() -> dict:
@@ -115,9 +128,7 @@ def _resolve_export_path_for_wsl(solution_name: str) -> str:
         log.info("Using export_dir_override from automation.json: %r", path)
         return path
 
-    # Auto-detect via PowerShell + wslpath (WSL2 only).
-    # GetFolderPath('Desktop') resolves OneDrive-redirected Desktops correctly;
-    # a simple USERPROFILE\Desktop approach misses this common Windows setup.
+    # Auto-detect Desktop via PowerShell (handles OneDrive-redirected Desktops).
     try:
         r1 = subprocess.run(
             [
@@ -127,18 +138,27 @@ def _resolve_export_path_for_wsl(solution_name: str) -> str:
             capture_output=True, text=True, timeout=10,
         )
         if r1.returncode == 0:
-            win_desktop = r1.stdout.strip()  # e.g. C:\Users\pchov\OneDrive\Desktop
-            r2 = subprocess.run(
-                ["wslpath", win_desktop],
-                capture_output=True, text=True, timeout=5,
-            )
-            if r2.returncode == 0:
-                wsl_desktop = r2.stdout.strip()  # e.g. /mnt/c/Users/pchov/OneDrive/Desktop
-                path = os.path.join(wsl_desktop, f"{solution_name}.xml")
-                log.info("Auto-detected WSL2 export path via PowerShell+wslpath: %r", path)
+            win_desktop = r1.stdout.strip()
+            if win_desktop:
+                if _running_under_wsl():
+                    try:
+                        r2 = subprocess.run(
+                            ["wslpath", win_desktop],
+                            capture_output=True, text=True, timeout=5,
+                        )
+                        if r2.returncode == 0 and r2.stdout.strip():
+                            path = os.path.join(
+                                r2.stdout.strip(), f"{solution_name}.xml"
+                            )
+                            log.info("Auto-detected WSL2 export path: %r", path)
+                            return path
+                    except Exception as exc:
+                        log.warning("wslpath conversion failed: %s", exc)
+                path = os.path.join(win_desktop, f"{solution_name}.xml")
+                log.info("Auto-detected Windows Desktop export path: %r", path)
                 return path
     except Exception as exc:
-        log.warning("WSL2 export path auto-detection failed: %s", exc)
+        log.warning("Desktop export path auto-detection failed: %s", exc)
 
     return ""
 
@@ -621,16 +641,15 @@ class CompanionHandler(BaseHTTPRequestHandler):
         export_file_path = _wsl_translate_path(export_file_path)
         repo_path = _wsl_translate_path(repo_path)
 
-        # If repo_path is "?" it means FileMaker's ConvertFromFileMakerPath failed —
-        # this happens on WSL2 when the repo lives on the WSL filesystem and FileMaker
-        # on Windows cannot convert the \\wsl.localhost\... UNC path to a POSIX path.
-        # Fall back to repo_path_override from agent/config/automation.json.
-        if repo_path == "?":
+        # If repo_path is missing/invalid (ConvertFromFileMakerPath '?', bad JSON from FM, etc.),
+        # fall back to repo_path_override from automation.json.
+        if repo_path in ("", "?") or not os.path.isdir(repo_path):
             override = _automation_config.get("repo_path_override", "")
-            if override:
+            if override and os.path.isdir(os.path.expanduser(override)):
                 repo_path = os.path.expanduser(override)
                 log.info(
-                    "repo_path was '?' — using repo_path_override from automation.json: %r",
+                    "repo_path invalid (%r) — using repo_path_override: %r",
+                    payload.get("repo_path"),
                     repo_path,
                 )
             else:
@@ -639,11 +658,12 @@ class CompanionHandler(BaseHTTPRequestHandler):
                         "success": False,
                         "exit_code": -1,
                         "error": (
-                            "repo_path is '?' — FileMaker could not convert the repo path to POSIX "
-                            "(common on WSL2 when the repo is on the WSL filesystem). "
-                            "Add 'repo_path_override' to agent/config/automation.json with the "
-                            "absolute POSIX path to your agentic-fm folder (e.g. /home/user/agentic-fm). "
-                            "See agent/docs/SANDBOXED_ENVIRONMENT.md for details."
+                            "repo_path is missing or invalid and no usable "
+                            "repo_path_override was found in agent/config/automation.json. "
+                            "Set repo_path_override to the absolute path of your agentic-fm "
+                            "folder (Windows: C:/Users/<you>/agentic-fm; "
+                            "WSL: /home/<you>/agentic-fm). "
+                            "See agent/docs/COMPANION_SERVER.md."
                         ),
                     },
                     status=400,
@@ -676,6 +696,9 @@ class CompanionHandler(BaseHTTPRequestHandler):
 
         # Build environment for subprocess
         env = os.environ.copy()
+        # Force UTF-8 so fmparse/fmcontext arrows do not crash on Windows cp1252.
+        env["PYTHONIOENCODING"] = "utf-8"
+        env["PYTHONUTF8"] = "1"
         if exploder_bin_path:
             env["FM_XML_EXPLODER_BIN"] = os.path.expanduser(exploder_bin_path)
 
