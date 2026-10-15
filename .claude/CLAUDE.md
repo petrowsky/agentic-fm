@@ -191,7 +191,7 @@ The developer always works in **human-readable (HR) script format**. The agent's
 **MANDATORY: Before writing ANY script or function:**
 
 1. Read `agent/CONTEXT.json` for the task description and all reference IDs (when present)
-2. Read `agent/docs/CODING_CONVENTIONS.md` — all generated FileMaker code must follow these conventions
+2. Read coding conventions — check for `agent/docs/CODING_CONVENTIONS.local.md` first (gitignored, developer's personal/local override); if it exists, read it **instead of** `agent/docs/CODING_CONVENTIONS.md` and follow it exclusively. Otherwise read `agent/docs/CODING_CONVENTIONS.md`. All generated FileMaker code must follow whichever file applies.
 3. Scan `agent/docs/knowledge/MANIFEST.md` for keyword matches against the current task — read and apply matching documents
 4. For scripts: grep the step catalog for each step type used (see **Step catalog** below)
 5. Substitute the specific IDs/names/values from CONTEXT.json
