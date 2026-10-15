@@ -34,6 +34,8 @@ Each entry is an object with the following top-level keys.
 | `helpUrl`       | string         | yes      | Link to the step's official documentation. Reference only.                                                                                                                                              |
 | `snippetFile`   | string         | no       | Path, relative to the catalog-maintenance corpus, of the reference XML example the entry was derived from. **Maintenance provenance only** — not part of the runtime contract; consumers may ignore it. |
 | `notes`         | string         | no       | Free-text behavioral notes scoped to the whole step (as opposed to a single param).                                                                                                                     |
+| `fmMin`         | string         | no       | The first FileMaker version that has the step, `"any"` or `"unknown"`. See **Version data**. Absent means unknown.                                                                                      |
+| `fmMinSource`   | string         | with `fmMin` | How `fmMin` is known: `"measured"` or `"documented"`. See **Version data**.                                                                                                                         |
 
 ### Block pairs
 
@@ -78,6 +80,7 @@ Every parameter object has these base keys:
 | `wrapperAttr`    | `namedCalc`              | A literal attribute string FileMaker places on the wrapper (e.g. `custom="True"`), emitted verbatim.                            |
 | `parentElement`  | any nested param         | The ancestor element this param nests inside (e.g. a calc that lives under `<Source>` or under a step-named container element). |
 | `notes`          | any                      | Free-text behavioral notes for this param. **Canonical key is `notes`.** See **Known inconsistencies**.                         |
+| `fmMin` / `fmMinSource` | any               | The first FileMaker version that has the element or attribute this param models, and how that is known. Absent: inherits the step's. See **Version data**. |
 
 ## Parameter types
 
@@ -162,6 +165,7 @@ Define them precisely:
 | `xmlEnumValues` | The literal XML values, when they differ from the human-facing `enumValues`. When present, this is authoritative for what XML carries.                                                       |
 | `hrEnumValues`  | A map from XML value → HR display string (e.g. `{ "Current": "Current Window" }`).                                                                                                           |
 | `enumStyle`     | How the value is carried. `"text"` means the value is the element's **text content** (`<El>value</El>`); absence (with an `xmlAttr`) means it is an **attribute** (`<El xmlAttr="value"/>`). |
+| `fmMinValues`   | A map from XML value → `{ "fmMin": …, "fmMinSource": … }`: the first FileMaker version that accepts that value. Keys must be members of `enumValues`. See **Version data**.                               |
 
 > **Authoring requirement:** `enumValues`/`xmlEnumValues` must be the exact literals FileMaker writes to XML (e.g. `LayoutNameByCalc`, not the dialog label `Layout Name by Calc`).
 > Human-facing labels belong in `hrEnumValues`/`hrLabel`, never substituted for the XML literal.
@@ -254,6 +258,113 @@ These keys refine emission/round-trip behavior and may appear on the param types
 | `fmLineHidden`     | any                                               | FileMaker stores the content but never draws it in its Script Workspace line (Export Records' `Profile`, Save Records as Excel's `Worksheet`). An HR form that mirrors FileMaker's line leaves it out; a lossless HR form still prints it, labeled. |
 | `hrEmptySlotWith`  | positional params                                 | Names the param key of a sibling whose presence FileMaker draws as this param's empty slot when this param is empty, wherever the slot sits (Export Records with no path but a `<Profile>`: `Create folders: On ; ; Unicode (UTF-8)`). An empty token read at that slot means the sibling is present (an `attrGroup` with its defaults). |
 | `fmLineHiddenWhen` | any                                               | Like `fmLineHidden`, but only while every condition in the list holds; each condition is `{ "param": <param key>, "values": [...] }` (that sibling holds one of these raw values, its default when unset) or `{ "param": <param key>, "empty": true }` (that sibling has no value: no element, or an empty one). With no path, Save Records as PDF and four sibling steps draw no `Automatically open` / `Create email` although they keep them on; with Restore off too, Save Records as PDF draws no records source. Only an HR form that mirrors FileMaker's line applies it. |
+
+## Version data
+
+`fmMin` records the first FileMaker version that has an item, and `fmMinSource` records how that is known.
+The two keys always appear together, on four kinds of item:
+
+| Item                         | Where the keys sit                                                                                         |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| a step                       | the step entry                                                                                             |
+| a step option                | the parameter object (the element or attribute the parameter models was added in that version)             |
+| one value of an `enum` param | the param's `fmMinValues` map, keyed by the XML value exactly as `enumValues` spells it                   |
+| a calculation function       | the entry in `function-catalog.json` (see **The function catalog**); a `Get` selector is its own entry    |
+
+The values below are illustrative, not data about a real step:
+
+```json
+{
+  "name": "Example Step",
+  "fmMin": "any",
+  "fmMinSource": "measured",
+  "params": [
+    {
+      "xmlElement": "Mode",
+      "type": "enum",
+      "hrLabel": "Mode",
+      "fmMin": "21.0",
+      "fmMinSource": "measured",
+      "enumValues": ["Basic", "Extended"],
+      "fmMinValues": { "Extended": { "fmMin": "22.0", "fmMinSource": "documented" } }
+    }
+  ]
+}
+```
+
+Read: the step exists in every covered version, its `Mode` option from 21.0, and the `Extended` mode from 22.0.
+
+**`fmMin` values.**
+
+- A version: `"MAJOR"`, `"MAJOR.MINOR"` or `"MAJOR.MINOR.PATCH"`, one to three digits each, major not zero (`"21"`, `"21.0"`, `"22.0.2"`). The item exists in that FileMaker version and every later one.
+- `"any"`: the item exists in every FileMaker version the version data covers, which is FileMaker Pro 19.6 and later.
+  It says nothing about when the item was introduced.
+- `"unknown"`: the item was looked at and its minimum is still undecided, or an earlier value was found wrong and withdrawn.
+  `fmMinSource` says how that was concluded. A consumer reads it exactly as unknown; it is not malformed.
+- Absent, on a step entry or a function entry: unknown. A consumer treats an unknown item as it would without version data.
+- Absent, on a parameter object or for a value missing from `fmMinValues`: the option adds no minimum of its own and inherits the one above it (see **Combining**).
+
+`"any"` is a value of its own rather than the oldest covered version (for example `"19.6"`), because a version would state that the item first appeared in that release.
+That is false for nearly every item (`Abs` predates FileMaker 19 by decades), and it would refuse the item on any older FileMaker a consumer still meets.
+It is a string rather than `null` or `""` so that "known, no minimum" cannot be confused with an absent key by a reader that tests for a value.
+A minimum is never written as a negated list ("not in 19"): the data says where an item starts, and every later version is assumed to keep it, because FileMaker does not remove steps or functions.
+
+**Correcting a value.**
+Replace a wrong value with the right one, or with `"unknown"` when the right one is not known.
+Never just delete the keys: a consumer that layers an updated catalog over an older copy keeps keys the update lacks, so a deleted value would survive there.
+
+**`fmMinSource` values.**
+
+| Value          | Meaning                                                                                                                       |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `"measured"`   | Observed on a running FileMaker: the item was tried on each installed version, and `fmMin` is the oldest version that accepted it. |
+| `"documented"` | Taken from Claris documentation (the "Originated in version" line of the help page, or the release notes), for an item that cannot be exercised directly. |
+
+A measured minimum is only as fine-grained as the versions measured: when the oldest version that accepts an item is the first measured release of a major version, `fmMin` names that major version's `.0`, and a documented source may refine it.
+
+**Combining.**
+A step option's minimum is the combination of the chain step → parameter → value:
+
+1. The step's own `fmMin` is always part of the chain; absent there means unknown.
+2. A parameter or value that declares `fmMin` adds it to the chain; one that declares nothing adds nothing (it inherits).
+3. If every part of the chain is known, the option's minimum is the highest of them, with `"any"` lower than every version (all `"any"` means no minimum).
+4. If any part is unknown (`"unknown"`, an absent step value, or malformed), the option's minimum is unknown, except that the option is certainly absent below the highest known part.
+
+So a parameter never needs to repeat its step's minimum, and an option is never available on a version that lacks its step.
+
+**Conformance.**
+
+- `fmMinSource` is required whenever `fmMin` is present, and is absent otherwise.
+- `fmMinValues` appears only on a parameter object, each entry is an object with both keys, and each key names a value in the param's `enumValues`.
+- A malformed pair (wrong type, an unparseable version, a missing or unknown source) is a catalog defect.
+  A consumer reads it as unknown and reports it; it never guesses a version.
+- Version data never changes how a step converts between HR and XML.
+  Converters ignore all three keys.
+
+### The function catalog
+
+`function-catalog.json` lists FileMaker's built-in calculation functions.
+It is a JSON object:
+
+| Key         | Type   | Meaning                                                                          |
+| ----------- | ------ | -------------------------------------------------------------------------------- |
+| `version`   | string | The FileMaker version the list was last reconciled against.                      |
+| `functions` | array  | One entry per function, sorted by name without regard to case.                   |
+
+Each entry:
+
+| Key           | Type   | Required     | Meaning                                                                                                                      |
+| ------------- | ------ | ------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| `name`        | string | yes          | The function name, unique without regard to case. A `Get` selector is its own entry, named `Get(Selector)` with no spaces.   |
+| `prototype`   | string | yes          | The call signature as Claris documents it (`Left ( text ; numberOfCharacters )`, `Get ( WindowUUID )`).                      |
+| `fmMin`       | string | no           | As in **Version data**: the first FileMaker version that has the function or selector, `"any"` or `"unknown"`. Absent means unknown. |
+| `fmMinSource` | string | with `fmMin` | `"measured"` or `"documented"`.                                                                                               |
+
+An illustrative entry (not real data):
+
+```json
+{ "name": "ExampleFunction", "prototype": "ExampleFunction ( text )", "fmMin": "22.0", "fmMinSource": "documented" }
+```
 
 ## Known inconsistencies (non-normative aliases)
 

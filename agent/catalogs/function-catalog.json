@@ -38,6 +38,10 @@
       "prototype": "Base64EncodeRFC ( RFCNumber ; data )"
     },
     {
+      "name": "BaseTableComment",
+      "prototype": "BaseTableComment ( fileName ; baseTableName )"
+    },
+    {
       "name": "BaseTableIDs",
       "prototype": "BaseTableIDs ( fileName )"
     },
@@ -68,6 +72,10 @@
     {
       "name": "Combination",
       "prototype": "Combination ( setSize ; numberOfChoices )"
+    },
+    {
+      "name": "ComputeModel",
+      "prototype": "ComputeModel ( modelName ; parameterName1 ; value1 {; parameterName2 ; value2 ...} )"
     },
     {
       "name": "ConvertFromFileMakerPath",
@@ -190,12 +198,20 @@
       "prototype": "Factorial ( number {; numberOfFactors } )"
     },
     {
+      "name": "FieldAnnotation",
+      "prototype": "FieldAnnotation ( fileName ; fieldName )"
+    },
+    {
       "name": "FieldBounds",
       "prototype": "FieldBounds ( fileName ; layoutName ; fieldName )"
     },
     {
       "name": "FieldComment",
       "prototype": "FieldComment ( fileName ; fieldName )"
+    },
+    {
+      "name": "FieldDisplayNames",
+      "prototype": "FieldDisplayNames ( fileName ; fieldName )"
     },
     {
       "name": "FieldIDs",
@@ -248,6 +264,10 @@
     {
       "name": "Get(AccountName)",
       "prototype": "Get ( AccountName )"
+    },
+    {
+      "name": "Get(AccountPasswordDaysRemaining)",
+      "prototype": "Get ( AccountPasswordDaysRemaining )"
     },
     {
       "name": "Get(AccountPrivilegeSetName)",
@@ -420,6 +440,10 @@
     {
       "name": "Get(FoundCount)",
       "prototype": "Get ( FoundCount )"
+    },
+    {
+      "name": "Get(GuidedAccessState)",
+      "prototype": "Get ( GuidedAccessState )"
     },
     {
       "name": "Get(HighContrastState)",
@@ -766,6 +790,10 @@
       "prototype": "Get ( WindowTop )"
     },
     {
+      "name": "Get(WindowUUID)",
+      "prototype": "Get ( WindowUUID )"
+    },
+    {
       "name": "Get(WindowVisible)",
       "prototype": "Get ( WindowVisible )"
     },
@@ -884,6 +912,10 @@
     {
       "name": "GetNthRecord",
       "prototype": "GetNthRecord ( field ; recordNumber )"
+    },
+    {
+      "name": "GetPersistentData",
+      "prototype": "GetPersistentData ( name ; instanceID )"
     },
     {
       "name": "GetRAGSpaceInfo",
@@ -1070,6 +1102,10 @@
       "prototype": "List ( field {; field...} )"
     },
     {
+      "name": "ListPersistentDataIDs",
+      "prototype": "ListPersistentDataIDs ( name )"
+    },
+    {
       "name": "Ln",
       "prototype": "Ln ( number )"
     },
@@ -1184,6 +1220,10 @@
     {
       "name": "Radians",
       "prototype": "Radians ( angleInDegrees )"
+    },
+    {
+      "name": "Random",
+      "prototype": "Random"
     },
     {
       "name": "RangeBeacons",

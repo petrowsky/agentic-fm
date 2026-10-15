@@ -237,6 +237,14 @@ class StepParam:
     # token read at that slot makes the sibling present.
     hr_empty_slot_with: str | None = None
     description: str | None = None
+    # Version data (see ``fm_min_problem``): the param's own minimum FileMaker
+    # version and its source (well-formed values only; malformed reads None),
+    # and an enum param's per-value minimums keyed by the XML value
+    # ({value: {"fmMin": ..., "fmMinSource": ...}}, raw: read each with
+    # ``fm_min_version``). Never read by the converters; ``None`` = undeclared.
+    fm_min: str | None = None
+    fm_min_source: str | None = None
+    fm_min_values: dict[str, dict[str, Any]] = field(default_factory=dict)
     raw: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
@@ -286,6 +294,10 @@ class StepParam:
             group_fields=list(d.get("groupFields", [])),
             hr_empty_slot_with=d.get("hrEmptySlotWith"),
             description=d.get("description"),
+            fm_min=_fm_min_of(d),
+            fm_min_source=_fm_min_source_of(d),
+            fm_min_values=(dict(d["fmMinValues"])
+                           if isinstance(d.get("fmMinValues"), dict) else {}),
             raw=dict(d),
         )
 
@@ -331,6 +343,10 @@ class CatalogEntry:
     # `parentElementAliases` fields, keyed by the canonical element name (the
     # last parent-path segment for a parent).
     element_aliases: dict[str, list[str]] = field(default_factory=dict)
+    # Version data: the step's minimum FileMaker version and its source
+    # (see ``fm_min_problem``). ``None`` means unknown.
+    fm_min: str | None = None
+    fm_min_source: str | None = None
     raw: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
@@ -363,8 +379,113 @@ class CatalogEntry:
             help_url=d.get("helpUrl"),
             notes=d.get("notes"),
             element_aliases=ea,
+            fm_min=_fm_min_of(d),
+            fm_min_source=_fm_min_source_of(d),
             raw=dict(d),
         )
+
+
+# ---------------------------------------------------------------------------
+# Version data: `fmMin` / `fmMinSource`
+# ---------------------------------------------------------------------------
+# The minimum FileMaker version of a step, a param, an enum value (a param's
+# `fmMinValues` map) or a function-catalog entry. `fmMin` is a version
+# ("MAJOR", "MAJOR.MINOR" or "MAJOR.MINOR.PATCH") or `FM_MIN_ANY` (present in
+# every version the data covers) or `FM_MIN_UNKNOWN` (looked at and still
+# undecided, or a retracted value); `fmMinSource` says how it is known. An
+# absent `fmMin` is unknown; a malformed pair is unknown too and is a catalog
+# defect.
+FM_MIN_ANY = "any"
+FM_MIN_UNKNOWN = "unknown"
+FM_MIN_SOURCES: frozenset[str] = frozenset({"measured", "documented"})
+
+
+def _is_fm_version(text: str) -> bool:
+    """1-3 dot-separated runs of 1-3 ASCII digits, major not zero."""
+    parts = text.split(".")
+    return (1 <= len(parts) <= 3
+            and all(p.isascii() and p.isdigit() and 1 <= len(p) <= 3 for p in parts)
+            and int(parts[0]) != 0)
+
+
+def _fm_min_of(obj: dict[str, Any]) -> str | None:
+    """`obj`'s `fmMin` when the pair is well formed, else ``None``."""
+    return obj.get("fmMin") if fm_min_problem(obj) is None else None
+
+
+def _fm_min_source_of(obj: dict[str, Any]) -> str | None:
+    return obj.get("fmMinSource") if fm_min_problem(obj) is None else None
+
+
+def fm_min_problem(obj: Any) -> str | None:
+    """What is wrong with ``obj``'s `fmMin` / `fmMinSource` pair, or ``None``.
+
+    Absent keys are not a problem (unknown is a legal state).
+    """
+    if not isinstance(obj, dict):
+        return "not an object"
+    if "fmMin" not in obj:
+        return "fmMinSource without fmMin" if "fmMinSource" in obj else None
+    value = obj["fmMin"]
+    if not isinstance(value, str):
+        return "fmMin is not a string"
+    if value not in (FM_MIN_ANY, FM_MIN_UNKNOWN) and not _is_fm_version(value):
+        return f'fmMin "{value}" is neither "{FM_MIN_ANY}", "{FM_MIN_UNKNOWN}" nor a version'
+    source = obj.get("fmMinSource")
+    if not isinstance(source, str):
+        return f'fmMin "{value}" without a string fmMinSource'
+    if source not in FM_MIN_SOURCES:
+        return f'fmMinSource "{source}" is neither "measured" nor "documented"'
+    return None
+
+
+def fm_min_version(obj: dict[str, Any]) -> str | None:
+    """The minimum version: ``None`` unknown, ``""`` none (`any`), else the version.
+
+    Absent, ``"unknown"`` and malformed all read ``None``.
+    """
+    if fm_min_problem(obj) is not None or obj.get("fmMin") in (None, FM_MIN_UNKNOWN):
+        return None
+    return "" if obj["fmMin"] == FM_MIN_ANY else obj["fmMin"]
+
+
+def fm_min_problems(steps: list[dict[str, Any]]) -> list[str]:
+    """Every malformed version datum in a raw step catalog, one line each.
+
+    `fmMinValues` belongs on a param, holds one object per value, and names only
+    values the param's `enumValues` holds.
+    """
+    out: list[str] = []
+    for step in steps:
+        name = step.get("name", "")
+        problem = fm_min_problem(step)
+        if problem:
+            out.append(f"{name}: {problem}")
+        if "fmMinValues" in step:
+            out.append(f"{name}: fmMinValues belongs on a param, not a step")
+        for param in step.get("params", []):
+            if not isinstance(param, dict):
+                continue
+            where = f"{name} / {param.get('hrLabel') or param.get('xmlElement')}"
+            problem = fm_min_problem(param)
+            if problem:
+                out.append(f"{where}: {problem}")
+            values = param.get("fmMinValues")
+            if values is None:
+                continue
+            if not isinstance(values, dict):
+                out.append(f"{where}: fmMinValues is not an object")
+                continue
+            for value, spec in values.items():
+                problem = fm_min_problem(spec)
+                if problem is None and "fmMin" not in spec:
+                    problem = "fmMinValues entry has no fmMin"
+                if problem:
+                    out.append(f"{where} = {value}: {problem}")
+                if value not in (param.get("enumValues") or []):
+                    out.append(f"{where} = {value}: fmMinValues names a value "
+                               "that is not in enumValues")
+    return out
 
 
 def param_key(param: StepParam) -> str:

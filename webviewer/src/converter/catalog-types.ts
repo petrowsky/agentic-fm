@@ -28,6 +28,33 @@ export interface StepCatalogEntry {
   status: 'auto' | 'reviewed' | 'complete';
   /** Link to Claris help documentation */
   helpUrl: string | null;
+  /** Minimum FileMaker version of the step (see FmMinVersion). Absent = unknown. */
+  fmMin?: FmMinVersion;
+  /** How `fmMin` is known. Present exactly when `fmMin` is. */
+  fmMinSource?: FmMinSource;
+}
+
+/**
+ * Version data. A version ("MAJOR", "MAJOR.MINOR" or "MAJOR.MINOR.PATCH",
+ * major not zero, e.g. "21.0") is the first FileMaker version that has the
+ * item; "any" means every FileMaker version the version data covers has it;
+ * "unknown" means looked at and still undecided (or a retracted value). An
+ * absent `fmMin` also means unknown. Read by version checks only, never by
+ * the converters.
+ *
+ * The union is documentation only: `'any' | 'unknown' | string` collapses to
+ * `string` for the type checker, which therefore accepts any text. Validate a
+ * value before comparing it as a version.
+ */
+export type FmMinVersion = 'any' | 'unknown' | string;
+
+/** "measured" = observed on a running FileMaker; "documented" = Claris documentation. */
+export type FmMinSource = 'measured' | 'documented';
+
+/** One `fmMinValues` entry: the minimum version of one enum value. */
+export interface FmMinValue {
+  fmMin: FmMinVersion;
+  fmMinSource: FmMinSource;
 }
 
 /**
@@ -210,6 +237,12 @@ export interface StepParam {
   defaultValue?: string;
   /** Human-readable description of the parameter */
   description?: string;
+  /** Minimum FileMaker version of the element/attribute this param models. Absent = unknown. */
+  fmMin?: FmMinVersion;
+  /** How `fmMin` is known. Present exactly when `fmMin` is. */
+  fmMinSource?: FmMinSource;
+  /** Enum params: minimum FileMaker version per XML value (keys are `enumValues` entries). */
+  fmMinValues?: Record<string, FmMinValue>;
 }
 
 export interface StepBlockPair {
