@@ -317,10 +317,22 @@ Never just delete the keys: a consumer that layers an updated catalog over an ol
 
 | Value          | Meaning                                                                                                                       |
 | -------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `"measured"`   | Observed on a running FileMaker: the item was tried on each installed version, and `fmMin` is the oldest version that accepted it. |
-| `"documented"` | Taken from Claris documentation (the "Originated in version" line of the help page, or the release notes), for an item that cannot be exercised directly. |
+| `"measured"`   | Observed on a running FileMaker: the item was tried on each installed version, and `fmMin` is derived from the oldest version that accepted it (see **Measured minimums**). |
+| `"documented"` | Taken from Claris documentation (the "Originated in version" line of the help page, or the release notes), for an item that cannot be exercised directly, or that the documentation dates more finely or later than the measurement. |
 
-A measured minimum is only as fine-grained as the versions measured: when the oldest version that accepts an item is the first measured release of a major version, `fmMin` names that major version's `.0`, and a documented source may refine it.
+**Measured minimums.**
+A set of measured versions brackets each item's true first version: it lies after the newest version measured without the item and at or before the oldest version measured with it.
+A measured `fmMin` names one value inside that bracket:
+
+- the first shipped release of the earliest major measured to have the item, when no earlier measured version of that major lacked it (FileMaker Pro 20 first shipped as 20.1, so such a minimum is `"20.1"`, not `"20.0"`);
+- otherwise the oldest version measured with it, as `MAJOR.MINOR` (or in full when the version measured without it has the same `MAJOR.MINOR`).
+
+A `"documented"` value that falls inside the bracket refines the measurement and is kept when the data is measured again.
+One outside the bracket is a disagreement between the documentation and FileMaker, and is recorded with its reason.
+
+A step option (a parameter object) gets a measured minimum only from a read-back: its label is missing from the step FileMaker draws on every version measured below the minimum, and drawn on that version and every later one.
+Where the option is an attribute, the copied-out XML corroborates the boundary: the attribute is missing below it and present on the newest version measured.
+An option the read-back cannot corroborate inherits the step's minimum.
 
 **Combining.**
 A step option's minimum is the combination of the chain step → parameter → value:

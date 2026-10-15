@@ -136,8 +136,12 @@ Prefer measuring to reading documentation, and record which one you did.
 - **Measured.** Try the item on each installed FileMaker version and take the oldest that accepts it.
   A function is tried without running it, as `If ( False ; <call> ; 1 )` evaluated in a calculation: error 1208 means the function does not exist, error 1215 means the `Get` selector does not exist, and any other result (including argument errors) means it exists.
   A step or option is pasted into the Script Workspace and read back; FileMaker drops what it does not know, so a paste that succeeds proves nothing until the step is read back.
+  A step drawn as `<unknown>`, or as `#[OBSOLETE]` followed by another step's name, does not exist in that version.
 - **Documented.** When an item cannot be exercised (a platform it does not run on, a step that needs a server), take the version from the "Originated in version" line of its Claris help page.
 - An item present in the oldest version measured gets `"any"`, not that version.
+- An item first measured present on a later major gets that major's first shipped release (`"20.1"` for FileMaker Pro 20), unless an earlier measured release of the same major lacked it; then it gets the oldest release measured with it (`CATALOG_SCHEMA.md` § "Measured minimums").
+- A `"documented"` value that falls between the newest version measured without the item and the oldest measured with it is a refinement: keep it when you measure again.
+  A documented value outside that range disagrees with FileMaker; record why next to it before you keep it.
 - Leave `fmMin` out when nobody has looked; write `"unknown"` (with the source that was tried) when you looked and could not decide. Never guess.
 - A parameter or enum value only gets its own `fmMin` when it is newer than the step; otherwise leave it out and it inherits the step's (`CATALOG_SCHEMA.md` § "Version data", "Combining").
 - To retract a wrong value, replace it with the right one or with `"unknown"`.

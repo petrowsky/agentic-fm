@@ -16,7 +16,9 @@
     "hrSignature": "# {text}",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/comment.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/comment.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Add Account",
@@ -82,7 +84,9 @@
     "hrSignature": "[ Authenticate via: type ; Account Name: calc ; Password: calc ; Privilege Set: name ; Expire password ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/add-account.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/add-account.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Adjust Window",
@@ -113,7 +117,9 @@
     "hrSignature": "[ Resize to Fit|Maximize|Minimize|Restore|Hide ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/adjust-window.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/adjust-window.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Allow Formatting Bar",
@@ -138,7 +144,9 @@
     "hrSignature": "[ On|Off ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/allow-formatting-bar.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/allow-formatting-bar.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Allow User Abort",
@@ -159,7 +167,9 @@
     "hrSignature": "[ On|Off ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Arrange All Windows",
@@ -192,7 +202,9 @@
     "hrSignature": "[ Tile Horizontally|Tile Vertically|Cascade Window|Bring All To Front ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/arrange-all-windows.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/arrange-all-windows.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "AVPlayer Play",
@@ -285,7 +297,9 @@
     "hrSignature": "[ Object Name|Field|URL : source ; Repetition: n ; Presentation: option ; Position: n ; Start Offset: n ; End Offset: n ; Hide Controls: Yes ; Disable Interaction: Yes ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/avplayer-play.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/avplayer-play.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "AVPlayer Set Options",
@@ -407,7 +421,9 @@
     "hrSignature": "[ Presentation: option ; Disable Interaction: Yes ; Hide Controls: Yes ; Disable External Controls: Yes ; Pause in Background: Yes ; Position: n ; Start Offset: n ; End Offset: n ; Volume: n ; Zoom: option ; Sequence: option ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/avplayer-set-options.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/avplayer-set-options.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "AVPlayer Set Playback State",
@@ -433,7 +449,9 @@
     "hrSignature": "[ Stopped|Paused|Playing ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/avplayer-set-playback-state.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/avplayer-set-playback-state.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Beep",
@@ -445,7 +463,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/beep.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/beep.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Change Password",
@@ -481,7 +501,9 @@
     "hrSignature": "[ Old Password: calc ; Password: calc ; With dialog: On|Off ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/change-password.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/change-password.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Check Found Set",
@@ -493,7 +515,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/check-found-set.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/check-found-set.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Check Record",
@@ -505,7 +529,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/check-record.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/check-record.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Check Selection",
@@ -532,7 +558,9 @@
     "hrSignature": "[ Select ; field ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/check-selection.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/check-selection.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Clear",
@@ -559,7 +587,9 @@
     "hrSignature": "[ Select ; field ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/clear.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/clear.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Close Data File",
@@ -579,7 +609,9 @@
     "hrSignature": "[ File ID: calc ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/close-data-file.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/close-data-file.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Close File",
@@ -598,7 +630,9 @@
     "hrSignature": "[ Current File | \"filename\" ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/close-file.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/close-file.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Close Popover",
@@ -610,7 +644,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/close-popover.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/close-popover.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
     {
     "name": "Close Window",
@@ -662,7 +698,9 @@
     "hrSignature": "[ Current Window | Name: <name> [ ; Current file ] ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/close-window.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/close-window.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Commit Records/Requests",
@@ -702,7 +740,9 @@
     "hrSignature": "[ Skip data entry validation ; With dialog: <On/Off> ; Force Commit ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/commit-records-requests.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/commit-records-requests.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Commit Transaction",
@@ -719,7 +759,9 @@
       ]
     },
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/commit-transaction.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/commit-transaction.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Configure AI Account",
@@ -794,7 +836,9 @@
     "hrSignature": "[ Account Name: calc ; Model Provider: option ; Endpoint: calc ; Verify SSL Certificates ; API key: calc ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "21.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Configure Local Notification",
@@ -928,7 +972,9 @@
     "hrSignature": "[ Action: Queue|Clear ; Name: calc ; Script: script ; Delay: calc ; Title: calc ; Body: calc ; Button 1 Label: calc ; Button 2 Label: calc ; Button 3 Label: calc ; Button 1 Foreground: calc ; Button 2 Foreground: calc ; Button 3 Foreground: calc ; Show when app in foreground: calc ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/configure-local-notification.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/configure-local-notification.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Configure Machine Learning Model",
@@ -973,7 +1019,9 @@
     "hrSignature": "[ Operation: Unload|Vision|General ; Name: calc ; From: field ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Configure NFC Reading",
@@ -1043,7 +1091,9 @@
     "hrSignature": "[ Action: Read|Cancel ; Script: script ; Parameter: calc ; Timeout: calc ; Continuous Reading: calc ; Format Result as JSON: calc ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Configure Persistent Data",
@@ -1086,7 +1136,9 @@
         "notes": "Set mode only. Mutually exclusive with Delete (Option state=True)."
       }
     ],
-    "hrSignature": "[ <name> ; Instance ID: <calc> ; Value: <calc> ; Delete ]"
+    "hrSignature": "[ <name> ; Instance ID: <calc> ; Value: <calc> ; Delete ]",
+    "fmMin": "26.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Configure Prompt Template",
@@ -1186,7 +1238,9 @@
     "hrSignature": "[ Template Name: calc ; Model Provider: option ; Template Type: option ; SQL Prompt: calc ; Natural Language Prompt: calc ; Find Request Prompt: calc ; RAG Prompt: calc ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "22.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Configure RAG Account ",
@@ -1232,7 +1286,9 @@
     "hrSignature": "[ RAG Account Name: calc ; Endpoint: calc ; API key: calc ; Verify SSL Certificates ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "22.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Configure Region Monitor Script",
@@ -1342,7 +1398,9 @@
     "hrSignature": "[ Monitor: Clear|iBeacon|Geofence ; Name: calc ; Script: script ; Parameter: calc ; UUID: calc ; Major: calc ; Minor: calc ; Latitude: calc ; Longitude: calc ; Radius: calc ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/configure-region-monitor-script.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/configure-region-monitor-script.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Configure Regression Model",
@@ -1406,7 +1464,9 @@
     "hrSignature": "[ Action: option ; Model Name: calc ; Algorithm: option ; Save Model To|Load Model From: field ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "22.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Constrain Found Set",
@@ -1433,7 +1493,9 @@
         "xmlAttr": "state",
         "required": false,
         "defaultValue": "False",
-        "notes": "Flag-style: shown as \"Find without indexes\" when True, omitted when False"
+        "notes": "Flag-style: shown as \"Find without indexes\" when True, omitted when False",
+        "fmMin": "21.0",
+        "fmMinSource": "measured"
       },
       {
         "xmlElement": "Query",
@@ -1446,7 +1508,9 @@
     "hrSignature": "[ Restore ; Find without indexes ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/constrain-found-set.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/constrain-found-set.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Convert File",
@@ -1547,7 +1611,9 @@
     "hrSignature": "Convert File [ With dialog: {On|Off} ; Open File ; Skip Indexes ; Verify SSL Certificates ; {source} ; Profile: ... ; Import options: ... ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/convert-file.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/convert-file.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Copy",
@@ -1574,7 +1640,9 @@
     "hrSignature": "Copy [ Select ; {field} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/copy.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/copy.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Copy All Records/Requests",
@@ -1586,7 +1654,9 @@
     "hrSignature": "Copy All Records/Requests",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/copy-all-records-requests.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/copy-all-records-requests.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Copy Record/Request",
@@ -1598,7 +1668,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/copy-record-request.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/copy-record-request.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Correct Word",
@@ -1610,7 +1682,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/correct-word.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/correct-word.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Create Data File",
@@ -1642,7 +1716,9 @@
     "hrSignature": "Create Data File [ {path} ; Create folders: {On|Off} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/create-data-file.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/create-data-file.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Cut",
@@ -1669,7 +1745,9 @@
     "hrSignature": "Cut [ Select ; {field} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/cut.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/cut.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Delete Account",
@@ -1689,7 +1767,9 @@
     "hrSignature": "Delete Account [ Account Name: {calc} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/delete-account.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/delete-account.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Delete All Records",
@@ -1715,7 +1795,9 @@
     "hrSignature": "[ With dialog: On|Off ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/delete-all-records.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/delete-all-records.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Delete File",
@@ -1736,7 +1818,9 @@
     "hrSignature": "Delete File [ Target file: {path} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/delete-file.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/delete-file.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Delete Portal Row",
@@ -1762,7 +1846,9 @@
     "hrSignature": "Delete Portal Row [ With dialog: {On|Off} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/delete-portal-row.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/delete-portal-row.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Delete Record/Request",
@@ -1788,7 +1874,9 @@
     "hrSignature": "[ With dialog: On|Off ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/delete-record-request.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/delete-record-request.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Dial Phone",
@@ -1830,7 +1918,9 @@
     "hrSignature": "Dial Phone [ With dialog: {On|Off} ; {calc} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/dial-phone.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/dial-phone.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Duplicate Record/Request",
@@ -1842,7 +1932,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/duplicate-record-request.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/duplicate-record-request.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Edit User Dictionary",
@@ -1854,7 +1946,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/edit-user-dictionary.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/edit-user-dictionary.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Else",
@@ -1881,7 +1975,9 @@
       ]
     },
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/else.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/else.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Else If",
@@ -1914,7 +2010,9 @@
       ]
     },
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/else-if.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/else-if.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Enable Account",
@@ -1946,7 +2044,9 @@
     "hrSignature": "Enable Account [ Account Name: {calc} ; {Activate|Deactivate} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/enable-account.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/enable-account.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Enable Touch Keyboard",
@@ -1976,7 +2076,9 @@
     "hrSignature": "Enable Touch Keyboard [ {On|Off|Toggle} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/enable-touch-keyboard.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/enable-touch-keyboard.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "End If",
@@ -1993,7 +2095,9 @@
       ]
     },
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/end-if.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/end-if.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "End Loop",
@@ -2010,7 +2114,9 @@
       ]
     },
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/end-loop.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/end-loop.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Enter Browse Mode",
@@ -2035,7 +2141,9 @@
     "hrSignature": "[ Pause: On|Off ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/enter-browse-mode.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/enter-browse-mode.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Enter Find Mode",
@@ -2077,7 +2185,9 @@
     "hrSignature": "[ Restore ; Pause: On|Off ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/enter-find-mode.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/enter-find-mode.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Enter Preview Mode",
@@ -2102,7 +2212,9 @@
     "hrSignature": "Enter Preview Mode [ Pause: {On|Off} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/enter-preview-mode.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/enter-preview-mode.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Execute FileMaker Data API",
@@ -2136,7 +2248,9 @@
     "hrSignature": "Execute FileMaker Data API [ Select ; Target: {field|$variable} ; {calc} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/execute-filemaker-data-api.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/execute-filemaker-data-api.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Execute SQL",
@@ -2241,7 +2355,9 @@
       "platform": "Supported on FileMaker Pro, Go, and Server. WebDirect, Data API, and CWP require With dialog: Off."
     },
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/execute-sql.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/execute-sql.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Exit Application",
@@ -2253,7 +2369,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/exit-application.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/exit-application.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Exit Loop If",
@@ -2278,7 +2396,9 @@
       ]
     },
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/exit-loop-if.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/exit-loop-if.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Exit Script",
@@ -2297,7 +2417,9 @@
     "hrSignature": "[ Result: value ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/exit-script.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/exit-script.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Export Field Contents",
@@ -2367,7 +2489,9 @@
     "hrSignature": "Export Field Contents [ {field} ; {path} ; Automatically open ; Create email ; Create folders: {On|Off} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/export-field-contents.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/export-field-contents.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Export Records",
@@ -2541,7 +2665,9 @@
         "dataapi": "Not supported.",
         "cwp": "Not supported."
       }
-    }
+    },
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Extend Found Set",
@@ -2571,7 +2697,9 @@
     "hrSignature": "[ Restore ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/extend-found-set.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/extend-found-set.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Find Matching Records",
@@ -2609,7 +2737,9 @@
     "hrSignature": "Find Matching Records [ {Replace|Constrain|Extend} ; {field} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/find-matching-records.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/find-matching-records.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Fine-Tune Model",
@@ -2712,7 +2842,9 @@
     "hrSignature": "Fine-Tune Model [ Account Name: {calc} ; Base Model: {calc} ; Training Data: {Table|File} ; {table|path} ; Completion Field: {field} ; Response Target: {field|$variable} ; Parameters: {calc} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "22.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Flush Cache to Disk",
@@ -2724,7 +2856,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/flush-cache-to-disk.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/flush-cache-to-disk.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Freeze Window",
@@ -2736,7 +2870,9 @@
     "hrSignature": "Freeze Window",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/freeze-window.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/freeze-window.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Generate Response from Model",
@@ -2989,7 +3125,9 @@
     "hrSignature": "Generate Response from Model [ Account Name: {calc} ; Model: {calc} ; User Prompt: {calc} ; Agentic mode ; Response: {field|$variable} ; Tool Calls from Model: {$variable} ; Instructions: {calc} ; Messages: {$variable} ; Save Message History To: {$variable} ; Message History Count: {calc} ; Include tool calls in message history ; Temperature: {calc} ; Tool Definitions: {calc} ; Stream ; Parameters: {calc} ; Web Viewer: {calc} ; Function Name: {calc} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "22.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Get Data File Position",
@@ -3016,7 +3154,9 @@
     "hrSignature": "Get Data File Position [ File ID: {calc} ; Target: {field|$variable} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/get-data-file-position.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/get-data-file-position.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Get File Exists",
@@ -3043,7 +3183,9 @@
     "hrSignature": "Get File Exists [ {path} ; Target: {field|$variable} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/get-file-exists.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/get-file-exists.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Get File Size",
@@ -3070,7 +3212,9 @@
     "hrSignature": "Get File Size [ {path} ; Target: {field|$variable} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/get-file-size.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/get-file-size.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Get Folder Path",
@@ -3122,7 +3266,9 @@
     "hrSignature": "Get Folder Path [ Allow Folder Creation ; Repetition: <n> ; Dialog title: <calc> ; Default location: <calc> ; $variable ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/get-directory.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/get-directory.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Go to Field",
@@ -3152,7 +3298,9 @@
     "hrSignature": "[ Select/perform ; Table::Field ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-field.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-field.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Go to Layout",
@@ -3197,7 +3345,9 @@
     "notes": {
       "gotchas": "Layout is a sibling of LayoutDestination, both direct children of Step — do NOT nest Layout inside LayoutDestination. Layout must use explicit open/close tags; self-closing form is silently dropped on paste into FileMaker."
     },
-    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-layout.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-layout.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Go to List of Records",
@@ -3263,7 +3413,9 @@
     "hrSignature": "Go to List of Records [ List of record IDs: {calc} ; Using layout: {layout} ; Animation: {type} | New window ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-list-of-records.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-list-of-records.html",
+    "fmMin": "22.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Go to Next Field",
@@ -3275,7 +3427,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-next-field.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-next-field.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Go to Object",
@@ -3302,7 +3456,9 @@
     "hrSignature": "[ Object Name: <value> ; Repetition: <value> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-object.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-object.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Go to Portal Row",
@@ -3384,7 +3540,9 @@
     "hrSignature": "[ Select: On|Off ; First|Last|Previous|Next ; Exit after last: On|Off ; With dialog: On|Off ; calc ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-portal-row.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-portal-row.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Go to Previous Field",
@@ -3396,7 +3554,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-previous-field.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-previous-field.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Go to Record/Request/Page",
@@ -3465,7 +3625,9 @@
     "hrSignature": "[ First|Last|Previous|Next ; Exit after last: On|Off ; With dialog: On|Off ; calc ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-record-request-page.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-record-request-page.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Go to Related Record",
@@ -3587,7 +3749,9 @@
         "dataapi": "Animation option not supported.",
         "cwp": "Animation option not supported."
       }
-    }
+    },
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Halt Script",
@@ -3599,7 +3763,9 @@
     "hrSignature": "Halt Script",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/halt-script.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/halt-script.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "If",
@@ -3631,7 +3797,9 @@
       ]
     },
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/if-script-step.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/if-script-step.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Import Records",
@@ -3752,7 +3920,9 @@
       "constraints": [
         "Server-side scripts, Go, and WebDirect support the following options only when NoInteract is True: custom-separated values source files; any row as field names (when NoInteract is False, only first row can be specified); performing auto-enter options for individual fields."
       ]
-    }
+    },
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert Audio/Video",
@@ -3787,7 +3957,9 @@
     "hrSignature": "[ Reference ; path ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-audio-video.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-audio-video.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert Calculated Result",
@@ -3827,7 +3999,9 @@
     "hrSignature": "[ Select ; Target: Table::Field| ; calc ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-calculated-result.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-calculated-result.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert Current Date",
@@ -3857,7 +4031,9 @@
     "hrSignature": "[ Select ; Target: Table::Field| ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-current-date.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-current-date.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert Current Time",
@@ -3887,7 +4063,9 @@
     "hrSignature": "[ Select ; Target: Table::Field| ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-current-time.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-current-time.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert Current User Name",
@@ -3917,7 +4095,9 @@
     "hrSignature": "[ Select ; Target: Table::Field| ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-current-user-name.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-current-user-name.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert Embedding",
@@ -3972,7 +4152,9 @@
     "hrSignature": "[ Account Name: calc ; Embedding Model: calc ; Input: calc ; Target: Table::Field| ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "21.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert Embedding in Found Set",
@@ -4050,7 +4232,9 @@
     "hrSignature": "[ Account Name: calc ; Embedding Model: calc ; Source Field: Table::Field ; Target Field: Table::Field ; Replace target contents ; Continue on error ; Show summary ; Parameters: calc ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "21.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert File",
@@ -4111,7 +4295,9 @@
     "hrSignature": "Insert File [ <path> ; <Reference ;> Target: Table::Field|$var ; Dialog: asFile=<True|False>, enable=<True|False>, Title=<calc>, Storage=( type=<token> ), Compress=( type=<token> ), FilterList=() ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-file.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-file.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert from Device",
@@ -4397,7 +4583,9 @@
     "hrSignature": "Insert from Device [ <Table::Field|$var> ; Type: <Camera|Video Camera|Microphone|Photo Library|Music Library|Barcode|Signature> ; <options, joined with \"; \": Camera: <Back|Front>; Resolution: <Full|Large|Medium|Small>; Flash|Flashlight: <Auto|On|Off>; Max duration: <calc>; Start immediately | Scan from: <Table::Field> | Title: <calc>; Message: <calc>; Prompt: <calc>; Presentation: <Full Screen|Overlay|Embedded>> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-from-device.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-from-device.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert from Index",
@@ -4427,7 +4615,9 @@
     "hrSignature": "[ Select ; Table::Field ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-from-index.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-from-index.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert from Last Visited",
@@ -4457,7 +4647,9 @@
     "hrSignature": "[ Select ; Table::Field ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-from-last-visited.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-from-last-visited.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert from URL",
@@ -4534,7 +4726,9 @@
     "hrSignature": "[ Select ; With dialog: On|Off ; Target: Table::Field| ; calc_url ; Verify SSL Certificates ; cURL options: calc ; Do not automatically encode URL ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-from-url.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-from-url.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert PDF",
@@ -4569,7 +4763,9 @@
     "hrSignature": "Insert PDF [ <Reference ;> \"$path\" ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-pdf.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-pdf.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert Picture",
@@ -4604,7 +4800,9 @@
     "hrSignature": "Insert Picture [ <Reference ;> \"$path\" ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-picture.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-picture.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert Text",
@@ -4641,7 +4839,9 @@
     "hrSignature": "Insert Text [ <Select ;> Target: <target> ; \"<text>\" ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-text.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-text.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Install Menu Set",
@@ -4673,7 +4873,9 @@
     "hrSignature": "[ \"<menu set>\" ; Use as file default: On/Off ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/install-menu-set.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/install-menu-set.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Install OnTimer Script",
@@ -4699,7 +4901,9 @@
     "hrSignature": "[ <script> ; Interval: <seconds> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/install-ontimer-script.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/install-ontimer-script.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Install Plug-In File",
@@ -4718,7 +4922,9 @@
     "hrSignature": "[ <container field> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/install-plug-in-file.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/install-plug-in-file.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Loop",
@@ -4764,7 +4970,9 @@
       ]
     },
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/loop.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/loop.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Modify Last Find",
@@ -4776,7 +4984,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/modify-last-find.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/modify-last-find.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
     {
     "name": "Move/Resize Window",
@@ -4856,7 +5066,9 @@
     "hrSignature": "[ Current Window | Name: <name> [ ; Current file ] ; Height: <h> ; Width: <w> ; Top: <t> ; Left: <l> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/move-resize-window.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/move-resize-window.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "New File",
@@ -4868,7 +5080,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/new-file.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/new-file.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "New Record/Request",
@@ -4880,7 +5094,9 @@
     "hrSignature": "New Record/Request",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/new-record-request.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/new-record-request.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
     {
     "name": "New Window",
@@ -5083,7 +5299,9 @@
     "hrSignature": "[ Style: Document ; Name: \"name\" ; Layout: <unknown> ; Controls: Close, Resize ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/new-window.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/new-window.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Omit Multiple Records",
@@ -5115,7 +5333,9 @@
     "hrSignature": "[ With dialog: <On/Off> ; <count> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/omit-multiple-records.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/omit-multiple-records.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Omit Record",
@@ -5127,7 +5347,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/omit-record.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/omit-record.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Data File",
@@ -5153,7 +5375,9 @@
     "hrSignature": "[ <path> ; Target: <field or variable> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-data-file.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-data-file.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Edit Saved Finds",
@@ -5165,7 +5389,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-edit-saved-finds.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-edit-saved-finds.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Favorites",
@@ -5177,7 +5403,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open File",
@@ -5213,7 +5441,9 @@
       "platform": "Not supported on WebDirect, FileMaker Server, Claris Cloud, Data API, or CWP."
     },
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-file.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-file.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open File Options",
@@ -5225,7 +5455,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-file-options.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-file-options.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Find/Replace",
@@ -5237,7 +5469,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-find-replace.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-find-replace.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Help",
@@ -5249,7 +5483,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-help.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-help.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Hosts",
@@ -5261,7 +5497,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-hosts.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-hosts.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Manage Containers",
@@ -5273,7 +5511,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-manage-containers.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-manage-containers.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Manage Data Sources",
@@ -5285,7 +5525,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-manage-data-sources.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-manage-data-sources.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Manage Database",
@@ -5297,7 +5539,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-manage-database.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-manage-database.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Manage Layouts",
@@ -5309,7 +5553,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-manage-layouts.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-manage-layouts.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Manage Themes",
@@ -5321,7 +5567,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-manage-themes.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-manage-themes.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Manage Value Lists",
@@ -5333,7 +5581,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-manage-value-lists.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-manage-value-lists.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Record/Request",
@@ -5345,7 +5595,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-record-request.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-record-request.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Script Workspace",
@@ -5357,7 +5609,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-script-workspace.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-script-workspace.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Settings",
@@ -5369,7 +5623,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-preferences.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-preferences.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Sharing",
@@ -5381,7 +5637,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-sharing.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-sharing.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Transaction",
@@ -5436,7 +5694,9 @@
       ]
     },
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Upload to Host",
@@ -5448,7 +5708,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/upload-to-server.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/upload-to-server.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open URL",
@@ -5477,7 +5739,9 @@
         "xmlAttr": "state",
         "flagStyle": true,
         "required": false,
-        "defaultValue": "False"
+        "defaultValue": "False",
+        "fmMin": "21.0",
+        "fmMinSource": "measured"
       },
       {
         "xmlElement": "Calculation",
@@ -5489,7 +5753,9 @@
     "hrSignature": "[ With dialog: <On/Off> ; In external browser ; <url> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-url.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-url.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Paste",
@@ -5532,7 +5798,9 @@
     "hrSignature": "[ <Select> ; <No style> ; <Table::Field> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/paste.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/paste.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Pause/Resume Script",
@@ -5574,7 +5842,9 @@
     "hrSignature": "[ Indefinitely | Duration (seconds): <n> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/pause-resume-script.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/pause-resume-script.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Perform AppleScript",
@@ -5630,7 +5900,9 @@
     "hrSignature": "[ <applescript or calculation> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-applescript-os-x.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-applescript-os-x.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Perform Find",
@@ -5658,7 +5930,9 @@
     "hrSignature": "[ Restore ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-find.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-find.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Perform Find by Natural Language",
@@ -5759,7 +6033,9 @@
     "hrSignature": "[ Account Name: <name> ; Model: <model> ; Prompt: <prompt> ; Get: <Found Set | Found Set as JSON | Find Request as JSON> ; Parameters: <params> ; Response Target: <field or variable> ; Prompt Template Name: <name> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "22.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Perform Find/Replace",
@@ -5814,7 +6090,9 @@
     "hrSignature": "[ With dialog: <On/Off> ; <find text> ; <replace text> ; <Find Next | Replace and Find | Replace | Replace All> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-find-replace.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-find-replace.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Perform JavaScript in Web Viewer",
@@ -5848,7 +6126,9 @@
     "hrSignature": "[ Object Name: <name> ; Function Name: <function> ; Parameters: <p1>, <p2>, ... ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-javascript-in-web-viewer.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-javascript-in-web-viewer.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Perform Quick Find",
@@ -5867,7 +6147,9 @@
     "hrSignature": "[ <search text> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-quick-find.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-quick-find.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Perform RAG Action",
@@ -6039,7 +6321,9 @@
     "hrSignature": "[ RAG Account Name: <name> ; Space ID: <id> ; Action: <Add Data | Send Prompt | Remove Data> ; <action companions> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "22.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Perform Script",
@@ -6069,7 +6353,9 @@
     "hrSignature": "[ \"ScriptName\" [from file: \"FileName\"] ; Parameter: value ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-script.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-script.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Perform Script on Server",
@@ -6114,7 +6400,9 @@
     "hrSignature": "[ <script> ; Specified: <From list | By name> ; Parameter: <param> ; Wait for completion: <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-script-on-server.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-script-on-server.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Perform Script on Server with Callback",
@@ -6175,7 +6463,9 @@
     "hrSignature": "[ Specified: <From list | By name> ; <script> ; Parameter: <param> ; State: <Continue | Halt | Exit | Resume | Pause> ; Callback script: Script=<callback script>, Parameter=<param> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-script-on-server-callback.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-script-on-server-callback.html",
+    "fmMin": "20.1",
+    "fmMinSource": "measured"
   },
   {
     "name": "Perform Semantic Find",
@@ -6325,7 +6615,9 @@
     "hrSignature": "[ Query by: <Natural language | Vector data | Image> ; Account Name: <name> ; Embedding Model: <model> ; Text: <text> ; Record set: <All records | Current found set> ; Target field: <field> ; Return count: <n> ; Cosine similarity condition: <condition> ; Cosine similarity value: <value> ; Save result: <field or variable> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "21.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Perform SQL Query by Natural Language",
@@ -6514,7 +6806,9 @@
     "hrSignature": "[ Account Name: <calc> ; Model: <calc> ; Prompt: <calc> ; Options specified: <From list | By JSON data> ; <By List: Action: <action> ; Data Tables: From list ; Tables...> <By JSON data: <json options>> ; <Stream> ; Prompt Template Name: <calc> ; Parameters: <calc> ; Response Target: <Table::Field | $var> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "22.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Print",
@@ -6565,7 +6859,9 @@
     "hrSignature": "[ Restore: <printer name> ; With dialog: <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/print.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/print.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Print Setup",
@@ -6613,7 +6909,9 @@
     "hrSignature": "[ Restore ; With dialog: <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/print-setup.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/print-setup.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Re-Login",
@@ -6649,7 +6947,9 @@
     "hrSignature": "[ Account Name: <value> ; Password: <value> ; With dialog: <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/re-login.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/re-login.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Read from Data File",
@@ -6710,7 +7010,9 @@
     "hrSignature": "[ File ID: <value> ; Amount (bytes): <value> ; Target: <field/variable> ; Read as: <UTF-16/UTF-8/Bytes> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/read-from-data-file.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/read-from-data-file.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Recover File",
@@ -6739,7 +7041,9 @@
     "hrSignature": "[ With dialog: <On/Off> ; <path> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/recover-file.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/recover-file.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Refresh Object",
@@ -6766,7 +7070,9 @@
     "hrSignature": "[ Object Name: <value> ; Repetition: <value> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/refresh-object.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/refresh-object.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Refresh Portal",
@@ -6786,7 +7092,9 @@
     "hrSignature": "[ Object Name: <value> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/refresh-portal.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/refresh-portal.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Refresh Window",
@@ -6817,7 +7125,9 @@
     "hrSignature": "[ Flush cached join results ; Flush cached external data ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/refresh-window.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/refresh-window.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Relookup Field Contents",
@@ -6845,7 +7155,9 @@
     "hrSignature": "[ With dialog: <On/Off> ; <Table::Field> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/relookup-field-contents.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/relookup-field-contents.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Rename File",
@@ -6873,7 +7185,9 @@
     "hrSignature": "[ Source file: <path> ; New name: <value> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/rename-file.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/rename-file.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Replace Field Contents",
@@ -6950,7 +7264,9 @@
     "hrSignature": "[ With dialog: <On/Off> ; <Table::Field> ; <calculation | Current contents | Serial numbers> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/replace-field-contents.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/replace-field-contents.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Reset Account Password",
@@ -6986,7 +7302,9 @@
     "hrSignature": "[ Account Name: <value> ; Password: <value> ; Expire password ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/reset-account-password.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/reset-account-password.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Revert Record/Request",
@@ -7012,7 +7330,9 @@
     "hrSignature": "[ With dialog: <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/revert-record-request.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/revert-record-request.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Revert Transaction",
@@ -7064,7 +7384,9 @@
       ]
     },
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/revert-transaction.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/revert-transaction.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Save a Copy as",
@@ -7150,7 +7472,9 @@
     "hrSignature": "[ <path> ; <copy type> ; <Automatically open> ; <Create email> ; Create folders: <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/save-a-copy-as.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/save-a-copy-as.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Save a Copy as Add-on Package",
@@ -7182,7 +7506,9 @@
     "hrSignature": "[ Window name: <calc> ; Replace UUIDs: <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/save-a-copy-as-add-on-package.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/save-a-copy-as-add-on-package.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Save a Copy as XML",
@@ -7200,7 +7526,9 @@
         "required": false,
         "defaultValue": "False",
         "hrSlot": 2,
-        "note": "FM renders this bare (flag) when On, nothing when Off (live copy-back: state=True -> 'Include details for analysis tools'). flagStyle."
+        "note": "FM renders this bare (flag) when On, nothing when Off (live copy-back: state=True -> 'Include details for analysis tools'). flagStyle.",
+        "fmMin": "21.0",
+        "fmMinSource": "measured"
       },
       {
         "xmlElement": "OutputEntireBinaryData",
@@ -7259,7 +7587,9 @@
     "hrSignature": "[ Window name: <calc> ; Destination file: <path> ; <Include details for analysis tools> ; <Save each layout object's binary data under its node> ; Specify options as JSON: <calc> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/save-a-copy-as-xml.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/save-a-copy-as-xml.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Save Records as Excel",
@@ -7427,7 +7757,9 @@
     "hrSignature": "[ <Restore> ; With dialog: <On/Off> ; <path> ; <Automatically open> ; <Create email> ; <SaveType> ; Create folders: <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/save-records-as-excel.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/save-records-as-excel.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Save Records as JSONL",
@@ -7570,7 +7902,9 @@
     "hrSignature": "[ Format for fine-tuning: <On/Off> ; Table: “<name>” ; System Prompt: <calc> ; User Prompt: <calc> ; Assistant Prompt: <calc> ; <path> ; <Automatically open> ; <Create email> ; Create folders: <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/save-records-as-jsonl.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/save-records-as-jsonl.html",
+    "fmMin": "22.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Save Records as PDF",
@@ -7771,7 +8105,9 @@
     "hrSignature": "[ <Restore> ; Save to: <File/Target> ; <Append> ; <path> ; Create folders: <On/Off> ; With dialog: <On/Off> ; <Automatically open> ; <Create email> ; Target: <field or $variable> ; <Records being browsed/Current record/Blank record, …> ; Saved label: <calc> ; Records: Document=( … ), Security=( … ), View=( … ) ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/save-records-as-pdf.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/save-records-as-pdf.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Save Records as Snapshot Link",
@@ -7834,7 +8170,9 @@
     "hrSignature": "[ <path> ; <Create email> ; <SaveType> ; Create folders: <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/save-records-as-snapshot-link.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/save-records-as-snapshot-link.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Scroll Window",
@@ -7862,7 +8200,9 @@
     "hrSignature": "[ <Home/End/Page Up/Page Down/To Selection> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/scroll-window.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/scroll-window.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Select All",
@@ -7874,7 +8214,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/select-all.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/select-all.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Select Dictionaries",
@@ -7886,7 +8228,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/select-dictionaries.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/select-dictionaries.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
     {
     "name": "Select Window",
@@ -7938,7 +8282,9 @@
     "hrSignature": "[ Current Window | Name: <name> [ ; Current file ] ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/select-window.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/select-window.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Send DDE Execute",
@@ -7960,7 +8306,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/send-dde-execute-windows.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/send-dde-execute-windows.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Send Event",
@@ -8014,7 +8362,9 @@
     "hrSignature": "[ <content type> ; Calculation: <calc> ; Event: <attrs> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/send-event.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/send-event.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Send Mail",
@@ -8277,7 +8627,9 @@
         "MultipleEmails=True sends one email per record in the found set; False sends one email using data from the current record.",
         "Microsoft OAuth requires additional fields beyond the Google OAuth set: OAuthPrincipalName, OAuthTenantID, OAuthClientID, OAuthClientSecret."
       ]
-    }
+    },
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set AI Call Logging",
@@ -8326,7 +8678,9 @@
     "hrSignature": "[ <On/Off> ; Filename: <calc> ; Verbose: <On/Off> ; Truncate Messages: <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "21.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set Data File Position",
@@ -8353,7 +8707,9 @@
     "hrSignature": "[ File ID: <calc> ; New position: <calc> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-data-file-position.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-data-file-position.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set Dictionary",
@@ -8384,7 +8740,9 @@
     "hrSignature": "[ Spelling Language: <language> ; User Dictionary: <path> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-dictionary.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-dictionary.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set Error Capture",
@@ -8405,7 +8763,9 @@
     "hrSignature": "[ On|Off ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-error-capture.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-error-capture.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set Error Logging",
@@ -8437,7 +8797,9 @@
     "hrSignature": "[ <On/Off> ; Custom debug info: <calc> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-error-logging.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-error-logging.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set Field",
@@ -8465,7 +8827,9 @@
     "hrSignature": "[ Table::Field ; value ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-field.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-field.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set Field By Name",
@@ -8490,7 +8854,9 @@
     "hrSignature": "[ <Target field name> ; <Calculated result> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-field-by-name.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-field-by-name.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set Layout Object Animation",
@@ -8511,7 +8877,9 @@
     "hrSignature": "[ <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-layout-object-animation.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-layout-object-animation.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set Multi-User",
@@ -8537,7 +8905,9 @@
     "hrSignature": "[ <On/On (Hidden)/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-multi-user.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-multi-user.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set Next Serial Value",
@@ -8564,7 +8934,9 @@
     "hrSignature": "[ <field> ; <Next value> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-next-serial-value.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-next-serial-value.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set Revert Transaction on Error",
@@ -8585,7 +8957,9 @@
     "hrSignature": "[ <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-revert-transaction-on-error.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-revert-transaction-on-error.html",
+    "fmMin": "21.1.1",
+    "fmMinSource": "documented"
   },
   {
     "name": "Set Selection",
@@ -8618,7 +8992,9 @@
     "hrSignature": "[ <field> ; Start Position: <calc> ; End Position: <calc> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-selection.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-selection.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set Session Identifier",
@@ -8637,7 +9013,9 @@
     "hrSignature": "[ <calc> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-session-identifier.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-session-identifier.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set Use System Formats",
@@ -8658,7 +9036,9 @@
     "hrSignature": "[ <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-use-system-formats.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-use-system-formats.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set Variable",
@@ -8691,7 +9071,9 @@
     "hrSignature": "[ $name ; Value: value ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-variable.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-variable.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set Web Viewer",
@@ -8730,7 +9112,9 @@
     "hrSignature": "[ Object Name: <calc> ; URL: <calc> | Action: <Reset/Reload/Go Forward/Go Back> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-web-viewer.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-web-viewer.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
     {
     "name": "Set Window Title",
@@ -8789,7 +9173,9 @@
     "hrSignature": "[ Current Window | Of Window: <name> [ ; Current file ] ; New Title: <title> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-window-title.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-window-title.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set Zoom Level",
@@ -8855,7 +9241,9 @@
     "hrSignature": "[ Lock: <On/Off> ; <25%/50%/75%/100%/150%/200%/300%/400%/Zoom In/Zoom Out/calc> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-zoom-level.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-zoom-level.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Show All Records",
@@ -8867,7 +9255,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/show-all-records.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/show-all-records.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Show Custom Dialog",
@@ -8990,7 +9380,9 @@
         "dataapi": "Not supported.",
         "cwp": "Not supported."
       }
-    }
+    },
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Show Omitted Only",
@@ -9002,7 +9394,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/show-omitted-only.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/show-omitted-only.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Show/Hide Menubar",
@@ -9036,7 +9430,9 @@
     "hrSignature": "[ Lock: <On/Off> ; <Show/Hide/Toggle> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/show-hide-menubar.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/show-hide-menubar.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Show/Hide Text Ruler",
@@ -9062,7 +9458,9 @@
     "hrSignature": "[ <Show/Hide/Toggle> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/show-hide-text-ruler.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/show-hide-text-ruler.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Show/Hide Toolbars",
@@ -9104,7 +9502,9 @@
     "hrSignature": "[ Include Edit Record Toolbar ; Lock ; <Show/Hide/Toggle> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/show-hide-toolbars.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/show-hide-toolbars.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Sort Records",
@@ -9153,7 +9553,9 @@
     "hrSignature": "[ Restore ; With dialog: <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/sort-records.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/sort-records.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Sort Records by Field",
@@ -9185,7 +9587,9 @@
     "hrSignature": "[ <Ascending/Descending/Associated value list> ; <field> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/sort-records-by-field.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/sort-records-by-field.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Speak",
@@ -9217,7 +9621,9 @@
     "hrSignature": "[ <text to speak> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/speak-os-x.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/speak-os-x.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Spelling Options",
@@ -9229,7 +9635,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/spelling-options.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/spelling-options.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Trigger Claris Connect Flow",
@@ -9315,7 +9723,9 @@
       "constraints": "Requires a valid Claris Connect account and a configured flow with an HTTP trigger. VerifySSLCertificates defaults to False — set to True in production for security."
     },
     "status": "auto",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/trigger-claris-connect-flow.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/trigger-claris-connect-flow.html",
+    "fmMin": "20.1",
+    "fmMinSource": "documented"
   },
   {
     "name": "Truncate Table",
@@ -9345,7 +9755,9 @@
     "hrSignature": "[ With dialog: <On/Off> ; Table: <table> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/truncate-table.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/truncate-table.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Undo/Redo",
@@ -9371,7 +9783,9 @@
     "hrSignature": "[ <Undo/Redo/Toggle> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/undo-redo.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/undo-redo.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Unsort Records",
@@ -9383,7 +9797,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/unsort-records.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/unsort-records.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "View As",
@@ -9410,7 +9826,9 @@
     "hrSignature": "[ <Cycle/View as Form/View as List/View as Table> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/view-as.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/view-as.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Write to Data File",
@@ -9462,7 +9880,9 @@
     "hrSignature": "[ File ID: <calc> ; Data source: <field/variable> ; Write as: <UTF-16/UTF-8> ; Append line feed ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/write-to-data-file.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/write-to-data-file.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Flush Web Viewer Cookies",
@@ -9474,7 +9894,9 @@
     "hrSignature": "Flush Web Viewer Cookies",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/flush-web-viewer-cookies.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/flush-web-viewer-cookies.html",
+    "fmMin": "26.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Cancel PDF",
@@ -9486,7 +9908,9 @@
     "hrSignature": "Cancel PDF",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/cancel-pdf.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/cancel-pdf.html",
+    "fmMin": "26.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Create PDF",
@@ -9565,7 +9989,9 @@
     "hrSignature": "[ Restore ; Output File: <calc> ; Document: Title=<calc>, Subject=<calc>, Author=<calc>, Keywords=<calc>, Pages=( AllPages=<True|False>, NumberFrom=<calc>, PageRange=( From=<calc>, To=<calc> ) ) ; Security: ScreenReader=<True|False>, Copying=<True|False>, Editing=<token>, Printing=<token>, OpenPassword=<calc>, EditPassword=<calc> ; View: Magnification=<token>, Layout=<token>, Show=<token> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/create-pdf.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/create-pdf.html",
+    "fmMin": "26.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Append PDF",
@@ -9624,7 +10050,9 @@
     "hrSignature": "[ From: <File|Target> ; <path>|Source: <container> ; Password: <calc> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/append-pdf.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/append-pdf.html",
+    "fmMin": "26.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open PDF",
@@ -9683,7 +10111,9 @@
     "hrSignature": "[ From: <File|Target> ; <path>|Source: <container> ; Password: <calc> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-pdf.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-pdf.html",
+    "fmMin": "26.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Close PDF",
@@ -9763,7 +10193,9 @@
     "hrSignature": "[ Save to: <File|Target> ; <path>|Target: <container> ; Filename: <calc> ; Create folders: <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/close-pdf.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/close-pdf.html",
+    "fmMin": "26.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Print PDF",
@@ -9843,7 +10275,9 @@
     "hrSignature": "[ <Restore> ; With dialog: <On/Off> ; <path> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/print-pdf.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/print-pdf.html",
+    "fmMin": "26.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert Image Caption",
@@ -9889,7 +10323,9 @@
     "hrSignature": "[ Account Name: calc ; Model: calc ; Input: calc ; Target: Table::Field| ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-image-caption.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-image-caption.html",
+    "fmMin": "26.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert Image Captions in Found Set",
@@ -9960,6 +10396,8 @@
     "hrSignature": "[ Account Name: calc ; Model: calc ; Source Field: Table::Field ; Target Field: Table::Field ; Replace target contents ; Continue on error ; Parameters: calc ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-image-captions-in-found-set.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-image-captions-in-found-set.html",
+    "fmMin": "26.0",
+    "fmMinSource": "measured"
   }
 ]
