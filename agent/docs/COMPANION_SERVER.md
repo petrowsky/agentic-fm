@@ -4,7 +4,7 @@ The companion server is a lightweight HTTP server that exposes `fmparse.sh` as a
 
 **Why this exists:** FileMaker has no built-in mechanism to execute arbitrary shell commands. The companion server fills this gap — no third-party plugin is required. As long as the server is running on the developer's machine, FileMaker can trigger XML parsing and context generation through a simple HTTP POST.
 
-**Windows gap:** The companion server approach is macOS-only at this time. `fmparse.sh` and `fm-xml-export-exploder` are Unix binaries.
+**Windows:** Supported via Git Bash (`fmparse.sh`) and `fm-xml-export-exploder.exe`. On Windows, FileMaker's `ConvertFromFileMakerPath(...; 1)` often returns `?` for Desktop/repo paths — set `repo_path_override` and `export_dir_override` in `agent/config/automation.json` (see example). Prefer ASCII `<>` over Unicode `≠` in shipped fmxmlsnippet XML so Windows clipboard pastes do not corrupt calculations.
 
 ---
 
