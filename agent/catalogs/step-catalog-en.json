@@ -1963,7 +1963,10 @@
         "hrLabel": null,
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "False"
+        "defaultValue": "False",
+        "fmMin": "22.0",
+        "fmMinSource": "measured",
+        "fmMinOnOlder": "dropped"
       }
     ],
     "hrSignature": "Else",
@@ -1992,7 +1995,10 @@
         "hrLabel": null,
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "False"
+        "defaultValue": "False",
+        "fmMin": "22.0",
+        "fmMinSource": "measured",
+        "fmMinOnOlder": "dropped"
       },
       {
         "xmlElement": "Calculation",
@@ -3780,7 +3786,10 @@
         "hrLabel": null,
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "False"
+        "defaultValue": "False",
+        "fmMin": "22.0",
+        "fmMinSource": "measured",
+        "fmMinOnOlder": "dropped"
       },
       {
         "xmlElement": "Calculation",
@@ -4478,7 +4487,9 @@
           }
         ],
         "hrSlot": 6,
-        "note": "Drawn `Flash:` for Camera / Video Camera and `Flashlight:` for Barcode (hrLabelWhen). With the front camera FileMaker draws no Flashlight token on Barcode although the step keeps the value; the converter still prints it (FM 26.0.3)."
+        "note": "Drawn `Flash:` for Camera / Video Camera and `Flashlight:` for Barcode (hrLabelWhen). With the front camera FileMaker draws no Flashlight token on Barcode although the step keeps the value; the converter still prints it (FM 26.0.3).",
+        "fmMin": "26.0",
+        "fmMinSource": "measured"
       },
       {
         "xmlElement": "MaxDuration",
@@ -4943,7 +4954,10 @@
         "enumValues": [
           "On",
           "Off"
-        ]
+        ],
+        "fmMin": "22.0",
+        "fmMinSource": "measured",
+        "fmMinOnOlder": "dropped"
       },
       {
         "xmlElement": "FlushType",
@@ -4959,7 +4973,9 @@
         ],
         "hrEnumValues": {
           "Min": "Minimum"
-        }
+        },
+        "fmMin": "20.1",
+        "fmMinSource": "measured"
       }
     ],
     "hrSignature": "Loop [ Collapsed: {Off|On} ; Flush: {Always|Minimum|Defer} ]",
@@ -5673,7 +5689,9 @@
         "xmlAttr": "state",
         "flagStyle": true,
         "required": false,
-        "defaultValue": "False"
+        "defaultValue": "False",
+        "fmMin": "21.0",
+        "fmMinSource": "measured"
       },
       {
         "xmlElement": "Restore",
@@ -5683,7 +5701,10 @@
         "xmlAttr": "state",
         "required": false,
         "defaultValue": "False",
-        "notes": "Renders no HR token, and FM will not store True: pasted True alongside the step's other three flags (which all landed True), it came back False. A dead flag. Probed with a paired Commit Transaction, since FM rejects the opener alone."
+        "notes": "Renders no HR token, and FM will not store True: pasted True alongside the step's other three flags (which all landed True), it came back False. A dead flag. Probed with a paired Commit Transaction, since FM rejects the opener alone.",
+        "fmMin": "22.0",
+        "fmMinSource": "measured",
+        "fmMinOnOlder": "dropped"
       }
     ],
     "hrSignature": "[ Skip auto-enter options ; Skip data entry validation ; Override ESS locking conflicts ]",
@@ -6431,7 +6452,9 @@
           "Exit",
           "Resume",
           "Pause"
-        ]
+        ],
+        "fmMin": "21.0",
+        "fmMinSource": "measured"
       },
       {
         "xmlElement": "Calculation",
@@ -7213,7 +7236,10 @@
         "xmlAttr": "state",
         "required": false,
         "defaultValue": "False",
-        "notes": "FM always serializes <Restore state=\"False\"> for this step and never renders it in HR (the dialog exposes no Restore control). Hidden: emits the default, never claims an HR token."
+        "notes": "FM always serializes <Restore state=\"False\"> for this step and never renders it in HR (the dialog exposes no Restore control). Hidden: emits the default, never claims an HR token.",
+        "fmMin": "22.0",
+        "fmMinSource": "measured",
+        "fmMinOnOlder": "dropped"
       },
       {
         "xmlElement": "Field",
@@ -7539,7 +7565,9 @@
         "required": false,
         "defaultValue": "False",
         "hrSlot": 3,
-        "note": "FM 26. Bare flag: FM shows the label only when state=True (live copy-back: 'Save each layout object's binary data under its node'), nothing when False. flagStyle."
+        "note": "FM 26. Bare flag: FM shows the label only when state=True (live copy-back: 'Save each layout object's binary data under its node'), nothing when False. flagStyle.",
+        "fmMin": "26.0",
+        "fmMinSource": "measured"
       },
       {
         "xmlElement": "SpecifyJSONOptions",
@@ -7550,7 +7578,9 @@
         "required": false,
         "defaultValue": "False",
         "hrSlot": 4,
-        "note": "FM 26 gate flag FM always serializes (live copy-back: <SpecifyJSONOptions state=\"...\"/>); renders NO HR token (hrHidden). Its True/False state is preserved on round-trip by P7.1 governed-visibility (derived on emit from whether the JSONOptions calc contributed an HR token — Import/Export/Sort Restore precedent), NOT by FM re-canonicalization (live FM keeps whatever state is pasted, unlike Perform SQL's Option). The <SaXML> subtree is emitted by FM regardless of this flag."
+        "note": "FM 26 gate flag FM always serializes (live copy-back: <SpecifyJSONOptions state=\"...\"/>); renders NO HR token (hrHidden). Its True/False state is preserved on round-trip by P7.1 governed-visibility (derived on emit from whether the JSONOptions calc contributed an HR token — Import/Export/Sort Restore precedent), NOT by FM re-canonicalization (live FM keeps whatever state is pasted, unlike Perform SQL's Option). The <SaXML> subtree is emitted by FM regardless of this flag.",
+        "fmMin": "26.0",
+        "fmMinSource": "measured"
       },
       {
         "xmlElement": "UniversalPathList",
@@ -7581,7 +7611,9 @@
         "omitWhenEmpty": true,
         "hrSlot": 5,
         "visibleWhen": { "param": "SpecifyJSONOptions", "values": ["True"] },
-        "note": "FM 26. The catalog-options JSON expression, nested <SaXML><JSONOptions><Calculation> (live copy-back). Rendered 'Specify options as JSON: <calc>' only when SpecifyJSONOptions is True (P7.1 governed-visibility: FM shows this token only when the JSON option is on, and derives SpecifyJSONOptions=True on paste from this calc's presence — Import/Export/Sort Restore precedent). omitWhenEmpty: an unconfigured step emits no empty subtree; FM supplies its default catalog JSONSetElement on paste."
+        "note": "FM 26. The catalog-options JSON expression, nested <SaXML><JSONOptions><Calculation> (live copy-back). Rendered 'Specify options as JSON: <calc>' only when SpecifyJSONOptions is True (P7.1 governed-visibility: FM shows this token only when the JSON option is on, and derives SpecifyJSONOptions=True on paste from this calc's presence — Import/Export/Sort Restore precedent). omitWhenEmpty: an unconfigured step emits no empty subtree; FM supplies its default catalog JSONSetElement on paste.",
+        "fmMin": "26.0",
+        "fmMinSource": "measured"
       }
     ],
     "hrSignature": "[ Window name: <calc> ; Destination file: <path> ; <Include details for analysis tools> ; <Save each layout object's binary data under its node> ; Specify options as JSON: <calc> ]",
@@ -8591,7 +8623,9 @@
         "xmlAttr": "state",
         "required": false,
         "defaultValue": "False",
-        "note": "True = Send via OAuth 2.0"
+        "note": "True = Send via OAuth 2.0",
+        "fmMin": "20.1",
+        "fmMinSource": "measured"
       },
       {
         "xmlElement": "SMTPEncryptionType",
@@ -8612,7 +8646,15 @@
         "type": "enum",
         "hrLabel": null,
         "xmlAttr": "type",
-        "required": false
+        "required": false,
+        "fmMin": "20.1",
+        "fmMinSource": "measured",
+        "fmGateWhen": {
+          "param": "SendViaOAuthAuthentication",
+          "values": [
+            "True"
+          ]
+        }
       }
     ],
     "hrSignature": "[ Send via E-mail Client/SMTP Server/OAuth 2.0 ; With dialog/No dialog: <On/Off> ; Attachment path: <path> ; To: useFoundSet=<True/False>, value=<calc> ; CC: … ; BCC: … ; Subject: <calc> ; Message: <calc> ; <SMTP/OAuth fields> ]",

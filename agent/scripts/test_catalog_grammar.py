@@ -173,6 +173,22 @@ def test_fm_min_problems_name_step_param_and_value():
     assert len(problems) == 2
 
 
+def test_fm_min_gate_keys_checked():
+    steps = [{"name": "S", "params": [
+        {"xmlElement": "Restore", "fmMin": "22.0", "fmMinSource": "measured",
+         "fmMinOnOlder": "dropped"},
+        {"xmlElement": "Via", "fmMin": "20.1", "fmMinSource": "measured"},
+        {"xmlElement": "Provider", "fmGateWhen": {"param": "Via", "values": ["True"]}},
+        {"xmlElement": "Bad", "fmMinOnOlder": "kept"},
+        {"xmlElement": "Lost", "fmGateWhen": {"param": "Nope", "values": ["True"]}},
+    ]}]
+    problems = fm_min_problems(steps)
+    assert 'S / Bad: fmMinOnOlder must be "dropped"' in problems
+    assert "S / Bad: fmMinOnOlder without fmMin" in problems
+    assert "S / Lost: fmGateWhen param names no single sibling param" in problems
+    assert len(problems) == 3
+
+
 def test_shipped_catalogs_version_data_well_formed():
     with open(CATALOG, encoding="utf-8") as fh:
         assert fm_min_problems(json.load(fh)) == []
@@ -211,6 +227,7 @@ if __name__ == "__main__":
     test_element_alias_reads_both_spellings()
     test_fm_min_values_read()
     test_fm_min_problems_name_step_param_and_value()
+    test_fm_min_gate_keys_checked()
     test_shipped_catalogs_version_data_well_formed()
     test_fm_min_reader_tolerates_malformed_data()
     print(f"all catalog_grammar tests passed ({len(KNOWN_PARAM_TYPES)} known types)")

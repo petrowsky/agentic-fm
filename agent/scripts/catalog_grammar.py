@@ -453,7 +453,8 @@ def fm_min_problems(steps: list[dict[str, Any]]) -> list[str]:
     """Every malformed version datum in a raw step catalog, one line each.
 
     `fmMinValues` belongs on a param, holds one object per value, and names only
-    values the param's `enumValues` holds.
+    values the param's `enumValues` holds. `fmMinOnOlder` is "dropped" and sits
+    beside an `fmMin`; `fmGateWhen` names exactly one sibling param and values.
     """
     out: list[str] = []
     for step in steps:
@@ -470,6 +471,21 @@ def fm_min_problems(steps: list[dict[str, Any]]) -> list[str]:
             problem = fm_min_problem(param)
             if problem:
                 out.append(f"{where}: {problem}")
+            if "fmMinOnOlder" in param:
+                if param["fmMinOnOlder"] != "dropped":
+                    out.append(f'{where}: fmMinOnOlder must be "dropped"')
+                if "fmMin" not in param:
+                    out.append(f"{where}: fmMinOnOlder without fmMin")
+            if "fmGateWhen" in param:
+                scope = param["fmGateWhen"]
+                keys = [p.get("wrapperElement") or p.get("xmlElement")
+                        for p in step.get("params", [])
+                        if isinstance(p, dict) and p is not param and not p.get("groupFields")]
+                if (not isinstance(scope, dict) or not scope.get("param")
+                        or not scope.get("values")):
+                    out.append(f"{where}: fmGateWhen needs a param and values")
+                elif keys.count(scope["param"]) != 1:
+                    out.append(f"{where}: fmGateWhen param names no single sibling param")
             values = param.get("fmMinValues")
             if values is None:
                 continue

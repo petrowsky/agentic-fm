@@ -332,7 +332,17 @@ One outside the bracket is a disagreement between the documentation and FileMake
 
 A step option (a parameter object) gets a measured minimum only from a read-back: its label is missing from the step FileMaker draws on every version measured below the minimum, and drawn on that version and every later one.
 Where the option is an attribute, the copied-out XML corroborates the boundary: the attribute is missing below it and present on the newest version measured.
+An option FileMaker draws on no measured version (a block's collapsed state, a hidden flag) has only the copied-out XML, and only a copy-out of a non-default value counts: paste the option set to a value other than its `defaultValue`, copy the step back out, and take the minimum as the one the bracket rules above give for the versions whose copy-out carries the attribute (dropped on every version measured below it, present on every version from the first one that has it, the newest included).
+Present at another value than the one sent is still present: FileMaker has the option and normalized the value.
+A copy-out of the option at its default value proves nothing, because FileMaker may omit a default.
 An option the read-back cannot corroborate inherits the step's minimum.
+
+**How a version check treats an option** (read only by a consumer that checks a script against a FileMaker version, never by the converters):
+
+| Key | On | Meaning |
+| --- | --- | --- |
+| `fmMinOnOlder` | a param with `fmMin` | `"dropped"`: a FileMaker older than `fmMin` discards the option silently on paste and the step behaves the same (a block's collapsed state). A version check reports it as a warning, not a refusal. Absent: a version check refuses. |
+| `fmGateWhen` | a param with version data | `{"param": "<sibling>", "values": ["…"]}`: the option counts as used only when the sibling param (named like `visibleWhen`: its `xmlElement`, or `wrapperElement` for a `namedCalc`) holds one of `values` (Send Mail's `OAuthProvider` only when `SendViaOAuthAuthentication` is `True`). Absent: the option counts whenever it is set. |
 
 **Combining.**
 A step option's minimum is the combination of the chain step → parameter → value:
