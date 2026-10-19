@@ -9607,7 +9607,8 @@
         "hrHidden": true,
         "required": false,
         "defaultValue": "True",
-        "note": "Governed companion of SortList (Import/Export Records pattern): FM writes Restore=True iff a sort order is specified (<SortList> present), and DISCARDS a stored SortList at runtime when Restore is False — so a SortList with Restore=False is a dead no-op sort. hrHidden: renders no HR token, its state is derived on emit from whether the SortList carries any sort key. Native copy-back 2026-08-28 (Sort Invoices script + dialog-authored): a specified sort is <Restore state=\"True\"/> + <SortList>."
+        "fmLineToken": "Restore",
+        "note": "Governed companion of SortList (Import/Export Records pattern): FM writes Restore=True iff a sort order is specified (<SortList> present), and DISCARDS a stored SortList at runtime when Restore is False — so a SortList with Restore=False is a dead no-op sort. hrHidden: renders no HR token, its state is derived on emit from whether the SortList carries any sort key. Native copy-back 2026-08-28 (Sort Invoices script + dialog-authored): a specified sort is <Restore state=\"True\"/> + <SortList>. FileMaker draws it as the bare token `Restore` (`Sort Records [ Restore ; With dialog: Off ]`, FM 26.0.3): fmLineToken, read back as a no-op when a sort order is given."
       },
       {
         "xmlElement": "SortList",

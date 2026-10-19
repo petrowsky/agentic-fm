@@ -143,6 +143,31 @@ def test_save_records_as_jsonl_line_keeps_option_table_and_path():
             if "<UniversalPathList>" in c["xml"]:
                 assert "<UniversalPathList>$path</UniversalPathList>" in xml, line
 
+
+# A bare flag written in the labeled boolean spelling every other option of the
+# step uses (``Append: On``): On sets the flag, Off leaves it clear, and neither,
+# nor any other value after the flag's label, is ever read as the file path.
+# Before, the unlabeled path took the token positionally and FileMaker drew the
+# path ``“ On”`` (FileMaker Pro 26.0.3).
+def test_labeled_flag_spelling_sets_the_flag_never_the_path():
+    xml = _emit("Save Records as PDF [ Append: On ; With dialog: Off ]")
+    assert _state(xml, "Option") == "True", xml
+    assert "<UniversalPathList>" not in xml, xml
+    xml = _emit("Export Records [ With dialog: Off ; “$p” ; Automatically open: On ; Create email: Off ]")
+    assert _state(xml, "AutoOpen") == "True" and _state(xml, "CreateEmail") == "False", xml
+    assert "<UniversalPathList>$p</UniversalPathList>" in xml, xml
+    xml = _emit("Export Records [ With dialog: Off ; Automatically open: Yes ]")
+    assert "<UniversalPathList>" not in xml, xml
+
+
+# Sort Records' Restore as FileMaker draws it (``fmLineToken``) next to a sort
+# order is a no-op; the sort and the derived Restore are unchanged.
+def test_sort_records_filemakers_restore_token_is_a_no_op():
+    entry = _CATALOG["Sort Records"]
+    (pl,) = parse_hr("Sort Records [ Restore ; With dialog: Off ; Sort: Invoices::Date=Ascending ]")
+    (bare,) = parse_hr("Sort Records [ With dialog: Off ; Sort: Invoices::Date=Ascending ]")
+    assert match_param_values(entry, pl.params) == match_param_values(entry, bare.params)
+
 if __name__ == "__main__":
     failed = 0
     for name, fn in sorted(globals().items()):

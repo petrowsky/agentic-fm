@@ -663,10 +663,23 @@ function matchParamValues(entry: GrammarEntry, hrParams: string[]): string[] {
   // present-but-empty slot for a revealed companion, and that empty slot is
   // still evidence of which gate value is active (see the P7.2 derive below).
   const gotToken: boolean[] = new Array(entry.params.length).fill(false);
+  // Tokens pass 1 recognised as belonging to a param that did not consume them
+  // (a flag written `Label: <not On/Off>`, a hidden param's FileMaker-drawn
+  // `fmLineToken`). Never handed to a positional param: taken positionally, a
+  // labeled flag token became Save Records as PDF's file path (`Append: On`).
+  const reserved: boolean[] = new Array(hrParams.length).fill(false);
 
   for (let pi = 0; pi < entry.params.length; pi++) {
     const param = entry.params[pi];
-    if (param.hrHidden) { resolved[pi] = true; continue; }
+    if (param.hrHidden) {
+      resolved[pi] = true;
+      const lineToken = rawStr(param.raw, 'fmLineToken');
+      if (lineToken) {
+        for (let i = 0; i < hrParams.length; i++)
+          if (!consumed[i] && ciEquals(trim(hrParams[i]), lineToken)) reserved[i] = true;
+      }
+      continue;
+    }
     if (param.type === 'complex') { resolved[pi] = true; continue; }
     if (isDrivenDiscriminator(entry, param)) { resolved[pi] = true; continue; }
 
@@ -723,13 +736,36 @@ function matchParamValues(entry: GrammarEntry, hrParams: string[]): string[] {
     const isFlag = (param.flagStyle || param.type === 'flagElement') && !!param.hrLabel;
     if (isFlag) {
       resolved[pi] = true;
+      let claimed = false;
       for (let i = 0; i < hrParams.length; i++) {
         if (consumed[i]) continue;
         if (ciEquals(trim(hrParams[i]), param.hrLabel!)) {
           consumed[i] = true;
           values[pi] = 'True';
           gotToken[pi] = true;
+          claimed = true;
           break;
+        }
+      }
+      // The labeled boolean spelling of a bare flag (`Label: On` / `Label: Off`):
+      // On sets it, Off leaves it clear; any other value after the flag's label
+      // is reserved, never taken positionally.
+      const prefix = param.hrLabel + ':';
+      for (let i = 0; i < hrParams.length && !claimed; i++) {
+        if (consumed[i]) continue;
+        const t = trim(hrParams[i]);
+        if (!startsWithCi(t, prefix)) continue;
+        const v = trim(t.slice(prefix.length));
+        if (ciEquals(v, 'On')) {
+          consumed[i] = true;
+          values[pi] = 'True';
+          gotToken[pi] = true;
+          claimed = true;
+        } else if (ciEquals(v, 'Off')) {
+          consumed[i] = true;
+          claimed = true;
+        } else {
+          reserved[i] = true;
         }
       }
       continue;
@@ -777,7 +813,7 @@ function matchParamValues(entry: GrammarEntry, hrParams: string[]): string[] {
       before++;
     }
     for (let i = 0; i < hrParams.length; i++) {
-      if (consumed[i]) continue;
+      if (consumed[i] || reserved[i]) continue;
       if (before > 0) {
         before--;
         continue;
@@ -813,7 +849,7 @@ function matchParamValues(entry: GrammarEntry, hrParams: string[]): string[] {
   // deficit enables the skip. Mirrors the reference converter.
   let missingSlots =
     order.filter((pi) => positionalTarget(pi)).length -
-    hrParams.filter((t, i) => !consumed[i] && trim(t) !== '').length;
+    hrParams.filter((t, i) => !consumed[i] && !reserved[i] && trim(t) !== '').length;
   const namesLaterClosedEnum = (oi: number, token: string): boolean =>
     order
       .slice(oi + 1)
@@ -827,7 +863,7 @@ function matchParamValues(entry: GrammarEntry, hrParams: string[]): string[] {
   for (let oi = 0; oi < order.length; oi++) {
     const pi = order[oi];
     if (!positionalTarget(pi)) continue;
-    while (pos < hrParams.length && consumed[pos]) pos++;
+    while (pos < hrParams.length && (consumed[pos] || reserved[pos])) pos++;
     if (pos < hrParams.length) {
       const token = trim(hrParams[pos]);
       // A closed-vocabulary enum only claims a token that names one of its own
@@ -867,7 +903,7 @@ function matchParamValues(entry: GrammarEntry, hrParams: string[]): string[] {
     };
     const parts: string[] = [];
     for (let i = 0; i < hrParams.length; i++) {
-      if (consumed[i]) continue;
+      if (consumed[i] || reserved[i]) continue;
       const tok = trim(hrParams[i]);
       if (!tok) continue;
       if (cap > 0 && parts.length >= cap) break;
@@ -933,6 +969,25 @@ function matchParamValues(entry: GrammarEntry, hrParams: string[]): string[] {
       }
       break;
     }
+  }
+
+  // fmLineToken: FileMaker draws a derived hidden boolean as a bare token when it
+  // is on (Sort Records `[ Restore ; With dialog: Off ]`). Its state is derived
+  // on emit from whether a sibling it gates has a value (P7.1), so the token adds
+  // nothing: consume it when that derived state is on; otherwise it stays
+  // unconsumed. Mirrors the reference converter.
+  for (const param of entry.params) {
+    const lineToken = rawStr(param.raw, 'fmLineToken');
+    if (!lineToken || !param.hrHidden || param.type !== 'boolean') continue;
+    const key = paramKey(param);
+    const derivedOn = entry.params.some(
+      (q, qi) =>
+        !!q.visibleWhen && q.visibleWhen.param === key && q.visibleWhen.values.length > 0 &&
+        q.visibleWhen.values[0] === 'True' && trim(values[qi]) !== '',
+    );
+    if (!derivedOn) continue;
+    for (let i = 0; i < hrParams.length; i++)
+      if (!consumed[i] && reserved[i] && ciEquals(trim(hrParams[i]), lineToken)) consumed[i] = true;
   }
 
   return values;

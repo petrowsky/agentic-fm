@@ -786,10 +786,20 @@ def match_param_values(entry: CatalogEntry, hr_params: list[str]) -> list[str]:
     # Which params claimed an HR token, by label or by position -- distinct from
     # "has a non-empty value": an empty slot is still evidence for the P7.2 derive.
     got_token = [False] * len(entry.params)
+    # Tokens pass 1 recognised as belonging to a param that did not consume them
+    # (a flag written ``Label: <not On/Off>``, a hidden param's FileMaker-drawn
+    # ``fmLineToken``). Never handed to a positional param: taken positionally, a
+    # labeled flag token became Save Records as PDF's file path (``Append: On``).
+    reserved = [False] * len(hr_params)
 
     for pi, param in enumerate(entry.params):
         if param.hr_hidden:
             resolved[pi] = True
+            line_token = _raw_str(param.raw, "fmLineToken")
+            if line_token:
+                for i in range(len(hr_params)):
+                    if not consumed[i] and _ci_equals(_trim(hr_params[i]), line_token):
+                        reserved[i] = True
             continue
         if param.type == "complex":
             resolved[pi] = True
@@ -854,6 +864,7 @@ def match_param_values(entry: CatalogEntry, hr_params: list[str]) -> list[str]:
         is_flag = (param.flag_style or param.type == "flagElement") and bool(param.hr_label)
         if is_flag:
             resolved[pi] = True
+            claimed = False
             for i in range(len(hr_params)):
                 if consumed[i]:
                     continue
@@ -861,7 +872,31 @@ def match_param_values(entry: CatalogEntry, hr_params: list[str]) -> list[str]:
                     consumed[i] = True
                     values[pi] = "True"
                     got_token[pi] = True
+                    claimed = True
                     break
+            # The labeled boolean spelling of a bare flag (``Label: On`` /
+            # ``Label: Off``): On sets it, Off leaves it clear; any other value
+            # after the flag's label is reserved, never taken positionally.
+            prefix = param.hr_label + ":"
+            for i in range(len(hr_params)):
+                if claimed:
+                    break
+                if consumed[i]:
+                    continue
+                t = _trim(hr_params[i])
+                if not _starts_with_ci(t, prefix):
+                    continue
+                v = _trim(t[len(prefix) :])
+                if _ci_equals(v, "On"):
+                    consumed[i] = True
+                    values[pi] = "True"
+                    got_token[pi] = True
+                    claimed = True
+                elif _ci_equals(v, "Off"):
+                    consumed[i] = True
+                    claimed = True
+                else:
+                    reserved[i] = True
             continue
 
         if param.hr_label:
@@ -907,7 +942,7 @@ def match_param_values(entry: CatalogEntry, hr_params: list[str]) -> list[str]:
                 continue
             before += 1
         for i in range(len(hr_params)):
-            if consumed[i]:
+            if consumed[i] or reserved[i]:
                 continue
             if before > 0:
                 before -= 1
@@ -939,7 +974,7 @@ def match_param_values(entry: CatalogEntry, hr_params: list[str]) -> list[str]:
     # Copy as with no path: ``[ copy of current file ; Create folders: On ]``).
     # Only a deficit enables the skip. Mirrors the reference converter.
     missing_slots = sum(1 for pi in order if positional_target(pi)) - sum(
-        1 for i in range(len(hr_params)) if not consumed[i] and _trim(hr_params[i])
+        1 for i in range(len(hr_params)) if not consumed[i] and not reserved[i] and _trim(hr_params[i])
     )
 
     def names_later_closed_enum(oi: int, token: str) -> bool:
@@ -954,7 +989,7 @@ def match_param_values(entry: CatalogEntry, hr_params: list[str]) -> list[str]:
     for oi, pi in enumerate(order):
         if not positional_target(pi):
             continue
-        while pos < len(hr_params) and consumed[pos]:
+        while pos < len(hr_params) and (consumed[pos] or reserved[pos]):
             pos += 1
         if pos < len(hr_params):
             token = _trim(hr_params[pos])
@@ -1003,7 +1038,7 @@ def match_param_values(entry: CatalogEntry, hr_params: list[str]) -> list[str]:
 
         parts: list[str] = []
         for i in range(len(hr_params)):
-            if consumed[i]:
+            if consumed[i] or reserved[i]:
                 continue
             tok = _trim(hr_params[i])
             if not tok:
@@ -1074,6 +1109,26 @@ def match_param_values(entry: CatalogEntry, hr_params: list[str]) -> list[str]:
                     and _raw_str(f, "defaultValue")
                 )
             break
+
+    # fmLineToken: FileMaker draws a derived hidden boolean as a bare token when
+    # it is on (Sort Records ``[ Restore ; With dialog: Off ]``). Its state is
+    # derived on emit from whether a sibling it gates has a value (P7.1), so the
+    # token adds nothing: consume it when that derived state is on; otherwise it
+    # stays unconsumed. Mirrors the reference converter.
+    for pi, param in enumerate(entry.params):
+        line_token = _raw_str(param.raw, "fmLineToken")
+        if not line_token or not param.hr_hidden or param.type != "boolean":
+            continue
+        key = param_key(param)
+        derived_on = any(
+            q.visible_when is not None and q.visible_when.param == key and q.visible_when.values
+            and q.visible_when.values[0] == "True" and _trim(values[qi])
+            for qi, q in enumerate(entry.params)
+        )
+        if derived_on:
+            for i in range(len(hr_params)):
+                if not consumed[i] and reserved[i] and _ci_equals(_trim(hr_params[i]), line_token):
+                    consumed[i] = True
 
     return values
 
