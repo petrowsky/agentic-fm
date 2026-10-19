@@ -4885,7 +4885,11 @@
           "On",
           "Off"
         ],
-        "hrSlot": 1
+        "hrSlot": 1,
+        "fmLineHiddenWhen": [
+          { "param": "CustomMenuSet", "values": ["0"] }
+        ],
+        "note": "With [File Default] (CustomMenuSet id 0) FileMaker draws no option but keeps the state on copy-back (fmLineHiddenWhen, FM 26.0.3); the converter's own HR still prints it."
       },
       {
         "xmlElement": "CustomMenuSet",
@@ -4901,7 +4905,8 @@
           "1": "[Standard FileMaker Menus]"
         },
         "hrSlot": 0,
-        "note": "FileMaker resolves the built-in menu sets by id alone on paste (FM 26.0.3: a name-only <CustomMenuSet name=\"[Standard FileMaker Menus]\"/> becomes [File Default]; id=\"1\" stays [Standard FileMaker Menus] whatever name rides with it), so they are listed as enumValues (the id FM writes) + hrEnumValues (the name FM displays) and their names emit with the id. A custom menu set resolves by name, case-insensitively, whatever id rides with it, and a name the file does not have becomes [File Default] (FM 26.0.3, FM_Quickstart), so a custom name emits name-only. FM prints the menu set before the option."
+        "rosterKind": "CustomMenuSet",
+        "note": "FileMaker resolves the built-in menu sets by id alone on paste (FM 26.0.3: a name-only <CustomMenuSet name=\"[Standard FileMaker Menus]\"/> becomes [File Default]; id=\"1\" stays [Standard FileMaker Menus] whatever name rides with it), so they are listed as enumValues (the id FM writes) + hrEnumValues (the name FM displays) and their names emit with the id. A custom menu set resolves by name, case-insensitively, whatever id rides with it, and a name the file does not have becomes [File Default] (FM 26.0.3, FM_Quickstart), so a custom name emits name-only and is checked against the file's custom menu sets where a converter knows them (rosterKind). FM prints the menu set before the option."
       }
     ],
     "hrSignature": "[ \"<menu set>\" ; Use as file default: On/Off ]",
