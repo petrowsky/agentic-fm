@@ -62,7 +62,6 @@ CONTROL_FLOW = {
 FM26_AI_SKIP = {
     "Fine-Tune Model",
     "Generate Response from Model",
-    "Install Menu Set",
 }
 
 

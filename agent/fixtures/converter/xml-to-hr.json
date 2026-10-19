@@ -125,7 +125,7 @@
   "miscellaneous/Flush Cache to Disk.xml": "Flush Cache to Disk",
   "miscellaneous/Flush Web Viewer Cookies.xml": "Flush Web Viewer Cookies",
   "miscellaneous/Get Folder Path.xml": "Get Folder Path [ Allow Folder Creation: On ; Repetition: 1 ; Default location: Get ( DocumentsPath ) ; $result ]",
-  "miscellaneous/Install Menu Set.xml": "Install Menu Set [ Use as file default: Off ; \"[Standard FileMaker Menus]\" ]",
+  "miscellaneous/Install Menu Set.xml": "Install Menu Set [ \"[Standard FileMaker Menus]\" ; Use as file default: Off ]",
   "miscellaneous/Install Plug-In File.xml": "Install Plug-In File",
   "miscellaneous/Open URL.xml": "Open URL [ With dialog: Off ; In external browser ; \"https://example.com/\" ]",
   "miscellaneous/Perform AppleScript.xml": "Perform AppleScript [ Calculation ; \"tell application \\\"Notes\\\" to open\" ]",

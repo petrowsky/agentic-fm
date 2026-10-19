@@ -1040,7 +1040,10 @@ export function computeParamHr(entry: GrammarEntry, step: Element, param: Gramma
   } else if (ptype === 'reference') {
     const refNode = findChild(base, param.xmlElement);
     if (refNode !== null) {
-      const name = refNode.getAttribute('name') ?? '';
+      let name = refNode.getAttribute('name') ?? '';
+      // A fixed-id built-in reads by its id (FM's [File Default] is id="0" name="").
+      const refId = refNode.getAttribute('id');
+      if (refId !== null && param.hrEnumValues[refId]) name = param.hrEnumValues[refId];
       if (name) val = !label ? '"' + name + '"' : label + ': ' + name;
     }
   } else if (ptype === 'layout') {

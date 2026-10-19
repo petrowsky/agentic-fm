@@ -1582,11 +1582,24 @@ export function convertStepWithCatalog(
           `      <UniversalPathList>${escXml(emitValue)}</UniversalPathList>\n    </${param.xmlElement}>`;
       }
     } else if (param.type === 'reference') {
-      const name = unquote(hrValue);
+      // Fixed-id built-ins (enumValues = id FM writes, hrEnumValues = name FM
+      // displays) emit with their id: FM resolves some references by id alone on
+      // paste (Install Menu Set's <CustomMenuSet>). Mirrors the reference.
+      let name = unquote(hrValue);
+      let fixedId = '';
+      for (const k of Object.keys(param.hrEnumValues).sort()) {
+        const label = param.hrEnumValues[k];
+        if (label && ciEquals(label, name)) {
+          fixedId = k;
+          name = label;
+          break;
+        }
+      }
       if (name !== '' || param.required) {
         const wa = rawStr(param.raw, 'wrapperAttr');
         const extra = wa ? ' ' + wa : '';
-        piece = `    <${param.xmlElement} name="${escXml(name)}"${extra}/>`;
+        const idAttr = fixedId ? ` id="${escXml(fixedId)}"` : '';
+        piece = `    <${param.xmlElement}${idAttr} name="${escXml(name)}"${extra}/>`;
       }
     } else if (param.type === 'layout') {
       if (param.discriminator) {

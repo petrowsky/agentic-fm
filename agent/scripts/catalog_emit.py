@@ -1802,11 +1802,21 @@ def convert_step_with_catalog(
                     + ">"
                 )
         elif param.type == "reference":
+            # Fixed-id built-ins (enumValues = id FM writes, hrEnumValues = name FM
+            # displays) emit with their id: FM resolves some references by id alone
+            # on paste (Install Menu Set's <CustomMenuSet>). Mirrors the reference.
             name = _unquote(hr_value)
+            fixed_id = ""
+            for k in sorted(param.hr_enum_values):
+                label = param.hr_enum_values[k]
+                if label and _ci_equals(label, name):
+                    fixed_id, name = k, label
+                    break
             if name != "" or param.required:
                 wa = _raw_str(param.raw, "wrapperAttr")
                 extra = " " + wa if wa else ""
-                piece = "    <" + param.xml_element + ' name="' + esc_xml(name) + '"' + extra + "/>"
+                id_attr = ' id="' + esc_xml(fixed_id) + '"' if fixed_id else ""
+                piece = "    <" + param.xml_element + id_attr + ' name="' + esc_xml(name) + '"' + extra + "/>"
         elif param.type == "layout":
             if param.discriminator:
                 if pi in layout_piece:

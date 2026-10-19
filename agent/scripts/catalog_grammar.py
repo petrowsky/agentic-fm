@@ -1436,6 +1436,10 @@ def compute_param_hr(entry: CatalogEntry, step: ET.Element, param: StepParam) ->
         ref_node = base.find(param.xml_element)
         if ref_node is not None:
             name = ref_node.get("name", "")
+            # A fixed-id built-in reads by its id (FM's [File Default] is id="0" name="").
+            ref_id = ref_node.get("id")
+            if ref_id is not None and param.hr_enum_values.get(ref_id):
+                name = param.hr_enum_values[ref_id]
             if name:
                 val = ('"' + name + '"') if not label else (label + ": " + name)
     elif ptype == "layout":

@@ -504,8 +504,8 @@
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"181\" name=\"Get Folder Path\">\n    <AllowFolderCreation state=\"True\"/>\n    <Repetition>\n      <Calculation><![CDATA[1]]></Calculation>\n    </Repetition>\n    <DialogTitle>\n      <Calculation><![CDATA[]]></Calculation>\n    </DialogTitle>\n    <DefaultLocation>\n      <Calculation><![CDATA[Get ( DocumentsPath )]]></Calculation>\n    </DefaultLocation>\n    <Name>$result</Name>\n  </Step>\n</fmxmlsnippet>"
   },
   "miscellaneous/Install Menu Set.xml": {
-    "hr": "Install Menu Set [ Use as file default: Off ; \"[Standard FileMaker Menus]\" ]",
-    "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"142\" name=\"Install Menu Set\">\n    <UseAsFileDefault state=\"False\"/>\n    <CustomMenuSet name=\"[Standard FileMaker Menus]\"/>\n  </Step>\n</fmxmlsnippet>"
+    "hr": "Install Menu Set [ \"[Standard FileMaker Menus]\" ; Use as file default: Off ]",
+    "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"142\" name=\"Install Menu Set\">\n    <UseAsFileDefault state=\"False\"/>\n    <CustomMenuSet id=\"1\" name=\"[Standard FileMaker Menus]\"/>\n  </Step>\n</fmxmlsnippet>"
   },
   "miscellaneous/Install Plug-In File.xml": {
     "hr": "Install Plug-In File",
