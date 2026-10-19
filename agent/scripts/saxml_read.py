@@ -215,8 +215,8 @@ def _repetition_suffix(ref_el: ET.Element, allow_calc: bool = True) -> str:
     if allow_calc:
         return "[" + text + hr_sep(text, "]")
     raise UnsupportedSaXML(
-        "calculated repetition %r on %s %r has no fmxmlsnippet form"
-        % (text, ref_el.tag, ref_el.get("name") or ref_el.get("value") or "")
+        f"calculated repetition {text!r} on {ref_el.tag} "
+        f"{ref_el.get('name') or ref_el.get('value') or ''!r} has no fmxmlsnippet form"
     )
 
 
@@ -2049,7 +2049,7 @@ def read_saxml_step(
     resolver = _seed_resolver(step_el)
     dec = _DECODERS.get(entry.name)
     if dec is not None:
-        return disabled, dec(entry, step_el), resolver
+        return disabled, _keep_unread_flag_defaults(entry, dec(entry, step_el)), resolver
     sparams = _params(step_el)
     consumed = [False] * len(sparams)
     claimed: set[int] = set()
@@ -2066,4 +2066,34 @@ def read_saxml_step(
         else:
             values[pi] = _extract_simple(entry, param, sparams, consumed, claimed)
     _reject_unaddressed_calcs(entry, sparams, claimed)
-    return disabled, values, resolver
+    return disabled, _keep_unread_flag_defaults(entry, values), resolver
+
+
+def _keep_unread_flag_defaults(entry: CatalogEntry, values: list[str]) -> list[str]:
+    """Give a flag-style boolean this reader found no value for its catalog default.
+
+    In HR an absent flag-style label means off, and the emit reads an empty value
+    that way. Here an empty value means the SaXML carried nothing this reader
+    decodes for the param (``Go to Related Record``'s Restore, ``Print``'s
+    ``<Parameter type="Restore">``), which is not the same as off: keep the
+    fresh-step default the emit used to apply, as an explicit token."""
+    out = list(values)
+    # A companion a sibling discriminator reveals (Set Window Title's Current file
+    # under Current Window) takes its state from that discriminator on emit.
+    governed = {
+        name
+        for q in entry.params
+        for dv in (q.raw.get("discriminatorValues") or {}).values()
+        if isinstance(dv, dict)
+        for name in (dv.get("reveal") or [])
+    }
+    for i, param in enumerate(entry.params):
+        if i >= len(out) or out[i] != "" or not param.flag_style or param.type != "boolean":
+            continue
+        if param.xml_element in governed:
+            continue
+        if not param.default_value:
+            continue
+        on = (param.default_value == "True") != bool(param.inverted_hr)
+        out[i] = "On" if on else "Off"
+    return out

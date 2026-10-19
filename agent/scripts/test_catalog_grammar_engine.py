@@ -110,9 +110,8 @@ def test_flag_boolean_normalized_to_boolean():
 
 
 def test_flag_boolean_params_render():
-    assert _render("Paste") == (
-        "Paste [ Select: On ; No style: On ; Link if available: Off ; <Table Missing> ]"
-    )
+    # Paste's flags are also flagStyle: FileMaker draws them bare, only when on.
+    assert _render("Paste") == "Paste [ Select ; No style ; <Table Missing> ]"
 
 
 def test_governing_discriminator_reveals_companions():

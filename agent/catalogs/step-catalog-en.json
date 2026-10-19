@@ -542,11 +542,13 @@
     "params": [
       {
         "xmlElement": "SelectAll",
+        "flagStyle": true,
         "type": "boolean",
         "hrLabel": "Select",
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "True"
+        "defaultValue": "True",
+        "notes": "Flag-style: FileMaker draws \"Select\" when True and nothing when False (live, FM 26.0.3)."
       },
       {
         "xmlElement": "Field",
@@ -571,11 +573,13 @@
     "params": [
       {
         "xmlElement": "SelectAll",
+        "flagStyle": true,
         "type": "boolean",
         "hrLabel": "Select",
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "True"
+        "defaultValue": "True",
+        "notes": "Flag-style: FileMaker draws \"Select\" when True and nothing when False (live, FM 26.0.3)."
       },
       {
         "xmlElement": "Field",
@@ -1624,11 +1628,13 @@
     "params": [
       {
         "xmlElement": "SelectAll",
+        "flagStyle": true,
         "type": "boolean",
         "hrLabel": "Select",
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "True"
+        "defaultValue": "True",
+        "notes": "Flag-style: FileMaker draws \"Select\" when True and nothing when False (live, FM 26.0.3)."
       },
       {
         "xmlElement": "Field",
@@ -1729,11 +1735,13 @@
     "params": [
       {
         "xmlElement": "SelectAll",
+        "flagStyle": true,
         "type": "boolean",
         "hrLabel": "Select",
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "True"
+        "defaultValue": "True",
+        "notes": "Flag-style: FileMaker draws \"Select\" when True and nothing when False (live, FM 26.0.3)."
       },
       {
         "xmlElement": "Field",
@@ -2231,11 +2239,13 @@
     "params": [
       {
         "xmlElement": "SelectAll",
+        "flagStyle": true,
         "type": "boolean",
         "hrLabel": "Select",
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "True"
+        "defaultValue": "True",
+        "notes": "Flag-style: FileMaker draws \"Select\" when True and nothing when False (live, FM 26.0.3)."
       },
       {
         "xmlElement": "Field",
@@ -5800,27 +5810,33 @@
     "params": [
       {
         "xmlElement": "SelectAll",
+        "flagStyle": true,
         "type": "flagBoolean",
         "hrLabel": "Select",
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "False"
+        "defaultValue": "False",
+        "notes": "Flag-style: FileMaker draws \"Select\" when True and nothing when False (live, FM 26.0.3)."
       },
       {
         "xmlElement": "NoStyle",
+        "flagStyle": true,
         "type": "flagBoolean",
         "hrLabel": "No style",
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "False"
+        "defaultValue": "False",
+        "notes": "Flag-style: FileMaker draws \"No style\" when True and nothing when False (live, FM 26.0.3)."
       },
       {
         "xmlElement": "LinkAvail",
+        "flagStyle": true,
         "type": "flagBoolean",
         "hrLabel": "Link if available",
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "False"
+        "defaultValue": "False",
+        "notes": "FileMaker 26.0.3 draws no token for this in either state, so its line is lossy here; printed bare when True so the converter's line keeps it."
       },
       {
         "xmlElement": "Field",

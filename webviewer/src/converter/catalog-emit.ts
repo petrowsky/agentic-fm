@@ -505,6 +505,13 @@ function paramVisibleHr(entry: GrammarEntry, values: string[], param: GrammarPar
 
 function resolveBoolState(param: GrammarParam, hrValue: string): string {
   let state = param.defaultValue ? param.defaultValue : 'False';
+  // A flagStyle boolean's HR presence is its value: the bare label means True and
+  // its absence means False. `defaultValue` documents FileMaker's fresh-step
+  // default; letting it answer for an absent token makes a flag whose default is
+  // "True" impossible to turn off from HR (`Copy [ Invoices::Description ]` would
+  // select the field's contents). The explicit off token keeps invertedHr and the
+  // hrEnumValues map on one path.
+  if (param.flagStyle && hrValue === '') hrValue = 'Off';
   if (hrValue !== '') {
     const lower = hrValue.toLowerCase();
     let hrMeansTrue: boolean;

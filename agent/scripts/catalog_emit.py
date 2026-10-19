@@ -652,6 +652,14 @@ def _param_visible_hr(entry: CatalogEntry, values: list[str], param: StepParam) 
 
 def _resolve_bool_state(param: StepParam, hr_value: str) -> str:
     state = param.default_value if param.default_value else "False"
+    # A flagStyle boolean's HR presence is its value: the bare label means True and
+    # its absence means False. ``defaultValue`` documents FileMaker's fresh-step
+    # default; letting it answer for an absent token makes a flag whose default is
+    # "True" impossible to turn off from HR (``Copy [ Invoices::Description ]``
+    # would select the field's contents). The explicit off token keeps invertedHr
+    # and the hrEnumValues map on one path.
+    if param.flag_style and hr_value == "":
+        hr_value = "Off"
     if hr_value != "":
         lower = hr_value.lower()
         if lower in ("on", "true", "yes"):

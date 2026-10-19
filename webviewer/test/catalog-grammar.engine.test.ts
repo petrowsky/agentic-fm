@@ -93,7 +93,8 @@ describe('catalog-grammar engine (TS port parity with Python)', () => {
     const flags = entry.params.filter((p) => p.raw.type === 'flagBoolean');
     expect(flags.length).toBeGreaterThan(0);
     expect(flags.every((p) => p.type === 'boolean')).toBe(true);
-    expect(render('Paste')).toBe('Paste [ Select: On ; No style: On ; Link if available: Off ; <Table Missing> ]');
+    // Paste's flags are also flagStyle: FileMaker draws them bare, only when on.
+    expect(render('Paste')).toBe('Paste [ Select ; No style ; <Table Missing> ]');
   });
 
   it('governing discriminator reveals companions', () => {

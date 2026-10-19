@@ -200,19 +200,19 @@
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"211\" name=\"Trigger Claris Connect Flow\">\n    <NoInteract state=\"True\"/>\n    <DontEncodeURL state=\"False\"/>\n    <SelectAll state=\"True\"/>\n    <VerifySSLCertificates state=\"False\"/>\n    <Flow>&lt;unknown&gt;</Flow>\n    <CURLOptions>\n      <Calculation><![CDATA[\"--request POST --header \\\"Content-Type: application/json\\\" --data \"]]></Calculation>\n    </CURLOptions>\n    <Text>&lt;unknown&gt;</Text>\n  </Step>\n</fmxmlsnippet>"
   },
   "editing/Clear.xml": {
-    "hr": "Clear [ Select: On ]",
+    "hr": "Clear [ Select ; <Table Missing> ]",
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"49\" name=\"Clear\">\n    <SelectAll state=\"True\"/>\n    <Field table=\"\" id=\"0\" name=\"\"/>\n  </Step>\n</fmxmlsnippet>"
   },
   "editing/Copy.xml": {
-    "hr": "Copy [ Select: On ]",
+    "hr": "Copy [ Select ; <Table Missing> ]",
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"47\" name=\"Copy\">\n    <SelectAll state=\"True\"/>\n    <Field table=\"\" id=\"0\" name=\"\"/>\n  </Step>\n</fmxmlsnippet>"
   },
   "editing/Cut.xml": {
-    "hr": "Cut [ Select: On ]",
+    "hr": "Cut [ Select ; <Table Missing> ]",
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"46\" name=\"Cut\">\n    <SelectAll state=\"True\"/>\n    <Field table=\"\" id=\"0\" name=\"\"/>\n  </Step>\n</fmxmlsnippet>"
   },
   "editing/Paste.xml": {
-    "hr": "Paste [ Select: On ; No style: On ; Link if available: Off ]",
+    "hr": "Paste [ Select ; No style ; <Table Missing> ]",
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"48\" name=\"Paste\">\n    <SelectAll state=\"True\"/>\n    <NoStyle state=\"True\"/>\n    <LinkAvail state=\"False\"/>\n    <Field table=\"\" id=\"0\" name=\"\"/>\n  </Step>\n</fmxmlsnippet>"
   },
   "editing/Perform Find-Replace.xml": {
@@ -480,7 +480,7 @@
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"174\" name=\"Enable Touch Keyboard\">\n    <ShowHide value=\"Show\"/>\n  </Step>\n</fmxmlsnippet>"
   },
   "miscellaneous/Execute FileMaker Data API.xml": {
-    "hr": "Execute FileMaker Data API [ Select: On ; Target: $response ; $query ]",
+    "hr": "Execute FileMaker Data API [ Select ; Target: $response ; $query ]",
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"203\" name=\"Execute FileMaker Data API\">\n    <SelectAll state=\"True\"/>\n    <Text/>\n    <Field>$response</Field>\n    <Calculation><![CDATA[$query]]></Calculation>\n  </Step>\n</fmxmlsnippet>"
   },
   "miscellaneous/Execute SQL.xml": {
@@ -780,7 +780,7 @@
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"19\" name=\"Check Record\"/>\n</fmxmlsnippet>"
   },
   "spelling/Check Selection.xml": {
-    "hr": "Check Selection [ Select: On ]",
+    "hr": "Check Selection [ Select ; <Table Missing> ]",
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"18\" name=\"Check Selection\">\n    <SelectAll state=\"True\"/>\n    <Field table=\"\" id=\"0\" name=\"\"/>\n  </Step>\n</fmxmlsnippet>"
   },
   "spelling/Correct Word.xml": {
