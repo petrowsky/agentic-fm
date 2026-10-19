@@ -2841,6 +2841,7 @@
         "hrLabel": "Completion Field",
         "parentElement": "FineTuneLLM",
         "required": false,
+        "hrNoTableBlank": true,
         "hrSlot": 4,
         "notes": "Inside <FineTuneLLM>. Field ref only (table/id/name) in practice; DataTable source only. Uses the fieldOrVariable grammar (not the bare `field` type) so it renders WITH its label; parentElement=FineTuneLLM scopes the read to the wrapper, disambiguating it from the top-level Response Target <Field>. Live-verified against FM 26.0.2 copy-back."
       }
@@ -3016,6 +3017,7 @@
         "typeAttr": "type",
         "typeValue": "Messages",
         "required": false,
+        "hrNoTableBlank": true,
         "notes": "Inside LLMRequestWithTools with type='Messages'. Variable only.",
         "hrSlot": 7
       },
@@ -3078,6 +3080,7 @@
         "typeAttr": "type",
         "typeValue": "ToolCalls",
         "required": false,
+        "hrNoTableBlank": true,
         "notes": "Inside LLMRequestWithTools with type='ToolCalls'. Variable only.",
         "hrSlot": 5
       },
@@ -6642,6 +6645,7 @@
         "parentElement": "LLMSemanticFind/SaveResult",
         "emitEmptyDefault": true,
         "required": false,
+        "hrNoTableBlank": true,
         "note": "The <Field> inside <SaveResult> (nested in LLMSemanticFind) — dual-format: <Field table=\"\" id=\"0\" name=\"\"/> for field refs, or <Field>$var</Field> for variables. emitEmptyDefault keeps FM's empty placeholder so the unconfigured SaveResult round-trips. Variable form also emits a <Text/> at step level before the outer Target field (FM's variable-target marker)."
       }
     ],

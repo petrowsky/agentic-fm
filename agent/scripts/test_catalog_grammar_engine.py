@@ -110,7 +110,9 @@ def test_flag_boolean_normalized_to_boolean():
 
 
 def test_flag_boolean_params_render():
-    assert _render("Paste") == "Paste [ Select: On ; No style: On ; Link if available: Off ]"
+    assert _render("Paste") == (
+        "Paste [ Select: On ; No style: On ; Link if available: Off ; <Table Missing> ]"
+    )
 
 
 def test_governing_discriminator_reveals_companions():
@@ -137,12 +139,13 @@ def _render_xml(step_xml):
 
 
 def test_empty_leading_positional_keeps_its_slot():
-    # An empty bare param before a rendered positional token keeps an empty slot,
-    # so the value is not read back into the empty param's slot.
-    assert _render("Set Next Serial Value") == "Set Next Serial Value [  ; 100 ]"
+    # A bare field param before a rendered positional token keeps its slot, so the
+    # value is not read back into the field's slot. An empty <Field> fills it with
+    # FileMaker's own `<Table Missing>`.
+    assert _render("Set Next Serial Value") == "Set Next Serial Value [ <Table Missing> ; 100 ]"
     # A governed companion (revealed by a discriminator) is positional too.
     assert _render("Replace Field Contents") == (
-        'Replace Field Contents [ With dialog: Off ;  ; "value" ]'
+        'Replace Field Contents [ With dialog: Off ; <Table Missing> ; "value" ]'
     )
 
 

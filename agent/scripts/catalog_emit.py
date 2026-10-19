@@ -59,6 +59,7 @@ from calc_literal import (
 )
 from catalog_grammar import (
     FIELD_MISSING_SENTINEL,
+    TABLE_MISSING_SENTINEL,
     CatalogEntry,
     StepParam,
     _group_quote_value,
@@ -444,7 +445,10 @@ def _repetition_calc_sibling(calc: str, indent: str) -> str:
 def _resolve_field(resolver: IdResolver, ref: str) -> tuple[str, int, str]:
     """Resolve ``Table::Field``; FileMaker's ``Table::<Field Missing>`` (a table
     with no field) reads back to its stored form, id 0 and an empty name, never a
-    field literally named ``<Field Missing>``."""
+    field literally named ``<Field Missing>``, and its ``<Table Missing>`` (no
+    table, no field) to the empty reference."""
+    if _trim(ref) == TABLE_MISSING_SENTINEL:
+        return "", 0, ""
     sep = ref.find("::")
     if sep >= 0 and _trim(ref[sep + 2 :]) == FIELD_MISSING_SENTINEL:
         return _trim(ref[:sep]), 0, ""

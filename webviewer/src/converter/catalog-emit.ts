@@ -32,6 +32,7 @@ import {
 } from './calc-literal';
 import {
   FIELD_MISSING_SENTINEL,
+  TABLE_MISSING_SENTINEL,
   type GrammarEntry,
   type GrammarParam,
   paramKey,
@@ -308,12 +309,14 @@ function repetitionCalcSibling(calc: string, indent: string): string {
 /**
  * Resolve `Table::Field`; FileMaker's `Table::<Field Missing>` (a table with no
  * field) reads back to its stored form, id 0 and an empty name, never a field
- * literally named `<Field Missing>`.
+ * literally named `<Field Missing>`, and its `<Table Missing>` (no table, no
+ * field) to the empty reference.
  */
 function resolveFieldRef(
   resolver: IdResolver,
   ref: string,
 ): { table: string; fieldId: number; fieldName: string } {
+  if (trim(ref) === TABLE_MISSING_SENTINEL) return { table: '', fieldId: 0, fieldName: '' };
   const sep = ref.indexOf('::');
   if (sep >= 0 && trim(ref.slice(sep + 2)) === FIELD_MISSING_SENTINEL) {
     return { table: trim(ref.slice(0, sep)), fieldId: 0, fieldName: '' };

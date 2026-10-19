@@ -8,8 +8,8 @@
  * 26.0.3 and read back: each pair is FileMaker's stored step and the line it
  * displays. XML→HR must print that line, and the line must convert back to the
  * same step, with an empty field name rather than one called `<Field Missing>`.
- * A reference with no table and no field is the unconfigured default and still
- * prints nothing. Mirrors agent/scripts/test_field_missing_hr.py.
+ * A reference with no table and no field draws `<Table Missing>` instead
+ * (table-missing-hr.test.ts). Mirrors agent/scripts/test_field_missing_hr.py.
  */
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -76,10 +76,5 @@ describe('Table::<Field Missing>', () => {
     const xml = hrToXml(fmLine).xml;
     expect(xml).not.toContain('Field Missing');
     expect(fields(xml)).toEqual(fields(snippet(id, name, body)));
-  });
-
-  it('no table and no field prints nothing', () => {
-    expect(xmlToHr(snippet('17', 'Go to Field', '<SelectAll state="False"/><Field table="" id="0" name=""/>')))
-      .toBe('Go to Field');
   });
 });

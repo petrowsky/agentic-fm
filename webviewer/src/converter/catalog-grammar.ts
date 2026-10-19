@@ -599,6 +599,15 @@ function repetitionCalcOf(fld: Element): string {
 export const FIELD_MISSING_SENTINEL = '<Field Missing>';
 
 /**
+ * FileMaker's drawing of a field reference with no table and no field: it stores
+ * `<Field table="" id="0" name=""/>` and draws `<Table Missing>` in the slot of a
+ * single-field param (params marked `hrNoTableBlank` draw nothing). An absent
+ * `<Field>` draws no field token. The emit side reads the sentinel back to the
+ * empty reference.
+ */
+export const TABLE_MISSING_SENTINEL = '<Table Missing>';
+
+/**
  * The HR token of a stored `<Field table id name/>`, drawn the way FileMaker
  * draws it: `Table::Field`, the bare name when there is no table, and
  * `Table::<Field Missing>` when there is a table but no field. No table and no
@@ -608,6 +617,17 @@ function fieldRefHr(table: string, name: string): string {
   if (name) return !table ? name : table + '::' + name;
   if (table) return table + '::' + FIELD_MISSING_SENTINEL;
   return '';
+}
+
+/**
+ * A single-field param's stored reference, drawn as FileMaker draws it:
+ * `fieldRefHr`, plus `<Table Missing>` for no table and no field unless the
+ * catalog marks the param `hrNoTableBlank`. Field lists, find requests and group
+ * fields keep `fieldRefHr`: their unconfigured entries draw nothing.
+ */
+function fieldParamRefHr(param: GrammarParam, table: string, name: string): string {
+  if (!table && !name && !param.raw.hrNoTableBlank) return TABLE_MISSING_SENTINEL;
+  return fieldRefHr(table, name);
 }
 
 /**
@@ -991,7 +1011,7 @@ export function computeParamHr(entry: GrammarEntry, step: Element, param: Gramma
       if (text && text[0] === '$') val = text;
       else if (name) val = fieldRefHr(table, name);
       else if (text) val = text;
-      else val = fieldRefHr(table, name); // Table::<Field Missing>, or none
+      else val = fieldParamRefHr(param, table, name); // Table::<Field Missing>, <Table Missing>, or none
       val = withRepetitionSuffix(val, fieldNode);
       if (val && label) val = label + ': ' + val;
     }
@@ -1013,7 +1033,7 @@ export function computeParamHr(entry: GrammarEntry, step: Element, param: Gramma
     if (fieldNode !== null) {
       const table = fieldNode.getAttribute('table') ?? '';
       const name = fieldNode.getAttribute('name') ?? '';
-      val = withRepetitionSuffix(fieldRefHr(table, name), fieldNode);
+      val = withRepetitionSuffix(fieldParamRefHr(param, table, name), fieldNode);
       // hrLabeled: label the field where FileMaker does (inverse of bare).
       if (val && param.hrLabeled && label) val = label + ': ' + val;
     }

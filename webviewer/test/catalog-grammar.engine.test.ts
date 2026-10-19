@@ -93,7 +93,7 @@ describe('catalog-grammar engine (TS port parity with Python)', () => {
     const flags = entry.params.filter((p) => p.raw.type === 'flagBoolean');
     expect(flags.length).toBeGreaterThan(0);
     expect(flags.every((p) => p.type === 'boolean')).toBe(true);
-    expect(render('Paste')).toBe('Paste [ Select: On ; No style: On ; Link if available: Off ]');
+    expect(render('Paste')).toBe('Paste [ Select: On ; No style: On ; Link if available: Off ; <Table Missing> ]');
   });
 
   it('governing discriminator reveals companions', () => {
@@ -113,12 +113,13 @@ describe('catalog-grammar engine (TS port parity with Python)', () => {
   });
 
   it('empty leading positional keeps its slot', () => {
-    // An empty bare param before a rendered positional token keeps an empty slot,
-    // so the value is not read back into the empty param's slot.
-    expect(render('Set Next Serial Value')).toBe('Set Next Serial Value [  ; 100 ]');
+    // A bare field param before a rendered positional token keeps its slot, so
+    // the value is not read back into the field's slot. An empty <Field> fills
+    // it with FileMaker's own `<Table Missing>`.
+    expect(render('Set Next Serial Value')).toBe('Set Next Serial Value [ <Table Missing> ; 100 ]');
     // A governed companion (revealed by a discriminator) is positional too.
     expect(render('Replace Field Contents')).toBe(
-      'Replace Field Contents [ With dialog: Off ;  ; "value" ]',
+      'Replace Field Contents [ With dialog: Off ; <Table Missing> ; "value" ]',
     );
   });
 

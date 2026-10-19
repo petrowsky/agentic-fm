@@ -8,9 +8,9 @@ FileMaker stores a field parameter whose field is not chosen as
 26.0.3 and read back: each pair is FileMaker's stored step and the line it
 displays. XML -> HR must print that line, and the line must convert back to the
 same step, with an empty field name rather than one called ``<Field Missing>``.
-A reference with no table and no field is the unconfigured default and still
-prints nothing. Mirrors the webviewer ``field-missing-hr.test.ts``. Runs under
-pytest, or standalone.
+A reference with no table and no field draws ``<Table Missing>`` instead
+(``test_table_missing_hr.py``). Mirrors the webviewer ``field-missing-hr.test.ts``.
+Runs under pytest, or standalone.
 """
 
 from __future__ import annotations
@@ -64,8 +64,8 @@ CASES = [
      "<UniversalPathList>$path</UniversalPathList>"
      '<Table id="1065094" name="Invoices"/>' + _MISSING
      + "<SaveAsJSONL>" + _MISSING + "</SaveAsJSONL>",
-     "Save Records as JSONL [ Format for fine-tuning: Off ; Table: “Invoices” ; "
-     "Completion Field: Invoices::<Field Missing> ; “$path” ; Create folders: Off ]"),
+     ("Save Records as JSONL [ Format for fine-tuning: Off ; Table: “Invoices” ; "
+      "Completion Field: Invoices::<Field Missing> ; “$path” ; Create folders: Off ]")),
 ]
 
 
@@ -99,11 +99,6 @@ def test_filemakers_line_converts_back_to_an_empty_field_name():
         xml = _emit(fm_line)
         assert "Field Missing" not in xml, fm_line
         assert _fields(xml) == _fields(_snippet(sid, name, body)), fm_line
-
-
-def test_no_table_and_no_field_prints_nothing():
-    xml = _snippet("17", "Go to Field", '<SelectAll state="False"/><Field table="" id="0" name=""/>')
-    assert snippet_to_hr(xml) == ["Go to Field"]
 
 
 if __name__ == "__main__":

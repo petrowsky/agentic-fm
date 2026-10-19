@@ -728,6 +728,13 @@ def _repetition_calc_of(fld: ET.Element, parent: ET.Element | None) -> str:
 # The emit side reads the sentinel back to the empty name.
 FIELD_MISSING_SENTINEL = "<Field Missing>"
 
+# FileMaker's drawing of a field reference with no table and no field: it stores
+# <Field table="" id="0" name=""/> and draws `<Table Missing>` in the slot of a
+# single-field param (params marked hrNoTableBlank draw nothing). An absent
+# <Field> draws no field token. The emit side reads the sentinel back to the
+# empty reference.
+TABLE_MISSING_SENTINEL = "<Table Missing>"
+
 
 def _field_ref_hr(table: str, name: str) -> str:
     """The HR token of a stored ``<Field table id name/>``, drawn the way FileMaker
@@ -739,6 +746,16 @@ def _field_ref_hr(table: str, name: str) -> str:
     if table:
         return table + "::" + FIELD_MISSING_SENTINEL
     return ""
+
+
+def _field_param_ref_hr(param: StepParam, table: str, name: str) -> str:
+    """A single-field param's stored reference, drawn as FileMaker draws it:
+    ``_field_ref_hr``, plus ``<Table Missing>`` for no table and no field unless
+    the catalog marks the param ``hrNoTableBlank``. Field lists, find requests and
+    group fields keep ``_field_ref_hr``: their unconfigured entries draw nothing."""
+    if not table and not name and not param.raw.get("hrNoTableBlank"):
+        return TABLE_MISSING_SENTINEL
+    return _field_ref_hr(table, name)
 
 
 def _with_repetition_suffix(ref: str, fld: ET.Element, parent: ET.Element | None = None) -> str:
@@ -1381,7 +1398,8 @@ def compute_param_hr(entry: CatalogEntry, step: ET.Element, param: StepParam) ->
             elif text:
                 val = text
             else:
-                val = _field_ref_hr(table, name)  # Table::<Field Missing>, or none
+                # Table::<Field Missing>, <Table Missing>, or none
+                val = _field_param_ref_hr(param, table, name)
             val = _with_repetition_suffix(val, field_node, base)
             if val and label:
                 val = label + ": " + val
@@ -1406,7 +1424,9 @@ def compute_param_hr(entry: CatalogEntry, step: ET.Element, param: StepParam) ->
         if field_node is not None:
             table = field_node.get("table", "")
             name = field_node.get("name", "")
-            val = _with_repetition_suffix(_field_ref_hr(table, name), field_node, base)
+            val = _with_repetition_suffix(
+                _field_param_ref_hr(param, table, name), field_node, base
+            )
             # hr_labeled: label the field where FileMaker does (inverse of bare).
             if val and param.hr_labeled and label:
                 val = label + ": " + val
