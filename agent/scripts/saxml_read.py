@@ -1353,42 +1353,6 @@ def _dec_show_dialog(entry: CatalogEntry, step_el: ET.Element) -> list[str]:
     return v.list()
 
 
-# ── Find family (Perform Find / Constrain / Extend / Enter Find Mode) ──────────
-# Verified for the empty-query case (no inline <FindRequestSet>) — the only shape
-# in the corpus (the whole solution carries 0 inline find requests). A step WITH a
-# <FindRequestSet> fails loud: its decode can't be live-verified yet (constraint #3;
-# see plans/… P6.4 worklist — collect a script with real find criteria first).
-def _find_family(entry: CatalogEntry, step_el: ET.Element, restore_default_on: bool) -> list[str]:
-    if step_el.find(".//FindRequestSet") is not None:
-        raise UnsupportedSaXML(
-            f"{entry.name}: inline <FindRequestSet> decode unverified (no live sample)")
-    v = _Vals(entry)
-    # Explicit toggles carried as <Parameter type="Boolean"><Boolean type="hrLabel">.
-    for p in step_el.findall("ParameterValues/Parameter"):
-        b = p.find("Boolean")
-        if b is None:
-            continue
-        for param in entry.params:
-            if param.type == "boolean" and param.hr_label == b.get("type"):
-                v.set("On" if b.get("value") == "True" else "Off", xml=param.xml_element)
-                break
-    # Restore: empty-query Perform Find restores the saved find (default On); the
-    # setup steps (Enter Find Mode / Constrain / Extend) do not (Off), overriding the
-    # catalog's True default which only applies when requests are restored.
-    v.set("On" if restore_default_on else "Off", xml="Restore")
-    return v.list()
-
-
-@_decoder("Perform Find")
-def _dec_perform_find(entry: CatalogEntry, step_el: ET.Element) -> list[str]:
-    return _find_family(entry, step_el, restore_default_on=True)
-
-
-@_decoder("Constrain Found Set", "Extend Found Set", "Enter Find Mode")
-def _dec_find_setup(entry: CatalogEntry, step_el: ET.Element) -> list[str]:
-    return _find_family(entry, step_el, restore_default_on=False)
-
-
 # ── Go to Related Record (attrGroup default-fill + TO/Layout refs) ────────────
 @_decoder("Go to Related Record")
 def _dec_gtrr(entry: CatalogEntry, step_el: ET.Element) -> list[str]:
@@ -1978,7 +1942,26 @@ def _decode_find_requests(step_el: ET.Element) -> str:
     return " | ".join(rows)
 
 
-def _find_family(entry: CatalogEntry, step_el: ET.Element, restore_default_on: bool) -> list[str]:
+# FileMaker keeps the find steps' "Restore" (Specify find requests) only in the
+# step's <Options> bitmask: no <Parameter> carries it, and a step whose stored
+# request set is empty has no <FindRequestSet> either way. Measured over every
+# find-family step in several FileMaker 22.0.4 and 26.0.3 Save a Copy as XML
+# exports: each one FileMaker draws with Restore has this bit set (33554432 alone
+# for a Perform Find [ Restore ] with no request set, its clipboard XML
+# <Restore state="True"/>), and each one without it has Options 0. The bit is
+# the same number FileMaker writes as the id of the matching <Boolean>, as Enter
+# Find Mode's Pause (id 16777216) shows.
+_FIND_RESTORE_OPTION_BIT = 0x02000000
+
+
+def _options_bit(step_el: ET.Element, bit: int) -> bool:
+    try:
+        return bool(int((step_el.findtext("Options") or "0").strip()) & bit)
+    except ValueError:
+        raise UnsupportedSaXML(f"unreadable <Options> {step_el.findtext('Options')!r}")
+
+
+def _find_family(entry: CatalogEntry, step_el: ET.Element) -> list[str]:
     v = _Vals(entry)
     for p in step_el.findall("ParameterValues/Parameter"):
         b = p.find("Boolean")
@@ -1990,23 +1973,17 @@ def _find_family(entry: CatalogEntry, step_el: ET.Element, restore_default_on: b
                 break
     query = _decode_find_requests(step_el)
     v.set(query, xml="Query")
-    # Restore: an inline request set is 'restored'; else Perform Find restores the
-    # saved find (default On) while the setup steps do not (Off).
-    if query:
-        v.set("On", xml="Restore")
-    else:
-        v.set("On" if restore_default_on else "Off", xml="Restore")
+    restore = _options_bit(step_el, _FIND_RESTORE_OPTION_BIT)
+    if query and not restore:
+        # Never measured: a stored request set FileMaker does not restore.
+        raise UnsupportedSaXML(f"{entry.name}: <FindRequestSet> without the Restore option bit")
+    v.set("On" if restore else "Off", xml="Restore")
     return v.list()
 
 
-@_decoder("Perform Find")
-def _dec_perform_find(entry: CatalogEntry, step_el: ET.Element) -> list[str]:
-    return _find_family(entry, step_el, restore_default_on=True)
-
-
-@_decoder("Constrain Found Set", "Extend Found Set", "Enter Find Mode")
-def _dec_find_setup(entry: CatalogEntry, step_el: ET.Element) -> list[str]:
-    return _find_family(entry, step_el, restore_default_on=False)
+@_decoder("Perform Find", "Constrain Found Set", "Extend Found Set", "Enter Find Mode")
+def _dec_find_family(entry: CatalogEntry, step_el: ET.Element) -> list[str]:
+    return _find_family(entry, step_el)
 
 
 # ---------------------------------------------------------------------------

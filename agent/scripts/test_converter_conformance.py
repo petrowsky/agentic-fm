@@ -409,6 +409,32 @@ def test_python_xml_to_hr_matches_web_viewer():
 # Bless (regenerate goldens after a legitimate catalog change)
 # --------------------------------------------------------------------------- #
 
+def test_saxml_find_restore_reads_options_bit():
+    """The find steps' Restore comes from the SaXML ``<Options>`` bit, never a default.
+
+    FileMaker writes no ``<Parameter>`` for it: a ``Perform Find [ ]`` and a
+    ``Perform Find [ Restore ]`` whose stored request set is empty export the same
+    childless step and differ only in ``<Options>`` (0 vs 33554432). Restore read as
+    On for every Perform Find without a request set turned a plain find into one that
+    restores (FileMaker draws the pasted step ``Perform Find [ Restore ]``).
+    """
+    def restore(name, step_id, options, body=""):
+        step = ET.fromstring(
+            f'<Step index="0" id="{step_id}" name="{name}" enable="True">'
+            f'<UUID>00000000-0000-0000-0000-000000000000</UUID><OwnerID/>'
+            f'<Options>{options}</Options>{body}</Step>')
+        xml = fm_xml_to_snippet.tx_engine(step, {"unknown": 0, "unsupported": 0})
+        state = ET.fromstring(xml.split("-->")[-1]).find("Restore")
+        return None if state is None else state.get("state")
+
+    assert restore("Perform Find", 28, 0) == "False"
+    assert restore("Perform Find", 28, 33554432) == "True"
+    pause = ('<ParameterValues membercount="1"><Parameter type="Boolean">'
+             '<Boolean type="Pause" id="16777216" value="True"/></Parameter></ParameterValues>')
+    assert restore("Enter Find Mode", 22, 16777216, pause) == "False"
+    assert restore("Constrain Found Set", 126, 0) == "False"
+
+
 def _bless():
     for path, data in (
         (_XML_TO_HR, compute_xml_to_hr()),

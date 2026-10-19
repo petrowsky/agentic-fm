@@ -26,9 +26,10 @@ Architecture (P6.4 — catalog unification):
     Script, Allow User Abort, and Set Error Capture (folded into the grammar in P6.3).
 
 Notes:
-    - The Options bitmask on each step is intentionally ignored. Meaningful state
-      (Restore, NoInteract, bitmask window styles, etc.) is derived from the
-      structured ParameterValues via the catalog grammar.
+    - Meaningful state (NoInteract, bitmask window styles, etc.) is derived from
+      the structured ParameterValues via the catalog grammar. The Options bitmask
+      is read only where FileMaker keeps a setting nowhere else: the find steps'
+      Restore (saxml_read._FIND_RESTORE_OPTION_BIT).
     - The hash attribute on each step is not included in output.
     - A step whose SaXML shape a decoder cannot yet render correctly raises
       ``UnsupportedSaXML`` and is emitted as a clearly-marked TODO placeholder with a
