@@ -7319,8 +7319,9 @@
         "type": "calc",
         "hrLabel": null,
         "required": false,
+        "omitWhenEmpty": true,
         "visibleWhen": { "param": "With", "values": ["Calculation"] },
-        "note": "Shown only when With=Calculation; rendered bare (no label) as the replacement value, omitted from XML for the None / Current contents / Serial numbers branches. Its presence in HR is what selects With=Calculation on read-back (With renders no token for Calculation)."
+        "note": "Shown only when With=Calculation; rendered bare (no label) as the replacement value. FileMaker writes no <Calculation> for the None / Current contents / Serial numbers branches (measured FileMaker Pro 26.0.3), so omitWhenEmpty: an empty value emits nothing rather than an empty element. Its presence in HR is what selects With=Calculation on read-back (With renders no token for Calculation)."
       },
       {
         "xmlElement": "SerialNumbers",
