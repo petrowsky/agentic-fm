@@ -7284,7 +7284,7 @@
         "xmlAttr": "state",
         "required": false,
         "defaultValue": "False",
-        "notes": "FM always serializes <Restore state=\"False\"> for this step and never renders it in HR (the dialog exposes no Restore control). Hidden: emits the default, never claims an HR token.",
+        "notes": "No HR token of its own. FileMaker draws `Skip auto-enter options` exactly when Restore is True and <SerialNumbers PerformAutoEnter> is False, in every With mode (the SerialNumbers#PerformAutoEnter projection below); Restore True with PerformAutoEnter True draws nothing, the same line as Restore False (measured FM Pro 26.0.3). Its state is derived on HR->XML from that projection's token (visibleWhen): the token gives True, its absence False.",
         "fmMin": "22.0",
         "fmMinSource": "measured",
         "fmMinOnOlder": "dropped"
@@ -7332,10 +7332,22 @@
           { "key": "InitialValue", "kind": "attr", "xmlAttr": "InitialValue", "defaultValue": "" },
           { "key": "UseEntryOptions", "kind": "attr", "xmlAttr": "UseEntryOptions", "defaultValue": "False" }
         ],
-        "notes": "Always-present <SerialNumbers> config attrs, in FileMaker's serialization order (PerformAutoEnter, UpdateEntryOptions, increment, InitialValue, UseEntryOptions). FM never renders them in HR (the 'Serial numbers' HR token comes from the With enum value, not this group). Hidden: emits catalog defaults, never claims an HR token. The serial start (InitialValue) / increment and the auto-enter sub-options are not encoded in FM's HR text, so they are not authorable from HR and an HR round-trip emits these defaults - the same fidelity FM's own serialization has."
+        "notes": "Always-present <SerialNumbers> config attrs, in FileMaker's serialization order (PerformAutoEnter, UpdateEntryOptions, increment, InitialValue, UseEntryOptions). FM never renders them in HR (the 'Serial numbers' HR token comes from the With enum value, not this group), except PerformAutoEnter, which FileMaker draws as `Skip auto-enter options` under Restore (the projection below). Hidden: emits catalog defaults, never claims an HR token. The serial start (InitialValue) / increment and the auto-enter sub-options are not encoded in FM's HR text, so they are not authorable from HR and an HR round-trip emits these defaults - the same fidelity FM's own serialization has."
+      },
+      {
+        "xmlElement": "SerialNumbers",
+        "groupFields": ["PerformAutoEnter"],
+        "type": "enum",
+        "flagStyle": true,
+        "hrLabel": "Skip auto-enter options",
+        "visibleWhen": { "param": "Restore", "values": ["True"] },
+        "required": false,
+        "defaultValue": "True",
+        "enumValues": ["True", "False"],
+        "note": "Display projection of SerialNumbers' PerformAutoEnter (groupFields), the dialog's 'Perform auto-enter options' checkbox: FileMaker draws the bare `Skip auto-enter options` last on the line when Restore is True and PerformAutoEnter is False, for None, Current contents, Serial numbers and Calculation alike (FM Pro 26.0.3). flagStyle with defaultValue True: the label prints only for False, and only under Restore True (visibleWhen). Reading the token back writes PerformAutoEnter False and derives Restore True; without it the group keeps its own defaults and Restore is False."
       }
     ],
-    "hrSignature": "[ With dialog: <On/Off> ; <Table::Field> ; <calculation | Current contents | Serial numbers> ]",
+    "hrSignature": "[ With dialog: <On/Off> ; <Table::Field> ; <calculation | Current contents | Serial numbers> ; Skip auto-enter options ]",
     "blockPair": null,
     "status": "complete",
     "helpUrl": "https://help.claris.com/en/pro-help/content/replace-field-contents.html",
