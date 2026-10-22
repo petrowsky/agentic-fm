@@ -8754,7 +8754,9 @@
         "hrEnumValues": {
           "True": "On",
           "False": "Off"
-        }
+        },
+        "fmLineBare": true,
+        "note": "FileMaker draws the value with no label (`Set AI Call Logging [ Off ; Verbose: Off ]`, FM 26.0.3; fmLineBare); HR keeps the label and reads the bare value too."
       },
       {
         "xmlElement": "Calculation",
@@ -8770,7 +8772,8 @@
         "hrLabel": "Verbose",
         "parentElement": "LLMDebugLog",
         "required": false,
-        "note": "Presence = Verbose: On. Absence = Verbose: Off."
+        "fmLineOnOff": true,
+        "note": "Presence = Verbose: On. Absence = Verbose: Off. FileMaker draws it labeled with its state, `Verbose: On` / `Verbose: Off`, on every line, whatever Logging is (fmLineOnOff, FM 26.0.3)."
       },
       {
         "xmlElement": "TruncateEmbeddingVectorsMode",
@@ -8778,7 +8781,11 @@
         "hrLabel": "Truncate Messages",
         "parentElement": "LLMDebugLog",
         "required": false,
-        "note": "Presence = Truncate Messages: On. Absence = Off."
+        "fmLineOnOff": true,
+        "fmLineHiddenWhen": [
+          { "param": "VerboseMode", "values": ["False"] }
+        ],
+        "note": "Presence = Truncate Messages: On. Absence = Off. FileMaker draws it labeled with its state (`Truncate Messages: Off`) only when Verbose is on (fmLineOnOff, fmLineHiddenWhen), and drops the element on paste when Verbose is off (FM 26.0.3)."
       }
     ],
     "hrSignature": "[ <On/Off> ; Filename: <calc> ; Verbose: <On/Off> ; Truncate Messages: <On/Off> ]",
@@ -8890,7 +8897,9 @@
         "hrEnumValues": {
           "True": "On",
           "False": "Off"
-        }
+        },
+        "fmLineBare": true,
+        "note": "FileMaker draws the value with no label (`Set Error Logging [ On ; Custom debug info: \"dbg\" ]`, FM 26.0.3; fmLineBare); HR keeps the label and reads the bare value too."
       },
       {
         "xmlElement": "Calculation",
@@ -8977,7 +8986,9 @@
         "hrLabel": "Animation",
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "True"
+        "defaultValue": "True",
+        "fmLineBare": true,
+        "note": "FileMaker draws the value with no label (`[ On ]` / `[ Off ]`, FM 26.0.3; fmLineBare); HR keeps the label and reads the bare value too."
       }
     ],
     "hrSignature": "[ <On/Off> ]",
@@ -9057,7 +9068,9 @@
         "hrLabel": "Revert on error",
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "False"
+        "defaultValue": "False",
+        "fmLineBare": true,
+        "note": "FileMaker draws the value with no label (`[ On ]` / `[ Off ]`, FM 26.0.3; fmLineBare); HR keeps the label and reads the bare value too."
       }
     ],
     "hrSignature": "[ <On/Off> ]",
@@ -9136,7 +9149,9 @@
         "hrLabel": "Use system formats",
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "True"
+        "defaultValue": "True",
+        "fmLineBare": true,
+        "note": "FileMaker draws the value with no label (`[ On ]` / `[ Off ]`, FM 26.0.3; fmLineBare); HR keeps the label and reads the bare value too."
       }
     ],
     "hrSignature": "[ <On/Off> ]",

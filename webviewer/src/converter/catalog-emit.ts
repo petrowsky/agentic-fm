@@ -654,6 +654,16 @@ function resolveLayoutToken(
 // ---------------------------------------------------------------------------
 // Two-phase HR-param matching (parse-HR): pass 1 flags/labels, pass 2 positional.
 // ---------------------------------------------------------------------------
+// The value a bare token names for an fmLineBare boolean (`On` / `Off`, or one of
+// its hrEnumValues labels), or '' when it names none of them.
+function fmLineBareBooleanValue(param: GrammarParam, token: string): string {
+  const t = trim(token);
+  if (!t) return '';
+  for (const label of Object.values(param.hrEnumValues)) if (label && ciEquals(t, label)) return label;
+  for (const v of ['On', 'Off']) if (ciEquals(t, v)) return v;
+  return '';
+}
+
 function matchParamValues(entry: GrammarEntry, hrParams: string[]): string[] {
   const values: string[] = new Array(entry.params.length).fill('');
   const resolved: boolean[] = new Array(entry.params.length).fill(false);
@@ -786,6 +796,22 @@ function matchParamValues(entry: GrammarEntry, hrParams: string[]): string[] {
           }
         }
         if (resolved[pi]) break;
+      }
+      // fmLineBare boolean: FileMaker draws the value with no label
+      // (`Set Layout Object Animation [ Off ]`, `Set Error Logging [ On ; … ]`).
+      // Claim the first bare token naming one of its values when no labeled
+      // token gave it one.
+      if (!resolved[pi] && param.type === 'boolean' && rawBool(param.raw, 'fmLineBare')) {
+        for (let i = 0; i < hrParams.length; i++) {
+          if (consumed[i]) continue;
+          const v = fmLineBareBooleanValue(param, hrParams[i]);
+          if (!v) continue;
+          consumed[i] = true;
+          values[pi] = v;
+          gotToken[pi] = true;
+          resolved[pi] = true;
+          break;
+        }
       }
     }
   }
@@ -927,7 +953,9 @@ function matchParamValues(entry: GrammarEntry, hrParams: string[]): string[] {
   // first params. Mirrors the reference converter (which also warns about that guess).
   const bareTargets: number[] = [];
   for (let pi = 0; pi < entry.params.length; pi++)
-    if (rawBool(entry.params[pi].raw, 'fmLineBare') && !resolved[pi]) bareTargets.push(pi);
+    // A boolean fmLineBare param is drawn in its own slot and claimed in pass 1.
+    if (rawBool(entry.params[pi].raw, 'fmLineBare') && entry.params[pi].type !== 'boolean' && !resolved[pi])
+      bareTargets.push(pi);
   let nextBare = 0;
   for (let i = 0; i < hrParams.length && nextBare < bareTargets.length; i++) {
     if (consumed[i] || reserved[i]) continue;

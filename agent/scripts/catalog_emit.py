@@ -778,6 +778,21 @@ def _resolve_layout_token(hr_value: str, resolver: IdResolver) -> tuple[str, str
 # ---------------------------------------------------------------------------
 # Two-phase HR-param matching (parse-HR): pass 1 flags/labels, pass 2 positional.
 # ---------------------------------------------------------------------------
+def _fm_line_bare_boolean_value(param: StepParam, token: str) -> str:
+    """The value a bare token names for an fmLineBare boolean (``On`` / ``Off``,
+    or one of its hrEnumValues labels), or "" when it names none of them."""
+    t = _trim(token)
+    if not t:
+        return ""
+    for label in param.hr_enum_values.values():
+        if label and _ci_equals(t, label):
+            return label
+    for v in ("On", "Off"):
+        if _ci_equals(t, v):
+            return v
+    return ""
+
+
 def match_param_values(entry: CatalogEntry, hr_params: list[str]) -> list[str]:
     """Parse HR bracket params into the per-catalog-param values[] token array."""
     values = [""] * len(entry.params)
@@ -913,6 +928,22 @@ def match_param_values(entry: CatalogEntry, hr_params: list[str]) -> list[str]:
                         resolved[pi] = True
                         break
                 if resolved[pi]:
+                    break
+            # fmLineBare boolean: FileMaker draws the value with no label
+            # (``Set Layout Object Animation [ Off ]``, ``Set Error Logging [ On ;
+            # … ]``). Claim the first bare token naming one of its values when no
+            # labeled token gave it one.
+            if not resolved[pi] and param.type == "boolean" and _raw_bool(param.raw, "fmLineBare"):
+                for i in range(len(hr_params)):
+                    if consumed[i]:
+                        continue
+                    v = _fm_line_bare_boolean_value(param, hr_params[i])
+                    if not v:
+                        continue
+                    consumed[i] = True
+                    values[pi] = v
+                    got_token[pi] = True
+                    resolved[pi] = True
                     break
 
     # Shape-routed governing discriminator (shape_routed_values): FileMaker's line
@@ -1062,7 +1093,12 @@ def match_param_values(entry: CatalogEntry, hr_params: list[str]) -> list[str]:
     # Fewer tokens than params is FileMaker leaving one out, which the line
     # cannot place: the tokens fill the first params. Mirrors the reference
     # converter (which also warns about that guess).
-    targets = [pi for pi, p in enumerate(entry.params) if _raw_bool(p.raw, "fmLineBare") and not resolved[pi]]
+    # A boolean fmLineBare param is drawn in its own slot and claimed in pass 1.
+    targets = [
+        pi
+        for pi, p in enumerate(entry.params)
+        if _raw_bool(p.raw, "fmLineBare") and p.type != "boolean" and not resolved[pi]
+    ]
     nxt = 0
     for i in range(len(hr_params)):
         if nxt >= len(targets):
