@@ -1,0 +1,526 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- FileMaker Pro 26.0.3 (macOS) Save a Copy as XML: one script's ObjectList, verbatim but for the case comments' text. Each Replace Field Contents step
+     follows a comment naming the state it was created with: <With mode>-R<Restore 1|0>-P<SerialNumbers PerformAutoEnter 1|0>
+     [-use|-upd: serial numbers from entry options / update entry options]. FileMaker's clipboard copy of each step
+     carried exactly that Restore and PerformAutoEnter, and FileMaker draws `Skip auto-enter options` for the R1-P0 steps only. -->
+<Script>
+<ObjectList membercount="24">
+						<Step hash="14516BC0969D9C163766E1E5C6186600" index="0" id="89" name="# (comment)" enable="True">
+							<UUID>4E10EC12-D60E-4384-B922-E481B6AD6E0C</UUID>
+							<OwnerID></OwnerID>
+							<Options>4</Options>
+							<DDRREF kind="StepText" hash="BB7E45E12D398327908C11C0F448B503">_4E10EC12-D60E-4384-B922-E481B6AD6E0C</DDRREF>
+							<ParameterValues membercount="1">
+								<Parameter type="Comment">
+									<Comment value="case calc-R1-P0"></Comment>
+								</Parameter>
+							</ParameterValues>
+						</Step>
+						<Step hash="D127C813CD159817611530A91780A1F9" index="1" id="91" name="Replace Field Contents" enable="True">
+							<UUID>640619D9-6A30-48D4-B946-74B8CFA93FD3</UUID>
+							<OwnerID></OwnerID>
+							<Options>33570945</Options>
+							<DDRREF kind="StepText" hash="AA6CE37BECEF8E659C24A263287E1EBD">_640619D9-6A30-48D4-B946-74B8CFA93FD3</DDRREF>
+							<ParameterValues membercount="3">
+								<Parameter type="Boolean">
+									<Boolean type="With dialog" id="128" value="False"></Boolean>
+								</Parameter>
+								<Parameter type="FieldReference">
+									<FieldReference id="31" name="Description" UUID="84C03D40-0D3C-9349-A94C-4354262B6604">
+										<repetition>
+											<Calculation datatype="1" position="10">
+												<Calculation>
+													<DDRREF kind="ChunkList" hash="A93F17BC54CA1958073B692697D5ED21">_640619D9-6A30-48D4-B946-74B8CFA93FD3_10</DDRREF>
+													<Text><![CDATA[1]]></Text>
+												</Calculation>
+											</Calculation>
+										</repetition>
+										<TableOccurrenceReference id="1065094" name="Invoices" UUID="279076A5-8AD6-BD46-AD0F-E40BF5AF9B34"></TableOccurrenceReference>
+									</FieldReference>
+								</Parameter>
+								<Parameter type="replace">
+									<List name="Replace with calculation: " value="3">
+										<Calculation datatype="1" position="0">
+											<Calculation>
+												<DDRREF kind="ChunkList" hash="327C7D075FEC40B831D1A9EE94148DA6">_640619D9-6A30-48D4-B946-74B8CFA93FD3_0</DDRREF>
+												<Text><![CDATA["v"]]></Text>
+											</Calculation>
+										</Calculation>
+										<Boolean type="Skip auto-enter options" value="True"></Boolean>
+									</List>
+								</Parameter>
+							</ParameterValues>
+						</Step>
+						<Step hash="A9A3B72F99B5B45B83DF5B624B96C5B1" index="2" id="89" name="# (comment)" enable="True">
+							<UUID>8873EBF1-269F-4248-9DDE-A6C3EA1AA23B</UUID>
+							<OwnerID></OwnerID>
+							<Options>4</Options>
+							<DDRREF kind="StepText" hash="AF7A3BFACEA31CC8D3BD01EDE3A5E49D">_8873EBF1-269F-4248-9DDE-A6C3EA1AA23B</DDRREF>
+							<ParameterValues membercount="1">
+								<Parameter type="Comment">
+									<Comment value="case calc-R0-P0"></Comment>
+								</Parameter>
+							</ParameterValues>
+						</Step>
+						<Step hash="01467CCD2CB4456635C2E89E192CE6B6" index="3" id="91" name="Replace Field Contents" enable="True">
+							<UUID>1340D334-9B65-4B15-92CC-B844E282B94D</UUID>
+							<OwnerID></OwnerID>
+							<Options>16513</Options>
+							<DDRREF kind="StepText" hash="2B912D1F5E1056197387657F540CC64B">_1340D334-9B65-4B15-92CC-B844E282B94D</DDRREF>
+							<ParameterValues membercount="3">
+								<Parameter type="Boolean">
+									<Boolean type="With dialog" id="128" value="False"></Boolean>
+								</Parameter>
+								<Parameter type="FieldReference">
+									<FieldReference id="31" name="Description" UUID="84C03D40-0D3C-9349-A94C-4354262B6604">
+										<repetition>
+											<Calculation datatype="1" position="10">
+												<Calculation>
+													<DDRREF kind="ChunkList" hash="A93F17BC54CA1958073B692697D5ED21">_1340D334-9B65-4B15-92CC-B844E282B94D_10</DDRREF>
+													<Text><![CDATA[1]]></Text>
+												</Calculation>
+											</Calculation>
+										</repetition>
+										<TableOccurrenceReference id="1065094" name="Invoices" UUID="279076A5-8AD6-BD46-AD0F-E40BF5AF9B34"></TableOccurrenceReference>
+									</FieldReference>
+								</Parameter>
+								<Parameter type="replace">
+									<List name="Replace with calculation: " value="3">
+										<Calculation datatype="1" position="0">
+											<Calculation>
+												<DDRREF kind="ChunkList" hash="327C7D075FEC40B831D1A9EE94148DA6">_1340D334-9B65-4B15-92CC-B844E282B94D_0</DDRREF>
+												<Text><![CDATA["v"]]></Text>
+											</Calculation>
+										</Calculation>
+										<Boolean type="Skip auto-enter options" value="False"></Boolean>
+									</List>
+								</Parameter>
+							</ParameterValues>
+						</Step>
+						<Step hash="BDEFA55EBEDBF3AEC84586CB57AD0B73" index="4" id="89" name="# (comment)" enable="True">
+							<UUID>CEC0E4BC-A85D-4366-9841-0806336D782E</UUID>
+							<OwnerID></OwnerID>
+							<Options>4</Options>
+							<DDRREF kind="StepText" hash="B17F66B3AB77DD4E30940FD11B29797E">_CEC0E4BC-A85D-4366-9841-0806336D782E</DDRREF>
+							<ParameterValues membercount="1">
+								<Parameter type="Comment">
+									<Comment value="case calc-R1-P1"></Comment>
+								</Parameter>
+							</ParameterValues>
+						</Step>
+						<Step hash="3389FF9CD33616389D7791543ED48513" index="5" id="91" name="Replace Field Contents" enable="True">
+							<UUID>E4C79637-AD5D-4F27-911F-FC212CA95585</UUID>
+							<OwnerID></OwnerID>
+							<Options>33570945</Options>
+							<DDRREF kind="StepText" hash="27D307BDCC97D734FC768300D2705870">_E4C79637-AD5D-4F27-911F-FC212CA95585</DDRREF>
+							<ParameterValues membercount="3">
+								<Parameter type="Boolean">
+									<Boolean type="With dialog" id="128" value="False"></Boolean>
+								</Parameter>
+								<Parameter type="FieldReference">
+									<FieldReference id="31" name="Description" UUID="84C03D40-0D3C-9349-A94C-4354262B6604">
+										<repetition>
+											<Calculation datatype="1" position="10">
+												<Calculation>
+													<DDRREF kind="ChunkList" hash="A93F17BC54CA1958073B692697D5ED21">_E4C79637-AD5D-4F27-911F-FC212CA95585_10</DDRREF>
+													<Text><![CDATA[1]]></Text>
+												</Calculation>
+											</Calculation>
+										</repetition>
+										<TableOccurrenceReference id="1065094" name="Invoices" UUID="279076A5-8AD6-BD46-AD0F-E40BF5AF9B34"></TableOccurrenceReference>
+									</FieldReference>
+								</Parameter>
+								<Parameter type="replace">
+									<List name="Replace with calculation: " value="3">
+										<Calculation datatype="1" position="0">
+											<Calculation>
+												<DDRREF kind="ChunkList" hash="327C7D075FEC40B831D1A9EE94148DA6">_E4C79637-AD5D-4F27-911F-FC212CA95585_0</DDRREF>
+												<Text><![CDATA["v"]]></Text>
+											</Calculation>
+										</Calculation>
+										<Boolean type="Skip auto-enter options" value="False"></Boolean>
+									</List>
+								</Parameter>
+							</ParameterValues>
+						</Step>
+						<Step hash="9BD4CF6001B124D5E388DF60C699CE1A" index="6" id="89" name="# (comment)" enable="True">
+							<UUID>5D7B2829-88C6-4EE5-AA78-AD8A949B9DDE</UUID>
+							<OwnerID></OwnerID>
+							<Options>4</Options>
+							<DDRREF kind="StepText" hash="BBCDD1249CE8B32659B2F9E26E803448">_5D7B2829-88C6-4EE5-AA78-AD8A949B9DDE</DDRREF>
+							<ParameterValues membercount="1">
+								<Parameter type="Comment">
+									<Comment value="case calc-R0-P1"></Comment>
+								</Parameter>
+							</ParameterValues>
+						</Step>
+						<Step hash="2037DB3174AAEB2172925C3ABB6D19B5" index="7" id="91" name="Replace Field Contents" enable="True">
+							<UUID>BF395962-7032-4F0A-BF1C-96D46BA0ECDB</UUID>
+							<OwnerID></OwnerID>
+							<Options>16513</Options>
+							<DDRREF kind="StepText" hash="ECAC5B548B4508C0CB38E1EE788EE037">_BF395962-7032-4F0A-BF1C-96D46BA0ECDB</DDRREF>
+							<ParameterValues membercount="3">
+								<Parameter type="Boolean">
+									<Boolean type="With dialog" id="128" value="False"></Boolean>
+								</Parameter>
+								<Parameter type="FieldReference">
+									<FieldReference id="31" name="Description" UUID="84C03D40-0D3C-9349-A94C-4354262B6604">
+										<repetition>
+											<Calculation datatype="1" position="10">
+												<Calculation>
+													<DDRREF kind="ChunkList" hash="A93F17BC54CA1958073B692697D5ED21">_BF395962-7032-4F0A-BF1C-96D46BA0ECDB_10</DDRREF>
+													<Text><![CDATA[1]]></Text>
+												</Calculation>
+											</Calculation>
+										</repetition>
+										<TableOccurrenceReference id="1065094" name="Invoices" UUID="279076A5-8AD6-BD46-AD0F-E40BF5AF9B34"></TableOccurrenceReference>
+									</FieldReference>
+								</Parameter>
+								<Parameter type="replace">
+									<List name="Replace with calculation: " value="3">
+										<Calculation datatype="1" position="0">
+											<Calculation>
+												<DDRREF kind="ChunkList" hash="327C7D075FEC40B831D1A9EE94148DA6">_BF395962-7032-4F0A-BF1C-96D46BA0ECDB_0</DDRREF>
+												<Text><![CDATA["v"]]></Text>
+											</Calculation>
+										</Calculation>
+										<Boolean type="Skip auto-enter options" value="False"></Boolean>
+									</List>
+								</Parameter>
+							</ParameterValues>
+						</Step>
+						<Step hash="A5EEBF23BA6E0FF0A970245AFDCFFCE1" index="8" id="89" name="# (comment)" enable="True">
+							<UUID>B6F0C443-3FF4-47BB-B42F-5B10DE89103E</UUID>
+							<OwnerID></OwnerID>
+							<Options>4</Options>
+							<DDRREF kind="StepText" hash="F5411E7539AE6AC0701A37F52A51AA34">_B6F0C443-3FF4-47BB-B42F-5B10DE89103E</DDRREF>
+							<ParameterValues membercount="1">
+								<Parameter type="Comment">
+									<Comment value="case ser-R1-P0-use"></Comment>
+								</Parameter>
+							</ParameterValues>
+						</Step>
+						<Step hash="3C60BE98769D20681853C00F6ECC6842" index="9" id="91" name="Replace Field Contents" enable="True">
+							<UUID>84F6EC4C-2CFE-4D49-A565-5B94EB7381A2</UUID>
+							<OwnerID></OwnerID>
+							<Options>33554561</Options>
+							<DDRREF kind="StepText" hash="7C05D002C0605E91F5E0C5BA1D657C7A">_84F6EC4C-2CFE-4D49-A565-5B94EB7381A2</DDRREF>
+							<ParameterValues membercount="3">
+								<Parameter type="Boolean">
+									<Boolean type="With dialog" id="128" value="False"></Boolean>
+								</Parameter>
+								<Parameter type="FieldReference">
+									<FieldReference id="31" name="Description" UUID="84C03D40-0D3C-9349-A94C-4354262B6604">
+										<repetition>
+											<Calculation datatype="1" position="10">
+												<Calculation>
+													<DDRREF kind="ChunkList" hash="A93F17BC54CA1958073B692697D5ED21">_84F6EC4C-2CFE-4D49-A565-5B94EB7381A2_10</DDRREF>
+													<Text><![CDATA[1]]></Text>
+												</Calculation>
+											</Calculation>
+										</repetition>
+										<TableOccurrenceReference id="1065094" name="Invoices" UUID="279076A5-8AD6-BD46-AD0F-E40BF5AF9B34"></TableOccurrenceReference>
+									</FieldReference>
+								</Parameter>
+								<Parameter type="replace">
+									<List name="Replace with serial numbers: " value="2">
+										<List name="Entry option values" value="True"></List>
+										<Boolean type="Update Entry Options" value="False"></Boolean>
+										<Boolean type="Skip auto-enter options" value="True"></Boolean>
+									</List>
+								</Parameter>
+							</ParameterValues>
+						</Step>
+						<Step hash="F018FC9B791DC2D642047D56366E8330" index="10" id="89" name="# (comment)" enable="True">
+							<UUID>2204997D-6628-422F-B7BC-1598EE328401</UUID>
+							<OwnerID></OwnerID>
+							<Options>4</Options>
+							<DDRREF kind="StepText" hash="A7BF2870C884B6B3DB6B5F9298C7922C">_2204997D-6628-422F-B7BC-1598EE328401</DDRREF>
+							<ParameterValues membercount="1">
+								<Parameter type="Comment">
+									<Comment value="case ser-R0-P1-use"></Comment>
+								</Parameter>
+							</ParameterValues>
+						</Step>
+						<Step hash="4DC2082024D6B23507380EC1E5C815CF" index="11" id="91" name="Replace Field Contents" enable="True">
+							<UUID>D4C94479-C317-48E8-9F6E-2A1BDC8D3432</UUID>
+							<OwnerID></OwnerID>
+							<Options>129</Options>
+							<DDRREF kind="StepText" hash="ADC338B97581F8D80C603E96432B735A">_D4C94479-C317-48E8-9F6E-2A1BDC8D3432</DDRREF>
+							<ParameterValues membercount="3">
+								<Parameter type="Boolean">
+									<Boolean type="With dialog" id="128" value="False"></Boolean>
+								</Parameter>
+								<Parameter type="FieldReference">
+									<FieldReference id="31" name="Description" UUID="84C03D40-0D3C-9349-A94C-4354262B6604">
+										<repetition>
+											<Calculation datatype="1" position="10">
+												<Calculation>
+													<DDRREF kind="ChunkList" hash="A93F17BC54CA1958073B692697D5ED21">_D4C94479-C317-48E8-9F6E-2A1BDC8D3432_10</DDRREF>
+													<Text><![CDATA[1]]></Text>
+												</Calculation>
+											</Calculation>
+										</repetition>
+										<TableOccurrenceReference id="1065094" name="Invoices" UUID="279076A5-8AD6-BD46-AD0F-E40BF5AF9B34"></TableOccurrenceReference>
+									</FieldReference>
+								</Parameter>
+								<Parameter type="replace">
+									<List name="Replace with serial numbers: " value="2">
+										<List name="Entry option values" value="True"></List>
+										<Boolean type="Update Entry Options" value="False"></Boolean>
+										<Boolean type="Skip auto-enter options" value="False"></Boolean>
+									</List>
+								</Parameter>
+							</ParameterValues>
+						</Step>
+						<Step hash="1825325E64CD61E18ACFF78DEA529DCA" index="12" id="89" name="# (comment)" enable="True">
+							<UUID>7919E77E-C51F-40E4-AF91-7749E809558A</UUID>
+							<OwnerID></OwnerID>
+							<Options>4</Options>
+							<DDRREF kind="StepText" hash="AFD9FB7751D91ADD0A69F79C8A6E8F2C">_7919E77E-C51F-40E4-AF91-7749E809558A</DDRREF>
+							<ParameterValues membercount="1">
+								<Parameter type="Comment">
+									<Comment value="case ser-R1-P1-use"></Comment>
+								</Parameter>
+							</ParameterValues>
+						</Step>
+						<Step hash="5A73618A6ECB60C421D2CFFC2AB4F63C" index="13" id="91" name="Replace Field Contents" enable="True">
+							<UUID>8CCE82BC-9445-4C06-9BB9-E172475A69BA</UUID>
+							<OwnerID></OwnerID>
+							<Options>33554561</Options>
+							<DDRREF kind="StepText" hash="9E1FDC66E6A9BF62A677F32589AF7B1B">_8CCE82BC-9445-4C06-9BB9-E172475A69BA</DDRREF>
+							<ParameterValues membercount="3">
+								<Parameter type="Boolean">
+									<Boolean type="With dialog" id="128" value="False"></Boolean>
+								</Parameter>
+								<Parameter type="FieldReference">
+									<FieldReference id="31" name="Description" UUID="84C03D40-0D3C-9349-A94C-4354262B6604">
+										<repetition>
+											<Calculation datatype="1" position="10">
+												<Calculation>
+													<DDRREF kind="ChunkList" hash="A93F17BC54CA1958073B692697D5ED21">_8CCE82BC-9445-4C06-9BB9-E172475A69BA_10</DDRREF>
+													<Text><![CDATA[1]]></Text>
+												</Calculation>
+											</Calculation>
+										</repetition>
+										<TableOccurrenceReference id="1065094" name="Invoices" UUID="279076A5-8AD6-BD46-AD0F-E40BF5AF9B34"></TableOccurrenceReference>
+									</FieldReference>
+								</Parameter>
+								<Parameter type="replace">
+									<List name="Replace with serial numbers: " value="2">
+										<List name="Entry option values" value="True"></List>
+										<Boolean type="Update Entry Options" value="False"></Boolean>
+										<Boolean type="Skip auto-enter options" value="False"></Boolean>
+									</List>
+								</Parameter>
+							</ParameterValues>
+						</Step>
+						<Step hash="1BF5E976BFDD80EAA22FB8E72656D4A1" index="14" id="89" name="# (comment)" enable="True">
+							<UUID>1A988BB7-CCD3-4E0E-A6B7-58B446BF621C</UUID>
+							<OwnerID></OwnerID>
+							<Options>4</Options>
+							<DDRREF kind="StepText" hash="C5C67577A18396228248782ADF836589">_1A988BB7-CCD3-4E0E-A6B7-58B446BF621C</DDRREF>
+							<ParameterValues membercount="1">
+								<Parameter type="Comment">
+									<Comment value="case ser-R0-P0-use"></Comment>
+								</Parameter>
+							</ParameterValues>
+						</Step>
+						<Step hash="9DBE8CF24D03DF57733EB1C9E1FF070A" index="15" id="91" name="Replace Field Contents" enable="True">
+							<UUID>E853058C-875A-4E91-B64B-DE4F2D27B52A</UUID>
+							<OwnerID></OwnerID>
+							<Options>129</Options>
+							<DDRREF kind="StepText" hash="7D07ECCEAA0F7A1263B768F9164C9973">_E853058C-875A-4E91-B64B-DE4F2D27B52A</DDRREF>
+							<ParameterValues membercount="3">
+								<Parameter type="Boolean">
+									<Boolean type="With dialog" id="128" value="False"></Boolean>
+								</Parameter>
+								<Parameter type="FieldReference">
+									<FieldReference id="31" name="Description" UUID="84C03D40-0D3C-9349-A94C-4354262B6604">
+										<repetition>
+											<Calculation datatype="1" position="10">
+												<Calculation>
+													<DDRREF kind="ChunkList" hash="A93F17BC54CA1958073B692697D5ED21">_E853058C-875A-4E91-B64B-DE4F2D27B52A_10</DDRREF>
+													<Text><![CDATA[1]]></Text>
+												</Calculation>
+											</Calculation>
+										</repetition>
+										<TableOccurrenceReference id="1065094" name="Invoices" UUID="279076A5-8AD6-BD46-AD0F-E40BF5AF9B34"></TableOccurrenceReference>
+									</FieldReference>
+								</Parameter>
+								<Parameter type="replace">
+									<List name="Replace with serial numbers: " value="2">
+										<List name="Entry option values" value="True"></List>
+										<Boolean type="Update Entry Options" value="False"></Boolean>
+										<Boolean type="Skip auto-enter options" value="False"></Boolean>
+									</List>
+								</Parameter>
+							</ParameterValues>
+						</Step>
+						<Step hash="35CB7E01FD5BDD92ECA8295475704A63" index="16" id="89" name="# (comment)" enable="True">
+							<UUID>34AE3EFB-0132-4896-B332-A6E083F548F4</UUID>
+							<OwnerID></OwnerID>
+							<Options>4</Options>
+							<DDRREF kind="StepText" hash="DA19ACE85A6E3C0253128EE316864AA3">_34AE3EFB-0132-4896-B332-A6E083F548F4</DDRREF>
+							<ParameterValues membercount="1">
+								<Parameter type="Comment">
+									<Comment value="case ser-R1-P0-upd"></Comment>
+								</Parameter>
+							</ParameterValues>
+						</Step>
+						<Step hash="09D95912503F86C412B34EA932F82630" index="17" id="91" name="Replace Field Contents" enable="True">
+							<UUID>3CF341DD-8826-4F61-BB8D-63ED189B93AB</UUID>
+							<OwnerID></OwnerID>
+							<Options>33554561</Options>
+							<DDRREF kind="StepText" hash="A55484AE67612132A34C815EA66B3212">_3CF341DD-8826-4F61-BB8D-63ED189B93AB</DDRREF>
+							<ParameterValues membercount="3">
+								<Parameter type="Boolean">
+									<Boolean type="With dialog" id="128" value="False"></Boolean>
+								</Parameter>
+								<Parameter type="FieldReference">
+									<FieldReference id="31" name="Description" UUID="84C03D40-0D3C-9349-A94C-4354262B6604">
+										<repetition>
+											<Calculation datatype="1" position="10">
+												<Calculation>
+													<DDRREF kind="ChunkList" hash="A93F17BC54CA1958073B692697D5ED21">_3CF341DD-8826-4F61-BB8D-63ED189B93AB_10</DDRREF>
+													<Text><![CDATA[1]]></Text>
+												</Calculation>
+											</Calculation>
+										</repetition>
+										<TableOccurrenceReference id="1065094" name="Invoices" UUID="279076A5-8AD6-BD46-AD0F-E40BF5AF9B34"></TableOccurrenceReference>
+									</FieldReference>
+								</Parameter>
+								<Parameter type="replace">
+									<List name="Replace with serial numbers: " value="2">
+										<List name="Entry option values" value="False">
+											<Initial value=""></Initial>
+											<increment value="0"></increment>
+										</List>
+										<Boolean type="Update Entry Options" value="True"></Boolean>
+										<Boolean type="Skip auto-enter options" value="True"></Boolean>
+									</List>
+								</Parameter>
+							</ParameterValues>
+						</Step>
+						<Step hash="6385AB708587139B6BF79B6152EB1B14" index="18" id="89" name="# (comment)" enable="True">
+							<UUID>4812AC21-4BD3-42AC-9ECC-DC171C4BD0D7</UUID>
+							<OwnerID></OwnerID>
+							<Options>4</Options>
+							<DDRREF kind="StepText" hash="8C28FD4E1BA0B2DD773F0DBC8E3C2FAD">_4812AC21-4BD3-42AC-9ECC-DC171C4BD0D7</DDRREF>
+							<ParameterValues membercount="1">
+								<Parameter type="Comment">
+									<Comment value="case cur-R1-P0"></Comment>
+								</Parameter>
+							</ParameterValues>
+						</Step>
+						<Step hash="3E2C9CCC4FFCE08A06E5E678DFEFFB58" index="19" id="91" name="Replace Field Contents" enable="True">
+							<UUID>11348987-BB7E-49A1-9878-7C83085E5621</UUID>
+							<OwnerID></OwnerID>
+							<Options>33554561</Options>
+							<DDRREF kind="StepText" hash="4A0AB959169D0A9EE0A106373584D5B9">_11348987-BB7E-49A1-9878-7C83085E5621</DDRREF>
+							<ParameterValues membercount="3">
+								<Parameter type="Boolean">
+									<Boolean type="With dialog" id="128" value="False"></Boolean>
+								</Parameter>
+								<Parameter type="FieldReference">
+									<FieldReference id="31" name="Description" UUID="84C03D40-0D3C-9349-A94C-4354262B6604">
+										<repetition>
+											<Calculation datatype="1" position="10">
+												<Calculation>
+													<DDRREF kind="ChunkList" hash="A93F17BC54CA1958073B692697D5ED21">_11348987-BB7E-49A1-9878-7C83085E5621_10</DDRREF>
+													<Text><![CDATA[1]]></Text>
+												</Calculation>
+											</Calculation>
+										</repetition>
+										<TableOccurrenceReference id="1065094" name="Invoices" UUID="279076A5-8AD6-BD46-AD0F-E40BF5AF9B34"></TableOccurrenceReference>
+									</FieldReference>
+								</Parameter>
+								<Parameter type="replace">
+									<List name="Current contents" value="1">
+										<Boolean type="Skip auto-enter options" value="True"></Boolean>
+									</List>
+								</Parameter>
+							</ParameterValues>
+						</Step>
+						<Step hash="286685EC041CE72DF6C91539ADD2D08F" index="20" id="89" name="# (comment)" enable="True">
+							<UUID>4747BCCC-D9DF-44E4-8494-A63E960E5D6A</UUID>
+							<OwnerID></OwnerID>
+							<Options>4</Options>
+							<DDRREF kind="StepText" hash="DCED87D64E0ADE905F0F48545C8175E7">_4747BCCC-D9DF-44E4-8494-A63E960E5D6A</DDRREF>
+							<ParameterValues membercount="1">
+								<Parameter type="Comment">
+									<Comment value="case cur-R0-P0"></Comment>
+								</Parameter>
+							</ParameterValues>
+						</Step>
+						<Step hash="99377D92DEBD7E832DCDE9654A17A31D" index="21" id="91" name="Replace Field Contents" enable="True">
+							<UUID>7E9A5E52-F502-4D75-8C99-B2768CC00690</UUID>
+							<OwnerID></OwnerID>
+							<Options>129</Options>
+							<DDRREF kind="StepText" hash="0C1AD8C9D9E91233640AA3CE5956964E">_7E9A5E52-F502-4D75-8C99-B2768CC00690</DDRREF>
+							<ParameterValues membercount="3">
+								<Parameter type="Boolean">
+									<Boolean type="With dialog" id="128" value="False"></Boolean>
+								</Parameter>
+								<Parameter type="FieldReference">
+									<FieldReference id="31" name="Description" UUID="84C03D40-0D3C-9349-A94C-4354262B6604">
+										<repetition>
+											<Calculation datatype="1" position="10">
+												<Calculation>
+													<DDRREF kind="ChunkList" hash="A93F17BC54CA1958073B692697D5ED21">_7E9A5E52-F502-4D75-8C99-B2768CC00690_10</DDRREF>
+													<Text><![CDATA[1]]></Text>
+												</Calculation>
+											</Calculation>
+										</repetition>
+										<TableOccurrenceReference id="1065094" name="Invoices" UUID="279076A5-8AD6-BD46-AD0F-E40BF5AF9B34"></TableOccurrenceReference>
+									</FieldReference>
+								</Parameter>
+								<Parameter type="replace">
+									<List name="Current contents" value="1">
+										<Boolean type="Skip auto-enter options" value="False"></Boolean>
+									</List>
+								</Parameter>
+							</ParameterValues>
+						</Step>
+						<Step hash="C44A90EB1A3D59A0C88156DD61CB15CE" index="22" id="89" name="# (comment)" enable="True">
+							<UUID>1C374EC5-930C-47C7-878B-E16E1BFC8082</UUID>
+							<OwnerID></OwnerID>
+							<Options>4</Options>
+							<DDRREF kind="StepText" hash="CD7664A671CFF6BA643D8338B63BEE93">_1C374EC5-930C-47C7-878B-E16E1BFC8082</DDRREF>
+							<ParameterValues membercount="1">
+								<Parameter type="Comment">
+									<Comment value="case cur-R1-P1"></Comment>
+								</Parameter>
+							</ParameterValues>
+						</Step>
+						<Step hash="2E8E0BE53E61C4E30195962942E2B04E" index="23" id="91" name="Replace Field Contents" enable="True">
+							<UUID>EBFB5A8C-9FCC-42E0-AC31-BE39ACF4D24A</UUID>
+							<OwnerID></OwnerID>
+							<Options>33554561</Options>
+							<DDRREF kind="StepText" hash="E529349AF0FA6302C36F56837EE0E7B0">_EBFB5A8C-9FCC-42E0-AC31-BE39ACF4D24A</DDRREF>
+							<ParameterValues membercount="3">
+								<Parameter type="Boolean">
+									<Boolean type="With dialog" id="128" value="False"></Boolean>
+								</Parameter>
+								<Parameter type="FieldReference">
+									<FieldReference id="31" name="Description" UUID="84C03D40-0D3C-9349-A94C-4354262B6604">
+										<repetition>
+											<Calculation datatype="1" position="10">
+												<Calculation>
+													<DDRREF kind="ChunkList" hash="A93F17BC54CA1958073B692697D5ED21">_EBFB5A8C-9FCC-42E0-AC31-BE39ACF4D24A_10</DDRREF>
+													<Text><![CDATA[1]]></Text>
+												</Calculation>
+											</Calculation>
+										</repetition>
+										<TableOccurrenceReference id="1065094" name="Invoices" UUID="279076A5-8AD6-BD46-AD0F-E40BF5AF9B34"></TableOccurrenceReference>
+									</FieldReference>
+								</Parameter>
+								<Parameter type="replace">
+									<List name="Current contents" value="1">
+										<Boolean type="Skip auto-enter options" value="False"></Boolean>
+									</List>
+								</Parameter>
+							</ParameterValues>
+						</Step>
+					</ObjectList>
+</Script>

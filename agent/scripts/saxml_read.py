@@ -634,6 +634,62 @@ _SAXML_ENUM_LABELS: dict[str, dict[str, dict[str, str]]] = {
 }
 
 
+# ---------------------------------------------------------------------------
+# Flags FileMaker exports as a labeled <Boolean>
+# ---------------------------------------------------------------------------
+# A flag-style enum whose SaXML is neither a ``<List>`` nor a parameter of its own,
+# but a ``<Boolean type="…">`` FileMaker writes for it, possibly nested inside
+# another param's value. Its value True is FileMaker drawing the flag on the step's
+# line. Measured, never inferred: the boolean's label and polarity come from an
+# export of the step in every state.
+#
+# ``Replace Field Contents``' ``Skip auto-enter options`` (the catalog's
+# ``SerialNumbers#PerformAutoEnter`` projection) sits inside the replace ``<List>``
+# and is True exactly when the step stores ``<Restore state="True"/>`` and
+# ``PerformAutoEnter="False"`` (FileMaker Pro 26.0.3, every With mode; Restore alone
+# is bit 0x02000000 of ``<Options>``, and Restore True with PerformAutoEnter True
+# exports False, the same line as Restore False).
+_SAXML_FLAG_BOOLEANS: dict[str, dict[str, str]] = {
+    "Replace Field Contents": {
+        "SerialNumbers#PerformAutoEnter": "Skip auto-enter options",
+    },
+}
+
+
+def _take_labeled_boolean(
+    sparams: list[ET.Element], consumed: list[bool], claimed: set[int], label: str
+) -> ET.Element | None:
+    """The ``<Boolean type="label">``, claimed once: a top-level param's own boolean
+    first (that param is consumed), then one nested inside another param's value,
+    never through an object reference."""
+    for i, sp in enumerate(sparams):
+        if consumed[i]:
+            continue
+        b = sp.find("Boolean")
+        if b is not None and b.get("type") == label and id(b) not in claimed:
+            consumed[i] = True
+            claimed.add(id(b))
+            return b
+
+    def walk(el: ET.Element) -> ET.Element | None:
+        for ch in el:
+            if ch.tag in _CALC_REF_SKIP:
+                continue
+            if ch.tag == "Boolean" and ch.get("type") == label and id(ch) not in claimed:
+                return ch
+            found = walk(ch)
+            if found is not None:
+                return found
+        return None
+
+    for sp in sparams:
+        b = walk(sp)
+        if b is not None:
+            claimed.add(id(b))
+            return b
+    return None
+
+
 def _saxml_enum_value(entry: CatalogEntry, param: StepParam, label: str) -> str:
     """A SaXML ``<List name>`` → the XML value FileMaker writes for it.
 
@@ -897,6 +953,20 @@ def _extract_simple(
         return _bool_on_off(sparams[cands[0]]) or ""
 
     if ptype == "enum":
+        # A flag FileMaker exports as a labeled <Boolean> (see _SAXML_FLAG_BOOLEANS).
+        # An export without the measured boolean is a changed shape: refuse the step
+        # rather than read the flag as off.
+        flag_label = _SAXML_FLAG_BOOLEANS.get(entry.name, {}).get(param_key(param))
+        if flag_label is not None and param.flag_style:
+            b = _take_labeled_boolean(sparams, consumed, claimed, flag_label)
+            if b is None:
+                raise UnsupportedSaXML(
+                    f"{entry.name}: no SaXML <Boolean type={flag_label!r}> for flag "
+                    f"param {param_key(param)!r}")
+            # Drawn = the HR token present; not drawn = absent (empty), which is how
+            # the emitter derives a gating sibling's state (Restore here).
+            return "True" if b.get("value") == "True" else ""
+
         # <Animation> is its own SaXML element, not a <List>, and only ever belongs to
         # the param named for it — so it is matched by name and never competes for a
         # list with the layout-destination enum it sits beside.

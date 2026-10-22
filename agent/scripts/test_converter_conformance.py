@@ -435,6 +435,53 @@ def test_saxml_find_restore_reads_options_bit():
     assert restore("Constrain Found Set", 126, 0) == "False"
 
 
+def test_saxml_skip_auto_enter_reads_nested_boolean():
+    """Replace Field Contents' ``Skip auto-enter options`` comes from the SaXML boolean.
+
+    FileMaker exports the option as ``<Boolean type="Skip auto-enter options">`` inside
+    the replace ``<List>``, True exactly when the step stores ``<Restore state="True"/>``
+    and ``PerformAutoEnter="False"`` (the state it draws the token for). The fixture is
+    FileMaker Pro 26.0.3's own export of every Restore / PerformAutoEnter combination
+    in each With mode. Ignoring the boolean converted every step with Restore False, so
+    a pasted step performed the auto-enter options the original skips.
+    """
+    path = os.path.join(_FIXTURES, "saxml_flag_booleans",
+                        "replace-field-contents-skip-auto-enter-fm26.xml")
+    root = ET.parse(path).getroot()
+    case = None
+    seen = 0
+    for step in root.findall("ObjectList/Step"):
+        if step.get("name") == "# (comment)":
+            case = step.find(".//Comment").get("value").removeprefix("case ")
+            continue
+        with_mode = {"calc": "Calculation", "ser": "SerialNumbers",
+                     "cur": "CurrentContents"}[case.split("-")[0]]
+        skip = "-R1-P0" in case
+        stats = {"unknown": 0, "unsupported": 0}
+        emitted = fm_xml_to_snippet.tx_engine(step, stats)
+        assert stats == {"unknown": 0, "unsupported": 0}, case
+        out = ET.fromstring(emitted.split("-->")[-1])
+        assert out.find("With").get("value") == with_mode, case
+        # Restore True with PerformAutoEnter True exports the boolean False and
+        # draws the same line as Restore False; it reads back as that.
+        assert out.find("Restore").get("state") == ("True" if skip else "False"), case
+        if skip:
+            assert out.find("SerialNumbers").get("PerformAutoEnter") == "False", case
+        hr = "\n".join(snippet_to_hr('<fmxmlsnippet type="FMObjectList">'
+                                      + ET.tostring(out, encoding="unicode") + "</fmxmlsnippet>"))
+        assert ("Skip auto-enter options" in hr) == skip, (case, hr)
+        seen += 1
+    assert seen == 12
+
+    # Without the boolean the shape is not the measured one: refused, never read as off.
+    step = root.find("ObjectList/Step[@name='Replace Field Contents']")
+    lst = step.find(".//Parameter[@type='replace']/List")
+    lst.remove(lst.find("Boolean"))
+    stats = {"unknown": 0, "unsupported": 0}
+    fm_xml_to_snippet.tx_engine(step, stats)
+    assert stats["unsupported"] == 1
+
+
 def _bless():
     for path, data in (
         (_XML_TO_HR, compute_xml_to_hr()),
