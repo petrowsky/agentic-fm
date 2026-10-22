@@ -1,0 +1,145 @@
+{
+  "_comment": [
+    "Option flags FileMaker draws bare, measured on FileMaker Pro 26.0.3 (macOS, 2026-10-19): each step was pasted into a script with its flags set as listed, FileMaker's displayed line read, and the step copied back (xml). FileMaker Pro 19.6.3 and 22.0.4 draw the same lines for the default-state steps.",
+    "Get Folder Path's Allow Folder Creation, Add Account's and Reset Account Password's Expire password, Go to List of Records' New window, Convert File's Skip Indexes and Show/Hide Toolbars' Include Edit Record Toolbar and Lock are drawn only when on. Convert File's Open File is drawn only when Option is False.",
+    "flags: the state FileMaker stored for each element the case covers."
+  ],
+  "cases": [
+    {
+      "step": "Get Folder Path",
+      "flags": {
+        "AllowFolderCreation": "True"
+      },
+      "xml": "<Step enable=\"True\" id=\"181\" name=\"Get Folder Path\"><AllowFolderCreation state=\"True\"/><DisableStepCollapsed state=\"False\"/><Repetition><Calculation><![CDATA[1]]></Calculation></Repetition><DialogTitle><Calculation><![CDATA[\"t\"]]></Calculation></DialogTitle><DefaultLocation><Calculation><![CDATA[Get ( DocumentsPath )]]></Calculation></DefaultLocation><Name>$result</Name></Step>",
+      "fmLine": "Get Folder Path [ Allow Folder Creation ; $result ; \"t\" ; Get ( DocumentsPath ) ]"
+    },
+    {
+      "step": "Reset Account Password",
+      "flags": {
+        "ChgPwdOnNextLogin": "True"
+      },
+      "xml": "<Step enable=\"True\" id=\"136\" name=\"Reset Account Password\"><DisableStepCollapsed state=\"False\"/><ChgPwdOnNextLogin value=\"True\"/><AccountName><Calculation><![CDATA[\"acct\"]]></Calculation></AccountName><Password><Calculation><![CDATA[\"pw\"]]></Calculation></Password></Step>",
+      "fmLine": "Reset Account Password [ Account Name: \"acct\" ; Password: •••••••• ; Expire password ]"
+    },
+    {
+      "step": "Add Account",
+      "flags": {
+        "ChgPwdOnNextLogin": "True"
+      },
+      "xml": "<Step enable=\"True\" id=\"134\" name=\"Add Account\"><DisableStepCollapsed state=\"False\"/><ChgPwdOnNextLogin value=\"True\"/><AccountName><Calculation><![CDATA[\"acct\"]]></Calculation></AccountName><Password><Calculation><![CDATA[\"pw\"]]></Calculation></Password><PrivilegeSet id=\"2\" name=\"[Data Entry Only]\"/><AddAccount><AccountType>FileMaker</AccountType></AddAccount></Step>",
+      "fmLine": "Add Account [ Authenticate via: FileMaker ; Account Name: \"acct\" ; Password: •••••••• ; Privilege Set: [Data Entry Only] ; Expire password ]"
+    },
+    {
+      "step": "Go to List of Records",
+      "flags": {
+        "ShowInNewWindow": "True"
+      },
+      "xml": "<Step enable=\"True\" id=\"228\" name=\"Go to List of Records\"><ShowInNewWindow state=\"True\"/><DisableStepCollapsed state=\"False\"/><LayoutDestination value=\"CurrentLayout\"/><RowList><Calculation><![CDATA[\"1\"]]></Calculation></RowList><NewWndStyles Style=\"Document\" Close=\"Yes\" Minimize=\"Yes\" Maximize=\"Yes\" Resize=\"Yes\" Styles=\"3606018\"/></Step>",
+      "fmLine": "Go to List of Records [ List of record IDs: \"1\" ; Using layout: <Current Layout> ; New window ]"
+    },
+    {
+      "step": "Get Folder Path",
+      "flags": {
+        "AllowFolderCreation": "False"
+      },
+      "xml": "<Step enable=\"True\" id=\"181\" name=\"Get Folder Path\"><AllowFolderCreation state=\"False\"/><DisableStepCollapsed state=\"False\"/><Repetition><Calculation><![CDATA[1]]></Calculation></Repetition><DialogTitle><Calculation><![CDATA[\"t\"]]></Calculation></DialogTitle><DefaultLocation><Calculation><![CDATA[Get ( DocumentsPath )]]></Calculation></DefaultLocation><Name>$result</Name></Step>",
+      "fmLine": "Get Folder Path [ $result ; \"t\" ; Get ( DocumentsPath ) ]"
+    },
+    {
+      "step": "Reset Account Password",
+      "flags": {
+        "ChgPwdOnNextLogin": "False"
+      },
+      "xml": "<Step enable=\"True\" id=\"136\" name=\"Reset Account Password\"><DisableStepCollapsed state=\"False\"/><ChgPwdOnNextLogin value=\"False\"/><AccountName><Calculation><![CDATA[\"acct\"]]></Calculation></AccountName><Password><Calculation><![CDATA[\"pw\"]]></Calculation></Password></Step>",
+      "fmLine": "Reset Account Password [ Account Name: \"acct\" ; Password: •••••••• ]"
+    },
+    {
+      "step": "Add Account",
+      "flags": {
+        "ChgPwdOnNextLogin": "False"
+      },
+      "xml": "<Step enable=\"True\" id=\"134\" name=\"Add Account\"><DisableStepCollapsed state=\"False\"/><ChgPwdOnNextLogin value=\"False\"/><AccountName><Calculation><![CDATA[\"acct\"]]></Calculation></AccountName><Password><Calculation><![CDATA[\"pw\"]]></Calculation></Password><PrivilegeSet id=\"2\" name=\"[Data Entry Only]\"/><AddAccount><AccountType>FileMaker</AccountType></AddAccount></Step>",
+      "fmLine": "Add Account [ Authenticate via: FileMaker ; Account Name: \"acct\" ; Password: •••••••• ; Privilege Set: [Data Entry Only] ]"
+    },
+    {
+      "step": "Go to List of Records",
+      "flags": {
+        "ShowInNewWindow": "False"
+      },
+      "xml": "<Step enable=\"True\" id=\"228\" name=\"Go to List of Records\"><ShowInNewWindow state=\"False\"/><DisableStepCollapsed state=\"False\"/><LayoutDestination value=\"CurrentLayout\"/><RowList><Calculation><![CDATA[\"1\"]]></Calculation></RowList><NewWndStyles Style=\"Document\" Close=\"Yes\" Minimize=\"Yes\" Maximize=\"Yes\" Resize=\"Yes\" Styles=\"3606018\"/></Step>",
+      "fmLine": "Go to List of Records [ List of record IDs: \"1\" ; Using layout: <Current Layout> ; Animation: None ]"
+    },
+    {
+      "step": "Convert File",
+      "flags": {
+        "Option": "False",
+        "SkipIndexes": "False"
+      },
+      "xml": "<Step enable=\"True\" id=\"139\" name=\"Convert File\"><NoInteract state=\"False\"/><Option state=\"False\"/><SkipIndexes state=\"False\"/><DisableStepCollapsed state=\"False\"/><VerifySSLCertificates state=\"True\"/><DataSourceType value=\"File\"/><Profile FieldDelimiter=\"&#09;\" IsPredefined=\"-1\" FieldNameRow=\"-1\" DataType=\"    \"/><UniversalPathList>$path</UniversalPathList><ImportOptions TargetTableName=\"Table\" CharacterSet=\"Macintosh\" KeepOriginalData=\"False\" PreserveContainer=\"False\" MatchFieldNames=\"False\" AutoEnter=\"False\" SplitRepetitions=\"False\" method=\"Add\"/></Step>",
+      "fmLine": "Convert File [ Open File ; With dialog: On ; “$path” ; Verify SSL Certificates ]"
+    },
+    {
+      "step": "Convert File",
+      "flags": {
+        "Option": "True",
+        "SkipIndexes": "True"
+      },
+      "xml": "<Step enable=\"True\" id=\"139\" name=\"Convert File\"><NoInteract state=\"False\"/><Option state=\"True\"/><SkipIndexes state=\"True\"/><DisableStepCollapsed state=\"False\"/><VerifySSLCertificates state=\"True\"/><DataSourceType value=\"File\"/><Profile FieldDelimiter=\"&#09;\" IsPredefined=\"-1\" FieldNameRow=\"-1\" DataType=\"    \"/><UniversalPathList>$path</UniversalPathList><ImportOptions TargetTableName=\"Table\" CharacterSet=\"Macintosh\" KeepOriginalData=\"False\" PreserveContainer=\"False\" MatchFieldNames=\"False\" AutoEnter=\"False\" SplitRepetitions=\"False\" method=\"Add\"/></Step>",
+      "fmLine": "Convert File [ Skip Indexes ; With dialog: On ; “$path” ; Verify SSL Certificates ]"
+    },
+    {
+      "step": "Convert File",
+      "flags": {
+        "Option": "True",
+        "SkipIndexes": "False"
+      },
+      "xml": "<Step enable=\"True\" id=\"139\" name=\"Convert File\"><NoInteract state=\"False\"/><Option state=\"True\"/><SkipIndexes state=\"False\"/><DisableStepCollapsed state=\"False\"/><VerifySSLCertificates state=\"True\"/><DataSourceType value=\"File\"/><Profile FieldDelimiter=\"&#09;\" IsPredefined=\"-1\" FieldNameRow=\"-1\" DataType=\"    \"/><UniversalPathList>$path</UniversalPathList><ImportOptions TargetTableName=\"Table\" CharacterSet=\"Macintosh\" KeepOriginalData=\"False\" PreserveContainer=\"False\" MatchFieldNames=\"False\" AutoEnter=\"False\" SplitRepetitions=\"False\" method=\"Add\"/></Step>",
+      "fmLine": "Convert File [ With dialog: On ; “$path” ; Verify SSL Certificates ]"
+    },
+    {
+      "step": "Convert File",
+      "flags": {
+        "Option": "False",
+        "SkipIndexes": "True"
+      },
+      "xml": "<Step enable=\"True\" id=\"139\" name=\"Convert File\"><NoInteract state=\"False\"/><Option state=\"False\"/><SkipIndexes state=\"True\"/><DisableStepCollapsed state=\"False\"/><VerifySSLCertificates state=\"True\"/><DataSourceType value=\"File\"/><Profile FieldDelimiter=\"&#09;\" IsPredefined=\"-1\" FieldNameRow=\"-1\" DataType=\"    \"/><UniversalPathList>$path</UniversalPathList><ImportOptions TargetTableName=\"Table\" CharacterSet=\"Macintosh\" KeepOriginalData=\"False\" PreserveContainer=\"False\" MatchFieldNames=\"False\" AutoEnter=\"False\" SplitRepetitions=\"False\" method=\"Add\"/></Step>",
+      "fmLine": "Convert File [ Open File ; Skip Indexes ; With dialog: On ; “$path” ; Verify SSL Certificates ]"
+    },
+    {
+      "step": "Show/Hide Toolbars",
+      "flags": {
+        "IncludeEditRecordToolbar": "False",
+        "Lock": "False"
+      },
+      "xml": "<Step enable=\"True\" id=\"29\" name=\"Show/Hide Toolbars\"><IncludeEditRecordToolbar state=\"False\"/><Lock state=\"False\"/><DisableStepCollapsed state=\"False\"/><ShowHide value=\"Hide\"/></Step>",
+      "fmLine": "Show/Hide Toolbars [ Hide ]"
+    },
+    {
+      "step": "Show/Hide Toolbars",
+      "flags": {
+        "IncludeEditRecordToolbar": "True",
+        "Lock": "False"
+      },
+      "xml": "<Step enable=\"True\" id=\"29\" name=\"Show/Hide Toolbars\"><IncludeEditRecordToolbar state=\"True\"/><Lock state=\"False\"/><DisableStepCollapsed state=\"False\"/><ShowHide value=\"Hide\"/></Step>",
+      "fmLine": "Show/Hide Toolbars [ Include Edit Record Toolbar ; Hide ]"
+    },
+    {
+      "step": "Show/Hide Toolbars",
+      "flags": {
+        "IncludeEditRecordToolbar": "False",
+        "Lock": "True"
+      },
+      "xml": "<Step enable=\"True\" id=\"29\" name=\"Show/Hide Toolbars\"><IncludeEditRecordToolbar state=\"False\"/><Lock state=\"True\"/><DisableStepCollapsed state=\"False\"/><ShowHide value=\"Hide\"/></Step>",
+      "fmLine": "Show/Hide Toolbars [ Lock ; Hide ]"
+    },
+    {
+      "step": "Show/Hide Toolbars",
+      "flags": {
+        "IncludeEditRecordToolbar": "True",
+        "Lock": "True"
+      },
+      "xml": "<Step enable=\"True\" id=\"29\" name=\"Show/Hide Toolbars\"><IncludeEditRecordToolbar state=\"True\"/><Lock state=\"True\"/><DisableStepCollapsed state=\"False\"/><ShowHide value=\"Hide\"/></Step>",
+      "fmLine": "Show/Hide Toolbars [ Lock ; Include Edit Record Toolbar ; Hide ]"
+    }
+  ]
+}

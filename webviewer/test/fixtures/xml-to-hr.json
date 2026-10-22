@@ -1,6 +1,6 @@
 {
   "accounts/Add Account.xml": {
-    "hr": "Add Account [ Authenticate via: FileMaker ; Account Name: \"Account Name\" ; Password: \"Password\" ; Expire password: On ]",
+    "hr": "Add Account [ Authenticate via: FileMaker ; Account Name: \"Account Name\" ; Password: \"Password\" ; Expire password ]",
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"134\" name=\"Add Account\">\n    <ChgPwdOnNextLogin value=\"True\"/>\n    <AccountName>\n      <Calculation><![CDATA[\"Account Name\"]]></Calculation>\n    </AccountName>\n    <Password>\n      <Calculation><![CDATA[\"Password\"]]></Calculation>\n    </Password>\n    <PrivilegeSet id=\"0\" name=\"\"/>\n    <AddAccount>\n      <AccountType>FileMaker</AccountType>\n    </AddAccount>\n  </Step>\n</fmxmlsnippet>"
   },
   "accounts/Change Password.xml": {
@@ -20,7 +20,7 @@
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"138\" name=\"Re-Login\">\n    <NoInteract state=\"True\"/>\n    <AccountName>\n      <Calculation><![CDATA[\"account name\"]]></Calculation>\n    </AccountName>\n    <Password>\n      <Calculation><![CDATA[\"password\"]]></Calculation>\n    </Password>\n  </Step>\n</fmxmlsnippet>"
   },
   "accounts/Reset Account Password.xml": {
-    "hr": "Reset Account Password [ Account Name: \"account name\" ; Password: \"password\" ; Expire password: On ]",
+    "hr": "Reset Account Password [ Account Name: \"account name\" ; Password: \"password\" ; Expire password ]",
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"136\" name=\"Reset Account Password\">\n    <ChgPwdOnNextLogin value=\"True\"/>\n    <AccountName>\n      <Calculation><![CDATA[\"account name\"]]></Calculation>\n    </AccountName>\n    <Password>\n      <Calculation><![CDATA[\"password\"]]></Calculation>\n    </Password>\n  </Step>\n</fmxmlsnippet>"
   },
   "artificial intelligence/Configure AI Account.xml": {
@@ -316,7 +316,7 @@
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"34\" name=\"Close File\">\n    <FileReference id=\"0\" name=\"\">\n      <UniversalPathList>file:NameOfFile</UniversalPathList>\n    </FileReference>\n  </Step>\n</fmxmlsnippet>"
   },
   "files/Convert File.xml": {
-    "hr": "Convert File [ With dialog: On ; Open File: Off ; Skip Indexes: On ; Verify SSL Certificates ; File ; Profile: FieldDelimiter=\"\t\", IsPredefined=-1, FieldNameRow=-1, DataType=\"    \" ; “$path” ; Import options: TargetTableName=Table, CharacterSet=Macintosh, PreserveContainer=False, MatchFieldNames=False, AutoEnter=False, SplitRepetitions=False, method=Add ]",
+    "hr": "Convert File [ With dialog: On ; Open File ; Skip Indexes ; Verify SSL Certificates ; File ; Profile: FieldDelimiter=\"\t\", IsPredefined=-1, FieldNameRow=-1, DataType=\"    \" ; “$path” ; Import options: TargetTableName=Table, CharacterSet=Macintosh, PreserveContainer=False, MatchFieldNames=False, AutoEnter=False, SplitRepetitions=False, method=Add ]",
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"139\" name=\"Convert File\">\n    <NoInteract state=\"False\"/>\n    <Option state=\"False\"/>\n    <SkipIndexes state=\"True\"/>\n    <VerifySSLCertificates state=\"True\"/>\n    <DataSourceType value=\"File\"/>\n    <Profile FieldDelimiter=\"&#9;\" IsPredefined=\"-1\" FieldNameRow=\"-1\" DataType=\"    \"/>\n    <UniversalPathList>$path</UniversalPathList>\n    <ImportOptions TargetTableName=\"Table\" CharacterSet=\"Macintosh\" PreserveContainer=\"False\" MatchFieldNames=\"False\" AutoEnter=\"False\" SplitRepetitions=\"False\" method=\"Add\"/>\n  </Step>\n</fmxmlsnippet>"
   },
   "files/Create Data File.xml": {
@@ -500,7 +500,7 @@
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"237\" name=\"Flush Web Viewer Cookies\"/>\n</fmxmlsnippet>"
   },
   "miscellaneous/Get Folder Path.xml": {
-    "hr": "Get Folder Path [ Allow Folder Creation: On ; Repetition: 1 ; Default location: Get ( DocumentsPath ) ; $result ]",
+    "hr": "Get Folder Path [ Allow Folder Creation ; Repetition: 1 ; Default location: Get ( DocumentsPath ) ; $result ]",
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"181\" name=\"Get Folder Path\">\n    <AllowFolderCreation state=\"True\"/>\n    <Repetition>\n      <Calculation><![CDATA[1]]></Calculation>\n    </Repetition>\n    <DialogTitle>\n      <Calculation><![CDATA[]]></Calculation>\n    </DialogTitle>\n    <DefaultLocation>\n      <Calculation><![CDATA[Get ( DocumentsPath )]]></Calculation>\n    </DefaultLocation>\n    <Name>$result</Name>\n  </Step>\n</fmxmlsnippet>"
   },
   "miscellaneous/Install Menu Set.xml": {
@@ -588,7 +588,7 @@
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"6\" name=\"Go to Layout\">\n    <LayoutDestination value=\"SelectedLayout\"/>\n    <Layout id=\"0\" name=\"\"/>\n    <Animation value=\"\"/>\n  </Step>\n</fmxmlsnippet>"
   },
   "navigation/Go to List of Records.xml": {
-    "hr": "Go to List of Records [ List of record IDs: \"calc\" ; Using layout: <Current Layout> ; New window: Off ]",
+    "hr": "Go to List of Records [ List of record IDs: \"calc\" ; Using layout: <Current Layout> ]",
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"228\" name=\"Go to List of Records\">\n    <ShowInNewWindow state=\"False\"/>\n    <LayoutDestination value=\"CurrentLayout\"/>\n    <RowList>\n      <Calculation><![CDATA[\"calc\"]]></Calculation>\n    </RowList>\n    <NewWndStyles Style=\"Document\" Close=\"Yes\" Minimize=\"Yes\" Maximize=\"Yes\" Resize=\"Yes\" Styles=\"3606018\"/>\n  </Step>\n</fmxmlsnippet>"
   },
   "navigation/Go to Next Field.xml": {
@@ -856,7 +856,7 @@
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"92\" name=\"Show/Hide Text Ruler\">\n    <ShowHide value=\"Show\"/>\n  </Step>\n</fmxmlsnippet>"
   },
   "windows/Show_Hide Toolbars.xml": {
-    "hr": "Show/Hide Toolbars [ Include Edit Record Toolbar: On ; Lock: Off ; Hide ]",
+    "hr": "Show/Hide Toolbars [ Include Edit Record Toolbar ; Hide ]",
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"29\" name=\"Show/Hide Toolbars\">\n    <IncludeEditRecordToolbar state=\"True\"/>\n    <Lock state=\"False\"/>\n    <ShowHide value=\"Hide\"/>\n  </Step>\n</fmxmlsnippet>"
   },
   "windows/View As.xml": {

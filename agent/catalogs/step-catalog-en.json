@@ -75,10 +75,12 @@
       {
         "xmlElement": "ChgPwdOnNextLogin",
         "type": "boolean",
+        "flagStyle": true,
         "hrLabel": "Expire password",
         "xmlAttr": "value",
         "required": false,
-        "defaultValue": "False"
+        "defaultValue": "False",
+        "notes": "Flag-style: FileMaker draws \"Expire password\" when True and nothing when False (live, FM 26.0.3; same line on 19.6.3 and 22.0.4)."
       }
     ],
     "hrSignature": "[ Authenticate via: type ; Account Name: calc ; Password: calc ; Privilege Set: name ; Expire password ]",
@@ -1539,19 +1541,23 @@
       {
         "xmlElement": "Option",
         "type": "boolean",
+        "flagStyle": true,
+        "invertedHr": true,
         "hrLabel": "Open File",
         "xmlAttr": "state",
         "required": false,
         "defaultValue": "False",
-        "notes": "HR always shows 'Open File'. State False = Open File shown."
+        "notes": "Inverted flag: FileMaker draws \"Open File\" when state is False and nothing when True (live, FM 26.0.3; same line on 19.6.3 and 22.0.4)."
       },
       {
         "xmlElement": "SkipIndexes",
         "type": "boolean",
+        "flagStyle": true,
         "hrLabel": "Skip Indexes",
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "False"
+        "defaultValue": "False",
+        "notes": "Flag-style: FileMaker draws \"Skip Indexes\" when True and nothing when False (live, FM 26.0.3; same line on 19.6.3 and 22.0.4)."
       },
       {
         "xmlElement": "VerifySSLCertificates",
@@ -3245,10 +3251,12 @@
       {
         "xmlElement": "AllowFolderCreation",
         "type": "boolean",
+        "flagStyle": true,
         "hrLabel": "Allow Folder Creation",
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "True"
+        "defaultValue": "True",
+        "notes": "Flag-style: FileMaker draws \"Allow Folder Creation\" when True and nothing when False (live, FM 26.0.3; same line on 19.6.3 and 22.0.4). The default documents a fresh step; an absent flag reads as False."
       },
       {
         "xmlElement": "Calculation",
@@ -3415,11 +3423,12 @@
       {
         "xmlElement": "ShowInNewWindow",
         "type": "boolean",
+        "flagStyle": true,
         "hrLabel": "New window",
         "xmlAttr": "state",
         "required": false,
         "defaultValue": "False",
-        "notes": "When True, HR shows 'New window' instead of Animation. Enables window params (Name, Height, Width, DistanceFromTop, DistanceFromLeft). See window-enums.md."
+        "notes": "Flag-style (live, FM 26.0.3): FileMaker draws a bare 'New window' when True, nothing when False. When True, HR shows 'New window' instead of Animation. Enables window params (Name, Height, Width, DistanceFromTop, DistanceFromLeft). See window-enums.md."
       },
       {
         "xmlElement": "NewWndStyles",
@@ -7353,11 +7362,12 @@
       {
         "xmlElement": "ChgPwdOnNextLogin",
         "type": "boolean",
+        "flagStyle": true,
         "hrLabel": "Expire password",
         "xmlAttr": "value",
         "required": false,
         "defaultValue": "False",
-        "note": "Flag-style: shown in HR as \"Expire password\" only when value is True"
+        "note": "Flag-style: FileMaker draws \"Expire password\" when True and nothing when False (live, FM 26.0.3; same line on 19.6.3 and 22.0.4)."
       }
     ],
     "hrSignature": "[ Account Name: <value> ; Password: <value> ; Expire password ]",
@@ -9548,19 +9558,23 @@
     "params": [
       {
         "xmlElement": "IncludeEditRecordToolbar",
+        "flagStyle": true,
         "type": "flagBoolean",
         "hrLabel": "Include Edit Record Toolbar",
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "False"
+        "defaultValue": "False",
+        "notes": "Flag-style: FileMaker draws \"Include Edit Record Toolbar\" when True and nothing when False (live, FM 26.0.3; same line on 19.6.3 and 22.0.4)."
       },
       {
         "xmlElement": "Lock",
+        "flagStyle": true,
         "type": "flagBoolean",
         "hrLabel": "Lock",
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "False"
+        "defaultValue": "False",
+        "notes": "Flag-style: FileMaker draws \"Lock\" when True and nothing when False (live, FM 26.0.3)."
       },
       {
         "xmlElement": "ShowHide",

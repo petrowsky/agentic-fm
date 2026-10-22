@@ -150,6 +150,7 @@ See **Nested field grammar**.
 `flagStyle: true` on a `boolean` is the machine-readable form of `flagBoolean`, and it is what the converter actually reads — describing the behavior only in `notes` leaves the parser looking for a `Label: value` token that the bare label never matches, so the orphaned label is handed to the next positional param instead.
 For such a param the HR **presence is the value**: label present = `True`, label absent = `False`.
 `defaultValue` documents FileMaker's default for a freshly added step and must never answer for an absent flag — otherwise a flag defaulting to `True` cannot be switched off from HR at all.
+With `invertedHr: true` as well, the flag is drawn when the attribute is `False`: label present = `False`, label absent = `True` (Convert File's `Open File` is drawn when `Option` is `False`).
 
 A param FileMaker renders with **no** HR token needs `hrHidden: true` for the same reason: without it the converter emits a stray bare `On`/`Off` and the param can swallow a positional token belonging to a real one.
 Whether a given boolean renders bare, labeled, or not at all is a per-step FileMaker fact — confirm it against FileMaker's own rendering rather than inferring it from `params[]`.
