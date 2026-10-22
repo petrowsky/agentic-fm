@@ -2,7 +2,7 @@
   "_comment": [
     "Five steps FileMaker draws with a bare On / Off, measured on FileMaker Pro 26.0.3 (macOS, 2026-10-19): every case was pasted into one script, FileMaker's displayed line read, and the script copied back (xml, FileMaker's own bytes, DisableStepCollapsed left out).",
     "FileMaker draws the on/off option of Set Error Logging, Set AI Call Logging, Set Layout Object Animation, Set Revert Transaction on Error and Set Use System Formats with no label. Set AI Call Logging draws Verbose labeled with its state on every line, and Truncate Messages the same way only while Verbose is on; pasted with Verbose off, FileMaker drops the truncate element (case ai_t_tr).",
-    "FileMaker labels Set Error Logging's custom debug info (Custom debug info: \"dbg\"); the converter's HR prints it bare. Both read back."
+    "FileMaker labels Set Error Logging's custom debug info (Custom debug info: \"dbg\"); the converter's HR labels it the same way."
   ],
   "cases": [
     {

@@ -72,7 +72,7 @@ def test_filemakers_line_keeps_the_state():
 def test_the_labeled_spelling_still_reads():
     assert _stored(_emit("Set Layout Object Animation [ Animation: Off ]")) == "False"
     assert _stored(_emit("Set Revert Transaction on Error [ Revert on error: On ]")) == "True"
-    assert _stored(_emit('Set Error Logging [ On ; "dbg" ]')) == 'True|calc="dbg"'
+    assert _stored(_emit('Set Error Logging [ Logging: On ; Custom debug info: "dbg" ]')) == 'True|calc="dbg"'
 
 
 def test_converter_hr_round_trips_every_step():

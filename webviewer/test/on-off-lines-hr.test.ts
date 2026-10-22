@@ -53,7 +53,7 @@ describe('bare On / Off on FileMaker\'s line', () => {
   it('still reads the labeled spelling', () => {
     expect(stored(hrToXml('Set Layout Object Animation [ Animation: Off ]').xml)).toEqual('False');
     expect(stored(hrToXml('Set Revert Transaction on Error [ Revert on error: On ]').xml)).toEqual('True');
-    expect(stored(hrToXml('Set Error Logging [ On ; "dbg" ]').xml)).toEqual('True|calc="dbg"');
+    expect(stored(hrToXml('Set Error Logging [ Logging: On ; Custom debug info: "dbg" ]').xml)).toEqual('True|calc="dbg"');
   });
 
   it('round-trips every step through the converter\'s HR', () => {

@@ -180,7 +180,7 @@
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"86\" name=\"Set Error Capture\">\n    <Set state=\"True\"/>\n  </Step>\n</fmxmlsnippet>"
   },
   "control/Set Error Logging.xml": {
-    "hr": "Set Error Logging [ Logging: On ; \"custom_debug_info\" ]",
+    "hr": "Set Error Logging [ Logging: On ; Custom debug info: \"custom_debug_info\" ]",
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"200\" name=\"Set Error Logging\">\n    <Option state=\"True\"/>\n    <Calculation><![CDATA[\"custom_debug_info\"]]></Calculation>\n  </Step>\n</fmxmlsnippet>"
   },
   "control/Set Layout Object Animation.xml": {

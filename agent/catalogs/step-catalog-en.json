@@ -8907,7 +8907,8 @@
         "type": "calculation",
         "hrLabel": "Custom debug info",
         "required": false,
-        "note": "Only present when Option state=True"
+        "omitWhenEmpty": true,
+        "note": "Optional, independent of the Option state: FileMaker keeps it while logging is off and writes no <Calculation> when there is none. FileMaker labels it (`Set Error Logging [ On ; Custom debug info: \"dbg\" ]`, measured FileMaker Pro 19.6.3 to 26.0.3), so omitWhenEmpty: it renders and reads by its label."
       }
     ],
     "hrSignature": "[ <On/Off> ; Custom debug info: <calc> ]",
