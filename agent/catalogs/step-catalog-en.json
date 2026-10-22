@@ -3535,11 +3535,13 @@
         "xmlAttr": "state",
         "required": false,
         "defaultValue": "True",
+        "omitWhenEmpty": true,
+        "visibleWhen": { "param": "RowPageLocation", "values": ["Previous", "Next"] },
         "enumValues": [
           "On",
           "Off"
         ],
-        "notes": "Only applies when RowPageLocation is Previous or Next"
+        "notes": "Only applies when RowPageLocation is Previous or Next. FileMaker writes <Exit> only for Previous and Next (absent reads as False there) and drops it for First, Last and ByCalculation even when pasted; its line draws `Exit after last: On|Off` only for Previous and Next (live copy-back, FM 26.0.3). The visibleWhen gate + omitWhenEmpty hide the token and stop the emit for the other three, so a SaXML step (which carries no Exit for them) does not render the catalog default."
       },
       {
         "xmlElement": "NoInteract",
@@ -3620,11 +3622,13 @@
         "xmlAttr": "state",
         "required": false,
         "defaultValue": "True",
+        "omitWhenEmpty": true,
+        "visibleWhen": { "param": "RowPageLocation", "values": ["Previous", "Next"] },
         "enumValues": [
           "On",
           "Off"
         ],
-        "notes": "Only applies when RowPageLocation is Previous or Next"
+        "notes": "Only applies when RowPageLocation is Previous or Next. FileMaker writes <Exit> only for Previous and Next (absent reads as False there) and drops it for First, Last and ByCalculation even when pasted; its line draws `Exit after last: On|Off` only for Previous and Next (live copy-back, FM 26.0.3). The visibleWhen gate + omitWhenEmpty hide the token and stop the emit for the other three, so a SaXML step (which carries no Exit for them) does not render the catalog default."
       },
       {
         "xmlElement": "NoInteract",
