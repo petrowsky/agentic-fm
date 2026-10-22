@@ -3,7 +3,7 @@
 saxmlpreview.py — Convert a FileMaker SaXML script file to Script Workspace format.
 
 Usage:
-    python3 .claude/skills/script-preview/scripts/saxmlpreview.py <path-to-script.xml>
+    python3 agent/scripts/saxmlpreview.py <path-to-script.xml>
 
 Each <Step> element in the SaXML produces exactly one output line, so line numbers
 are deterministic and 1:1 with what a developer sees in FileMaker Script Workspace.

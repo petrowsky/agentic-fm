@@ -88,7 +88,7 @@ def _write_fixture(test_id: str, tier: int, mode: str, ts: str) -> str:
 
     # Validate
     result = subprocess.run(
-        ["python3", VALIDATOR, path],
+        [sys.executable, VALIDATOR, path],
         capture_output=True, text=True,
     )
     if result.returncode != 0:

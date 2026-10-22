@@ -38,7 +38,7 @@ This document catalogues every converter in the agentic-fm project — tools tha
 | From | To | Tool | Location | Runtime |
 |------|----|------|----------|---------|
 | SaXML → fmxmlsnippet | `fm_xml_to_snippet.py` | `agent/scripts/` | Python (server) |
-| SaXML → HR | `saxmlpreview.py` | `.claude/skills/script-preview/scripts/` | Python (server) |
+| SaXML → HR | `saxmlpreview.py` | `agent/scripts/` | Python (server) |
 | SaXML → HR | fm-xml-export-exploder | External Rust tool | Build-time only |
 | fmxmlsnippet → HR | `snippet_to_hr.py` | `agent/scripts/` | Python (server) |
 | fmxmlsnippet → HR | `xml-to-hr.ts` | `webviewer/src/converter/` | Browser (client) |
@@ -240,14 +240,14 @@ python3 agent/scripts/snippet_to_hr.py agent/sandbox/MyScript.xml --raw -o outpu
 - Handles indentation, disabled step prefixing, multi-line calculations
 - Importable as a module: `from agent.scripts.snippet_to_hr import snippet_to_hr`
 
-### `.claude/skills/script-preview/scripts/saxmlpreview.py`
+### `agent/scripts/saxmlpreview.py`
 
 **SaXML → HR**
 
 Converts SaXML (not fmxmlsnippet) to Script Workspace format. Used by the `script-preview` skill to display existing scripts before modification.
 
 ```bash
-python3 .claude/skills/script-preview/scripts/saxmlpreview.py \
+python3 agent/scripts/saxmlpreview.py \
   "agent/xml_parsed/scripts/{solution}/{path}.xml"
 ```
 

@@ -894,7 +894,7 @@ class CompanionHandler(BaseHTTPRequestHandler):
 
         try:
             result = subprocess.run(
-                ["python3", clipboard_py, "read"],
+                [sys.executable, clipboard_py, "read"],
                 capture_output=True, text=True, timeout=10
             )
             if result.returncode == 0 and result.stdout.strip():
@@ -949,7 +949,7 @@ class CompanionHandler(BaseHTTPRequestHandler):
                 tmp_path = tmp.name
 
             result = subprocess.run(
-                ["python3", clipboard_py, "write", tmp_path],
+                [sys.executable, clipboard_py, "write", tmp_path],
                 capture_output=True, text=True
             )
             os.unlink(tmp_path)
