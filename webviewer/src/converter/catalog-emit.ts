@@ -1173,7 +1173,11 @@ function emitGroupElement(
   kv: Map<string, string>,
   indent: string,
   resolver: IdResolver,
+  materialize = false,
 ): string {
+  // `materialize`: an hrOmitAtDefault group with no HR token writes its default
+  // element (a calc / text field with a defaultValue holds it, every sub-group
+  // is written), the element groupAtDefault accepts.
   let attrs = '';
   let children = '';
   const ci = indent + '  ';
@@ -1182,6 +1186,30 @@ function emitGroupElement(
     const key = rawStr(f, 'key');
     const it = kv.get(lowerKey(key));
     const present = it !== undefined && it !== '';
+    const def = rawStr(f, 'defaultValue');
+    if (materialize && !present && (kind === 'calc' || kind === 'text') && def) {
+      const childElement = rawStr(f, 'childElement');
+      if (kind === 'text') {
+        children += `${ci}<${childElement}>${escXml(def)}</${childElement}>\n`;
+        continue;
+      }
+      const requireAttr = rawStr(f, 'requireAttr');
+      if (requireAttr) attrs += ` ${requireAttr}="True"`;
+      if (!childElement) {
+        children += `${ci}<Calculation>${cdata(def)}</Calculation>\n`;
+      } else {
+        children += `${ci}<${childElement}>\n`;
+        children += `${ci}  <Calculation>${cdata(def)}</Calculation>\n`;
+        children += `${ci}</${childElement}>\n`;
+      }
+      continue;
+    }
+    if (materialize && !present && kind === 'group') {
+      children += emitGroupElement(
+        rawStr(f, 'element'), rawArr(f, 'fields'), new Map(), ci, resolver, true,
+      ) + '\n';
+      continue;
+    }
     if (kind === 'attr') {
       if (rawBool(f, 'optional') && !present) continue;
       const v = present ? groupUnquoteValue(it!) : rawStr(f, 'defaultValue');
@@ -1258,6 +1286,11 @@ function emitAttrGroup(
 ): string {
   // `projected`: fields a display projection (groupFields) read from its own
   // token, keyed lower-case; they override the body's and make the group present.
+  // hrOmitAtDefault: no token is the group at its catalog default, which the
+  // XML->HR side left out; write that default element back.
+  if (!trim(hrValue) && param.raw.hrOmitAtDefault === true && !(projected && projected.size > 0)) {
+    return emitGroupElement(param.xmlElement, rawArr(param.raw, 'fields'), new Map(), '    ', resolver, true);
+  }
   if (!trim(hrValue) && !param.hrHidden && !(projected && projected.size > 0)) return '';
   const kv = parseGroupKV(hrValue);
   for (const [k, v] of projected ?? []) kv.set(k, v);

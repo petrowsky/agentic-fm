@@ -1028,6 +1028,64 @@ def hr_param_order(entry: CatalogEntry) -> list[int]:
 
 
 # --- group / repeat / list renderers ----------------------------------------
+def _group_at_default(node: ET.Element, fields: list[dict]) -> bool:
+    """Whether a group element is exactly its catalog default (``hrOmitAtDefault``).
+
+    Every non-optional attr present at its ``defaultValue``, every optional attr
+    absent, a calc / text child present holding its ``defaultValue`` when it has
+    one and absent otherwise (a calc's ``requireAttr`` reading its presence), no
+    field / script child, every sub-group present and at default. The element
+    the emitter writes back for an absent token.
+    """
+    for f in fields:
+        kind = f.get("kind", "")
+        default = f.get("defaultValue") or ""
+        if kind == "attr":
+            a = node.get(f.get("xmlAttr", ""))
+            if f.get("optional"):
+                if a is not None:
+                    return False
+                continue
+            if a is None or a != default:
+                return False
+        elif kind == "text":
+            child = node.find(f.get("childElement", ""))
+            if not default:
+                if child is not None:
+                    return False
+                continue
+            if child is None or (child.text or "") != default:
+                return False
+        elif kind == "calc":
+            child_el = f.get("childElement", "")
+            calc = node.find("Calculation") if not child_el else node.find(child_el)
+            has = calc is not None
+            if has != bool(default):
+                return False
+            if has:
+                v = (calc.text or "") if not child_el else _child_text(calc, "Calculation")
+                if v != default:
+                    return False
+            req = f.get("requireAttr", "")
+            if req and node.get(req) != ("True" if has else "False"):
+                return False
+        elif kind == "group":
+            sub = node.find(f.get("element", ""))
+            if sub is None or not _group_at_default(sub, f.get("fields", [])):
+                return False
+        elif kind == "field":
+            if node.find("Field") is not None:
+                return False
+        elif kind == "fieldOrVariable":
+            fld = node.find("Field")
+            if fld is None or (fld.text or "").strip() or fld.get("name", ""):
+                return False
+        elif kind == "script":
+            if node.find(f.get("element", "")) is not None:
+                return False
+    return True
+
+
 def _render_group_element(node: ET.Element, fields: list[dict]) -> str:
     """Render one attrGroup element to its HR body ('k=v, k=v'); mirrors the ref."""
     parts: list[str] = []
@@ -1269,6 +1327,12 @@ def compute_param_hr(entry: CatalogEntry, step: ET.Element, param: StepParam) ->
             val = label + ": " + val
     elif ptype == "attrGroup":
         group_node = base.find(param.xml_element)
+        # hrOmitAtDefault: a group at its catalog default prints nothing
+        # (FileMaker draws `Speak [ ]` / `Create PDF [ ]`); the emitter writes
+        # the default element back.
+        if (group_node is not None and param.raw.get("hrOmitAtDefault")
+                and _group_at_default(group_node, param.raw.get("fields", []))):
+            group_node = None
         if group_node is not None:
             # A field a visible display projection prints as its own token is
             # left out of the body; one whose projection is hidden stays.

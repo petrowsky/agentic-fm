@@ -172,7 +172,7 @@
   "pdf files/Append PDF.xml": "Append PDF [ “$path” ; From: File ]",
   "pdf files/Cancel PDF.xml": "Cancel PDF",
   "pdf files/Close PDF.xml": "Close PDF [ Create folders: Off ; “$path” ; Save to: File ]",
-  "pdf files/Create PDF.xml": "Create PDF [ Document: Pages=(AllPages=True, NumberFrom=1, PageRange=(From=1, To=1)) ; Security: ScreenReader=True, Copying=True, Editing=AnyExceptExtractingPages, Printing=HighResolution ; View: Magnification=100, Layout=SinglePage, Show=PagesPanelAndPage ]",
+  "pdf files/Create PDF.xml": "Create PDF [ ]",
   "pdf files/Open PDF.xml": "Open PDF [ “$path” ; From: File ]",
   "pdf files/Print PDF.xml": "Print PDF [ With dialog: Off ; “$path” ]",
   "records/Commit Records_Requests.xml": "Commit Records/Requests [ With dialog: Off ]",

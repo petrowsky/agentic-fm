@@ -9740,13 +9740,15 @@
         "type": "attrGroup",
         "hrLabel": "Speech options",
         "required": false,
+        "hrOmitAtDefault": true,
+        "fmLineHidden": true,
         "fields": [
           { "key": "WaitForCompletion", "kind": "attr", "xmlAttr": "WaitForCompletion", "defaultValue": "False" },
           { "key": "VoiceName", "kind": "attr", "xmlAttr": "VoiceName", "optional": true },
           { "key": "VoiceId", "kind": "attr", "xmlAttr": "VoiceId", "defaultValue": "0" },
           { "key": "VoiceCreator", "kind": "attr", "xmlAttr": "VoiceCreator", "optional": true }
         ],
-        "note": "attrGroup: <SpeechOptions> carries WaitForCompletion plus the chosen macOS voice (VoiceName/VoiceId/VoiceCreator from `say -v ?`). VoiceName/VoiceCreator are optional — FM drops them at the default voice and re-materializes <SpeechOptions VoiceId=\"0\" WaitForCompletion=\"False\"/> when the element is omitted."
+        "note": "attrGroup: <SpeechOptions> carries WaitForCompletion plus the chosen macOS voice (VoiceName/VoiceId/VoiceCreator from `say -v ?`). VoiceName/VoiceCreator are optional — FM drops them at the default voice and re-materializes <SpeechOptions VoiceId=\"0\" WaitForCompletion=\"False\"/> when the element is omitted. FileMaker's line never draws it, waiting or not, default or named voice (`Speak [ \"hi\" ]`, `Speak [ ]` with no text; fmLineHidden, FM 26.0.3); at that default the converter's HR prints nothing either and HR->XML writes the default element back (hrOmitAtDefault)."
       }
     ],
     "hrSignature": "[ <text to speak> ]",
@@ -10066,7 +10068,8 @@
         "hrLabel": "Output File",
         "omitWhenEmpty": true,
         "required": false,
-        "notes": "Optional step-level output-file path calculation; FM omits it when unset."
+        "fmLineHidden": true,
+        "notes": "Optional step-level output-file path calculation; FM omits it when unset. FileMaker's line never draws it (fmLineHidden); FileMaker also writes the Document Title calculation here when one is set (FM 26.0.3)."
       },
       {
         "xmlElement": "Document",
@@ -10074,6 +10077,8 @@
         "hrLabel": "Document",
         "parentElement": "CreatePDFFile",
         "required": false,
+        "hrOmitAtDefault": true,
+        "fmLineHidden": true,
         "fields": [
           { "key": "Title", "kind": "calc", "childElement": "Title" },
           { "key": "Subject", "kind": "calc", "childElement": "Subject" },
@@ -10081,10 +10086,10 @@
           { "key": "Keywords", "kind": "calc", "childElement": "Keywords" },
           { "key": "Pages", "kind": "group", "element": "Pages", "fields": [
             { "key": "AllPages", "kind": "attr", "xmlAttr": "AllPages", "defaultValue": "True" },
-            { "key": "NumberFrom", "kind": "calc", "childElement": "NumberFrom" },
+            { "key": "NumberFrom", "kind": "calc", "childElement": "NumberFrom", "defaultValue": "1" },
             { "key": "PageRange", "kind": "group", "element": "PageRange", "fields": [
-              { "key": "From", "kind": "calc", "childElement": "From" },
-              { "key": "To", "kind": "calc", "childElement": "To" }
+              { "key": "From", "kind": "calc", "childElement": "From", "defaultValue": "1" },
+              { "key": "To", "kind": "calc", "childElement": "To", "defaultValue": "1" }
             ] }
           ] }
         ]
@@ -10095,6 +10100,8 @@
         "hrLabel": "Security",
         "parentElement": "CreatePDFFile",
         "required": false,
+        "hrOmitAtDefault": true,
+        "fmLineHidden": true,
         "fields": [
           { "key": "ScreenReader", "kind": "attr", "xmlAttr": "allowScreenReader", "defaultValue": "True" },
           { "key": "Copying", "kind": "attr", "xmlAttr": "enableCopying", "defaultValue": "True" },
@@ -10110,11 +10117,14 @@
         "hrLabel": "View",
         "parentElement": "CreatePDFFile",
         "required": false,
+        "hrOmitAtDefault": true,
+        "fmLineHidden": true,
         "fields": [
           { "key": "Magnification", "kind": "attr", "xmlAttr": "magnification", "defaultValue": "100" },
           { "key": "Layout", "kind": "attr", "xmlAttr": "pageLayout", "defaultValue": "SinglePage" },
           { "key": "Show", "kind": "attr", "xmlAttr": "show", "defaultValue": "PagesPanelAndPage" }
-        ]
+        ],
+        "note": "Document / Security / View: FileMaker's line never draws them, Restore on or off, any one field changed (`Create PDF [ ]`, `Create PDF [ Restore ]`; fmLineHidden, FM 26.0.3). At the UI-insert defaults (NumberFrom / From / To 1) the converter's HR prints nothing either and HR->XML writes them back (hrOmitAtDefault); a step pasted without them gets FileMaker's minimal baseline instead (AllPages False, nothing permitted, Default view)."
       }
     ],
     "hrSignature": "[ Restore ; Output File: <calc> ; Document: Title=<calc>, Subject=<calc>, Author=<calc>, Keywords=<calc>, Pages=( AllPages=<True|False>, NumberFrom=<calc>, PageRange=( From=<calc>, To=<calc> ) ) ; Security: ScreenReader=<True|False>, Copying=<True|False>, Editing=<token>, Printing=<token>, OpenPassword=<calc>, EditPassword=<calc> ; View: Magnification=<token>, Layout=<token>, Show=<token> ]",

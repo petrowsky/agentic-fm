@@ -1351,7 +1351,11 @@ def _emit_group_element(
     kv: dict[str, str],
     indent: str,
     resolver: IdResolver,
+    materialize: bool = False,
 ) -> str:
+    # ``materialize``: an hrOmitAtDefault group with no HR token writes its
+    # default element (a calc / text field with a defaultValue holds it, every
+    # sub-group is written), the element _group_at_default accepts.
     attrs = ""
     children = ""
     ci = indent + "  "
@@ -1360,6 +1364,28 @@ def _emit_group_element(
         key = _raw_str(f, "key")
         it = kv.get(_lower_key(key))
         present = it is not None and it != ""
+        default = _raw_str(f, "defaultValue")
+        if materialize and not present and kind in ("calc", "text") and default:
+            child_element = _raw_str(f, "childElement")
+            if kind == "text":
+                children += ci + "<" + child_element + ">" + esc_xml(default) + "</" + child_element + ">\n"
+                continue
+            require_attr = _raw_str(f, "requireAttr")
+            if require_attr:
+                attrs += " " + require_attr + '="True"'
+            if not child_element:
+                children += ci + "<Calculation>" + cdata(default) + "</Calculation>\n"
+            else:
+                children += ci + "<" + child_element + ">\n"
+                children += ci + "  <Calculation>" + cdata(default) + "</Calculation>\n"
+                children += ci + "</" + child_element + ">\n"
+            continue
+        if materialize and not present and kind == "group":
+            children += (
+                _emit_group_element(_raw_str(f, "element"), _raw_arr(f, "fields"), {}, ci, resolver, True)
+                + "\n"
+            )
+            continue
         if kind == "attr":
             if _raw_bool(f, "optional") and not present:
                 continue
@@ -1455,6 +1481,12 @@ def _emit_attr_group(
 ) -> str:
     # ``projected``: fields a display projection (groupFields) read from its own
     # token, keyed lower-case; they override the body's and make the group present.
+    # hrOmitAtDefault: no token is the group at its catalog default, which the
+    # XML->HR side left out; write that default element back.
+    if not _trim(hr_value) and _raw_bool(param.raw, "hrOmitAtDefault") and not projected:
+        return _emit_group_element(
+            param.xml_element, _raw_arr(param.raw, "fields"), {}, "    ", resolver, True
+        )
     if not _trim(hr_value) and not param.hr_hidden and not projected:
         return ""
     kv = _parse_group_kv(hr_value)

@@ -653,6 +653,60 @@ function withRepetitionSuffix(ref: string, fld: Element): string {
 // ---------------------------------------------------------------------------
 // Group / repeat / list renderers
 // ---------------------------------------------------------------------------
+/**
+ * Whether a group element is exactly its catalog default (`hrOmitAtDefault`):
+ * every non-optional attr present at its `defaultValue`, every optional attr
+ * absent, a calc / text child present holding its `defaultValue` when it has
+ * one and absent otherwise (a calc's `requireAttr` reading its presence), no
+ * field / script child, every sub-group present and at default. The element
+ * the emitter writes back for an absent token.
+ */
+function groupAtDefault(node: Element, fields: Record<string, unknown>[]): boolean {
+  for (const f of fields) {
+    const kind = (f.kind as string) ?? '';
+    const def = (f.defaultValue as string) ?? '';
+    if (kind === 'attr') {
+      const a = node.getAttribute((f.xmlAttr as string) ?? '');
+      if (f.optional) {
+        if (a !== null) return false;
+        continue;
+      }
+      if (a === null || a !== def) return false;
+    } else if (kind === 'text') {
+      const child = findChild(node, (f.childElement as string) ?? '');
+      if (!def) {
+        if (child !== null) return false;
+        continue;
+      }
+      if (child === null || elemText(child) !== def) return false;
+    } else if (kind === 'calc') {
+      const childEl = (f.childElement as string) ?? '';
+      const calc = childEl ? findChild(node, childEl) : findChild(node, 'Calculation');
+      const has = calc !== null;
+      if (has !== (def !== '')) return false;
+      if (calc !== null) {
+        const v = childEl ? childText(calc, 'Calculation') : elemText(calc);
+        if (v !== def) return false;
+      }
+      const req = (f.requireAttr as string) ?? '';
+      if (req && node.getAttribute(req) !== (has ? 'True' : 'False')) return false;
+    } else if (kind === 'group') {
+      const sub = findChild(node, (f.element as string) ?? '');
+      if (sub === null || !groupAtDefault(sub, (f.fields as Record<string, unknown>[]) ?? [])) {
+        return false;
+      }
+    } else if (kind === 'field') {
+      if (findChild(node, 'Field') !== null) return false;
+    } else if (kind === 'fieldOrVariable') {
+      const fld = findChild(node, 'Field');
+      if (fld === null || elemText(fld).trim() || (fld.getAttribute('name') ?? '')) return false;
+    } else if (kind === 'script') {
+      if (findChild(node, (f.element as string) ?? '') !== null) return false;
+    }
+  }
+  return true;
+}
+
 function renderGroupElement(node: Element, fields: Record<string, unknown>[]): string {
   const parts: string[] = [];
   for (const f of fields) {
@@ -888,7 +942,13 @@ export function computeParamHr(entry: GrammarEntry, step: Element, param: Gramma
     // unless the catalog opts one in with hrLabeled (Rename File's "New name:").
     if (val && (param.omitWhenEmpty || param.hrLabeled) && label) val = label + ': ' + val;
   } else if (ptype === 'attrGroup') {
-    const groupNode = findChild(base, param.xmlElement);
+    let groupNode = findChild(base, param.xmlElement);
+    // hrOmitAtDefault: a group at its catalog default prints nothing (FileMaker
+    // draws `Speak [ ]` / `Create PDF [ ]`); the emitter writes it back.
+    if (groupNode !== null && param.raw.hrOmitAtDefault === true
+        && groupAtDefault(groupNode, (param.raw.fields as Record<string, unknown>[]) ?? [])) {
+      groupNode = null;
+    }
     if (groupNode !== null) {
       // A field a visible display projection prints as its own token is left
       // out of the body; one whose projection is hidden stays.

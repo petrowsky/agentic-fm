@@ -1,0 +1,155 @@
+{
+ "provenance": "Captured against FileMaker Pro 26.0.3 on macOS, 2026-10-22: the stored step and the line FileMaker draws. Speak: wait on/off, Daria voice, no options; Create PDF: catalog defaults, FileMaker's name-only paste baseline, each Document / Security / View field changed alone, Restore on and off, a step-level calculation without a Title.",
+ "cases": [
+  {
+   "id": "S1",
+   "xml": "<Step enable=\"True\" id=\"66\" name=\"Speak\"><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><SpeechOptions WaitForCompletion=\"False\" VoiceId=\"0\"></SpeechOptions></Step>",
+   "fmLine": "Speak [ ]"
+  },
+  {
+   "id": "S2",
+   "xml": "<Step enable=\"True\" id=\"66\" name=\"Speak\"><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Calculation><![CDATA[\"hi\"]]></Calculation><SpeechOptions WaitForCompletion=\"False\" VoiceId=\"0\"></SpeechOptions></Step>",
+   "fmLine": "Speak [ \"hi\" ]"
+  },
+  {
+   "id": "S3",
+   "xml": "<Step enable=\"True\" id=\"66\" name=\"Speak\"><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Calculation><![CDATA[\"hi\"]]></Calculation><SpeechOptions WaitForCompletion=\"True\" VoiceId=\"0\"></SpeechOptions></Step>",
+   "fmLine": "Speak [ \"hi\" ]"
+  },
+  {
+   "id": "S4",
+   "xml": "<Step enable=\"True\" id=\"66\" name=\"Speak\"><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Calculation><![CDATA[\"hi\"]]></Calculation><SpeechOptions WaitForCompletion=\"False\" VoiceName=\"Daria\" VoiceId=\"2769835375\" VoiceCreator=\"4242\"></SpeechOptions></Step>",
+   "fmLine": "Speak [ \"hi\" ]"
+  },
+  {
+   "id": "S5",
+   "xml": "<Step enable=\"True\" id=\"66\" name=\"Speak\"><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Calculation><![CDATA[\"hi\"]]></Calculation><SpeechOptions WaitForCompletion=\"True\" VoiceName=\"Daria\" VoiceId=\"2769835375\" VoiceCreator=\"4242\"></SpeechOptions></Step>",
+   "fmLine": "Speak [ \"hi\" ]"
+  },
+  {
+   "id": "S6",
+   "xml": "<Step enable=\"True\" id=\"66\" name=\"Speak\"><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Calculation><![CDATA[\"hi\"]]></Calculation><SpeechOptions WaitForCompletion=\"False\" VoiceId=\"0\"></SpeechOptions></Step>",
+   "fmLine": "Speak [ \"hi\" ]"
+  },
+  {
+   "id": "C0",
+   "xml": "<Step enable=\"True\" id=\"243\" name=\"Create PDF\"><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Restore state=\"False\"></Restore><CreatePDFFile><Document><Pages AllPages=\"True\"><NumberFrom><Calculation><![CDATA[1]]></Calculation></NumberFrom><PageRange><From><Calculation><![CDATA[1]]></Calculation></From><To><Calculation><![CDATA[1]]></Calculation></To></PageRange></Pages></Document><Security allowScreenReader=\"True\" enableCopying=\"True\" controlEditing=\"AnyExceptExtractingPages\" controlPrinting=\"HighResolution\" requireControlEditPassword=\"False\" requireOpenPassword=\"False\"></Security><View magnification=\"100\" pageLayout=\"SinglePage\" show=\"PagesPanelAndPage\"></View></CreatePDFFile></Step>",
+   "fmLine": "Create PDF [ ]"
+  },
+  {
+   "id": "C0R",
+   "xml": "<Step enable=\"True\" id=\"243\" name=\"Create PDF\"><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Restore state=\"True\"></Restore><CreatePDFFile><Document><Pages AllPages=\"True\"><NumberFrom><Calculation><![CDATA[1]]></Calculation></NumberFrom><PageRange><From><Calculation><![CDATA[1]]></Calculation></From><To><Calculation><![CDATA[1]]></Calculation></To></PageRange></Pages></Document><Security allowScreenReader=\"True\" enableCopying=\"True\" controlEditing=\"AnyExceptExtractingPages\" controlPrinting=\"HighResolution\" requireControlEditPassword=\"False\" requireOpenPassword=\"False\"></Security><View magnification=\"100\" pageLayout=\"SinglePage\" show=\"PagesPanelAndPage\"></View></CreatePDFFile></Step>",
+   "fmLine": "Create PDF [ Restore ]"
+  },
+  {
+   "id": "C1",
+   "xml": "<Step enable=\"True\" id=\"243\" name=\"Create PDF\"><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Restore state=\"False\"></Restore><CreatePDFFile><Document><Pages AllPages=\"False\"></Pages></Document><Security allowScreenReader=\"False\" enableCopying=\"False\" controlEditing=\"NotPermitted\" controlPrinting=\"NotPermitted\" requireControlEditPassword=\"False\" requireOpenPassword=\"False\"></Security><View magnification=\"Default\" pageLayout=\"Default\" show=\"PageOnly\"></View></CreatePDFFile></Step>",
+   "fmLine": "Create PDF [ ]"
+  },
+  {
+   "id": "C1R",
+   "xml": "<Step enable=\"True\" id=\"243\" name=\"Create PDF\"><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Restore state=\"True\"></Restore><CreatePDFFile><Document><Pages AllPages=\"False\"></Pages></Document><Security allowScreenReader=\"False\" enableCopying=\"False\" controlEditing=\"NotPermitted\" controlPrinting=\"NotPermitted\" requireControlEditPassword=\"False\" requireOpenPassword=\"False\"></Security><View magnification=\"Default\" pageLayout=\"Default\" show=\"PageOnly\"></View></CreatePDFFile></Step>",
+   "fmLine": "Create PDF [ Restore ]"
+  },
+  {
+   "id": "CDtitle",
+   "xml": "<Step enable=\"True\" id=\"243\" name=\"Create PDF\"><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Restore state=\"False\"></Restore><Calculation><![CDATA[\"t\"]]></Calculation><CreatePDFFile><Document><Title><Calculation><![CDATA[\"t\"]]></Calculation></Title><Pages AllPages=\"True\"><NumberFrom><Calculation><![CDATA[1]]></Calculation></NumberFrom><PageRange><From><Calculation><![CDATA[1]]></Calculation></From><To><Calculation><![CDATA[1]]></Calculation></To></PageRange></Pages></Document><Security allowScreenReader=\"True\" enableCopying=\"True\" controlEditing=\"AnyExceptExtractingPages\" controlPrinting=\"HighResolution\" requireControlEditPassword=\"False\" requireOpenPassword=\"False\"></Security><View magnification=\"100\" pageLayout=\"SinglePage\" show=\"PagesPanelAndPage\"></View></CreatePDFFile></Step>",
+   "fmLine": "Create PDF [ ]"
+  },
+  {
+   "id": "CDsubject",
+   "xml": "<Step enable=\"True\" id=\"243\" name=\"Create PDF\"><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Restore state=\"False\"></Restore><CreatePDFFile><Document><Subject><Calculation><![CDATA[\"s\"]]></Calculation></Subject><Pages AllPages=\"True\"><NumberFrom><Calculation><![CDATA[1]]></Calculation></NumberFrom><PageRange><From><Calculation><![CDATA[1]]></Calculation></From><To><Calculation><![CDATA[1]]></Calculation></To></PageRange></Pages></Document><Security allowScreenReader=\"True\" enableCopying=\"True\" controlEditing=\"AnyExceptExtractingPages\" controlPrinting=\"HighResolution\" requireControlEditPassword=\"False\" requireOpenPassword=\"False\"></Security><View magnification=\"100\" pageLayout=\"SinglePage\" show=\"PagesPanelAndPage\"></View></CreatePDFFile></Step>",
+   "fmLine": "Create PDF [ ]"
+  },
+  {
+   "id": "CDauthor",
+   "xml": "<Step enable=\"True\" id=\"243\" name=\"Create PDF\"><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Restore state=\"False\"></Restore><CreatePDFFile><Document><Author><Calculation><![CDATA[\"a\"]]></Calculation></Author><Pages AllPages=\"True\"><NumberFrom><Calculation><![CDATA[1]]></Calculation></NumberFrom><PageRange><From><Calculation><![CDATA[1]]></Calculation></From><To><Calculation><![CDATA[1]]></Calculation></To></PageRange></Pages></Document><Security allowScreenReader=\"True\" enableCopying=\"True\" controlEditing=\"AnyExceptExtractingPages\" controlPrinting=\"HighResolution\" requireControlEditPassword=\"False\" requireOpenPassword=\"False\"></Security><View magnification=\"100\" pageLayout=\"SinglePage\" show=\"PagesPanelAndPage\"></View></CreatePDFFile></Step>",
+   "fmLine": "Create PDF [ ]"
+  },
+  {
+   "id": "CDkeywords",
+   "xml": "<Step enable=\"True\" id=\"243\" name=\"Create PDF\"><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Restore state=\"False\"></Restore><CreatePDFFile><Document><Keywords><Calculation><![CDATA[\"k\"]]></Calculation></Keywords><Pages AllPages=\"True\"><NumberFrom><Calculation><![CDATA[1]]></Calculation></NumberFrom><PageRange><From><Calculation><![CDATA[1]]></Calculation></From><To><Calculation><![CDATA[1]]></Calculation></To></PageRange></Pages></Document><Security allowScreenReader=\"True\" enableCopying=\"True\" controlEditing=\"AnyExceptExtractingPages\" controlPrinting=\"HighResolution\" requireControlEditPassword=\"False\" requireOpenPassword=\"False\"></Security><View magnification=\"100\" pageLayout=\"SinglePage\" show=\"PagesPanelAndPage\"></View></CreatePDFFile></Step>",
+   "fmLine": "Create PDF [ ]"
+  },
+  {
+   "id": "CDallpagesF",
+   "xml": "<Step enable=\"True\" id=\"243\" name=\"Create PDF\"><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Restore state=\"False\"></Restore><CreatePDFFile><Document><Pages AllPages=\"False\"><NumberFrom><Calculation><![CDATA[1]]></Calculation></NumberFrom><PageRange><From><Calculation><![CDATA[1]]></Calculation></From><To><Calculation><![CDATA[1]]></Calculation></To></PageRange></Pages></Document><Security allowScreenReader=\"True\" enableCopying=\"True\" controlEditing=\"AnyExceptExtractingPages\" controlPrinting=\"HighResolution\" requireControlEditPassword=\"False\" requireOpenPassword=\"False\"></Security><View magnification=\"100\" pageLayout=\"SinglePage\" show=\"PagesPanelAndPage\"></View></CreatePDFFile></Step>",
+   "fmLine": "Create PDF [ ]"
+  },
+  {
+   "id": "CDnumfrom",
+   "xml": "<Step enable=\"True\" id=\"243\" name=\"Create PDF\"><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Restore state=\"False\"></Restore><CreatePDFFile><Document><Pages AllPages=\"True\"><NumberFrom><Calculation><![CDATA[2]]></Calculation></NumberFrom><PageRange><From><Calculation><![CDATA[1]]></Calculation></From><To><Calculation><![CDATA[1]]></Calculation></To></PageRange></Pages></Document><Security allowScreenReader=\"True\" enableCopying=\"True\" controlEditing=\"AnyExceptExtractingPages\" controlPrinting=\"HighResolution\" requireControlEditPassword=\"False\" requireOpenPassword=\"False\"></Security><View magnification=\"100\" pageLayout=\"SinglePage\" show=\"PagesPanelAndPage\"></View></CreatePDFFile></Step>",
+   "fmLine": "Create PDF [ ]"
+  },
+  {
+   "id": "CDrange",
+   "xml": "<Step enable=\"True\" id=\"243\" name=\"Create PDF\"><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Restore state=\"False\"></Restore><CreatePDFFile><Document><Pages AllPages=\"False\"><NumberFrom><Calculation><![CDATA[1]]></Calculation></NumberFrom><PageRange><From><Calculation><![CDATA[2]]></Calculation></From><To><Calculation><![CDATA[3]]></Calculation></To></PageRange></Pages></Document><Security allowScreenReader=\"True\" enableCopying=\"True\" controlEditing=\"AnyExceptExtractingPages\" controlPrinting=\"HighResolution\" requireControlEditPassword=\"False\" requireOpenPassword=\"False\"></Security><View magnification=\"100\" pageLayout=\"SinglePage\" show=\"PagesPanelAndPage\"></View></CreatePDFFile></Step>",
+   "fmLine": "Create PDF [ ]"
+  },
+  {
+   "id": "CSreader",
+   "xml": "<Step enable=\"True\" id=\"243\" name=\"Create PDF\"><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Restore state=\"False\"></Restore><CreatePDFFile><Document><Pages AllPages=\"True\"><NumberFrom><Calculation><![CDATA[1]]></Calculation></NumberFrom><PageRange><From><Calculation><![CDATA[1]]></Calculation></From><To><Calculation><![CDATA[1]]></Calculation></To></PageRange></Pages></Document><Security allowScreenReader=\"False\" enableCopying=\"True\" controlEditing=\"AnyExceptExtractingPages\" controlPrinting=\"HighResolution\" requireControlEditPassword=\"False\" requireOpenPassword=\"False\"></Security><View magnification=\"100\" pageLayout=\"SinglePage\" show=\"PagesPanelAndPage\"></View></CreatePDFFile></Step>",
+   "fmLine": "Create PDF [ ]"
+  },
+  {
+   "id": "CScopy",
+   "xml": "<Step enable=\"True\" id=\"243\" name=\"Create PDF\"><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Restore state=\"False\"></Restore><CreatePDFFile><Document><Pages AllPages=\"True\"><NumberFrom><Calculation><![CDATA[1]]></Calculation></NumberFrom><PageRange><From><Calculation><![CDATA[1]]></Calculation></From><To><Calculation><![CDATA[1]]></Calculation></To></PageRange></Pages></Document><Security allowScreenReader=\"True\" enableCopying=\"False\" controlEditing=\"AnyExceptExtractingPages\" controlPrinting=\"HighResolution\" requireControlEditPassword=\"False\" requireOpenPassword=\"False\"></Security><View magnification=\"100\" pageLayout=\"SinglePage\" show=\"PagesPanelAndPage\"></View></CreatePDFFile></Step>",
+   "fmLine": "Create PDF [ ]"
+  },
+  {
+   "id": "CSedit",
+   "xml": "<Step enable=\"True\" id=\"243\" name=\"Create PDF\"><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Restore state=\"False\"></Restore><CreatePDFFile><Document><Pages AllPages=\"True\"><NumberFrom><Calculation><![CDATA[1]]></Calculation></NumberFrom><PageRange><From><Calculation><![CDATA[1]]></Calculation></From><To><Calculation><![CDATA[1]]></Calculation></To></PageRange></Pages></Document><Security allowScreenReader=\"True\" enableCopying=\"True\" controlEditing=\"NotPermitted\" controlPrinting=\"HighResolution\" requireControlEditPassword=\"False\" requireOpenPassword=\"False\"></Security><View magnification=\"100\" pageLayout=\"SinglePage\" show=\"PagesPanelAndPage\"></View></CreatePDFFile></Step>",
+   "fmLine": "Create PDF [ ]"
+  },
+  {
+   "id": "CSprint",
+   "xml": "<Step enable=\"True\" id=\"243\" name=\"Create PDF\"><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Restore state=\"False\"></Restore><CreatePDFFile><Document><Pages AllPages=\"True\"><NumberFrom><Calculation><![CDATA[1]]></Calculation></NumberFrom><PageRange><From><Calculation><![CDATA[1]]></Calculation></From><To><Calculation><![CDATA[1]]></Calculation></To></PageRange></Pages></Document><Security allowScreenReader=\"True\" enableCopying=\"True\" controlEditing=\"AnyExceptExtractingPages\" controlPrinting=\"NotPermitted\" requireControlEditPassword=\"False\" requireOpenPassword=\"False\"></Security><View magnification=\"100\" pageLayout=\"SinglePage\" show=\"PagesPanelAndPage\"></View></CreatePDFFile></Step>",
+   "fmLine": "Create PDF [ ]"
+  },
+  {
+   "id": "CSopenpw",
+   "xml": "<Step enable=\"True\" id=\"243\" name=\"Create PDF\"><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Restore state=\"False\"></Restore><CreatePDFFile><Document><Pages AllPages=\"True\"><NumberFrom><Calculation><![CDATA[1]]></Calculation></NumberFrom><PageRange><From><Calculation><![CDATA[1]]></Calculation></From><To><Calculation><![CDATA[1]]></Calculation></To></PageRange></Pages></Document><Security allowScreenReader=\"True\" enableCopying=\"True\" controlEditing=\"AnyExceptExtractingPages\" controlPrinting=\"HighResolution\" requireControlEditPassword=\"False\" requireOpenPassword=\"True\"><OpenPassword><Calculation><![CDATA[\"p\"]]></Calculation></OpenPassword></Security><View magnification=\"100\" pageLayout=\"SinglePage\" show=\"PagesPanelAndPage\"></View></CreatePDFFile></Step>",
+   "fmLine": "Create PDF [ ]"
+  },
+  {
+   "id": "CSeditpw",
+   "xml": "<Step enable=\"True\" id=\"243\" name=\"Create PDF\"><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Restore state=\"False\"></Restore><CreatePDFFile><Document><Pages AllPages=\"True\"><NumberFrom><Calculation><![CDATA[1]]></Calculation></NumberFrom><PageRange><From><Calculation><![CDATA[1]]></Calculation></From><To><Calculation><![CDATA[1]]></Calculation></To></PageRange></Pages></Document><Security allowScreenReader=\"True\" enableCopying=\"True\" controlEditing=\"AnyExceptExtractingPages\" controlPrinting=\"HighResolution\" requireControlEditPassword=\"True\" requireOpenPassword=\"False\"><ControlPassword><Calculation><![CDATA[\"q\"]]></Calculation></ControlPassword></Security><View magnification=\"100\" pageLayout=\"SinglePage\" show=\"PagesPanelAndPage\"></View></CreatePDFFile></Step>",
+   "fmLine": "Create PDF [ ]"
+  },
+  {
+   "id": "CVmag",
+   "xml": "<Step enable=\"True\" id=\"243\" name=\"Create PDF\"><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Restore state=\"False\"></Restore><CreatePDFFile><Document><Pages AllPages=\"True\"><NumberFrom><Calculation><![CDATA[1]]></Calculation></NumberFrom><PageRange><From><Calculation><![CDATA[1]]></Calculation></From><To><Calculation><![CDATA[1]]></Calculation></To></PageRange></Pages></Document><Security allowScreenReader=\"True\" enableCopying=\"True\" controlEditing=\"AnyExceptExtractingPages\" controlPrinting=\"HighResolution\" requireControlEditPassword=\"False\" requireOpenPassword=\"False\"></Security><View magnification=\"50\" pageLayout=\"SinglePage\" show=\"PagesPanelAndPage\"></View></CreatePDFFile></Step>",
+   "fmLine": "Create PDF [ ]"
+  },
+  {
+   "id": "CVlayout",
+   "xml": "<Step enable=\"True\" id=\"243\" name=\"Create PDF\"><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Restore state=\"False\"></Restore><CreatePDFFile><Document><Pages AllPages=\"True\"><NumberFrom><Calculation><![CDATA[1]]></Calculation></NumberFrom><PageRange><From><Calculation><![CDATA[1]]></Calculation></From><To><Calculation><![CDATA[1]]></Calculation></To></PageRange></Pages></Document><Security allowScreenReader=\"True\" enableCopying=\"True\" controlEditing=\"AnyExceptExtractingPages\" controlPrinting=\"HighResolution\" requireControlEditPassword=\"False\" requireOpenPassword=\"False\"></Security><View magnification=\"100\" pageLayout=\"Continuous\" show=\"PagesPanelAndPage\"></View></CreatePDFFile></Step>",
+   "fmLine": "Create PDF [ ]"
+  },
+  {
+   "id": "CVshow",
+   "xml": "<Step enable=\"True\" id=\"243\" name=\"Create PDF\"><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Restore state=\"False\"></Restore><CreatePDFFile><Document><Pages AllPages=\"True\"><NumberFrom><Calculation><![CDATA[1]]></Calculation></NumberFrom><PageRange><From><Calculation><![CDATA[1]]></Calculation></From><To><Calculation><![CDATA[1]]></Calculation></To></PageRange></Pages></Document><Security allowScreenReader=\"True\" enableCopying=\"True\" controlEditing=\"AnyExceptExtractingPages\" controlPrinting=\"HighResolution\" requireControlEditPassword=\"False\" requireOpenPassword=\"False\"></Security><View magnification=\"100\" pageLayout=\"SinglePage\" show=\"PageOnly\"></View></CreatePDFFile></Step>",
+   "fmLine": "Create PDF [ ]"
+  },
+  {
+   "id": "CDtitleR",
+   "xml": "<Step enable=\"True\" id=\"243\" name=\"Create PDF\"><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Restore state=\"True\"></Restore><Calculation><![CDATA[\"t\"]]></Calculation><CreatePDFFile><Document><Title><Calculation><![CDATA[\"t\"]]></Calculation></Title><Pages AllPages=\"True\"><NumberFrom><Calculation><![CDATA[1]]></Calculation></NumberFrom><PageRange><From><Calculation><![CDATA[1]]></Calculation></From><To><Calculation><![CDATA[1]]></Calculation></To></PageRange></Pages></Document><Security allowScreenReader=\"True\" enableCopying=\"True\" controlEditing=\"AnyExceptExtractingPages\" controlPrinting=\"HighResolution\" requireControlEditPassword=\"False\" requireOpenPassword=\"False\"></Security><View magnification=\"100\" pageLayout=\"SinglePage\" show=\"PagesPanelAndPage\"></View></CreatePDFFile></Step>",
+   "fmLine": "Create PDF [ Restore ]"
+  },
+  {
+   "id": "CSreaderR",
+   "xml": "<Step enable=\"True\" id=\"243\" name=\"Create PDF\"><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Restore state=\"True\"></Restore><CreatePDFFile><Document><Pages AllPages=\"True\"><NumberFrom><Calculation><![CDATA[1]]></Calculation></NumberFrom><PageRange><From><Calculation><![CDATA[1]]></Calculation></From><To><Calculation><![CDATA[1]]></Calculation></To></PageRange></Pages></Document><Security allowScreenReader=\"False\" enableCopying=\"True\" controlEditing=\"AnyExceptExtractingPages\" controlPrinting=\"HighResolution\" requireControlEditPassword=\"False\" requireOpenPassword=\"False\"></Security><View magnification=\"100\" pageLayout=\"SinglePage\" show=\"PagesPanelAndPage\"></View></CreatePDFFile></Step>",
+   "fmLine": "Create PDF [ Restore ]"
+  },
+  {
+   "id": "CVmagR",
+   "xml": "<Step enable=\"True\" id=\"243\" name=\"Create PDF\"><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Restore state=\"True\"></Restore><CreatePDFFile><Document><Pages AllPages=\"True\"><NumberFrom><Calculation><![CDATA[1]]></Calculation></NumberFrom><PageRange><From><Calculation><![CDATA[1]]></Calculation></From><To><Calculation><![CDATA[1]]></Calculation></To></PageRange></Pages></Document><Security allowScreenReader=\"True\" enableCopying=\"True\" controlEditing=\"AnyExceptExtractingPages\" controlPrinting=\"HighResolution\" requireControlEditPassword=\"False\" requireOpenPassword=\"False\"></Security><View magnification=\"50\" pageLayout=\"SinglePage\" show=\"PagesPanelAndPage\"></View></CreatePDFFile></Step>",
+   "fmLine": "Create PDF [ Restore ]"
+  },
+  {
+   "id": "CoutOnly",
+   "xml": "<Step enable=\"True\" id=\"243\" name=\"Create PDF\"><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Restore state=\"False\"></Restore><Calculation><![CDATA[\"out.pdf\"]]></Calculation><CreatePDFFile><Document><Title><Calculation><![CDATA[\"out.pdf\"]]></Calculation></Title><Pages AllPages=\"True\"><NumberFrom><Calculation><![CDATA[1]]></Calculation></NumberFrom><PageRange><From><Calculation><![CDATA[1]]></Calculation></From><To><Calculation><![CDATA[1]]></Calculation></To></PageRange></Pages></Document><Security allowScreenReader=\"True\" enableCopying=\"True\" controlEditing=\"AnyExceptExtractingPages\" controlPrinting=\"HighResolution\" requireControlEditPassword=\"False\" requireOpenPassword=\"False\"></Security><View magnification=\"100\" pageLayout=\"SinglePage\" show=\"PagesPanelAndPage\"></View></CreatePDFFile></Step>",
+   "fmLine": "Create PDF [ ]"
+  }
+ ]
+}

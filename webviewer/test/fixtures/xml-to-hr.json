@@ -692,7 +692,7 @@
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"245\" name=\"Close PDF\">\n    <CreateDirectories state=\"False\"/>\n    <AutoOpen state=\"False\"/>\n    <CreateEmail state=\"False\"/>\n    <UniversalPathList>$path</UniversalPathList>\n    <ClosePDFFile>\n      <PDFSaveType>File</PDFSaveType>\n    </ClosePDFFile>\n  </Step>\n</fmxmlsnippet>"
   },
   "pdf files/Create PDF.xml": {
-    "hr": "Create PDF [ Document: Pages=(AllPages=True, NumberFrom=1, PageRange=(From=1, To=1)) ; Security: ScreenReader=True, Copying=True, Editing=AnyExceptExtractingPages, Printing=HighResolution ; View: Magnification=100, Layout=SinglePage, Show=PagesPanelAndPage ]",
+    "hr": "Create PDF [ ]",
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"243\" name=\"Create PDF\">\n    <Restore state=\"False\"/>\n    <CreatePDFFile>\n      <Document>\n        <Pages AllPages=\"True\">\n          <NumberFrom>\n            <Calculation><![CDATA[1]]></Calculation>\n          </NumberFrom>\n          <PageRange>\n            <From>\n              <Calculation><![CDATA[1]]></Calculation>\n            </From>\n            <To>\n              <Calculation><![CDATA[1]]></Calculation>\n            </To>\n          </PageRange>\n        </Pages>\n      </Document>\n      <Security allowScreenReader=\"True\" enableCopying=\"True\" controlEditing=\"AnyExceptExtractingPages\" controlPrinting=\"HighResolution\" requireControlEditPassword=\"False\" requireOpenPassword=\"False\"/>\n      <View magnification=\"100\" pageLayout=\"SinglePage\" show=\"PagesPanelAndPage\"/>\n    </CreatePDFFile>\n  </Step>\n</fmxmlsnippet>"
   },
   "pdf files/Open PDF.xml": {
