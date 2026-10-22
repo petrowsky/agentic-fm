@@ -78,7 +78,7 @@
   "fields/Set Next Serial Value.xml": "Set Next Serial Value [ <Table Missing> ; 100 ]",
   "files/Close Data File.xml": "Close Data File [ File ID: $fileID ]",
   "files/Close File.xml": "Close File [ file:NameOfFile ]",
-  "files/Convert File.xml": "Convert File [ With dialog: On ; Open File ; Skip Indexes ; Verify SSL Certificates ; File ; Profile: FieldDelimiter=\"\t\", IsPredefined=-1, FieldNameRow=-1, DataType=\"    \" ; “$path” ; Import options: TargetTableName=Table, CharacterSet=Macintosh, PreserveContainer=False, MatchFieldNames=False, AutoEnter=False, SplitRepetitions=False, method=Add ]",
+  "files/Convert File.xml": "Convert File [ Open File ; Skip Indexes ; With dialog: On ; File ; Profile: FieldDelimiter=\"\t\", IsPredefined=-1, FieldNameRow=-1, DataType=\"    \" ; “$path” ; Import options: TargetTableName=Table, CharacterSet=Macintosh, PreserveContainer=False, MatchFieldNames=False, AutoEnter=False, SplitRepetitions=False, method=Add ; Verify SSL Certificates ]",
   "files/Create Data File.xml": "Create Data File [ “$path” ; Create folders: On ]",
   "files/Delete File.xml": "Delete File [ Target file: “$path” ]",
   "files/Get Data File Position.xml": "Get Data File Position [ File ID: $fileID ; Target: $variable ]",

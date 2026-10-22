@@ -1,0 +1,100 @@
+{
+ "provenance": "Captured against FileMaker Pro 26.0.3 on macOS, 2026-10-22: the stored step and the line FileMaker draws. Show/Hide Toolbars: Include Edit Record Toolbar and Lock in all four states, Hide / Show / Toggle; Convert File: Open File and Skip Indexes in all four states, With dialog Off, Verify SSL Certificates off, no path, no source type / profile / import options, a changed profile, changed import options, an XML source, everything set. FileMaker draws Lock before Include Edit Record Toolbar, and Open File, Skip Indexes, With dialog, the path, Verify SSL Certificates in that order; it never draws Convert File's source type, profile or import options.",
+ "cases": [
+  {
+   "id": "T00",
+   "xml": "<Step enable=\"True\" id=\"29\" name=\"Show/Hide Toolbars\"><IncludeEditRecordToolbar state=\"False\"></IncludeEditRecordToolbar><Lock state=\"False\"></Lock><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><ShowHide value=\"Hide\"></ShowHide></Step>",
+   "fmLine": "Show/Hide Toolbars [ Hide ]"
+  },
+  {
+   "id": "T10",
+   "xml": "<Step enable=\"True\" id=\"29\" name=\"Show/Hide Toolbars\"><IncludeEditRecordToolbar state=\"True\"></IncludeEditRecordToolbar><Lock state=\"False\"></Lock><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><ShowHide value=\"Hide\"></ShowHide></Step>",
+   "fmLine": "Show/Hide Toolbars [ Include Edit Record Toolbar ; Hide ]"
+  },
+  {
+   "id": "T01",
+   "xml": "<Step enable=\"True\" id=\"29\" name=\"Show/Hide Toolbars\"><IncludeEditRecordToolbar state=\"False\"></IncludeEditRecordToolbar><Lock state=\"True\"></Lock><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><ShowHide value=\"Hide\"></ShowHide></Step>",
+   "fmLine": "Show/Hide Toolbars [ Lock ; Hide ]"
+  },
+  {
+   "id": "T11",
+   "xml": "<Step enable=\"True\" id=\"29\" name=\"Show/Hide Toolbars\"><IncludeEditRecordToolbar state=\"True\"></IncludeEditRecordToolbar><Lock state=\"True\"></Lock><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><ShowHide value=\"Hide\"></ShowHide></Step>",
+   "fmLine": "Show/Hide Toolbars [ Lock ; Include Edit Record Toolbar ; Hide ]"
+  },
+  {
+   "id": "T11S",
+   "xml": "<Step enable=\"True\" id=\"29\" name=\"Show/Hide Toolbars\"><IncludeEditRecordToolbar state=\"True\"></IncludeEditRecordToolbar><Lock state=\"True\"></Lock><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><ShowHide value=\"Show\"></ShowHide></Step>",
+   "fmLine": "Show/Hide Toolbars [ Lock ; Include Edit Record Toolbar ; Show ]"
+  },
+  {
+   "id": "T11G",
+   "xml": "<Step enable=\"True\" id=\"29\" name=\"Show/Hide Toolbars\"><IncludeEditRecordToolbar state=\"True\"></IncludeEditRecordToolbar><Lock state=\"True\"></Lock><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><ShowHide value=\"Toggle\"></ShowHide></Step>",
+   "fmLine": "Show/Hide Toolbars [ Lock ; Include Edit Record Toolbar ; Toggle ]"
+  },
+  {
+   "id": "T01S",
+   "xml": "<Step enable=\"True\" id=\"29\" name=\"Show/Hide Toolbars\"><IncludeEditRecordToolbar state=\"False\"></IncludeEditRecordToolbar><Lock state=\"True\"></Lock><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><ShowHide value=\"Show\"></ShowHide></Step>",
+   "fmLine": "Show/Hide Toolbars [ Lock ; Show ]"
+  },
+  {
+   "id": "C00",
+   "xml": "<Step enable=\"True\" id=\"139\" name=\"Convert File\"><NoInteract state=\"False\"></NoInteract><Option state=\"False\"></Option><SkipIndexes state=\"False\"></SkipIndexes><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><VerifySSLCertificates state=\"True\"></VerifySSLCertificates><DataSourceType value=\"File\"></DataSourceType><Profile FieldDelimiter=\"&#09;\" IsPredefined=\"-1\" FieldNameRow=\"-1\" DataType=\"    \"></Profile><UniversalPathList>$path</UniversalPathList><ImportOptions TargetTableName=\"Table\" CharacterSet=\"Macintosh\" KeepOriginalData=\"False\" PreserveContainer=\"False\" MatchFieldNames=\"False\" AutoEnter=\"False\" SplitRepetitions=\"False\" method=\"Add\"></ImportOptions></Step>",
+   "fmLine": "Convert File [ Open File ; With dialog: On ; “$path” ; Verify SSL Certificates ]"
+  },
+  {
+   "id": "C10",
+   "xml": "<Step enable=\"True\" id=\"139\" name=\"Convert File\"><NoInteract state=\"False\"></NoInteract><Option state=\"True\"></Option><SkipIndexes state=\"False\"></SkipIndexes><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><VerifySSLCertificates state=\"True\"></VerifySSLCertificates><DataSourceType value=\"File\"></DataSourceType><Profile FieldDelimiter=\"&#09;\" IsPredefined=\"-1\" FieldNameRow=\"-1\" DataType=\"    \"></Profile><UniversalPathList>$path</UniversalPathList><ImportOptions TargetTableName=\"Table\" CharacterSet=\"Macintosh\" KeepOriginalData=\"False\" PreserveContainer=\"False\" MatchFieldNames=\"False\" AutoEnter=\"False\" SplitRepetitions=\"False\" method=\"Add\"></ImportOptions></Step>",
+   "fmLine": "Convert File [ With dialog: On ; “$path” ; Verify SSL Certificates ]"
+  },
+  {
+   "id": "C01",
+   "xml": "<Step enable=\"True\" id=\"139\" name=\"Convert File\"><NoInteract state=\"False\"></NoInteract><Option state=\"False\"></Option><SkipIndexes state=\"True\"></SkipIndexes><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><VerifySSLCertificates state=\"True\"></VerifySSLCertificates><DataSourceType value=\"File\"></DataSourceType><Profile FieldDelimiter=\"&#09;\" IsPredefined=\"-1\" FieldNameRow=\"-1\" DataType=\"    \"></Profile><UniversalPathList>$path</UniversalPathList><ImportOptions TargetTableName=\"Table\" CharacterSet=\"Macintosh\" KeepOriginalData=\"False\" PreserveContainer=\"False\" MatchFieldNames=\"False\" AutoEnter=\"False\" SplitRepetitions=\"False\" method=\"Add\"></ImportOptions></Step>",
+   "fmLine": "Convert File [ Open File ; Skip Indexes ; With dialog: On ; “$path” ; Verify SSL Certificates ]"
+  },
+  {
+   "id": "C11",
+   "xml": "<Step enable=\"True\" id=\"139\" name=\"Convert File\"><NoInteract state=\"False\"></NoInteract><Option state=\"True\"></Option><SkipIndexes state=\"True\"></SkipIndexes><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><VerifySSLCertificates state=\"True\"></VerifySSLCertificates><DataSourceType value=\"File\"></DataSourceType><Profile FieldDelimiter=\"&#09;\" IsPredefined=\"-1\" FieldNameRow=\"-1\" DataType=\"    \"></Profile><UniversalPathList>$path</UniversalPathList><ImportOptions TargetTableName=\"Table\" CharacterSet=\"Macintosh\" KeepOriginalData=\"False\" PreserveContainer=\"False\" MatchFieldNames=\"False\" AutoEnter=\"False\" SplitRepetitions=\"False\" method=\"Add\"></ImportOptions></Step>",
+   "fmLine": "Convert File [ Skip Indexes ; With dialog: On ; “$path” ; Verify SSL Certificates ]"
+  },
+  {
+   "id": "CNI",
+   "xml": "<Step enable=\"True\" id=\"139\" name=\"Convert File\"><NoInteract state=\"True\"></NoInteract><Option state=\"False\"></Option><SkipIndexes state=\"False\"></SkipIndexes><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><VerifySSLCertificates state=\"True\"></VerifySSLCertificates><DataSourceType value=\"File\"></DataSourceType><Profile FieldDelimiter=\"&#09;\" IsPredefined=\"-1\" FieldNameRow=\"-1\" DataType=\"    \"></Profile><UniversalPathList>$path</UniversalPathList><ImportOptions TargetTableName=\"Table\" CharacterSet=\"Macintosh\" KeepOriginalData=\"False\" PreserveContainer=\"False\" MatchFieldNames=\"False\" AutoEnter=\"False\" SplitRepetitions=\"False\" method=\"Add\"></ImportOptions></Step>",
+   "fmLine": "Convert File [ Open File ; With dialog: Off ; “$path” ; Verify SSL Certificates ]"
+  },
+  {
+   "id": "CNOSSL",
+   "xml": "<Step enable=\"True\" id=\"139\" name=\"Convert File\"><NoInteract state=\"False\"></NoInteract><Option state=\"False\"></Option><SkipIndexes state=\"False\"></SkipIndexes><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><VerifySSLCertificates state=\"False\"></VerifySSLCertificates><DataSourceType value=\"File\"></DataSourceType><Profile FieldDelimiter=\"&#09;\" IsPredefined=\"-1\" FieldNameRow=\"-1\" DataType=\"    \"></Profile><UniversalPathList>$path</UniversalPathList><ImportOptions TargetTableName=\"Table\" CharacterSet=\"Macintosh\" KeepOriginalData=\"False\" PreserveContainer=\"False\" MatchFieldNames=\"False\" AutoEnter=\"False\" SplitRepetitions=\"False\" method=\"Add\"></ImportOptions></Step>",
+   "fmLine": "Convert File [ Open File ; With dialog: On ; “$path” ]"
+  },
+  {
+   "id": "CNOPATH",
+   "xml": "<Step enable=\"True\" id=\"139\" name=\"Convert File\"><NoInteract state=\"False\"></NoInteract><Option state=\"False\"></Option><SkipIndexes state=\"False\"></SkipIndexes><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><VerifySSLCertificates state=\"True\"></VerifySSLCertificates><DataSourceType value=\"File\"></DataSourceType><Profile FieldDelimiter=\"&#09;\" IsPredefined=\"-1\" FieldNameRow=\"-1\" DataType=\"    \"></Profile><ImportOptions TargetTableName=\"Table\" CharacterSet=\"Macintosh\" KeepOriginalData=\"False\" PreserveContainer=\"False\" MatchFieldNames=\"False\" AutoEnter=\"False\" SplitRepetitions=\"False\" method=\"Add\"></ImportOptions></Step>",
+   "fmLine": "Convert File [ Open File ; With dialog: On ; Verify SSL Certificates ]"
+  },
+  {
+   "id": "CNODST",
+   "xml": "<Step enable=\"True\" id=\"139\" name=\"Convert File\"><NoInteract state=\"False\"></NoInteract><Option state=\"False\"></Option><SkipIndexes state=\"False\"></SkipIndexes><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><VerifySSLCertificates state=\"True\"></VerifySSLCertificates><DataSourceType value=\"File\"></DataSourceType><UniversalPathList>$path</UniversalPathList></Step>",
+   "fmLine": "Convert File [ Open File ; With dialog: On ; “$path” ; Verify SSL Certificates ]"
+  },
+  {
+   "id": "CPROF",
+   "xml": "<Step enable=\"True\" id=\"139\" name=\"Convert File\"><NoInteract state=\"False\"></NoInteract><Option state=\"False\"></Option><SkipIndexes state=\"False\"></SkipIndexes><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><VerifySSLCertificates state=\"True\"></VerifySSLCertificates><DataSourceType value=\"File\"></DataSourceType><Profile FieldDelimiter=\",\" IsPredefined=\"-1\" FieldNameRow=\"1\" DataType=\"    \"></Profile><UniversalPathList>$path</UniversalPathList><ImportOptions TargetTableName=\"Table\" CharacterSet=\"Macintosh\" KeepOriginalData=\"False\" PreserveContainer=\"False\" MatchFieldNames=\"False\" AutoEnter=\"False\" SplitRepetitions=\"False\" method=\"Add\"></ImportOptions></Step>",
+   "fmLine": "Convert File [ Open File ; With dialog: On ; “$path” ; Verify SSL Certificates ]"
+  },
+  {
+   "id": "CIMP",
+   "xml": "<Step enable=\"True\" id=\"139\" name=\"Convert File\"><NoInteract state=\"False\"></NoInteract><Option state=\"False\"></Option><SkipIndexes state=\"False\"></SkipIndexes><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><VerifySSLCertificates state=\"True\"></VerifySSLCertificates><DataSourceType value=\"File\"></DataSourceType><Profile FieldDelimiter=\"&#09;\" IsPredefined=\"-1\" FieldNameRow=\"-1\" DataType=\"    \"></Profile><UniversalPathList>$path</UniversalPathList><ImportOptions TargetTableName=\"Other\" CharacterSet=\"Macintosh\" AddRemainingRecords=\"False\" KeepOriginalData=\"False\" PreserveContainer=\"False\" MatchFieldNames=\"False\" AutoEnter=\"False\" SplitRepetitions=\"False\" method=\"Update\"></ImportOptions></Step>",
+   "fmLine": "Convert File [ Open File ; With dialog: On ; “$path” ; Verify SSL Certificates ]"
+  },
+  {
+   "id": "CXML",
+   "xml": "<Step enable=\"True\" id=\"139\" name=\"Convert File\"><NoInteract state=\"False\"></NoInteract><Option state=\"False\"></Option><SkipIndexes state=\"False\"></SkipIndexes><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><VerifySSLCertificates state=\"True\"></VerifySSLCertificates><DataSourceType value=\"XMLSource\"></DataSourceType><Profile FieldDelimiter=\"&#09;\" IsPredefined=\"-1\" FieldNameRow=\"-1\" DataType=\"    \"></Profile><ImportOptions TargetTableName=\"Table\" CharacterSet=\"Macintosh\" KeepOriginalData=\"False\" PreserveContainer=\"False\" MatchFieldNames=\"False\" AutoEnter=\"False\" SplitRepetitions=\"False\" method=\"Add\"></ImportOptions></Step>",
+   "fmLine": "Convert File [ Open File ; With dialog: On ; Verify SSL Certificates ]"
+  },
+  {
+   "id": "CALL",
+   "xml": "<Step enable=\"True\" id=\"139\" name=\"Convert File\"><NoInteract state=\"True\"></NoInteract><Option state=\"False\"></Option><SkipIndexes state=\"True\"></SkipIndexes><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><VerifySSLCertificates state=\"True\"></VerifySSLCertificates><DataSourceType value=\"File\"></DataSourceType><Profile FieldDelimiter=\"&#09;\" IsPredefined=\"-1\" FieldNameRow=\"-1\" DataType=\"    \"></Profile><UniversalPathList>$path</UniversalPathList><ImportOptions TargetTableName=\"Table\" CharacterSet=\"Macintosh\" KeepOriginalData=\"False\" PreserveContainer=\"False\" MatchFieldNames=\"False\" AutoEnter=\"False\" SplitRepetitions=\"False\" method=\"Add\"></ImportOptions></Step>",
+   "fmLine": "Convert File [ Open File ; Skip Indexes ; With dialog: Off ; “$path” ; Verify SSL Certificates ]"
+  }
+ ]
+}

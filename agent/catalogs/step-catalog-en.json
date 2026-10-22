@@ -1527,6 +1527,7 @@
     "params": [
       {
         "xmlElement": "NoInteract",
+        "hrSlot": 2,
         "type": "boolean",
         "hrLabel": "With dialog",
         "xmlAttr": "state",
@@ -1540,6 +1541,7 @@
       },
       {
         "xmlElement": "Option",
+        "hrSlot": 0,
         "type": "boolean",
         "flagStyle": true,
         "invertedHr": true,
@@ -1551,6 +1553,7 @@
       },
       {
         "xmlElement": "SkipIndexes",
+        "hrSlot": 1,
         "type": "boolean",
         "flagStyle": true,
         "hrLabel": "Skip Indexes",
@@ -1561,6 +1564,7 @@
       },
       {
         "xmlElement": "VerifySSLCertificates",
+        "hrSlot": 7,
         "type": "boolean",
         "flagStyle": true,
         "hrLabel": "Verify SSL Certificates",
@@ -1570,6 +1574,8 @@
       },
       {
         "xmlElement": "DataSourceType",
+        "hrSlot": 3,
+        "fmLineHidden": true,
         "type": "enum",
         "hrLabel": null,
         "xmlAttr": "value",
@@ -1578,10 +1584,12 @@
           "File",
           "XMLSource"
         ],
-        "notes": "Implicit in HR based on source paths shown inline. Not a labeled HR parameter."
+        "notes": "Implicit in HR based on source paths shown inline. Not a labeled HR parameter. FileMaker never draws it on its line, for File or XMLSource (fmLineHidden; FM 26.0.3)."
       },
       {
         "xmlElement": "Profile",
+        "hrSlot": 4,
+        "fmLineHidden": true,
         "type": "attrGroup",
         "hrLabel": "Profile",
         "required": false,
@@ -1591,10 +1599,11 @@
           { "key": "FieldNameRow", "kind": "attr", "xmlAttr": "FieldNameRow", "defaultValue": "-1" },
           { "key": "DataType", "kind": "attr", "xmlAttr": "DataType", "defaultValue": "    " }
         ],
-        "notes": "Source-format profile; whitespace attr values (tab FieldDelimiter, space-padded DataType) use the comma/whitespace-safe attrGroup value grammar."
+        "notes": "Source-format profile; whitespace attr values (tab FieldDelimiter, space-padded DataType) use the comma/whitespace-safe attrGroup value grammar. FileMaker never draws it on its line, at its defaults or changed (fmLineHidden; FM 26.0.3)."
       },
       {
         "xmlElement": "UniversalPathList",
+        "hrSlot": 5,
         "type": "text",
         "hrLabel": null,
         "hrQuoted": true,
@@ -1603,6 +1612,8 @@
       },
       {
         "xmlElement": "ImportOptions",
+        "hrSlot": 6,
+        "fmLineHidden": true,
         "type": "attrGroup",
         "hrLabel": "Import options",
         "required": false,
@@ -1615,10 +1626,10 @@
           { "key": "SplitRepetitions", "kind": "attr", "xmlAttr": "SplitRepetitions", "defaultValue": "False" },
           { "key": "method", "kind": "attr", "xmlAttr": "method", "defaultValue": "Add" }
         ],
-        "notes": "Destination import settings (faithful passthrough)."
+        "notes": "Destination import settings (faithful passthrough). FileMaker never draws them on its line, at their defaults or changed (fmLineHidden; FM 26.0.3). FileMaker draws Open File, Skip Indexes, With dialog, the path, Verify SSL Certificates in that order (hrSlot)."
       }
     ],
-    "hrSignature": "Convert File [ With dialog: {On|Off} ; Open File ; Skip Indexes ; Verify SSL Certificates ; {source} ; Profile: ... ; Import options: ... ]",
+    "hrSignature": "Convert File [ Open File ; Skip Indexes ; With dialog: {On|Off} ; {File|XMLSource} ; Profile: ... ; {path} ; Import options: ... ; Verify SSL Certificates ]",
     "blockPair": null,
     "status": "complete",
     "helpUrl": "https://help.claris.com/en/pro-help/content/convert-file.html",
@@ -9594,6 +9605,7 @@
     "params": [
       {
         "xmlElement": "IncludeEditRecordToolbar",
+        "hrSlot": 1,
         "flagStyle": true,
         "type": "flagBoolean",
         "hrLabel": "Include Edit Record Toolbar",
@@ -9604,16 +9616,18 @@
       },
       {
         "xmlElement": "Lock",
+        "hrSlot": 0,
         "flagStyle": true,
         "type": "flagBoolean",
         "hrLabel": "Lock",
         "xmlAttr": "state",
         "required": false,
         "defaultValue": "False",
-        "notes": "Flag-style: FileMaker draws \"Lock\" when True and nothing when False (live, FM 26.0.3)."
+        "notes": "Flag-style: FileMaker draws \"Lock\" when True and nothing when False (live, FM 26.0.3), before Include Edit Record Toolbar (hrSlot)."
       },
       {
         "xmlElement": "ShowHide",
+        "hrSlot": 2,
         "type": "enum",
         "hrLabel": null,
         "xmlAttr": "value",
@@ -9626,7 +9640,7 @@
         }
       }
     ],
-    "hrSignature": "[ Include Edit Record Toolbar ; Lock ; <Show/Hide/Toggle> ]",
+    "hrSignature": "[ Lock ; Include Edit Record Toolbar ; <Show/Hide/Toggle> ]",
     "blockPair": null,
     "status": "complete",
     "helpUrl": "https://help.claris.com/en/pro-help/content/show-hide-toolbars.html",
