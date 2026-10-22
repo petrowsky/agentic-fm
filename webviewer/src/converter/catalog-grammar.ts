@@ -1329,7 +1329,10 @@ export function renderStepHr(entry: GrammarEntry, step: Element): string {
       add(tok);
     }
   }
-  if (parts.length === 0) return entry.name;
+  // FileMaker draws the option brackets of every step that has options, even
+  // when none of them shows (`Perform Find [ ]`, `Go to Field [ ]`); only a step
+  // with no options at all draws bare (`Beep`). HR->XML reads both forms the same.
+  if (parts.length === 0) return entry.params.length ? entry.name + ' [ ]' : entry.name;
   // An hrEmptySlotWith slot draws as FileMaker draws it: a bare `;`.
   let out = entry.name + ' [ ';
   parts.forEach((item, i) => {

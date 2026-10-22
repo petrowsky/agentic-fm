@@ -152,7 +152,7 @@
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"71\" name=\"Loop\">\n    <Restore state=\"False\"/>\n    <FlushType value=\"Always\"/>\n  </Step>\n</fmxmlsnippet>"
   },
   "control/Open Transaction.xml": {
-    "hr": "Open Transaction",
+    "hr": "Open Transaction [ ]",
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"205\" name=\"Open Transaction\">\n    <Option state=\"False\"/>\n    <ESSForceCommit state=\"False\"/>\n    <SkipAutoEntry state=\"False\"/>\n    <Restore state=\"False\"/>\n  </Step>\n</fmxmlsnippet>"
   },
   "control/Pause-Resume Script.xml": {
@@ -296,7 +296,7 @@
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"91\" name=\"Replace Field Contents\">\n    <NoInteract state=\"True\"/>\n    <Restore state=\"True\"/>\n    <With value=\"Calculation\"/>\n    <Calculation><![CDATA[\"value\"]]></Calculation>\n    <SerialNumbers PerformAutoEnter=\"True\" UpdateEntryOptions=\"False\" UseEntryOptions=\"True\"/>\n    <Field table=\"\" id=\"0\" name=\"\"/>\n  </Step>\n</fmxmlsnippet>"
   },
   "fields/Set Field By Name.xml": {
-    "hr": "Set Field By Name",
+    "hr": "Set Field By Name [ ]",
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"147\" name=\"Set Field By Name\">\n    <Result>\n      <Calculation><![CDATA[]]></Calculation>\n    </Result>\n    <TargetName>\n      <Calculation><![CDATA[]]></Calculation>\n    </TargetName>\n  </Step>\n</fmxmlsnippet>"
   },
   "fields/Set Field.xml": {
@@ -828,7 +828,7 @@
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"122\" name=\"New Window\">\n    <LayoutDestination value=\"SelectedLayout\"/>\n    <Name>\n      <Calculation><![CDATA[]]></Calculation>\n    </Name>\n    <Height>\n      <Calculation><![CDATA[]]></Calculation>\n    </Height>\n    <Width>\n      <Calculation><![CDATA[]]></Calculation>\n    </Width>\n    <DistanceFromTop>\n      <Calculation><![CDATA[]]></Calculation>\n    </DistanceFromTop>\n    <DistanceFromLeft>\n      <Calculation><![CDATA[]]></Calculation>\n    </DistanceFromLeft>\n    <NewWndStyles DimParentWindow=\"No\" Toolbars=\"Yes\" MenuBar=\"Yes\" Style=\"Document\" Close=\"Yes\" Minimize=\"Yes\" Maximize=\"Yes\" Resize=\"Yes\" Styles=\"1076299266\"/>\n    <Layout id=\"0\" name=\"\"/>\n  </Step>\n</fmxmlsnippet>"
   },
   "windows/Refresh Window.xml": {
-    "hr": "Refresh Window",
+    "hr": "Refresh Window [ ]",
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"80\" name=\"Refresh Window\">\n    <Option state=\"False\"/>\n    <FlushSQLData state=\"False\"/>\n  </Step>\n</fmxmlsnippet>"
   },
   "windows/Scroll Window.xml": {

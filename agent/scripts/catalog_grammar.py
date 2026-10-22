@@ -1746,7 +1746,11 @@ def render_step_hr(entry: CatalogEntry, step: ET.Element) -> str:
                 continue
             add(tok)
     if not parts:
-        return entry.name
+        # FileMaker draws the option brackets of every step that has options,
+        # even when none of them shows (``Perform Find [ ]``, ``Go to Field [ ]``);
+        # only a step with no options at all draws bare (``Beep``). HR->XML reads
+        # both forms the same.
+        return entry.name + " [ ]" if entry.params else entry.name
     # An hrEmptySlotWith slot draws as FileMaker draws it: a bare ``;``.
     out = entry.name + " [ "
     for i, item in enumerate(parts):
