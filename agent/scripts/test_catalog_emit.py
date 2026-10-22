@@ -869,3 +869,17 @@ def test_saxml_insert_text_with_quotes_keeps_its_value(tmp_path):
         )
         out = translate_script(src)
         assert "<Text>" + want + "</Text>" in out, out
+
+
+def test_cdata_splits_close_sequence():
+    """A calc holding "]]>" is split across CDATA sections and reads back whole."""
+    import xml.etree.ElementTree as ET
+
+    from catalog_emit import cdata
+    from fm_xml_to_snippet import cdata as saxml_cdata
+
+    for calc in ['"x]]>y"', '"]]>" & "]]>"', '"]]]>"', "$x[2]", ""]:
+        for wrap in (cdata, saxml_cdata):
+            out = wrap(calc)
+            assert ("]]]]><![CDATA[>" in out) == ("]]>" in calc), out
+            assert (ET.fromstring("<C>" + out + "</C>").text or "") == calc, out

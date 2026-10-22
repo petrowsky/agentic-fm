@@ -186,7 +186,12 @@ def esc_xml_attr(s: str) -> str:
 
 
 def cdata(s: str) -> str:
-    return "<![CDATA[" + s + "]]>"
+    """Wrap s in a CDATA section, splitting each "]]>" across two sections.
+
+    "]]>" ends a CDATA section, so an unsplit one leaves malformed XML that
+    FileMaker refuses to paste; FileMaker joins the sections back into one value.
+    """
+    return "<![CDATA[" + s.replace("]]>", "]]]]><![CDATA[>") + "]]>"
 
 
 def _split_top_level_commas(s: str) -> list[str]:

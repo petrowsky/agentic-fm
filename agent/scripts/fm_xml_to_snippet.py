@@ -76,8 +76,13 @@ def escape_xml(text: str) -> str:
 
 
 def cdata(text: str) -> str:
-    """Wrap text in a CDATA section."""
-    return f'<![CDATA[{text or ""}]]>'
+    """Wrap text in a CDATA section, splitting each "]]>" across two sections.
+
+    "]]>" ends a CDATA section, so an unsplit one leaves malformed XML that
+    FileMaker refuses to paste; FileMaker joins the sections back into one value.
+    """
+    body = (text or "").replace("]]>", "]]]]><![CDATA[>")
+    return f'<![CDATA[{body}]]>'
 
 
 def get_calc_text(element) -> str:
