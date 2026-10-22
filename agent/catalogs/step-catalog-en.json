@@ -3264,7 +3264,8 @@
         "hrLabel": "Repetition",
         "wrapperElement": "Repetition",
         "required": true,
-        "notes": "FM always serializes Repetition/DialogTitle/DefaultLocation for this step (even empty). Labeled to avoid positional scramble; required so the empty default round-trips."
+        "fmLineSubscriptOf": "Name",
+        "notes": "Labeled in HR. FileMaker draws it as a subscript on the variable ($result[2], $result[$i]; nothing for 1 or empty). FileMaker writes no element for an empty Repetition, Dialog title or Default location (FileMaker Pro 26.0.3) and accepts the empty element on paste."
       },
       {
         "xmlElement": "Calculation",
@@ -3272,7 +3273,8 @@
         "hrLabel": "Dialog title",
         "wrapperElement": "DialogTitle",
         "required": true,
-        "notes": "Custom title for the folder selection dialog."
+        "fmLineBare": true,
+        "notes": "Custom title for the folder selection dialog. Labeled in HR; FileMaker draws it unlabeled after the variable and leaves it out when empty, so a lone unlabeled calculation reads as the title."
       },
       {
         "xmlElement": "Calculation",
@@ -3280,14 +3282,15 @@
         "hrLabel": "Default location",
         "wrapperElement": "DefaultLocation",
         "required": true,
-        "notes": "Path that dialog displays when opened."
+        "fmLineBare": true,
+        "notes": "Path that dialog displays when opened. Labeled in HR; FileMaker draws it unlabeled after the dialog title."
       },
       {
         "xmlElement": "Name",
         "type": "text",
         "hrLabel": null,
         "required": false,
-        "notes": "Variable name ($local or $$global); FM serializes it last. Bare positional token in HR."
+        "notes": "Variable name ($local or $$global); FM serializes it last. Bare positional token in HR; FileMaker draws it first, with the repetition as its subscript."
       }
     ],
     "hrSignature": "Get Folder Path [ Allow Folder Creation ; Repetition: <n> ; Dialog title: <calc> ; Default location: <calc> ; $variable ]",

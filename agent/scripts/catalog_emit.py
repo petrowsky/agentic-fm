@@ -1054,6 +1054,46 @@ def match_param_values(entry: CatalogEntry, hr_params: list[str]) -> list[str]:
             got_token[pi] = True
             resolved[pi] = True
 
+    # fmLineBare: FileMaker draws these labeled params bare, after the step's
+    # other tokens, and leaves an empty one out (Get Folder Path ``[ Allow Folder
+    # Creation ; $result ; "t" ; Get ( DocumentsPath ) ]``). Once the bare params
+    # have their tokens, the bare tokens left are these params', in catalog
+    # order; an explicit empty token keeps its param's slot (``$result ; ; …``).
+    # Fewer tokens than params is FileMaker leaving one out, which the line
+    # cannot place: the tokens fill the first params. Mirrors the reference
+    # converter (which also warns about that guess).
+    targets = [pi for pi, p in enumerate(entry.params) if _raw_bool(p.raw, "fmLineBare") and not resolved[pi]]
+    nxt = 0
+    for i in range(len(hr_params)):
+        if nxt >= len(targets):
+            break
+        if consumed[i] or reserved[i]:
+            continue
+        pi = targets[nxt]
+        nxt += 1
+        consumed[i] = True
+        values[pi] = _trim(hr_params[i])
+        got_token[pi] = True
+        resolved[pi] = True
+
+    # fmLineSubscriptOf: FileMaker draws this param as a repetition subscript on
+    # a sibling's token (``$result[2]``, ``$result[$i]``). With no labeled token of
+    # its own, split a trailing ``[…]`` off the sibling's value into it.
+    for pi, param in enumerate(entry.params):
+        of = _raw_str(param.raw, "fmLineSubscriptOf")
+        if not of or got_token[pi] or _trim(values[pi]):
+            continue
+        for qi, q in enumerate(entry.params):
+            if qi == pi or param_key(q) != of:
+                continue
+            bare, rep, calc = _parse_field_subscript(_trim(values[qi]))
+            if rep > 0 or calc:
+                values[qi] = _trim(bare)
+                values[pi] = calc or str(rep)
+                got_token[pi] = True
+                resolved[pi] = True
+            break
+
     # P7.2 governed-visibility ENUM: a ``visibleWhen`` gate names a sibling enum
     # and the values of it under which this param is shown. FileMaker renders a
     # gate value that reveals a companion as the COMPANION ALONE, with no token of

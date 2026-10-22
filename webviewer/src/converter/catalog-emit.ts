@@ -918,6 +918,45 @@ function matchParamValues(entry: GrammarEntry, hrParams: string[]): string[] {
     }
   }
 
+  // fmLineBare: FileMaker draws these labeled params bare, after the step's other
+  // tokens, and leaves an empty one out (Get Folder Path `[ Allow Folder Creation ;
+  // $result ; "t" ; Get ( DocumentsPath ) ]`). Once the bare params have their
+  // tokens, the bare tokens left are these params', in catalog order; an explicit
+  // empty token keeps its param's slot (`$result ; ; …`). Fewer tokens than params
+  // is FileMaker leaving one out, which the line cannot place: the tokens fill the
+  // first params. Mirrors the reference converter (which also warns about that guess).
+  const bareTargets: number[] = [];
+  for (let pi = 0; pi < entry.params.length; pi++)
+    if (rawBool(entry.params[pi].raw, 'fmLineBare') && !resolved[pi]) bareTargets.push(pi);
+  let nextBare = 0;
+  for (let i = 0; i < hrParams.length && nextBare < bareTargets.length; i++) {
+    if (consumed[i] || reserved[i]) continue;
+    const pi = bareTargets[nextBare++];
+    consumed[i] = true;
+    values[pi] = trim(hrParams[i]);
+    gotToken[pi] = true;
+    resolved[pi] = true;
+  }
+
+  // fmLineSubscriptOf: FileMaker draws this param as a repetition subscript on a
+  // sibling's token (`$result[2]`, `$result[$i]`). With no labeled token of its
+  // own, split a trailing `[…]` off the sibling's value into it.
+  for (let pi = 0; pi < entry.params.length; pi++) {
+    const of = rawStr(entry.params[pi].raw, 'fmLineSubscriptOf');
+    if (!of || gotToken[pi] || trim(values[pi])) continue;
+    for (let qi = 0; qi < entry.params.length; qi++) {
+      if (qi === pi || paramKey(entry.params[qi]) !== of) continue;
+      const [bare, rep, calc] = parseFieldSubscript(trim(values[qi]));
+      if (rep > 0 || calc) {
+        values[qi] = trim(bare);
+        values[pi] = calc || String(rep);
+        gotToken[pi] = true;
+        resolved[pi] = true;
+      }
+      break;
+    }
+  }
+
   // P7.2 governed-visibility ENUM: a `visibleWhen` gate names a sibling enum and
   // the values of it under which this param is shown. FileMaker renders a gate
   // value that reveals a companion as the COMPANION ALONE, with no token of its
