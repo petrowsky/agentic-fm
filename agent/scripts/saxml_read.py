@@ -33,6 +33,7 @@ from calc_literal import hr_sep, quote_calc_literal
 from catalog_grammar import (
     CatalogEntry,
     StepParam,
+    _group_quote_value,
     is_governing_discriminator,
     param_key,
 )
@@ -688,6 +689,111 @@ def _take_labeled_boolean(
             claimed.add(id(b))
             return b
     return None
+
+
+# ---------------------------------------------------------------------------
+# Fields of a hidden attrGroup FileMaker still exports
+# ---------------------------------------------------------------------------
+# step -> hrHidden attrGroup xmlElement -> group field key -> SaXML attribute
+# address. An address is ``/``-separated element steps from a top-level
+# ``<Parameter>`` (named by its type, as ``_saxml_seg`` reads it) down direct
+# children, each ``Tag`` or ``Tag[label]`` (label = the element's ``name`` or
+# ``type`` attribute, exact), ending ``@attr``. The first element the path reaches
+# supplies the field's raw value; a field the export lacks keeps its catalog
+# default, because FileMaker exports a field only in the mode that uses it.
+#
+# ``Replace Field Contents``' ``<SerialNumbers>`` (FileMaker Pro 26.0.3, Serial
+# numbers mode): UseEntryOptions is ``<List name="Entry option values" value>`` and
+# UpdateEntryOptions ``<Boolean type="Update Entry Options" value>``, both inside the
+# replace ``<List>``; InitialValue / increment are that list's ``<Initial value>`` /
+# ``<increment value>``, exported only when UseEntryOptions is False.
+_SAXML_ATTR_GROUP_FIELDS: dict[str, dict[str, dict[str, str]]] = {
+    "Replace Field Contents": {
+        "SerialNumbers": {
+            "UseEntryOptions": "replace/List/List[Entry option values]@value",
+            "UpdateEntryOptions": "replace/List/Boolean[Update Entry Options]@value",
+            "InitialValue": "replace/List/List[Entry option values]/Initial@value",
+            "increment": "replace/List/List[Entry option values]/increment@value",
+        },
+    },
+}
+
+
+def _parse_attr_address(address: str) -> tuple[list[tuple[str, str]], str]:
+    """``(steps, attr)`` of an attribute address; each step is ``(tag, label)``.
+    A malformed address is a table defect: the step is refused."""
+    path, sep, attr = address.rpartition("@")
+    if not sep or not attr or not path:
+        raise UnsupportedSaXML(f"attribute address {address!r} names no @attribute")
+    steps: list[tuple[str, str]] = []
+    for seg in path.split("/"):
+        tag, lb, rest = seg.partition("[")
+        if lb and not rest.endswith("]"):
+            raise UnsupportedSaXML(f"attribute address {address!r} has a malformed step")
+        if not tag:
+            raise UnsupportedSaXML(f"attribute address {address!r} has an empty step")
+        steps.append((tag, rest[:-1] if lb else ""))
+    return steps, attr
+
+
+def _addr_step_matches(el: ET.Element, step: tuple[str, str]) -> bool:
+    tag, label = step
+    if _saxml_seg(el) != tag:
+        return False
+    return not label or el.get("name") == label or el.get("type") == label
+
+
+def _take_addressed_attr(
+    sparams: list[ET.Element], claimed: set[int], address: str
+) -> str | None:
+    """The attribute the address reaches (its element claimed), or None when the
+    export has no such element."""
+    steps, attr = _parse_attr_address(address)
+
+    def walk(el: ET.Element, i: int) -> ET.Element | None:
+        if i == len(steps):
+            return el
+        for ch in el:
+            if _addr_step_matches(ch, steps[i]):
+                hit = walk(ch, i + 1)
+                if hit is not None:
+                    return hit
+        return None
+
+    for sp in sparams:
+        if not _addr_step_matches(sp, steps[0]):
+            continue
+        hit = walk(sp, 1)
+        if hit is None or hit.get(attr) is None:
+            continue
+        claimed.add(id(hit))
+        return hit.get(attr)
+    return None
+
+
+def _hidden_attr_group_token(
+    entry: CatalogEntry, param: StepParam, sparams: list[ET.Element], claimed: set[int]
+) -> str:
+    """A hidden attrGroup's measured fields as the group's HR body
+    (``key=value, …``, values quoted the way the emit parses them back). Empty when
+    the step has no addresses for the group."""
+    table = _SAXML_ATTR_GROUP_FIELDS.get(entry.name, {}).get(param.xml_element)
+    if not table:
+        return ""
+    keys = [f.get("key") for f in (param.raw.get("fields") or []) if isinstance(f, dict)]
+    unknown = sorted(set(table) - set(keys))
+    if unknown:
+        raise UnsupportedSaXML(
+            f"{entry.name}: SaXML attribute table addresses {unknown} that attrGroup "
+            f"{param.xml_element!r} does not declare")
+    items = []
+    for key in keys:
+        if key not in table:
+            continue
+        value = _take_addressed_attr(sparams, claimed, table[key])
+        if value is not None:
+            items.append(f"{key}={_group_quote_value(value)}")
+    return ", ".join(items)
 
 
 def _saxml_enum_value(entry: CatalogEntry, param: StepParam, label: str) -> str:
@@ -2102,7 +2208,13 @@ def read_saxml_step(
     claimed: set[int] = set()
     values = [""] * len(entry.params)
     for pi, param in enumerate(entry.params):
-        if param.hr_hidden or param.type == "complex":
+        if param.type == "complex":
+            continue
+        if param.hr_hidden:
+            # A hidden attrGroup FileMaker still exports (Replace Field Contents'
+            # serial-number options): its measured fields.
+            if param.type == "attrGroup":
+                values[pi] = _hidden_attr_group_token(entry, param, sparams, claimed)
             continue
         if param.type in _COMPOSITE_TYPES:
             builder = _COMPOSITE_BUILDERS.get((entry.name, param.xml_element))

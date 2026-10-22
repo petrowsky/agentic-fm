@@ -482,6 +482,62 @@ def test_saxml_skip_auto_enter_reads_nested_boolean():
     assert stats["unsupported"] == 1
 
 
+def test_saxml_serial_entry_options_read_into_serial_numbers():
+    """Replace Field Contents' serial-number entry options come from the SaXML.
+
+    In Serial numbers mode FileMaker exports ``<List name="Entry option values" value>``
+    (UseEntryOptions) and ``<Boolean type="Update Entry Options" value>``
+    (UpdateEntryOptions) inside the replace ``<List>``; with UseEntryOptions False
+    that list also holds ``<Initial value>`` and ``<increment value>``. Ignoring them
+    converted every step with the catalog defaults, so a pasted step numbered
+    records differently from the original while drawing the same line.
+    """
+    path = os.path.join(_FIXTURES, "saxml_flag_booleans",
+                        "replace-field-contents-skip-auto-enter-fm26.xml")
+    root = ET.parse(path).getroot()
+    defaults = {"UseEntryOptions": "False", "UpdateEntryOptions": "False",
+                "InitialValue": "", "increment": "0"}
+    want = {
+        "ser-R1-P0-use": {**defaults, "UseEntryOptions": "True"},
+        "ser-R0-P1-use": {**defaults, "UseEntryOptions": "True"},
+        "ser-R1-P1-use": {**defaults, "UseEntryOptions": "True"},
+        "ser-R0-P0-use": {**defaults, "UseEntryOptions": "True"},
+        "ser-R1-P0-upd": {**defaults, "UpdateEntryOptions": "True"},
+    }
+
+    def serial(step):
+        stats = {"unknown": 0, "unsupported": 0}
+        emitted = fm_xml_to_snippet.tx_engine(step, stats)
+        assert stats == {"unknown": 0, "unsupported": 0}
+        sn = ET.fromstring(emitted.split("-->")[-1]).find("SerialNumbers")
+        return {k: sn.get(k) for k in defaults}
+
+    case = None
+    seen = 0
+    upd_step = None
+    for step in root.findall("ObjectList/Step"):
+        if step.get("name") == "# (comment)":
+            case = step.find(".//Comment").get("value").removeprefix("case ")
+            continue
+        assert serial(step) == want.get(case, defaults), case
+        if case == "ser-R1-P0-upd":
+            upd_step = step
+        seen += 1
+    assert seen == 12
+
+    # A custom serial start and increment (UseEntryOptions False), in the measured
+    # shape with the values filled in; a comma or quote in the start value survives.
+    lst = upd_step.find(".//Parameter[@type='replace']/List")
+    entry = lst.find("List[@name='Entry option values']")
+    for initial, inc, upd in (("1000", "5", "False"), ("INV0001", "10", "True"),
+                              ("A,1", "2", "False"), ('say "x"', "1", "False")):
+        entry.find("Initial").set("value", initial)
+        entry.find("increment").set("value", inc)
+        lst.find("Boolean[@type='Update Entry Options']").set("value", upd)
+        assert serial(upd_step) == {"UseEntryOptions": "False", "UpdateEntryOptions": upd,
+                                    "InitialValue": initial, "increment": inc}
+
+
 def _bless():
     for path, data in (
         (_XML_TO_HR, compute_xml_to_hr()),
