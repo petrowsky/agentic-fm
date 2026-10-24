@@ -1597,9 +1597,28 @@
           { "key": "FieldDelimiter", "kind": "attr", "xmlAttr": "FieldDelimiter", "defaultValue": "\t" },
           { "key": "IsPredefined", "kind": "attr", "xmlAttr": "IsPredefined", "defaultValue": "-1" },
           { "key": "FieldNameRow", "kind": "attr", "xmlAttr": "FieldNameRow", "defaultValue": "-1" },
-          { "key": "DataType", "kind": "attr", "xmlAttr": "DataType", "defaultValue": "    " }
+          { "key": "DataType", "kind": "attr", "xmlAttr": "DataType", "defaultValue": "    " },
+          { "key": "XMLType", "kind": "attr", "xmlAttr": "XMLType", "optional": true },
+          { "key": "XSLType", "kind": "attr", "xmlAttr": "XSLType", "optional": true },
+          { "key": "XMLFile", "kind": "text", "childElement": "XMLFile" },
+          { "key": "XMLHttp", "kind": "text", "childElement": "XMLHttp" },
+          { "key": "XMLCalc", "kind": "calc", "childElement": "XMLCalc" },
+          { "key": "XSLFile", "kind": "text", "childElement": "XSLFile" },
+          { "key": "XSLHttp", "kind": "text", "childElement": "XSLHttp" },
+          { "key": "XSLCalc", "kind": "calc", "childElement": "XSLCalc" }
         ],
-        "notes": "Source-format profile; whitespace attr values (tab FieldDelimiter, space-padded DataType) use the comma/whitespace-safe attrGroup value grammar. FileMaker never draws it on its line, at its defaults or changed (fmLineHidden; FM 26.0.3)."
+        "notes": "Source-format profile; whitespace attr values (tab FieldDelimiter, space-padded DataType) use the comma/whitespace-safe attrGroup value grammar. FileMaker never draws it on its line, at its defaults or changed (fmLineHidden; FM 26.0.3). With DataSourceType XMLSource FileMaker keeps the four File attributes, sets DataType to \"XML \" and adds XMLType (XMLFile | XMLHttp | XMLCalculation) and XSLType (XSLFile | XSLHttp | XSLCalculation | NoXSL), and one child for each source: <XMLFile> / <XSLFile> hold file paths (one per line), <XMLHttp> / <XSLHttp> a URL, <XMLCalc> / <XSLCalc> a calculation (FM 26.0.3, authored in the Specify XML and XSL Options dialog and pasted, read back)."
+      },
+      {
+        "xmlElement": "Calculation",
+        "hrSlot": 8,
+        "type": "calculation",
+        "hrLabel": null,
+        "hrHidden": true,
+        "mirrorOf": "Profile/XMLCalc",
+        "omitWhenEmpty": true,
+        "required": false,
+        "notes": "FileMaker's copy of the XML source calculation (XMLType XMLCalculation), written after the Profile. Unlike Create PDF's Title copy this copy is the one FileMaker keeps: pasted with only <XMLCalc> it drops the calculation, pasted with only this copy it fills <XMLCalc> from it, and with the two different it writes this value to both (FM 26.0.3). No HR token of its own; written from Profile: XMLCalc= (mirrorOf), absent with no XML calculation."
       },
       {
         "xmlElement": "UniversalPathList",
@@ -1607,8 +1626,9 @@
         "type": "text",
         "hrLabel": null,
         "hrQuoted": true,
+        "omitWhenEmpty": true,
         "required": false,
-        "notes": "Source file path or URL. Can be a variable."
+        "notes": "Source file path or URL. Can be a variable. FileMaker writes no element when there is no path, and none for an XML source, whose sources are in the Profile (omitWhenEmpty; FM 26.0.3)."
       },
       {
         "xmlElement": "ImportOptions",
@@ -1620,6 +1640,8 @@
         "fields": [
           { "key": "TargetTableName", "kind": "attr", "xmlAttr": "TargetTableName", "defaultValue": "Table" },
           { "key": "CharacterSet", "kind": "attr", "xmlAttr": "CharacterSet", "defaultValue": "Macintosh" },
+          { "key": "AddRemainingRecords", "kind": "attr", "xmlAttr": "AddRemainingRecords", "optional": true },
+          { "key": "KeepOriginalData", "kind": "attr", "xmlAttr": "KeepOriginalData", "defaultValue": "False" },
           { "key": "PreserveContainer", "kind": "attr", "xmlAttr": "PreserveContainer", "defaultValue": "False" },
           { "key": "MatchFieldNames", "kind": "attr", "xmlAttr": "MatchFieldNames", "defaultValue": "False" },
           { "key": "AutoEnter", "kind": "attr", "xmlAttr": "AutoEnter", "defaultValue": "False" },

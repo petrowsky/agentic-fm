@@ -138,7 +138,7 @@ When `DataSourceType="Folder"`, the Profile element has additional attributes:
 
 DataType for Folder sources is always `"BTCH"`.
 
-### XMLSource Profile Variants (Import Records only)
+### XMLSource Profile Variants (Import Records, Convert File)
 
 When `DataSourceType="XMLSource"`, the Profile has XMLType/XSLType attributes and matching child elements:
 
@@ -149,3 +149,6 @@ When `DataSourceType="XMLSource"`, the Profile has XMLType/XSLType attributes an
 | `XMLCalculation` / `XSLCalculation` | `<XMLCalc><Calculation>...</Calculation></XMLCalc>` / `<XSLCalc><Calculation>...</Calculation></XSLCalc>` | Calculations |
 
 XMLType and XSLType can be mixed (e.g., `XMLCalculation` with `XSLHttp`). DataType for XML sources is always `"XML "` (with trailing space).
+With no style sheet, XSLType is `NoXSL` and there is no XSL child.
+Convert File keeps the File attributes (`FieldDelimiter`, `IsPredefined`, `FieldNameRow`) on an XMLSource Profile, and writes an XML calculation a second time as the step-level `<Calculation>` after the Profile; FileMaker keeps that copy and drops an `<XMLCalc>` pasted without it (FileMaker Pro 26.0.3).
+A file child holds one path per line.
