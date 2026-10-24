@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<Script>
+  <ObjectList>
+    <Step id="16" name="Go to Record/Request/Page" enable="True">
+      <Options>2</Options>
+      <ParameterValues membercount="1">
+        <Parameter type="Records">
+          <List name="Previous" value="3">
+            <Boolean type="Exit after last" position="186" value="False" />
+          </List>
+        </Parameter>
+      </ParameterValues>
+    </Step>
+  </ObjectList>
+</Script>

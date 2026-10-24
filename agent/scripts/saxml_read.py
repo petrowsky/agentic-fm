@@ -1001,6 +1001,25 @@ def _extract_simple(
                 return '"' + sr.get("name", "") + '"'
         return ""
 
+    if ptype == "reference":
+        # A named object FileMaker exports as ``<{xmlElement}Reference id name>``,
+        # directly under the <Parameter> (``<CustomMenuSetReference>``,
+        # ``<PrivilegeSetReference>``) or inside its <List> (``<BaseTableReference>``).
+        # A fixed-id built-in reads by its id, as the clipboard reader does; anything
+        # else by its name. Options FileMaker nests inside the reference (Install Menu
+        # Set's ``Use as file default``) are read by their own params' labels.
+        tag = param.xml_element + "Reference"
+        for i, sp in enumerate(sparams):
+            if consumed[i]:
+                continue
+            ref = sp.find(".//" + tag)
+            if ref is None:
+                continue
+            consumed[i] = True
+            name = param.hr_enum_values.get(ref.get("id", "")) or ref.get("name", "")
+            return '"' + name + '"' if name else ""
+        return ""
+
     if ptype == "layout":
         for i, sp in enumerate(sparams):
             if consumed[i]:
@@ -1016,14 +1035,16 @@ def _extract_simple(
         return ""
 
     if ptype == "boolean":
-        # Match by the SaXML <Boolean type="…"> attribute against the catalog hrLabel.
+        # Match by the SaXML <Boolean type="…"> attribute against the catalog hrLabel:
+        # a <Parameter>'s own boolean first, then one FileMaker nests inside another
+        # param's value (``Exit after last`` in Go to Record/Request/Page's Next
+        # <List>, ``Use as file default`` in Install Menu Set's
+        # <CustomMenuSetReference>). A nested option belongs to its own param, not to
+        # whatever param holds it.
         if param.hr_label:
-            for i, sp in enumerate(sparams):
-                if consumed[i]:
-                    continue
-                if _bool_type(sp) == param.hr_label:
-                    consumed[i] = True
-                    return _bool_on_off(sp) or ""
+            b = _take_labeled_boolean(sparams, consumed, claimed, param.hr_label)
+            if b is not None:
+                return "On" if b.get("value", "False") == "True" else "Off"
         # Fallback: the one unconsumed Boolean left, positionally — and ONLY when
         # exactly one is left.
         #

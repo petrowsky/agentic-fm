@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<Script>
+  <ObjectList>
+    <Step id="99" name="Go to Portal Row" enable="True">
+      <Options>20610</Options>
+      <ParameterValues membercount="2">
+        <Parameter type="Boolean">
+          <Boolean type="Select" id="4096" value="True" />
+        </Parameter>
+        <Parameter type="Portal">
+          <List name="By Calculation…" value="5">
+            <Boolean type="With dialog" position="158" value="False" />
+            <Calculation datatype="1" position="0">
+              <Calculation>
+                <Text><![CDATA[$originalPortalRowNumber]]></Text>
+              </Calculation>
+            </Calculation>
+          </List>
+        </Parameter>
+      </ParameterValues>
+    </Step>
+  </ObjectList>
+</Script>
