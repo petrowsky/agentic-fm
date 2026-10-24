@@ -8627,42 +8627,90 @@
         "type": "namedCalc",
         "hrLabel": "OAuth name",
         "wrapperElement": "OAuthNameDescription",
-        "required": false
+        "required": false,
+        "fmMin": "20.1",
+        "fmMinSource": "measured",
+        "fmGateWhen": {
+          "param": "SendViaOAuthAuthentication",
+          "values": [
+            "True"
+          ]
+        }
       },
       {
         "xmlElement": "Calculation",
         "type": "namedCalc",
         "hrLabel": "OAuth from address",
         "wrapperElement": "OAuthEmailAddress",
-        "required": false
+        "required": false,
+        "fmMin": "20.1",
+        "fmMinSource": "measured",
+        "fmGateWhen": {
+          "param": "SendViaOAuthAuthentication",
+          "values": [
+            "True"
+          ]
+        }
       },
       {
         "xmlElement": "Calculation",
         "type": "namedCalc",
         "hrLabel": "OAuth reply address",
         "wrapperElement": "OAuthReplyAddress",
-        "required": false
+        "required": false,
+        "fmMin": "20.1",
+        "fmMinSource": "measured",
+        "fmGateWhen": {
+          "param": "SendViaOAuthAuthentication",
+          "values": [
+            "True"
+          ]
+        }
       },
       {
         "xmlElement": "Calculation",
         "type": "namedCalc",
         "hrLabel": "Admin user ID",
         "wrapperElement": "OAuthUserID",
-        "required": false
+        "required": false,
+        "fmMin": "20.1",
+        "fmMinSource": "measured",
+        "fmGateWhen": {
+          "param": "SendViaOAuthAuthentication",
+          "values": [
+            "True"
+          ]
+        }
       },
       {
         "xmlElement": "Calculation",
         "type": "namedCalc",
         "hrLabel": "Service account email",
         "wrapperElement": "OAuthAccountEmail",
-        "required": false
+        "required": false,
+        "fmMin": "20.1",
+        "fmMinSource": "measured",
+        "fmGateWhen": {
+          "param": "SendViaOAuthAuthentication",
+          "values": [
+            "True"
+          ]
+        }
       },
       {
         "xmlElement": "Calculation",
         "type": "namedCalc",
         "hrLabel": "Private key",
         "wrapperElement": "OAuthPrivateKey",
-        "required": false
+        "required": false,
+        "fmMin": "20.1",
+        "fmMinSource": "measured",
+        "fmGateWhen": {
+          "param": "SendViaOAuthAuthentication",
+          "values": [
+            "True"
+          ]
+        }
       },
       {
         "xmlElement": "Calculation",
