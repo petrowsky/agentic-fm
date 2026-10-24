@@ -1012,6 +1012,11 @@ export function computeParamHr(entry: GrammarEntry, step: Element, param: Gramma
     // back to any declared legacy synonym (e.g. AccoutName). Mirrors Python.
     const wnode = aliasedChild(base, wrapper, entry.elementAliases);
     val = wnode !== null ? childText(wnode, 'Calculation') : '';
+    // hrOmitAtDefault: a calc holding its catalog default prints nothing; HR -> XML
+    // writes the default back when no token is given (Trigger Claris Connect
+    // Flow's cURL options, which FileMaker writes on insert and never draws).
+    const dflt = typeof param.raw.defaultValue === 'string' ? param.raw.defaultValue : '';
+    if (param.raw.hrOmitAtDefault && dflt && val === dflt) val = '';
     // hrBare params (Show Custom Dialog's Title/Message) print positionally
     // with no label, mirroring FileMaker; every other namedCalc keeps its label.
     if (val && !param.hrBare) {
@@ -1372,6 +1377,27 @@ export function resolveMirrorSource(
   return { owner, chain };
 }
 
+/**
+ * The source of a one-segment `mirrorOf`: a sibling step-level `text` / `name`
+ * param whose value FileMaker writes this param as a copy of (Trigger Claris
+ * Connect Flow's `<Text>` repeats its `<Flow>`). Null otherwise. Mirrors Python
+ * `resolve_mirror_sibling`.
+ */
+export function resolveMirrorSibling(entry: GrammarEntry, param: GrammarParam): GrammarParam | null {
+  const segs = String(param.raw.mirrorOf ?? '').split('/').filter((s) => s);
+  if (segs.length !== 1) return null;
+  return (
+    entry.params.find(
+      (q) =>
+        q !== param &&
+        !q.hrHidden &&
+        (q.type === 'text' || q.type === 'name') &&
+        (q.parentElement ?? '') === (param.parentElement ?? '') &&
+        paramKey(q) === segs[0],
+    ) ?? null
+  );
+}
+
 /** The element holding a mirrorOf source field's `<Calculation>`; with `create`
  * the missing path is appended. */
 function mirrorSourceNode(
@@ -1415,6 +1441,24 @@ function applyMirrorFallback(entry: GrammarEntry, step: Element): Element | null
   let out: Element | null = null;
   for (const p of entry.params) {
     if (!p.raw.mirrorOf) continue;
+    const sib = resolveMirrorSibling(entry, p);
+    if (sib !== null) {
+      // A sibling text source: FileMaker draws the copy's value as the source when
+      // the step holds no source element (its copy-out of a Trigger Claris Connect
+      // Flow pasted without option flags carries only <Text>, drawn `Flow: <text>`,
+      // FM 26.0.3).
+      const s0: Element = out ?? step;
+      const b0 = p.parentElement ? descendPath(s0, p.parentElement, entry.elementAliases) : s0;
+      const v0 = elemText(findChild(b0, p.xmlElement));
+      if (!v0.trim() || b0 === null || findChild(b0, sib.xmlElement) !== null) continue;
+      if (out === null) out = step.cloneNode(true) as Element;
+      const b1 = p.parentElement ? descendPath(out, p.parentElement, entry.elementAliases) : out;
+      if (b1 === null) continue;
+      const el = out.ownerDocument.createElement(sib.xmlElement);
+      el.appendChild(out.ownerDocument.createTextNode(v0));
+      b1.appendChild(el);
+      continue;
+    }
     const src = resolveMirrorSource(entry, p);
     if (src === null) continue;
     const s: Element = out ?? step;

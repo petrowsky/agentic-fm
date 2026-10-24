@@ -48,7 +48,7 @@
   "control/Set Layout Object Animation.xml": "Set Layout Object Animation [ Animation: On ]",
   "control/Set Revert Transaction on Error.xml": "Set Revert Transaction on Error [ Revert on error: Off ]",
   "control/Set Variable.xml": "Set Variable [ $varName ; Value:  ]",
-  "control/Trigger Claris Connect Flow.xml": "Trigger Claris Connect Flow [ With dialog: Off ; Don't encode URL: Off ; Select entire contents: On ; Verify SSL certificates: Off ; <unknown> ; cURL options: \"--request POST --header \\\"Content-Type: application/json\\\" --data \" ; <unknown> ]",
+  "control/Trigger Claris Connect Flow.xml": "Trigger Claris Connect Flow [ Flow: <unknown> ]",
   "editing/Clear.xml": "Clear [ Select ; <Table Missing> ]",
   "editing/Copy.xml": "Copy [ Select ; <Table Missing> ]",
   "editing/Cut.xml": "Cut [ Select ; <Table Missing> ]",

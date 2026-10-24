@@ -196,7 +196,7 @@
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"141\" name=\"Set Variable\">\n    <Value>\n      <Calculation><![CDATA[]]></Calculation>\n    </Value>\n    <Repetition>\n      <Calculation><![CDATA[]]></Calculation>\n    </Repetition>\n    <Name>$varName</Name>\n  </Step>\n</fmxmlsnippet>"
   },
   "control/Trigger Claris Connect Flow.xml": {
-    "hr": "Trigger Claris Connect Flow [ With dialog: Off ; Don't encode URL: Off ; Select entire contents: On ; Verify SSL certificates: Off ; <unknown> ; cURL options: \"--request POST --header \\\"Content-Type: application/json\\\" --data \" ; <unknown> ]",
+    "hr": "Trigger Claris Connect Flow [ Flow: <unknown> ]",
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"0\" name=\"Trigger Claris Connect Flow\">\n    <NoInteract state=\"True\"/>\n    <DontEncodeURL state=\"False\"/>\n    <SelectAll state=\"True\"/>\n    <VerifySSLCertificates state=\"False\"/>\n    <Flow>&lt;unknown&gt;</Flow>\n    <CURLOptions>\n      <Calculation><![CDATA[\"--request POST --header \\\"Content-Type: application/json\\\" --data \"]]></Calculation>\n    </CURLOptions>\n    <Text>&lt;unknown&gt;</Text>\n  </Step>\n</fmxmlsnippet>"
   },
   "editing/Clear.xml": {

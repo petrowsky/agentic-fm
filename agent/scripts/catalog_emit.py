@@ -75,6 +75,7 @@ from catalog_grammar import (
     projection_owner,
     renders_bare_in_hr,
     resolve_mirror_source,
+    resolve_mirror_sibling,
     shape_routed_values,
     value_reveals_companion,
 )
@@ -1655,6 +1656,14 @@ def convert_step_with_catalog(
     for pi, p in enumerate(params):
         if not p.raw.get("mirrorOf"):
             continue
+        # A one-segment mirrorOf copies a sibling text param (Trigger Claris
+        # Connect Flow's <Text> repeats its <Flow>).
+        sib = resolve_mirror_sibling(entry, p)
+        if sib is not None:
+            v = _trim(values[next(i for i, q in enumerate(params) if q is sib)])
+            if v:
+                values[pi] = v
+            continue
         src = resolve_mirror_source(entry, p)
         if src is None:
             continue
@@ -1964,6 +1973,9 @@ def convert_step_with_catalog(
         elif param.type == "namedCalc":
             if hr_value != "" or param.required:
                 piece = _emit_named_calc(param, hr_value)
+            elif param.raw.get("hrOmitAtDefault") and _raw_str(param.raw, "defaultValue"):
+                # hrOmitAtDefault: no token is the catalog default, written back.
+                piece = _emit_named_calc(param, _raw_str(param.raw, "defaultValue"))
         elif param.type == "parametersList":
             piece = _emit_parameters_list(param, hr_value)
         elif param.type == "findRequests":

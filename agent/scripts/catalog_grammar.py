@@ -1399,6 +1399,13 @@ def compute_param_hr(entry: CatalogEntry, step: ET.Element, param: StepParam) ->
         # falling back to any declared legacy synonym (e.g. AccoutName).
         wnode = _aliased_child(base, wrapper, entry.element_aliases)
         val = _child_text(wnode, "Calculation") if wnode is not None else ""
+        # hrOmitAtDefault: a calc holding its catalog default prints nothing; HR ->
+        # XML writes the default back when no token is given (Trigger Claris
+        # Connect Flow's cURL options, which FileMaker writes on insert and never
+        # draws).
+        dflt = str(param.raw.get("defaultValue") or "")
+        if param.raw.get("hrOmitAtDefault") and dflt and val == dflt:
+            val = ""
         # hr_bare params (Show Custom Dialog's Title/Message) print positionally
         # with no label, mirroring FileMaker; every other namedCalc keeps its label.
         if val and not param.hr_bare:
@@ -1786,6 +1793,19 @@ def resolve_mirror_source(
     return owner, chain
 
 
+def resolve_mirror_sibling(entry: CatalogEntry, param: StepParam) -> StepParam | None:
+    """The source of a one-segment ``mirrorOf``: a sibling step-level ``text`` /
+    ``name`` param whose value FileMaker writes this param as a copy of (Trigger
+    Claris Connect Flow's ``<Text>`` repeats its ``<Flow>``). ``None`` otherwise."""
+    segs = [s for s in str(param.raw.get("mirrorOf") or "").split("/") if s]
+    if len(segs) != 1:
+        return None
+    return next((q for q in entry.params
+                 if q is not param and not q.hr_hidden and q.type in ("text", "name")
+                 and (q.parent_element or "") == (param.parent_element or "")
+                 and param_key(q) == segs[0]), None)
+
+
 def _mirror_source_node(entry: CatalogEntry, step: ET.Element, owner: StepParam,
                         chain: list[dict], create: bool) -> ET.Element | None:
     """The element holding a mirrorOf source field's ``<Calculation>`` (its child
@@ -1824,6 +1844,24 @@ def apply_mirror_fallback(entry: CatalogEntry, step: ET.Element) -> ET.Element |
     out: ET.Element | None = None
     for p in entry.params:
         if not p.raw.get("mirrorOf"):
+            continue
+        sib = resolve_mirror_sibling(entry, p)
+        if sib is not None:
+            # A sibling text source: FileMaker draws the copy's value as the source
+            # when the step holds no source element (its copy-out of a Trigger
+            # Claris Connect Flow pasted without option flags carries only <Text>,
+            # drawn `Flow: <text>`, FM 26.0.3).
+            s = out if out is not None else step
+            base = s if not p.parent_element else _descend_path(s, p.parent_element, entry.element_aliases)
+            own = base.find(p.xml_element) if base is not None else None
+            v = "".join(own.itertext()) if own is not None else ""
+            if not v.strip() or base.find(sib.xml_element) is not None:
+                continue
+            if out is None:
+                out = copy.deepcopy(step)
+                base = out if not p.parent_element else _descend_path(out, p.parent_element, entry.element_aliases)
+            if base is not None:
+                ET.SubElement(base, sib.xml_element).text = v
             continue
         src = resolve_mirror_source(entry, p)
         if src is None:

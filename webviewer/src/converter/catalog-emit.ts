@@ -50,6 +50,7 @@ import {
   groupQuoteValue,
   groupUnquoteValue,
   resolveMirrorSource,
+  resolveMirrorSibling,
 } from './catalog-grammar';
 
 // ---------------------------------------------------------------------------
@@ -1438,6 +1439,14 @@ export function convertStepWithCatalog(
   for (let pi = 0; pi < params.length; pi++) {
     const p = params[pi];
     if (!p.raw.mirrorOf) continue;
+    // A one-segment mirrorOf copies a sibling text param (Trigger Claris Connect
+    // Flow's <Text> repeats its <Flow>).
+    const sib = resolveMirrorSibling(entry, p);
+    if (sib !== null) {
+      const v = trim(values[params.indexOf(sib)] ?? '');
+      if (v) values[pi] = v;
+      continue;
+    }
     const src = resolveMirrorSource(entry, p);
     if (src === null) continue;
     let body = values[params.indexOf(src.owner)] ?? '';
@@ -1729,6 +1738,9 @@ export function convertStepWithCatalog(
       if (trim(hrValue)) piece = emitFieldList(param, hrValue, resolver);
     } else if (param.type === 'namedCalc') {
       if (hrValue !== '' || param.required) piece = emitNamedCalc(param, hrValue);
+      // hrOmitAtDefault: no token is the catalog default, written back.
+      else if (param.raw.hrOmitAtDefault && typeof param.raw.defaultValue === 'string' && param.raw.defaultValue)
+        piece = emitNamedCalc(param, param.raw.defaultValue);
     } else if (param.type === 'parametersList') {
       piece = emitParametersList(param, hrValue);
     } else if (param.type === 'findRequests') {

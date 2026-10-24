@@ -9875,7 +9875,8 @@
         "enumValues": [
           "On",
           "Off"
-        ]
+        ],
+        "hrHidden": true
       },
       {
         "xmlElement": "DontEncodeURL",
@@ -9887,7 +9888,8 @@
         "enumValues": [
           "On",
           "Off"
-        ]
+        ],
+        "hrHidden": true
       },
       {
         "xmlElement": "SelectAll",
@@ -9899,7 +9901,8 @@
         "enumValues": [
           "On",
           "Off"
-        ]
+        ],
+        "hrHidden": true
       },
       {
         "xmlElement": "VerifySSLCertificates",
@@ -9911,36 +9914,81 @@
         "enumValues": [
           "On",
           "Off"
-        ]
+        ],
+        "hrHidden": true
       },
       {
         "xmlElement": "Flow",
         "type": "text",
-        "hrLabel": "Flow URL",
-        "required": false
+        "hrLabel": "Flow",
+        "required": false,
+        "hrLabeled": true,
+        "hrSlot": 0,
+        "fmLineEmptyAs": "<unknown>"
+      },
+      {
+        "xmlElement": "Calculation",
+        "type": "namedCalc",
+        "hrLabel": "AppID:APIKey for Webhooks",
+        "wrapperElement": "Auth",
+        "required": false,
+        "hrSlot": 3,
+        "fmLineHidden": true
+      },
+      {
+        "xmlElement": "Calculation",
+        "type": "namedCalc",
+        "hrLabel": "JSON Data",
+        "wrapperElement": "JSONData",
+        "required": false,
+        "hrSlot": 2,
+        "fmLineEmptyAs": "  "
       },
       {
         "xmlElement": "Calculation",
         "type": "namedCalc",
         "hrLabel": "cURL options",
         "wrapperElement": "CURLOptions",
-        "required": false
+        "required": false,
+        "hrSlot": 4,
+        "fmLineHidden": true,
+        "defaultValue": "\"--request POST --header \\\"Content-Type: application/json\\\" --data \"",
+        "hrOmitAtDefault": true
+      },
+      {
+        "xmlElement": "Calculation",
+        "type": "calculation",
+        "hrLabel": "URL",
+        "required": false,
+        "omitWhenEmpty": true,
+        "hrSlot": 1,
+        "fmLineHidden": true
       },
       {
         "xmlElement": "Text",
         "type": "text",
-        "hrLabel": "Target variable",
-        "required": false
+        "hrLabel": null,
+        "required": false,
+        "hrHidden": true,
+        "omitWhenEmpty": true,
+        "mirrorOf": "Flow"
+      },
+      {
+        "xmlElement": "Field",
+        "type": "fieldOrVariable",
+        "hrLabel": "Target",
+        "required": false,
+        "hrSlot": 5
       }
     ],
-    "hrSignature": "Trigger Claris Connect Flow [ With dialog: {On|Off} ; Flow URL: {url} ; cURL options: {calc} ]",
+    "hrSignature": "Trigger Claris Connect Flow [ Flow: {flow} ; URL: {calc} ; JSON Data: {calc} ; AppID:APIKey for Webhooks: {calc} ; cURL options: {calc} ; Target: {Table::Field or $variable} ]",
     "blockPair": null,
     "notes": {
-      "behavioral": "Triggers a Claris Connect flow via HTTP. The <Flow> element holds the flow's endpoint URL. The <CURLOptions> element wraps a <Calculation> with cURL option strings (e.g. --request POST --header). The <Text> element captures the response target. NoInteract suppresses the associated dialog — must be True for server-side, WebDirect, and Data API contexts.",
-      "gotchas": "Step ID 211 confirmed by a live FileMaker 26.0.2 round-trip (paste into Script Workspace, copy back, read FM's own <Step id>). The <Flow> and <Text> elements in the snippet example still carry placeholder '<unknown>' values — the full XML structure for those fields has not been reverse-engineered from a captured example.",
-      "constraints": "Requires a valid Claris Connect account and a configured flow with an HTTP trigger. VerifySSLCertificates defaults to False — set to True in production for security."
+      "behavioral": "Sends JSON Data to a Claris Connect webhook and writes the response to Target. <Flow> is the flow's display name, informational only (set by FileMaker's Select Claris Connect Flow dialog, which needs a Claris ID sign-in); the request goes to the URL calculation (step-level <Calculation>). <Auth> holds the AppID:APIKey calculation, sent as HTTP Basic authorization. <CURLOptions> is written by FileMaker on insert (POST, Content-Type: application/json, --data) and is not editable in FileMaker's dialog; FileMaker posts {\"action\":\"script\",\"information\":<JSON Data>} with it, and sends a bare GET without it (measured FM 26.0.3). <Text> is FileMaker's copy of <Flow>.",
+      "gotchas": "FileMaker's line draws only `Flow: <name> ; JSON Data: <calc> ; Target: <target>` (an empty flow as `<unknown>`, empty JSON data as blank); the URL, AppID:APIKey and cURL options are stored but never drawn, so the converter's HR carries them as extra labeled tokens (fmLineHidden). cURL options print only when they differ from FileMaker's default and HR -> XML writes the default when absent. The four option flags are not exposed in FileMaker's dialog; they emit FileMaker's insert defaults (NoInteract True, DontEncodeURL False, SelectAll True, VerifySSLCertificates False). Pasted with <Text> but no <Flow>, FileMaker drops the copy.",
+      "constraints": "Requires a Claris Connect flow with a webhook trigger. FileMaker 20.1 or later."
     },
-    "status": "auto",
+    "status": "complete",
     "helpUrl": "https://help.claris.com/en/pro-help/content/trigger-claris-connect-flow.html",
     "fmMin": "20.1",
     "fmMinSource": "documented"
