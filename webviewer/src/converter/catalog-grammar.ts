@@ -1343,6 +1343,97 @@ function renderDiscriminatorGroupTokens(
 }
 
 /**
+ * The source of a `mirrorOf` param: its owning attrGroup and the field chain.
+ * `mirrorOf` is `"<group param key>/<field key>[/<field key>…]"`: a sibling
+ * attrGroup, then group fields ending at a `calc` field. FileMaker writes the
+ * param as a copy of that field (Create PDF's step-level `<Calculation>` is its
+ * Document Title). Null when the path does not resolve. Mirrors Python
+ * `resolve_mirror_source`.
+ */
+export function resolveMirrorSource(
+  entry: GrammarEntry,
+  param: GrammarParam,
+): { owner: GrammarParam; chain: Record<string, unknown>[] } | null {
+  const segs = String(param.raw.mirrorOf ?? '').split('/').filter((s) => s);
+  if (segs.length < 2) return null;
+  const owner = entry.params.find(
+    (q) => q.type === 'attrGroup' && groupFieldsOf(q).length === 0 && paramKey(q) === segs[0],
+  );
+  if (!owner) return null;
+  let fields = (owner.raw.fields as Record<string, unknown>[]) ?? [];
+  const chain: Record<string, unknown>[] = [];
+  for (let i = 1; i < segs.length; i++) {
+    const hit = fields.find((f) => ciEquals(String(f.key ?? ''), segs[i]));
+    const last = i === segs.length - 1;
+    if (!hit || hit.kind !== (last ? 'calc' : 'group')) return null;
+    chain.push(hit);
+    fields = (hit.fields as Record<string, unknown>[]) ?? [];
+  }
+  return { owner, chain };
+}
+
+/** The element holding a mirrorOf source field's `<Calculation>`; with `create`
+ * the missing path is appended. */
+function mirrorSourceNode(
+  entry: GrammarEntry,
+  step: Element,
+  owner: GrammarParam,
+  chain: Record<string, unknown>[],
+  create: boolean,
+): Element | null {
+  const childOf = (n: Element, name: string): Element | null => {
+    let c = findChild(n, name);
+    if (c === null && create) {
+      c = n.ownerDocument.createElement(name);
+      n.appendChild(c);
+    }
+    return c;
+  };
+  let n: Element | null = step;
+  for (const seg of (owner.parentElement ?? '').split('/').filter((s) => s)) {
+    if (n === null) return null;
+    n = aliasedChild(n, seg, entry.elementAliases) ?? childOf(n, seg);
+  }
+  if (n === null) return null;
+  n = childOf(n, owner.xmlElement);
+  for (const f of chain) {
+    if (n === null) return null;
+    if (f.kind === 'group') n = childOf(n, String(f.element ?? ''));
+    else if (f.childElement) n = childOf(n, String(f.childElement));
+  }
+  return n;
+}
+
+/**
+ * A hidden `mirrorOf` copy prints nothing, so a step holding the copy but not
+ * its source field would lose the value. FileMaker fills the field from the copy
+ * on paste (Create PDF pasted with only the step-level `<Calculation>` comes back
+ * with that Document Title; the field wins when both are set, FM 26.0.3).
+ * Returns a copy of `step` with the field written from the copy, or null.
+ */
+function applyMirrorFallback(entry: GrammarEntry, step: Element): Element | null {
+  let out: Element | null = null;
+  for (const p of entry.params) {
+    if (!p.raw.mirrorOf) continue;
+    const src = resolveMirrorSource(entry, p);
+    if (src === null) continue;
+    const s: Element = out ?? step;
+    const base = p.parentElement ? descendPath(s, p.parentElement, entry.elementAliases) : s;
+    const v = elemText(findChild(base, p.xmlElement));
+    if (!v.trim()) continue;
+    const have = mirrorSourceNode(entry, s, src.owner, src.chain, false);
+    if (have !== null && findChild(have, 'Calculation') !== null) continue;
+    if (out === null) out = step.cloneNode(true) as Element;
+    const target = mirrorSourceNode(entry, out, src.owner, src.chain, true);
+    if (target === null) continue;
+    const calc = out.ownerDocument.createElement('Calculation');
+    calc.appendChild(out.ownerDocument.createTextNode(v));
+    target.appendChild(calc);
+  }
+  return out;
+}
+
+/**
  * Render a full step to its HR bracket line, as the reference does.
  * Returns `entry.name` alone when no param contributes a token, else
  * `Name [ tok ; tok ; … ]`. An empty positional slot followed by a later
@@ -1350,6 +1441,10 @@ function renderDiscriminatorGroupTokens(
  * control-flow steps.
  */
 export function renderStepHr(entry: GrammarEntry, step: Element): string {
+  // A step holding only a mirrorOf copy renders as FileMaker stores it after
+  // paste: with the source field filled from the copy.
+  const mirrored = applyMirrorFallback(entry, step);
+  if (mirrored !== null) return renderStepHr(entry, mirrored);
   const parts: string[] = [];
   const fmEmpty = new Set<number>(); // indexes of hrEmptySlotWith empty slots
   let pendingEmpty = 0;

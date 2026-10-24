@@ -74,6 +74,7 @@ from catalog_grammar import (
     positional_token_fits_param,
     projection_owner,
     renders_bare_in_hr,
+    resolve_mirror_source,
     shape_routed_values,
     value_reveals_companion,
 )
@@ -1643,6 +1644,29 @@ def convert_step_with_catalog(
 ) -> str:
     """Emit one step's fmxmlsnippet XML from its per-param ``values[]`` token array."""
     params = entry.params
+    values = list(values) + [""] * max(0, len(params) - len(values))
+
+    # mirrorOf: FileMaker writes this param as a copy of a field inside a sibling
+    # attrGroup, so it takes that field's value (Create PDF [ Document: Title="t",
+    # … ] writes the step-level <Calculation> "t" too, as FileMaker does). With the
+    # field empty it keeps its own value: HR gives a hidden copy none, so nothing
+    # is written, and a reader of another serialization that holds only the copy
+    # keeps it (FileMaker fills the field from it on paste).
+    for pi, p in enumerate(params):
+        if not p.raw.get("mirrorOf"):
+            continue
+        src = resolve_mirror_source(entry, p)
+        if src is None:
+            continue
+        owner, chain = src
+        body = values[next(i for i, q in enumerate(params) if q is owner)]
+        for i, f in enumerate(chain):
+            kv = _parse_group_kv(body if i == 0 else _strip_parens(body))
+            body = kv.get(_lower_key(str(f.get("key", ""))), "")
+            if not body:
+                break
+        if _trim(body):
+            values[pi] = _trim(body)
     step_id = entry.id if entry.id is not None else 0
     xml = (
         '  <Step enable="'

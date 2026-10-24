@@ -49,6 +49,7 @@ import {
   shapeRoutedValues,
   groupQuoteValue,
   groupUnquoteValue,
+  resolveMirrorSource,
 } from './catalog-grammar';
 
 // ---------------------------------------------------------------------------
@@ -1429,6 +1430,23 @@ export function convertStepWithCatalog(
   let xml = `  <Step enable="${!line.disabled ? 'True' : 'False'}" id="${entry.id}" name="${escXml(entry.name)}">\n`;
 
   const values = matchParamValues(entry, line.params);
+
+  // mirrorOf: FileMaker writes this param as a copy of a field inside a sibling
+  // attrGroup, so it takes that field's value (Create PDF [ Document: Title="t",
+  // … ] writes the step-level <Calculation> "t" too, as FileMaker does). HR gives
+  // the hidden copy no token, so with the field empty nothing is written.
+  for (let pi = 0; pi < params.length; pi++) {
+    const p = params[pi];
+    if (!p.raw.mirrorOf) continue;
+    const src = resolveMirrorSource(entry, p);
+    if (src === null) continue;
+    let body = values[params.indexOf(src.owner)] ?? '';
+    for (let i = 0; i < src.chain.length && body; i++) {
+      const kv = parseGroupKV(i === 0 ? body : stripParens(body));
+      body = kv.get(lowerKey(String(src.chain[i].key ?? ''))) ?? '';
+    }
+    if (body.trim()) values[pi] = body.trim();
+  }
 
   // G10 attribute-bearing wrapper: a wrapper element may carry an enum value as an
   // attribute (FM serializes <Action value="Queue"> holding children).

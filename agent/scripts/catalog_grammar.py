@@ -24,6 +24,7 @@ deliberately parallel so a facet added to one port is obviously missing from the
 
 from __future__ import annotations
 
+import copy
 import json
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
@@ -1756,6 +1757,95 @@ def render_discriminator_group_tokens(
     return parts
 
 
+def resolve_mirror_source(
+    entry: CatalogEntry, param: StepParam
+) -> tuple[StepParam, list[dict]] | None:
+    """The source of a ``mirrorOf`` param: its owning attrGroup and the field chain.
+
+    ``mirrorOf`` is ``"<group param key>/<field key>[/<field key>…]"``: a sibling
+    attrGroup, then group fields ending at a ``calc`` field. FileMaker writes the
+    param as a copy of that field (Create PDF's step-level ``<Calculation>`` is its
+    Document Title). ``None`` when the path does not resolve.
+    """
+    segs = [s for s in str(param.raw.get("mirrorOf") or "").split("/") if s]
+    if len(segs) < 2:
+        return None
+    owner = next((q for q in entry.params if q.type == "attrGroup" and not q.group_fields
+                  and param_key(q) == segs[0]), None)
+    if owner is None:
+        return None
+    fields = owner.raw.get("fields", []) or []
+    chain: list[dict] = []
+    for i, seg in enumerate(segs[1:]):
+        hit = next((f for f in fields if _ci_equals(str(f.get("key", "")), seg)), None)
+        last = i == len(segs) - 2
+        if hit is None or hit.get("kind") != ("calc" if last else "group"):
+            return None
+        chain.append(hit)
+        fields = hit.get("fields", []) or []
+    return owner, chain
+
+
+def _mirror_source_node(entry: CatalogEntry, step: ET.Element, owner: StepParam,
+                        chain: list[dict], create: bool) -> ET.Element | None:
+    """The element holding a mirrorOf source field's ``<Calculation>`` (its child
+    element, or the group element for a bare calc); with ``create`` the missing
+    path is appended."""
+    def child_of(n: ET.Element, name: str) -> ET.Element | None:
+        c = n.find(name)
+        if c is None and create:
+            c = ET.SubElement(n, name)
+        return c
+
+    n: ET.Element | None = step
+    for seg in [s for s in (owner.parent_element or "").split("/") if s]:
+        c = _aliased_child(n, seg, entry.element_aliases)
+        n = c if c is not None else child_of(n, seg)
+        if n is None:
+            return None
+    n = child_of(n, owner.xml_element)
+    for f in chain:
+        if n is None:
+            return None
+        if f.get("kind") == "group":
+            n = child_of(n, f.get("element", ""))
+        elif f.get("childElement"):
+            n = child_of(n, f["childElement"])
+    return n
+
+
+def apply_mirror_fallback(entry: CatalogEntry, step: ET.Element) -> ET.Element | None:
+    """A hidden ``mirrorOf`` copy prints nothing, so a step holding the copy but
+    not its source field would lose the value. FileMaker fills the field from the
+    copy on paste (Create PDF pasted with only the step-level ``<Calculation>``
+    comes back with that Document Title; the field wins when both are set, FM
+    26.0.3). Returns a copy of ``step`` with the field written from the copy, or
+    ``None`` when nothing applies."""
+    out: ET.Element | None = None
+    for p in entry.params:
+        if not p.raw.get("mirrorOf"):
+            continue
+        src = resolve_mirror_source(entry, p)
+        if src is None:
+            continue
+        owner, chain = src
+        s = out if out is not None else step
+        base = s if not p.parent_element else _descend_path(s, p.parent_element, entry.element_aliases)
+        own = base.find(p.xml_element) if base is not None else None
+        v = "".join(own.itertext()) if own is not None else ""
+        if not v.strip():
+            continue
+        have = _mirror_source_node(entry, s, owner, chain, False)
+        if have is not None and have.find("Calculation") is not None:
+            continue
+        if out is None:
+            out = copy.deepcopy(step)
+        target = _mirror_source_node(entry, out, owner, chain, True)
+        if target is not None:
+            ET.SubElement(target, "Calculation").text = v
+    return out
+
+
 def render_step_hr(entry: CatalogEntry, step: ET.Element) -> str:
     """Render a full step to its HR bracket line, as the reference does.
 
@@ -1764,6 +1854,11 @@ def render_step_hr(entry: CatalogEntry, step: ET.Element) -> str:
     positional token renders as an empty token (``[  ; 100 ]``). Does not handle
     control-flow steps.
     """
+    # A step holding only a mirrorOf copy renders as FileMaker stores it after
+    # paste: with the source field filled from the copy.
+    mirrored = apply_mirror_fallback(entry, step)
+    if mirrored is not None:
+        return render_step_hr(entry, mirrored)
     parts: list[str] = []
     fm_empty: set[int] = set()  # indexes of hrEmptySlotWith empty slots
     pending_empty = 0

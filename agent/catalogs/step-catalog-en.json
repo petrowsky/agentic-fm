@@ -8117,11 +8117,12 @@
       {
         "xmlElement": "Calculation",
         "type": "calculation",
-        "hrLabel": "Saved label",
+        "hrLabel": null,
+        "hrHidden": true,
+        "mirrorOf": "PDFOptions/Document/Title",
         "omitWhenEmpty": true,
         "required": false,
-        "fmLineHidden": true,
-        "note": "Stored label/title for the PDF specification. FileMaker writes it from the document Title and never draws it on its line (fmLineHidden; FM 26.0.3).",
+        "note": "FileMaker's copy of the document Title: it writes the Title here too, Restore on or off, fills the Title from it when only this is pasted, and keeps the Title when the two differ (FM 26.0.3). No HR token of its own; written from Records: Document=( Title= ) (mirrorOf), absent with no Title.",
         "hrSlot": 10
       },
       {
@@ -8210,7 +8211,7 @@
         "hrSlot": 9
       }
     ],
-    "hrSignature": "[ <Restore> ; Save to: <File/Target> ; <Append> ; <path> ; Create folders: <On/Off> ; With dialog: <On/Off> ; <Automatically open> ; <Create email> ; Target: <field or $variable> ; <Records being browsed/Current record/Blank record, …> ; Saved label: <calc> ; Records: Document=( … ), Security=( … ), View=( … ) ]",
+    "hrSignature": "[ <Restore> ; Save to: <File/Target> ; <Append> ; <path> ; Create folders: <On/Off> ; With dialog: <On/Off> ; <Automatically open> ; <Create email> ; Target: <field or $variable> ; <Records being browsed/Current record/Blank record, …> ; Records: Document=( … ), Security=( … ), View=( … ) ]",
     "blockPair": null,
     "status": "complete",
     "helpUrl": "https://help.claris.com/en/pro-help/content/save-records-as-pdf.html",
@@ -10079,11 +10080,12 @@
       {
         "xmlElement": "Calculation",
         "type": "calculation",
-        "hrLabel": "Output File",
+        "hrLabel": null,
+        "hrHidden": true,
+        "mirrorOf": "Document/Title",
         "omitWhenEmpty": true,
         "required": false,
-        "fmLineHidden": true,
-        "notes": "Optional step-level output-file path calculation; FM omits it when unset. FileMaker's line never draws it (fmLineHidden); FileMaker also writes the Document Title calculation here when one is set (FM 26.0.3)."
+        "notes": "FileMaker's copy of the Document Title, not an output path: it writes the Title here too, fills the Title from it when only this is pasted, and keeps the Title when the two differ (FM 26.0.3). No HR token of its own; written from Document: Title= (mirrorOf), absent with no Title."
       },
       {
         "xmlElement": "Document",
@@ -10141,7 +10143,7 @@
         "note": "Document / Security / View: FileMaker's line never draws them, Restore on or off, any one field changed (`Create PDF [ ]`, `Create PDF [ Restore ]`; fmLineHidden, FM 26.0.3). At the UI-insert defaults (NumberFrom / From / To 1) the converter's HR prints nothing either and HR->XML writes them back (hrOmitAtDefault); a step pasted without them gets FileMaker's minimal baseline instead (AllPages False, nothing permitted, Default view)."
       }
     ],
-    "hrSignature": "[ Restore ; Output File: <calc> ; Document: Title=<calc>, Subject=<calc>, Author=<calc>, Keywords=<calc>, Pages=( AllPages=<True|False>, NumberFrom=<calc>, PageRange=( From=<calc>, To=<calc> ) ) ; Security: ScreenReader=<True|False>, Copying=<True|False>, Editing=<token>, Printing=<token>, OpenPassword=<calc>, EditPassword=<calc> ; View: Magnification=<token>, Layout=<token>, Show=<token> ]",
+    "hrSignature": "[ Restore ; Document: Title=<calc>, Subject=<calc>, Author=<calc>, Keywords=<calc>, Pages=( AllPages=<True|False>, NumberFrom=<calc>, PageRange=( From=<calc>, To=<calc> ) ) ; Security: ScreenReader=<True|False>, Copying=<True|False>, Editing=<token>, Printing=<token>, OpenPassword=<calc>, EditPassword=<calc> ; View: Magnification=<token>, Layout=<token>, Show=<token> ]",
     "blockPair": null,
     "status": "complete",
     "helpUrl": "https://help.claris.com/en/pro-help/content/create-pdf.html",
