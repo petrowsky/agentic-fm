@@ -1530,9 +1530,16 @@ def compute_param_hr(entry: CatalogEntry, step: ET.Element, param: StepParam) ->
             name = ref_node.get("name", "")
             # A fixed-id built-in reads by its id (FM's [File Default] is id="0" name="").
             ref_id = ref_node.get("id")
-            if ref_id is not None and param.hr_enum_values.get(ref_id):
+            built_in = ref_id is not None and bool(param.hr_enum_values.get(ref_id))
+            if built_in:
                 name = param.hr_enum_values[ref_id]
-            if name:
+            if name and param.hr_quoted and not built_in:
+                # hr_quoted: FileMaker draws a named reference quoted (Truncate
+                # Table's ``Table: “Line Items”``); write it as one escaped literal.
+                # A built-in stays bare, as FileMaker draws it (``<Current Table>``).
+                q = quote_calc_literal(name)
+                val = q if not label else (label + ": " + q)
+            elif name:
                 val = ('"' + name + '"') if not label else (label + ": " + name)
     elif ptype == "layout":
         layout_node = base.find("Layout")

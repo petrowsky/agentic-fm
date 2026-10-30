@@ -768,7 +768,7 @@
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"152\" name=\"Save Records as Snapshot Link\">\n    <CreateDirectories state=\"True\"/>\n    <CreateEmail state=\"False\"/>\n    <SaveType value=\"BrowsedRecords\"/>\n    <UniversalPathList>$path</UniversalPathList>\n  </Step>\n</fmxmlsnippet>"
   },
   "records/Truncate Table.xml": {
-    "hr": "Truncate Table [ With dialog: Off ; Table: Clients ]",
+    "hr": "Truncate Table [ With dialog: Off ; Table: “Clients” ]",
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"182\" name=\"Truncate Table\">\n    <NoInteract state=\"True\"/>\n    <BaseTable id=\"131\" comment=\"\" name=\"Clients\"/>\n  </Step>\n</fmxmlsnippet>"
   },
   "spelling/Check Found Set.xml": {

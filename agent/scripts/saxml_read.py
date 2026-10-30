@@ -1016,8 +1016,15 @@ def _extract_simple(
             if ref is None:
                 continue
             consumed[i] = True
-            name = param.hr_enum_values.get(ref.get("id", "")) or ref.get("name", "")
-            return '"' + name + '"' if name else ""
+            built_in = param.hr_enum_values.get(ref.get("id", ""))
+            name = built_in or ref.get("name", "")
+            if not name:
+                return ""
+            # An hr_quoted name goes to the emitter as one escaped literal, as the
+            # clipboard reader writes it; a built-in label stays bare.
+            if param.hr_quoted:
+                return name if built_in else _quoted_text_token(param, name)
+            return '"' + name + '"'
         return ""
 
     if ptype == "layout":

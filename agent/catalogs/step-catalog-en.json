@@ -10013,12 +10013,19 @@
         "xmlElement": "BaseTable",
         "type": "reference",
         "hrLabel": "Table",
+        "hrQuoted": true,
         "wrapperAttr": "comment=\"\"",
         "required": true,
-        "note": "Generic name-only reference (FM re-resolves id by name on paste). Current table: name=\"<Current Table>\""
+        "enumValues": [
+          "-1"
+        ],
+        "hrEnumValues": {
+          "-1": "<Current Table>"
+        },
+        "note": "Generic name-only reference (FM re-resolves id by name on paste). FileMaker draws a named table quoted, `Table: “Line Items”` (hrQuoted), and the current table bare, `Table: <Current Table>`, stored as id=\"-1\" name=\"<Current Table>\" (a fixed-id built-in). FM 26.0.3."
       }
     ],
-    "hrSignature": "[ With dialog: <On/Off> ; Table: <table> ]",
+    "hrSignature": "[ With dialog: <On/Off> ; Table: “<table>” ]",
     "blockPair": null,
     "status": "complete",
     "helpUrl": "https://help.claris.com/en/pro-help/content/truncate-table.html",

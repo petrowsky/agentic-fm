@@ -536,9 +536,10 @@ def _text_param_value(param, hr_value: str) -> str:
 
 
 def _table_param_value(param, hr_value: str) -> str:
-    """The table name for a ``tableRef`` / ``tableOccurrence`` HR token. An
-    ``hr_quoted`` one (Save Records as JSONL's ``Table: “Invoices”``) was rendered
-    as one escaped literal: decode it, else strip one quote pair."""
+    """The name for a ``tableRef`` / ``tableOccurrence`` / ``reference`` HR token.
+    An ``hr_quoted`` one (Save Records as JSONL's ``Table: “Invoices”``, Truncate
+    Table's ``Table: “Line Items”``) was rendered as one escaped literal: decode
+    it, else strip one quote pair (FileMaker's own unescaped display)."""
     if param.hr_quoted:
         t = _trim(hr_value)
         decoded = decode_whole_calc_literal(t)
@@ -2021,7 +2022,9 @@ def convert_step_with_catalog(
             # Fixed-id built-ins (enumValues = id FM writes, hrEnumValues = name FM
             # displays) emit with their id: FM resolves some references by id alone
             # on paste (Install Menu Set's <CustomMenuSet>). Mirrors the reference.
-            name = _unquote(hr_value)
+            # An hr_quoted name came as one escaped literal (or FileMaker's own
+            # quoted display); a built-in label (``<Current Table>``) comes bare.
+            name = _table_param_value(param, hr_value)
             fixed_id = ""
             for k in sorted(param.hr_enum_values):
                 label = param.hr_enum_values[k]

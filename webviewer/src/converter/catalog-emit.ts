@@ -371,9 +371,10 @@ function unquoteTextValue(s: string): string {
 }
 
 /**
- * The table name for a `tableRef` / `tableOccurrence` HR token. An `hrQuoted` one
- * (Save Records as JSONL's `Table: “Invoices”`) was rendered as one escaped
- * literal: decode it, else strip one quote pair.
+ * The name for a `tableRef` / `tableOccurrence` / `reference` HR token. An
+ * `hrQuoted` one (Save Records as JSONL's `Table: “Invoices”`, Truncate Table's
+ * `Table: “Line Items”`) was rendered as one escaped literal: decode it, else
+ * strip one quote pair (FileMaker's own unescaped display).
  */
 function tableParamValue(param: GrammarParam, hrValue: string): string {
   if (param.hrQuoted) {
@@ -1780,7 +1781,9 @@ export function convertStepWithCatalog(
       // Fixed-id built-ins (enumValues = id FM writes, hrEnumValues = name FM
       // displays) emit with their id: FM resolves some references by id alone on
       // paste (Install Menu Set's <CustomMenuSet>). Mirrors the reference.
-      let name = unquote(hrValue);
+      // An hrQuoted name came as one escaped literal (or FileMaker's own quoted
+      // display); a built-in label (`<Current Table>`) comes bare.
+      let name = tableParamValue(param, hrValue);
       let fixedId = '';
       for (const k of Object.keys(param.hrEnumValues).sort()) {
         const label = param.hrEnumValues[k];

@@ -1128,8 +1128,15 @@ export function computeParamHr(entry: GrammarEntry, step: Element, param: Gramma
       let name = refNode.getAttribute('name') ?? '';
       // A fixed-id built-in reads by its id (FM's [File Default] is id="0" name="").
       const refId = refNode.getAttribute('id');
-      if (refId !== null && param.hrEnumValues[refId]) name = param.hrEnumValues[refId];
-      if (name) val = !label ? '"' + name + '"' : label + ': ' + name;
+      const builtIn = refId !== null && !!param.hrEnumValues[refId];
+      if (builtIn) name = param.hrEnumValues[refId!];
+      if (name && param.hrQuoted && !builtIn) {
+        // hrQuoted: FileMaker draws a named reference quoted (Truncate Table's
+        // `Table: “Line Items”`); write it as one escaped literal. A built-in
+        // stays bare, as FileMaker draws it (`<Current Table>`).
+        const q = quoteCalcLiteral(name);
+        val = !label ? q : label + ': ' + q;
+      } else if (name) val = !label ? '"' + name + '"' : label + ': ' + name;
     }
   } else if (ptype === 'layout') {
     const layoutNode = findChild(base, 'Layout');
