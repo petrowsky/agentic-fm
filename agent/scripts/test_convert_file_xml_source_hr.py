@@ -33,7 +33,14 @@ with open(
     os.path.join(REPO_ROOT, "agent", "fixtures", "converter", "convert-file-xml-source-fm.json"),
     encoding="utf-8",
 ) as fh:
-    CASES = json.load(fh)["cases"]
+    _FIXTURE = json.load(fh)
+CASES = _FIXTURE["cases"]
+# More of FileMaker's copy-outs, one per XML / XSL source pairing, file path
+# lists and calculations with a semicolon or a line break. A case marked
+# fmAddsEmptySource was pasted without the element of a source it leaves empty
+# and FileMaker wrote an empty one back; the converter writes none, which
+# pastes as the same step.
+LINE_CASES = [c for c in _FIXTURE["lineCases"] if not c.get("fmAddsEmptySource")]
 
 
 def _canon(xml: str) -> tuple:
@@ -53,6 +60,11 @@ def _canon(xml: str) -> tuple:
 
 def test_filemakers_copy_back_round_trips():
     for c in CASES:
+        assert _canon(_emit(_line(c["fm"]))) == _canon(c["fm"]), c["id"]
+
+
+def test_more_filemaker_copy_backs_round_trip():
+    for c in LINE_CASES:
         assert _canon(_emit(_line(c["fm"]))) == _canon(c["fm"]), c["id"]
 
 

@@ -1589,7 +1589,6 @@
       {
         "xmlElement": "Profile",
         "hrSlot": 4,
-        "fmLineHidden": true,
         "type": "attrGroup",
         "hrLabel": "Profile",
         "required": false,
@@ -1600,14 +1599,14 @@
           { "key": "DataType", "kind": "attr", "xmlAttr": "DataType", "defaultValue": "    " },
           { "key": "XMLType", "kind": "attr", "xmlAttr": "XMLType", "optional": true },
           { "key": "XSLType", "kind": "attr", "xmlAttr": "XSLType", "optional": true },
-          { "key": "XMLFile", "kind": "text", "childElement": "XMLFile" },
-          { "key": "XMLHttp", "kind": "text", "childElement": "XMLHttp" },
-          { "key": "XMLCalc", "kind": "calc", "childElement": "XMLCalc" },
-          { "key": "XSLFile", "kind": "text", "childElement": "XSLFile" },
-          { "key": "XSLHttp", "kind": "text", "childElement": "XSLHttp" },
-          { "key": "XSLCalc", "kind": "calc", "childElement": "XSLCalc" }
+          { "key": "XMLFile", "kind": "text", "childElement": "XMLFile", "fmLineDraw": "value" },
+          { "key": "XMLHttp", "kind": "text", "childElement": "XMLHttp", "fmLineDraw": "value" },
+          { "key": "XMLCalc", "kind": "calc", "childElement": "XMLCalc", "fmLineDraw": "value" },
+          { "key": "XSLFile", "kind": "text", "childElement": "XSLFile", "fmLineDraw": "fileName" },
+          { "key": "XSLHttp", "kind": "text", "childElement": "XSLHttp", "fmLineDraw": "value" },
+          { "key": "XSLCalc", "kind": "calc", "childElement": "XSLCalc", "fmLineDraw": "value" }
         ],
-        "notes": "Source-format profile; whitespace attr values (tab FieldDelimiter, space-padded DataType) use the comma/whitespace-safe attrGroup value grammar. FileMaker never draws it on its line, at its defaults or changed (fmLineHidden; FM 26.0.3). With DataSourceType XMLSource FileMaker keeps the four File attributes, sets DataType to \"XML \" and adds XMLType (XMLFile | XMLHttp | XMLCalculation) and XSLType (XSLFile | XSLHttp | XSLCalculation | NoXSL), and one child for each source: <XMLFile> / <XSLFile> hold file paths (one per line), <XMLHttp> / <XSLHttp> a URL, <XMLCalc> / <XSLCalc> a calculation (FM 26.0.3, authored in the Specify XML and XSL Options dialog and pasted, read back)."
+        "notes": "Source-format profile; whitespace attr values (tab FieldDelimiter, space-padded DataType) use the comma/whitespace-safe attrGroup value grammar. FileMaker never draws its attributes on its line, at their defaults or changed; with an XML source it draws the sources in the path slot, bare, joined by \"; \" with the XML source first, line breaks as spaces, the XSL file path cut to its file name and an empty source left out (`$xml; $xsl`, `file:a b.xml file:c.xml; s.xsl`, `https://e.com/n.xml` with NoXSL; fmLineDraw, FM 26.0.3). With DataSourceType XMLSource FileMaker keeps the four File attributes, sets DataType to \"XML \" and adds XMLType (XMLFile | XMLHttp | XMLCalculation) and XSLType (XSLFile | XSLHttp | XSLCalculation | NoXSL), and one child for each source: <XMLFile> / <XSLFile> hold file paths (one per line), <XMLHttp> / <XSLHttp> a URL, <XMLCalc> / <XSLCalc> a calculation (FM 26.0.3, authored in the Specify XML and XSL Options dialog and pasted, read back)."
       },
       {
         "xmlElement": "Calculation",
