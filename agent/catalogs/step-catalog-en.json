@@ -1647,7 +1647,7 @@
           { "key": "SplitRepetitions", "kind": "attr", "xmlAttr": "SplitRepetitions", "defaultValue": "False" },
           { "key": "method", "kind": "attr", "xmlAttr": "method", "defaultValue": "Add" }
         ],
-        "notes": "Destination import settings (faithful passthrough). FileMaker never draws them on its line, at their defaults or changed (fmLineHidden; FM 26.0.3). FileMaker draws Open File, Skip Indexes, With dialog, the path, Verify SSL Certificates in that order (hrSlot)."
+        "notes": "Destination import settings (faithful passthrough). FileMaker never draws them on its line, at their defaults or changed (fmLineHidden; FM 26.0.3). FileMaker draws Open File, Skip Indexes, With dialog, the path, Verify SSL Certificates in that order (hrSlot). KeepOriginalData exists from FileMaker 26.0 only: 26.0.3 keeps it at True and False and writes False when it is absent, while 19.6.3 and 22.0.4 drop it from the copy-out even at True and keep every other import option at its non-default value (value evidence, 2026-10-30). The converters still write it on every version; an older FileMaker discards it and the step behaves the same. Version data is not recorded for it because fmMin applies to whole params only, not to attrGroup fields."
       }
     ],
     "hrSignature": "Convert File [ Open File ; Skip Indexes ; With dialog: {On|Off} ; {File|XMLSource} ; Profile: ... ; {path} ; Import options: ... ; Verify SSL Certificates ]",
