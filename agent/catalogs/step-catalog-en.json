@@ -3915,6 +3915,7 @@
       },
       {
         "xmlElement": "DataSourceType",
+        "fmLineHidden": true,
         "type": "enum",
         "hrLabel": null,
         "xmlAttr": "value",
@@ -3925,15 +3926,51 @@
           "Folder",
           "XMLSource"
         ],
-        "notes": "Determines Profile structure. See shared-enums.md for details."
+        "notes": "Determines Profile structure. See shared-enums.md for details. FileMaker never draws it on its line, for File, Folder or XMLSource (fmLineHidden; FM 26.0.3)."
+      },
+      {
+        "xmlElement": "Profile",
+        "type": "attrGroup",
+        "hrLabel": "Profile",
+        "required": false,
+        "fields": [
+          { "key": "FieldDelimiter", "kind": "attr", "xmlAttr": "FieldDelimiter", "defaultValue": "\t" },
+          { "key": "IsPredefined", "kind": "attr", "xmlAttr": "IsPredefined", "defaultValue": "-1" },
+          { "key": "FieldNameRow", "kind": "attr", "xmlAttr": "FieldNameRow", "defaultValue": "-1" },
+          { "key": "DataType", "kind": "attr", "xmlAttr": "DataType", "defaultValue": "    " },
+          { "key": "table", "kind": "attr", "xmlAttr": "table", "optional": true },
+          { "key": "XMLType", "kind": "attr", "xmlAttr": "XMLType", "optional": true },
+          { "key": "XSLType", "kind": "attr", "xmlAttr": "XSLType", "optional": true },
+          { "key": "XMLFile", "kind": "text", "childElement": "XMLFile", "fmLineDraw": "value" },
+          { "key": "XMLHttp", "kind": "text", "childElement": "XMLHttp", "fmLineDraw": "value" },
+          { "key": "XMLCalc", "kind": "calc", "childElement": "XMLCalc", "fmLineDraw": "value" },
+          { "key": "XSLFile", "kind": "text", "childElement": "XSLFile", "fmLineDraw": "fileName" },
+          { "key": "XSLHttp", "kind": "text", "childElement": "XSLHttp", "fmLineDraw": "value" },
+          { "key": "XSLCalc", "kind": "calc", "childElement": "XSLCalc", "fmLineDraw": "value" }
+        ],
+        "notes": "Source-format profile, the same grammar as Convert File's (FM 26.0.3, pasted and read back). A file source keeps what it is given: FieldDelimiter, IsPredefined, FieldNameRow and DataType (TABS, COMS, FMPR, ...), and table on a FileMaker source. A folder source keeps the four attributes at their defaults. An XML source keeps the four File attributes, sets DataType to \"XML \" and adds XMLType (XMLFile | XMLHttp | XMLCalculation), XSLType (XSLFile | XSLHttp | XSLCalculation | NoXSL) and one child per source. FileMaker writes no Profile when it is given none. Its line never draws the attributes; with an XML source it draws the sources in the path slot, bare, joined by \"; \" with the XML source first, line breaks as spaces, the XSL file path cut to its file name and an empty source left out (`$ix; $is`, `https://e.com/i.xml` with NoXSL; fmLineDraw)."
+      },
+      {
+        "xmlElement": "Calculation",
+        "type": "calculation",
+        "hrLabel": null,
+        "hrHidden": true,
+        "mirrorOf": "Profile/XMLCalc",
+        "omitWhenEmpty": true,
+        "required": false,
+        "notes": "FileMaker's copy of the XML source calculation (XMLType XMLCalculation), written after the Profile, as for Convert File: pasted with only <XMLCalc> FileMaker drops the calculation, pasted with only this copy it fills <XMLCalc> from it (FM 26.0.3). No HR token of its own; written from Profile: XMLCalc= (mirrorOf), absent with no XML calculation."
       },
       {
         "xmlElement": "UniversalPathList",
         "type": "text",
         "hrLabel": null,
         "hrQuoted": true,
+        "omitWhenEmpty": true,
+        "fmLineHiddenWhen": [
+          { "param": "DataSourceType", "values": ["XMLSource"] }
+        ],
         "required": false,
-        "notes": "File path, folder path, or URL. Can be a variable."
+        "notes": "File path, folder path, or URL. Can be a variable. FileMaker writes no element when it is given none (omitWhenEmpty), and an XML source's sources are in the Profile. A path pasted next to an XML source is kept but not drawn on FileMaker's line, which draws the Profile's sources instead (fmLineHiddenWhen; FM 26.0.3)."
       },
       {
         "xmlElement": "ImportOptions",
@@ -3943,13 +3980,15 @@
         "required": false,
         "fields": [
           { "key": "CharacterSet", "kind": "attr", "xmlAttr": "CharacterSet", "defaultValue": "UTF-8" },
+          { "key": "AddRemainingRecords", "kind": "attr", "xmlAttr": "AddRemainingRecords", "optional": true },
+          { "key": "KeepOriginalData", "kind": "attr", "xmlAttr": "KeepOriginalData", "defaultValue": "False" },
           { "key": "PreserveContainer", "kind": "attr", "xmlAttr": "PreserveContainer", "defaultValue": "False" },
           { "key": "MatchFieldNames", "kind": "attr", "xmlAttr": "MatchFieldNames", "defaultValue": "False" },
           { "key": "AutoEnter", "kind": "attr", "xmlAttr": "AutoEnter", "defaultValue": "True" },
           { "key": "SplitRepetitions", "kind": "attr", "xmlAttr": "SplitRepetitions", "defaultValue": "False" },
           { "key": "method", "kind": "attr", "xmlAttr": "method", "defaultValue": "Add" }
         ],
-        "notes": "Import settings. method: Add | UpdateOnMatch (HR 'Update') | Update (HR 'Replace'). Faithful passthrough of the raw method token."
+        "notes": "Import settings. method: Add | UpdateOnMatch (HR 'Update') | Update (HR 'Replace'). Faithful passthrough of the raw method token. FileMaker 26.0.3 writes KeepOriginalData on every Import Records, False when it is given none, and keeps AddRemainingRecords when it is given one, for every source (pasted and read back). KeepOriginalData is new in FileMaker 26.0, as on Convert File; an older FileMaker discards it."
       },
       {
         "xmlElement": "Table",
