@@ -70,7 +70,9 @@
         "xmlElement": "PrivilegeSet",
         "type": "reference",
         "hrLabel": "Privilege Set",
-        "required": true
+        "required": true,
+        "rosterKind": "PrivilegeSet",
+        "note": "FileMaker resolves the name against the file's privilege sets, the bracketed built-ins included, case-insensitively; a name the file lacks draws `<unknown>` and copies back as id=\"0\" name=\"\" (FM 26.0.3), so the name is checked against the file's privilege sets where a converter knows them (rosterKind)."
       },
       {
         "xmlElement": "ChgPwdOnNextLogin",
@@ -10021,7 +10023,8 @@
         "hrEnumValues": {
           "-1": "<Current Table>"
         },
-        "note": "Generic name-only reference (FM re-resolves id by name on paste). FileMaker draws a named table quoted, `Table: “Line Items”` (hrQuoted), and the current table bare, `Table: <Current Table>`, stored as id=\"-1\" name=\"<Current Table>\" (a fixed-id built-in). FM 26.0.3."
+        "rosterKind": "Table",
+        "note": "Generic name-only reference (FM re-resolves id by name on paste). FileMaker draws a named table quoted, `Table: “Line Items”` (hrQuoted), and the current table bare, `Table: <Current Table>`, stored as id=\"-1\" name=\"<Current Table>\" (a fixed-id built-in). FM 26.0.3. FileMaker resolves the name against the file's base tables, case-insensitively; a table occurrence name (`Clients Primary`) or a name the file lacks draws `<Table Missing>` and copies back as id=\"-1\" name=\"<Current Table>\" (FM 26.0.3), so a named table is checked against the file's base tables where a converter knows them (rosterKind)."
       }
     ],
     "hrSignature": "[ With dialog: <On/Off> ; Table: “<table>” ]",
