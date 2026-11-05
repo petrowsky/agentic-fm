@@ -96,4 +96,20 @@ describe('Import Records source Profile', () => {
     expect(line.split(calc).length - 1).toBe(1);
     expect(line).toContain('XMLCalc=' + calc);
   });
+
+  // FileMaker draws these with the stored import order (FM 26.0.3): the action
+  // it writes as Update draws Replace, the one it writes as UpdateOnMatch draws
+  // Update.
+  it.each([
+    ['Add', 'Add', 'UTF-8', 'UTF-8'],
+    ['Update', 'UpdateOnMatch', 'Windows ANSI', 'Windows'],
+    ['Replace', 'Update', 'Mac Roman', 'Macintosh'],
+    ['Update', 'UpdateOnMatch', 'DOS OEM', 'DOS'],
+    ['Replace', 'Update', 'Korean (EUC-KR)', 'EUC-KR'],
+  ])('reads and prints the labels %s (%s) and %s (%s)', (label, method, shown, stored) => {
+    const xml = hrToXml(`Import Records [ With dialog: On ; Table: T ; "$p" ; ${label} ; ${shown} ]`).xml;
+    expect(xml).toContain(`method="${method}"`);
+    expect(xml).toContain(`CharacterSet="${stored}"`);
+    expect(xmlToHr(xml)).toContain(`; ${label} ; ${shown} ;`);
+  });
 });

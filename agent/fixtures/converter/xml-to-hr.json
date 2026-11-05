@@ -183,7 +183,7 @@
   "records/Delete Record_Request.xml": "Delete Record/Request [ With dialog: On ]",
   "records/Duplicate Record_Request.xml": "Duplicate Record/Request",
   "records/Export Records.xml": "Export Records [ With dialog: Off ; Create folders: On ; “$path” ; Automatically open ; Create email ; Unicode (UTF-8) ; Export options: FormatUsingCurrentLayout=False ; Profile: FieldDelimiter=\"\t\", IsPredefined=-1, FieldNameRow=-1, DataType=TABS ; Export fields: ,  ; Summary fields: =True ]",
-  "records/Import Records.xml": "Import Records [ With dialog: Off ; File ; “$path” ; Import options: CharacterSet=UTF-8, PreserveContainer=False, MatchFieldNames=False, AutoEnter=True, SplitRepetitions=False, method=Add ; Import fields: =Import, =DoNotImport ]",
+  "records/Import Records.xml": "Import Records [ With dialog: Off ; File ; “$path” ; Add ; UTF-8 ; Import options: PreserveContainer=False, MatchFieldNames=False, AutoEnter=True, SplitRepetitions=False ; Import fields: =Import, =DoNotImport ]",
   "records/New Record_Request.xml": "New Record/Request",
   "records/Open Record_Request.xml": "Open Record/Request",
   "records/Revert Record_Request.xml": "Revert Record/Request [ With dialog: Off ]",

@@ -78,6 +78,20 @@ def test_xml_calculation_prints_once():
             assert line.count(calc.group(1)) == 1, (c["id"], line)
 
 
+def test_method_and_character_set_labels():
+    # FileMaker draws these with the stored import order (FM 26.0.3): the action
+    # it writes as Update draws Replace, the one it writes as UpdateOnMatch draws
+    # Update.
+    for label, xml_method in (("Add", "Add"), ("Update", "UpdateOnMatch"), ("Replace", "Update")):
+        for shown, stored in (("UTF-8", "UTF-8"), ("Windows ANSI", "Windows"), ("Mac Roman", "Macintosh"),
+                              ("DOS OEM", "DOS"), ("Korean (EUC-KR)", "EUC-KR")):
+            xml = _emit(f'Import Records [ With dialog: On ; Table: T ; "$p" ; {label} ; {shown} ]')
+            assert f'method="{xml_method}"' in xml, (label, xml)
+            assert f'CharacterSet="{stored}"' in xml, (shown, xml)
+            line = _line(xml)
+            assert f"; {label} ; {shown} ;" in line, (label, shown, line)
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

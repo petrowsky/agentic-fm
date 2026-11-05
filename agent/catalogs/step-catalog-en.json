@@ -3882,6 +3882,7 @@
     "params": [
       {
         "xmlElement": "NoInteract",
+        "hrSlot": 0,
         "type": "boolean",
         "hrLabel": "With dialog",
         "xmlAttr": "state",
@@ -3905,6 +3906,7 @@
       },
       {
         "xmlElement": "VerifySSLCertificates",
+        "hrSlot": 8,
         "flagStyle": true,
         "type": "boolean",
         "hrLabel": "Verify SSL Certificates",
@@ -3915,6 +3917,7 @@
       },
       {
         "xmlElement": "DataSourceType",
+        "hrSlot": 2,
         "fmLineHidden": true,
         "type": "enum",
         "hrLabel": null,
@@ -3930,6 +3933,7 @@
       },
       {
         "xmlElement": "Profile",
+        "hrSlot": 3,
         "type": "attrGroup",
         "hrLabel": "Profile",
         "required": false,
@@ -3962,20 +3966,24 @@
       },
       {
         "xmlElement": "UniversalPathList",
+        "hrSlot": 4,
         "type": "text",
         "hrLabel": null,
         "hrQuoted": true,
         "omitWhenEmpty": true,
+        "fmLineFileName": true,
         "fmLineHiddenWhen": [
-          { "param": "DataSourceType", "values": ["XMLSource"] }
+          { "param": "DataSourceType", "values": ["XMLSource", "Folder"] }
         ],
         "required": false,
-        "notes": "File path, folder path, or URL. Can be a variable. FileMaker writes no element when it is given none (omitWhenEmpty), and an XML source's sources are in the Profile. A path pasted next to an XML source is kept but not drawn on FileMaker's line, which draws the Profile's sources instead (fmLineHiddenWhen; FM 26.0.3)."
+        "notes": "File path, folder path, or URL. Can be a variable. FileMaker writes no element when it is given none (omitWhenEmpty), and an XML source's sources are in the Profile. A path pasted next to an XML source is kept but not drawn on FileMaker's line, which draws the Profile's sources instead, and a folder source draws nothing in the path slot (fmLineHiddenWhen; FM 26.0.3). Otherwise FileMaker's line draws the path cut to its file name, line breaks as spaces: file:dir/a.csv draws “a.csv”, a path ending in / draws nothing (fmLineFileName; FM 26.0.3)."
       },
       {
         "xmlElement": "ImportOptions",
+        "hrSlot": 7,
         "type": "attrGroup",
         "hrLabel": "Import options",
+        "fmLineHidden": true,
         "visibleWhen": { "param": "Restore", "values": ["True"] },
         "required": false,
         "fields": [
@@ -3991,14 +3999,45 @@
         "notes": "Import settings. method: Add | UpdateOnMatch (HR 'Update') | Update (HR 'Replace'). Faithful passthrough of the raw method token. FileMaker 26.0.3 writes KeepOriginalData on every Import Records, False when it is given none, and keeps AddRemainingRecords when it is given one, for every source (pasted and read back). KeepOriginalData is new in FileMaker 26.0, as on Convert File; an older FileMaker discards it."
       },
       {
+        "xmlElement": "ImportOptions",
+        "groupFields": ["method"],
+        "hrSlot": 5,
+        "type": "enum",
+        "hrLabel": null,
+        "visibleWhen": { "param": "Restore", "values": ["True"] },
+        "required": false,
+        "defaultValue": "Add",
+        "enumValues": ["Add", "UpdateOnMatch", "Update"],
+        "hrEnumValues": { "Add": "Add", "UpdateOnMatch": "Update", "Update": "Replace" },
+        "notes": "A view of the group's method, as FileMaker draws it with the stored import order. FileMaker writes Update for the action it draws Replace and UpdateOnMatch for the one it draws Update, and turns any other value into Add (FM 26.0.3)."
+      },
+      {
+        "xmlElement": "ImportOptions",
+        "groupFields": ["CharacterSet"],
+        "hrSlot": 6,
+        "type": "enum",
+        "hrLabel": null,
+        "visibleWhen": { "param": "Restore", "values": ["True"] },
+        "fmLineJoinAfter": "ImportOptions#method",
+        "required": false,
+        "defaultValue": "UTF-8",
+        "enumValues": ["UTF-8", "Unicode", "Windows", "DOS", "Macintosh", "ShiftJIS", "ChineseSimplified", "ChineseTraditional", "EUC-KR"],
+        "hrEnumValues": { "UTF-8": "UTF-8", "Unicode": "Unicode", "Windows": "Windows ANSI", "DOS": "DOS OEM", "Macintosh": "Mac Roman", "ShiftJIS": "Shift JIS", "ChineseSimplified": "Simplified Chinese (GB)", "ChineseTraditional": "Traditional Chinese (Big-5)", "EUC-KR": "Korean (EUC-KR)" },
+        "notes": "A view of the group's character set, drawn after the method and joined to it by \"; \" on FileMaker's line (`Add; UTF-8`, `Update; Windows ANSI`). These labels differ from Export Records' (FM 26.0.3, all nine values)."
+      },
+      {
         "xmlElement": "Table",
+        "hrSlot": 1,
         "type": "tableRef",
         "hrLabel": "Table",
+        "fmLineDrawEmpty": true,
         "visibleWhen": { "param": "Restore", "values": ["True"] },
         "required": false
       },
       {
         "xmlElement": "TargetFields",
+        "hrSlot": 9,
+        "fmLineHidden": true,
         "type": "fieldList",
         "hrLabel": "Import fields",
         "entryAttr": "map",
