@@ -115,6 +115,52 @@ describe('Save Records as JSONL Option / Table HR', () => {
   });
 });
 
+// An option in labeled style that the step does not have is not a path either:
+// FileMaker keeps `XMLSource: $xmlPath` as a literal path. A real path, and the
+// Profile that holds an XML source, are unaffected. Mirrors test_option_flags_hr.py.
+describe('labeled token in a path slot', () => {
+  it('is never the path', () => {
+    for (const line of [
+      'Import Records [ With dialog: Off ; XMLSource: $xmlPath ; XSLT: $xslPath ; Add ; UTF-8 ; Table: Invoices ]',
+      'Convert File [ With dialog: Off ; XMLSource: $url ]',
+      'Convert File [ With dialog: Off ; XMLSource:$url ]',
+      'Convert File [ With dialog: Off ; XMLHttp:https://e.com/a.xml ]',
+      'Save Records as PDF [ With dialog: Off ; Output: On ]',
+    ]) {
+      expect(hrToXml(line).xml).not.toContain('<UniversalPathList');
+    }
+    expect(hrToXml('Convert File [ With dialog: Off ; XSLT: $x ; "$p" ]').xml).toContain(
+      '<UniversalPathList>$p</UniversalPathList>',
+    );
+  });
+  it('leaves real paths and an XML source alone', () => {
+    for (const [token, path] of [
+      ['$url', '$url'],
+      ['"Reports: Q3.csv"', 'Reports: Q3.csv'],
+      ['file:data.csv', 'file:data.csv'],
+      ['filewin:/C:/data.csv', 'filewin:/C:/data.csv'],
+      ['C:/data.csv', 'C:/data.csv'],
+      ['https://e.com:8080/a.xml', 'https://e.com:8080/a.xml'],
+      ['file:$name', 'file:$name'],
+      ['filelinux:$name', 'filelinux:$name'],
+    ]) {
+      expect(hrToXml(`Convert File [ With dialog: Off ; ${token} ]`).xml).toContain(
+        `<UniversalPathList>${path}</UniversalPathList>`,
+      );
+    }
+    expect(
+      hrToXml(
+        'Convert File [ With dialog: Off ; XMLSource ; Profile: DataType="XML ", XMLType=XMLHttp, XSLType=NoXSL, XMLHttp=https://e.com/a.xml ]',
+      ).xml,
+    ).toContain('<XMLHttp>https://e.com/a.xml</XMLHttp>');
+  });
+  it('reports a held-back token, so a dropped path is never silent', () => {
+    const held = hrToXml('Convert File [ With dialog: Off ; Reports: Q3.csv ]');
+    expect(held.warnings.map((w) => w.message).join()).toContain('"Reports: Q3.csv"');
+    expect(hrToXml('Convert File [ With dialog: Off ; "Reports: Q3.csv" ]').warnings).toEqual([]);
+  });
+});
+
 // A bare flag written in the labeled boolean spelling every other option of the
 // step uses (`Append: On`): On sets the flag, Off leaves it clear, and neither,
 // nor any other value after the flag's label, is ever read as the file path.

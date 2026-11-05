@@ -667,7 +667,52 @@ function fmLineBareBooleanValue(param: GrammarParam, token: string): string {
   return '';
 }
 
-function matchParamValues(entry: GrammarEntry, hrParams: string[]): string[] {
+// A FileMaker path list's own location prefixes (`file:a.csv`, `https://...`,
+// `image:p.png`). The word before their colon is the path, not a label.
+const FM_PATH_PREFIXES = new Set([
+  'file', 'filemac', 'filewin', 'filelinux',
+  'image', 'imagemac', 'imagewin', 'imagelinux',
+  'movie', 'moviemac', 'moviewin', 'movielinux',
+  'http', 'https', 'ftp', 'ftps', 'fmnet',
+]);
+
+// Whether a token reaching a path slot reads `Word: value`, an option written in
+// labeled style, rather than a path (`XMLSource: $xmlPath`, `XSLT: $xslPath`).
+// FileMaker would keep it as a literal path. The value after the colon is spaced
+// off or is a variable or quoted text, or the word is one of the step's own (an
+// enum value, a group field's key). A location prefix, a drive letter, a quoted
+// path, a variable and a calculation never read this way.
+function readsAsLabeledToken(entry: GrammarEntry, raw: string): boolean {
+  const t = trim(raw);
+  const colon = t.indexOf(':');
+  if (colon < 2) return false;
+  const word = t.slice(0, colon);
+  if (!/^[A-Za-z][A-Za-z0-9 _-]*$/.test(word)) return false;
+  if (FM_PATH_PREFIXES.has(word.toLowerCase())) return false;
+  const rest = t.slice(colon + 1);
+  if (rest === '' || /^\s/.test(rest) || rest[0] === '$' || rest[0] === '"') return true;
+  return entry.params.some(
+    (p) =>
+      rawStrArr(p.raw, 'enumValues').includes(word) ||
+      rawArr(p.raw, 'fields').some((f) => rawStr(f, 'key') === word),
+  );
+}
+
+// A token with no value shape: not quoted, a variable, a number, a field reference
+// or a calculation.
+function readsAsBareWord(raw: string): boolean {
+  const t = trim(raw);
+  if (t === '') return false;
+  if (/^["$0-9+.-]/.test(t) || t.charCodeAt(0) >= 0x80) return false;
+  if (t.includes('::')) return false;
+  return !/[()+*/&=<>"]/.test(t);
+}
+
+function matchParamValues(
+  entry: GrammarEntry,
+  hrParams: string[],
+  addWarning: (message: string) => void,
+): string[] {
   const values: string[] = new Array(entry.params.length).fill('');
   const resolved: boolean[] = new Array(entry.params.length).fill(false);
   const consumed: boolean[] = new Array(hrParams.length).fill(false);
@@ -893,6 +938,30 @@ function matchParamValues(entry: GrammarEntry, hrParams: string[]): string[] {
     const pi = order[oi];
     if (!positionalTarget(pi)) continue;
     while (pos < hrParams.length && (consumed[pos] || reserved[pos])) pos++;
+    // A path slot takes no labeled option: FileMaker would keep `XMLSource:
+    // $xmlPath` as a literal path, silently. Those tokens stay unplaced. A
+    // value-shaped token after them is still the path; a bare word (`Add`, `UTF-8`)
+    // is not, so the slot stays empty.
+    if (entry.params[pi].xmlElement === 'UniversalPathList') {
+      let skippedLabeled = false;
+      while (
+        pos < hrParams.length &&
+        (consumed[pos] || reserved[pos] || readsAsLabeledToken(entry, hrParams[pos]))
+      ) {
+        if (!consumed[pos] && !reserved[pos]) {
+          reserved[pos] = true;
+          skippedLabeled = true;
+          addWarning(
+            `${entry.name}: "${trim(hrParams[pos])}" reads as a labeled option this step does not have, so it was left out of the path. If it is a path, quote it.`,
+          );
+        }
+        pos++;
+      }
+      if (skippedLabeled && pos < hrParams.length && readsAsBareWord(hrParams[pos])) {
+        resolved[pi] = true;
+        continue;
+      }
+    }
     if (pos < hrParams.length) {
       const token = trim(hrParams[pos]);
       // A closed-vocabulary enum only claims a token that names one of its own
@@ -1431,7 +1500,9 @@ export function convertStepWithCatalog(
   const params = entry.params;
   let xml = `  <Step enable="${!line.disabled ? 'True' : 'False'}" id="${entry.id}" name="${escXml(entry.name)}">\n`;
 
-  const values = matchParamValues(entry, line.params);
+  const values = matchParamValues(entry, line.params, (message) =>
+    resolver.addWarning(line.lineNumber, message),
+  );
 
   // mirrorOf: FileMaker writes this param as a copy of a field inside a sibling
   // attrGroup, so it takes that field's value (Create PDF [ Document: Title="t",

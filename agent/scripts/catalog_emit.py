@@ -45,6 +45,7 @@ hand-coded in the SaXML converter (the sanctioned exception).
 
 from __future__ import annotations
 
+import warnings
 from typing import Any, Protocol
 
 from calc_literal import (
@@ -801,6 +802,68 @@ def _fm_line_bare_boolean_value(param: StepParam, token: str) -> str:
     return ""
 
 
+# A FileMaker path list's own location prefixes (`file:a.csv`, `https://...`,
+# `image:p.png`). The word before their colon is the path, not a label.
+_FM_PATH_PREFIXES = frozenset(
+    {
+        "file", "filemac", "filewin", "filelinux",
+        "image", "imagemac", "imagewin", "imagelinux",
+        "movie", "moviemac", "moviewin", "movielinux",
+        "http", "https", "ftp", "ftps", "fmnet",
+    }
+)
+
+
+def _reads_as_labeled_token(entry: CatalogEntry, raw: str) -> bool:
+    """Whether a token reaching a path slot reads `Word: value`, an option written
+    in labeled style, rather than a path (`XMLSource: $xmlPath`, `XSLT: $xslPath`).
+    FileMaker would keep it as a literal path. The value after the colon is spaced
+    off or is a variable or quoted text, or the word is one of the step's own (an
+    enum value, a group field's key). A location prefix, a drive letter, a quoted
+    path, a variable and a calculation never read this way."""
+    t = _trim(raw)
+    colon = t.find(":")
+    if colon < 2:
+        return False
+    word = t[:colon]
+    if not (word[0].isascii() and word[0].isalpha()):
+        return False
+    if not all(c.isascii() and (c.isalnum() or c in " _-") for c in word):
+        return False
+    if word.lower() in _FM_PATH_PREFIXES:
+        return False
+    rest = t[colon + 1 :]
+    if not rest or rest[0].isspace() or rest[0] in '$"':
+        return True
+    for p in entry.params:
+        if word in _raw_str_arr(p.raw, "enumValues"):
+            return True
+        if any(_raw_str(f, "key") == word for f in _raw_arr(p.raw, "fields")):
+            return True
+    return False
+
+
+def _labeled_token_warning(step_name: str, token: str) -> str:
+    return (
+        f'{step_name}: "{_trim(token)}" reads as a labeled option this step does not have, '
+        "so it was left out of the path. If it is a path, quote it."
+    )
+
+
+def _reads_as_bare_word(raw: str) -> bool:
+    """A token with no value shape: not quoted, a variable, a number, a field
+    reference or a calculation."""
+    t = _trim(raw)
+    if not t:
+        return False
+    c0 = t[0]
+    if c0 in '"$' or not c0.isascii() or c0.isdigit() or c0 in "-+.":
+        return False
+    if "::" in t:
+        return False
+    return not any(c in t for c in '()+*/&=<>"')
+
+
 def match_param_values(entry: CatalogEntry, hr_params: list[str]) -> list[str]:
     """Parse HR bracket params into the per-catalog-param values[] token array."""
     values = [""] * len(entry.params)
@@ -1030,6 +1093,23 @@ def match_param_values(entry: CatalogEntry, hr_params: list[str]) -> list[str]:
             continue
         while pos < len(hr_params) and (consumed[pos] or reserved[pos]):
             pos += 1
+        # A path slot takes no labeled option: FileMaker would keep `XMLSource:
+        # $xmlPath` as a literal path, silently. Those tokens stay unplaced. A
+        # value-shaped token after them is still the path; a bare word (`Add`,
+        # `UTF-8`) is not, so the slot stays empty.
+        if entry.params[pi].xml_element == "UniversalPathList":
+            skipped_labeled = False
+            while pos < len(hr_params) and (
+                consumed[pos] or reserved[pos] or _reads_as_labeled_token(entry, hr_params[pos])
+            ):
+                if not consumed[pos] and not reserved[pos]:
+                    reserved[pos] = True
+                    skipped_labeled = True
+                    warnings.warn(_labeled_token_warning(entry.name, hr_params[pos]), stacklevel=2)
+                pos += 1
+            if skipped_labeled and pos < len(hr_params) and _reads_as_bare_word(hr_params[pos]):
+                resolved[pi] = True
+                continue
         if pos < len(hr_params):
             token = _trim(hr_params[pos])
             # A closed-vocabulary enum only claims a token that names one of its
