@@ -1874,7 +1874,9 @@ export function convertStepWithCatalog(
       if (param.discriminator) {
         if (layoutPiece.has(pi)) piece = layoutPiece.get(pi)!;
       } else {
-        const layoutName = unquote(hrValue);
+        // FileMaker's own line reads “Name” (TO): the curly quotes mark a layout
+        // reference and the suffix is decoration, as for a discriminated token.
+        const layoutName = unquote(stripResolvedLayoutDecoration(hrValue.trim()).tok);
         if (layoutName === '' || ciEquals(layoutName, '<unknown>')) {
           piece = '    <Layout id="0" name=""/>';
         } else {

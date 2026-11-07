@@ -883,3 +883,14 @@ def test_cdata_splits_close_sequence():
             out = wrap(calc)
             assert ("]]]]><![CDATA[>" in out) == ("]]>" in calc), out
             assert (ET.fromstring("<C>" + out + "</C>").text or "") == calc, out
+
+
+def test_new_window_reads_the_line_filemaker_draws():
+    """FileMaker draws a named layout as `Using layout: “Name” (TO)`: same step as `Layout: "Name"`."""
+    entries = {e.name: e for e in load_catalog(_CATALOG)}
+    entry = entries["New Window"]
+    emit = lambda token: convert_step_with_catalog(
+        entry, False, match_param_values(entry, ["Style: Document", token]), EmptyResolver())
+    written = emit('Layout: "Clients"')
+    assert 'name="Clients"' in written
+    assert emit("Using layout: “Clients” (Primary)") == written

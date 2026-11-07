@@ -5464,6 +5464,13 @@
         "xmlElement": "Layout",
         "type": "layout",
         "hrLabel": "Layout",
+        "hrLabelWhen": [
+          {
+            "param": "LayoutDestination",
+            "values": [],
+            "hrLabel": "Using layout"
+          }
+        ],
         "required": true,
         "hrSlot": 2
       }

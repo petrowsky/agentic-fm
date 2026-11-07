@@ -2121,7 +2121,11 @@ def convert_step_with_catalog(
                 if pi in layout_piece:
                     piece = layout_piece[pi]
             else:
-                layout_name = _unquote(hr_value)
+                # FileMaker's own line reads “Name” (TO): the curly quotes mark a
+                # layout reference and the suffix is decoration, as for a
+                # discriminated layout token.
+                _, layout_token = _strip_resolved_layout_decoration(_trim(hr_value))
+                layout_name = _unquote(layout_token)
                 if layout_name == "" or _ci_equals(layout_name, "<unknown>"):
                     piece = '    <Layout id="0" name=""/>'
                 else:
