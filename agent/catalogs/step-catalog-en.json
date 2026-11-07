@@ -3896,17 +3896,19 @@
       },
       {
         "xmlElement": "Restore",
+        "hrSlot": 1,
         "type": "boolean",
         "hrHidden": true,
-        "hrLabel": null,
+        "hrLabel": "Specify import order",
+        "hrOffKeepsGated": true,
         "xmlAttr": "state",
         "required": false,
         "defaultValue": "True",
-        "notes": "Renders no HR token of its own; FM shows the stored import order (target table, method, character set) only when True (live copy-back: <Table> and <ImportOptions> are serialized in BOTH states, so this gates RENDERING, not presence). FM does NOT re-canonicalize it from content — handed False with a non-default method it kept False, reset the options and wiped the table — so the converter derives the state from whether a gated companion carries an HR token."
+        "notes": "FileMaker draws no token for it; FM shows the stored import order (target table, method, character set) only when True (live copy-back: <Table> and <ImportOptions> are serialized in BOTH states, so this gates RENDERING, not presence). FileMaker does not re-canonicalize it from content, so the converter derives the state from whether a gated companion carries an HR token. With Restore off FileMaker still keeps the table, import options and field mapping it is given, and draws none of them (FM 26.0.3, pasted and read back): the HR then shows the companions that differ from their defaults and writes `Specify import order: Off`, the label of FileMaker's own option (hrOffKeepsGated), which HR->XML reads as the explicit state. FileMaker's Save as XML exports no import order with Restore off, so that reading has none to keep."
       },
       {
         "xmlElement": "VerifySSLCertificates",
-        "hrSlot": 8,
+        "hrSlot": 9,
         "flagStyle": true,
         "type": "boolean",
         "hrLabel": "Verify SSL Certificates",
@@ -3917,7 +3919,7 @@
       },
       {
         "xmlElement": "DataSourceType",
-        "hrSlot": 2,
+        "hrSlot": 3,
         "fmLineHidden": true,
         "type": "enum",
         "hrLabel": null,
@@ -3933,7 +3935,7 @@
       },
       {
         "xmlElement": "Profile",
-        "hrSlot": 3,
+        "hrSlot": 4,
         "type": "attrGroup",
         "hrLabel": "Profile",
         "required": false,
@@ -3966,7 +3968,7 @@
       },
       {
         "xmlElement": "UniversalPathList",
-        "hrSlot": 4,
+        "hrSlot": 5,
         "type": "text",
         "hrLabel": null,
         "hrQuoted": true,
@@ -3980,7 +3982,7 @@
       },
       {
         "xmlElement": "ImportOptions",
-        "hrSlot": 7,
+        "hrSlot": 8,
         "type": "attrGroup",
         "hrLabel": "Import options",
         "hrOmitAtDefault": true,
@@ -4002,7 +4004,7 @@
       {
         "xmlElement": "ImportOptions",
         "groupFields": ["method"],
-        "hrSlot": 5,
+        "hrSlot": 6,
         "type": "enum",
         "hrLabel": null,
         "visibleWhen": { "param": "Restore", "values": ["True"] },
@@ -4015,7 +4017,7 @@
       {
         "xmlElement": "ImportOptions",
         "groupFields": ["CharacterSet"],
-        "hrSlot": 6,
+        "hrSlot": 7,
         "type": "enum",
         "hrLabel": null,
         "visibleWhen": { "param": "Restore", "values": ["True"] },
@@ -4028,7 +4030,7 @@
       },
       {
         "xmlElement": "Table",
-        "hrSlot": 1,
+        "hrSlot": 2,
         "type": "tableRef",
         "hrLabel": "Table",
         "fmLineDrawEmpty": true,
@@ -4037,7 +4039,7 @@
       },
       {
         "xmlElement": "TargetFields",
-        "hrSlot": 9,
+        "hrSlot": 10,
         "fmLineHidden": true,
         "type": "fieldList",
         "hrLabel": "Import fields",
@@ -4050,7 +4052,7 @@
         "notes": "fieldList (Cluster 1): ordered target field mapping. Each entry is a direct <Field FieldOptions=\"0\" map=\"Import|DoNotImport|Match\"/>. HR token `Import fields: Table::Field=Import, ...`. map=Match only with method=UpdateOnMatch. FieldOptions is the field's own import options, a number FileMaker keeps as given and never draws: the HR writes it after the map when it is not 0 (`Invoices::Date=Import:2`, hrEntrySuffix). 2 is Perform auto-enter options for that field: FileMaker keeps it only on a field with auto-enter options, drops it on any other, and sets it on every field it adds when AutoEnter is True. 1, 4, 8 and 16 are kept on any field; their meaning is not measured (FM 26.0.3, pasted and read back)."
       }
     ],
-    "hrSignature": "[ With dialog: On|Off ; Table: table ; path ; Add|Update|Replace ; charset ; Verify SSL Certificates ]",
+    "hrSignature": "[ With dialog: On|Off ; Specify import order: Off ; Table: table ; path ; Add|Update|Replace ; charset ; Verify SSL Certificates ; Import fields: Table::Field=Import|DoNotImport|Match[:options], ... ]",
     "blockPair": null,
     "status": "complete",
     "helpUrl": "https://help.claris.com/en/pro-help/content/import-records.html",

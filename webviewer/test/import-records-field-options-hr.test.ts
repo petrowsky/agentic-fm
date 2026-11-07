@@ -35,7 +35,10 @@ const FIXTURE = JSON.parse(
   ),
 );
 const ALL: OptionsCase[] = FIXTURE.cases;
-const CASES = ALL.filter((c) => !c.id.startsWith('ROFF')); // RESTOREOFF_PENDING
+// ROFF-BARE holds no import order: written back, the step carries the default
+// import options and an empty table, which FileMaker keeps (the converter writes
+// them for every Import Records).
+const CASES = ALL.filter((c) => c.id !== 'ROFF-BARE');
 
 const snippet = (stepXml: string) => `<fmxmlsnippet type="FMObjectList">${stepXml}</fmxmlsnippet>`;
 
@@ -72,11 +75,30 @@ const roundTrip = (xml: string): string => hrToXml(xmlToHr(snippet(xml))).xml;
 describe('Import Records field options and stored order', () => {
   it('holds every case', () => {
     expect(ALL).toHaveLength(15);
-    expect(CASES).toHaveLength(10);
+    expect(CASES).toHaveLength(14);
   });
 
   it.each(CASES)("FileMaker's copy-back round-trips ($id)", (c) => {
     expect(mapping(roundTrip(c.fm))).toBe(mapping(c.fm));
+  });
+
+  it('keeps the stored order with Restore off', () => {
+    // FileMaker keeps the table, options and mapping with Restore off and draws
+    // none of them; the HR shows what is not the default and says the order is off.
+    const line = (id: string) => xmlToHr(snippet(ALL.find((c) => c.id === id)!.fm));
+    const full = line('ROFF-FULL');
+    expect(full.startsWith('Import Records [ With dialog: Off ; Specify import order: Off ; Table: Invoices ;')).toBe(true);
+    expect(full).toContain('; Update ; Windows ANSI ;');
+    expect(full).toContain('AutoEnter=False');
+    expect(full).toContain('Name=Match, Status=Import:2, Date=DoNotImport:1');
+    expect(line('ROFF-STD')).toContain('Specify import order: Off ; Table: Invoices');
+    expect(line('ROFF-STD')).not.toContain('; Add ;');
+    expect(line('ROFF-BARE')).not.toContain('Specify import order');
+    expect(line('RON-FULL')).not.toContain('Specify import order');
+    const off = hrToXml('Import Records [ Specify import order: Off ; Table: T ; Import fields: T::A ]').xml;
+    expect(off).toContain('<Restore state="False"');
+    expect(off).toContain('name="T"');
+    expect(hrToXml('Import Records [ Specify import order: On ]').xml).toContain('<Restore state="True"');
   });
 
   it('prints the field options after the map', () => {

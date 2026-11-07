@@ -882,6 +882,22 @@ def match_param_values(entry: CatalogEntry, hr_params: list[str]) -> list[str]:
     for pi, param in enumerate(entry.params):
         if param.hr_hidden:
             resolved[pi] = True
+            # hrOffKeepsGated: `<hrLabel>: On|Off` sets the gate's state outright
+            # (Import Records' `Specify import order: Off`), kept as On / Off for
+            # the derive below.
+            if param.raw.get("hrOffKeepsGated") and param.hr_label:
+                prefix = param.hr_label.lower() + ":"
+                for i in range(len(hr_params)):
+                    t = _trim(hr_params[i])
+                    if consumed[i] or not t.lower().startswith(prefix):
+                        continue
+                    word = _trim(t[len(prefix):])
+                    if _ci_equals(word, "On") or _ci_equals(word, "Off"):
+                        values[pi] = "On" if _ci_equals(word, "On") else "Off"
+                        consumed[i] = True
+                    else:
+                        reserved[i] = True
+                    break
             line_token = _raw_str(param.raw, "fmLineToken")
             if line_token:
                 for i in range(len(hr_params)):
@@ -1878,7 +1894,10 @@ def convert_step_with_catalog(
     # Records sets its own Restore), and that reading wins.
     implied_bool: dict[int, str] = {}
     for gi, gate in enumerate(params):
-        if not gate.hr_hidden or gate.type != "boolean" or values[gi] != "":
+        # hrOffKeepsGated: an explicit On / Off from the HR names the state
+        # outright: the gated companions are written as given either way.
+        explicit = values[gi] if gate.raw.get("hrOffKeepsGated") and values[gi] in ("On", "Off") else ""
+        if not gate.hr_hidden or gate.type != "boolean" or (values[gi] != "" and not explicit):
             continue
         gate_key = param_key(gate)
         on_value = ""  # the gate value that REVEALS a companion
@@ -1896,6 +1915,9 @@ def convert_step_with_catalog(
         if not gates:
             continue  # hrHidden but nothing gates on it: default emit
         off_value = "False" if on_value == "True" else "True"
+        if explicit:
+            implied_bool[gi] = on_value if explicit == "On" else off_value
+            continue
         implied_bool[gi] = on_value if any_content else off_value
 
     # G10 nested attribute-bearing wrapper: the step-level rule one level down. An

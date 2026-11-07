@@ -52,7 +52,7 @@ def _source(xml: str) -> tuple:
 
 def test_fixture_holds_every_case():
     assert len(_FIXTURE["cases"]) == 25
-    assert len(CASES) == 22
+    assert len(CASES) == 23
     assert sum("XMLType=" in c["fm"] for c in _FIXTURE["cases"]) == 15
     assert sum("<XMLCalc>" in c["fm"] for c in _FIXTURE["cases"]) == 2
 

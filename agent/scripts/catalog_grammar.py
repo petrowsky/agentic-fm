@@ -1011,8 +1011,51 @@ def param_visible(entry: CatalogEntry, step: ET.Element, param: StepParam) -> bo
         if param_key(q) != vw.param:
             continue
         v = read_gate_raw_value(entry, step, q) or (q.default_value or "")
-        return v in vw.values
+        if v in vw.values:
+            return True
+        # hrOffKeepsGated: FileMaker keeps this companion with the gate off, so
+        # the HR shows it when it differs from its default.
+        return bool(q.raw.get("hrOffKeepsGated")) and kept_while_off(entry, step, param)
     return True
+
+
+def off_kept_gate(entry: CatalogEntry, param: StepParam) -> StepParam | None:
+    """The ``hrOffKeepsGated`` gate ``param``'s ``visibleWhen`` names, or None."""
+    vw = param.visible_when
+    if vw is None or not vw.param:
+        return None
+    q = next((q for q in entry.params if param_key(q) == vw.param), None)
+    return q if q is not None and q.raw.get("hrOffKeepsGated") else None
+
+
+def kept_while_off(entry: CatalogEntry, step: ET.Element, param: StepParam) -> bool:
+    """Whether a companion of an ``hrOffKeepsGated`` gate holds a value other than
+    its default: a token, and for an enum not its default's label. The emitter
+    writes the default back, so only these need the HR."""
+    val = compute_param_hr(entry, step, param)
+    if not val:
+        return False
+    if param.type == "enum":
+        d = param.default_value or ""
+        return val != (param.hr_enum_values.get(d) or d)
+    return True
+
+
+def off_kept_token(entry: CatalogEntry, step: ET.Element, gate: StepParam) -> str:
+    """``<hrLabel>: Off`` for an ``hrOffKeepsGated`` gate that is off while a
+    companion it gates holds a non-default value (Import Records' ``Specify
+    import order: Off``); otherwise nothing, and the state is derived."""
+    key = param_key(gate)
+    gated = [q for q in entry.params
+             if q.visible_when is not None and q.visible_when.param == key and q.visible_when.values]
+    if not gated or not gate.hr_label:
+        return ""
+    v = read_gate_raw_value(entry, step, gate) or (gate.default_value or "")
+    if v in gated[0].visible_when.values:
+        return ""
+    if not any(kept_while_off(entry, step, q) for q in gated):
+        return ""
+    return gate.hr_label + ": Off"
 
 
 def hr_param_order(entry: CatalogEntry) -> list[int]:
@@ -1377,7 +1420,9 @@ def compute_param_hr(entry: CatalogEntry, step: ET.Element, param: StepParam) ->
                 for q in entry.params
                 if q.group_fields and q.xml_element == param.xml_element
                 and (q.parent_element or "") == (param.parent_element or "")
-                and param_visible(entry, step, q)
+                # With an hrOffKeepsGated gate a projection prints its field
+                # whenever it is not the default, which the emitter writes back.
+                and (param_visible(entry, step, q) or off_kept_gate(entry, q) is not None)
                 for k in q.group_fields
             }
             fields = [f for f in param.raw.get("fields", []) if f.get("key") not in shown]
@@ -1964,6 +2009,10 @@ def render_step_hr(entry: CatalogEntry, step: ET.Element) -> str:
     for pi in hr_param_order(entry):
         param = entry.params[pi]
         if param.hr_hidden:
+            if param.raw.get("hrOffKeepsGated") and param.type == "boolean":
+                off = off_kept_token(entry, step, param)
+                if off:
+                    add(_param_token(entry, param, off))
             continue
         if governing_discriminator_for(entry, param):
             continue

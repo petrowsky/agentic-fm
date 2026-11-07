@@ -557,9 +557,52 @@ function paramVisible(entry: GrammarEntry, step: Element, param: GrammarParam): 
   for (const q of entry.params) {
     if (paramKey(q) !== vw.param) continue;
     const v = readGateRawValue(entry, step, q) || (q.defaultValue || '');
-    return vw.values.includes(v);
+    if (vw.values.includes(v)) return true;
+    // hrOffKeepsGated: FileMaker keeps this companion with the gate off, so the
+    // HR shows it when it differs from its default.
+    return q.raw.hrOffKeepsGated === true && keptWhileOff(entry, step, param);
   }
   return true;
+}
+
+/** The `hrOffKeepsGated` gate a param's `visibleWhen` names, or null. */
+function offKeptGate(entry: GrammarEntry, param: GrammarParam): GrammarParam | null {
+  const vw = param.visibleWhen;
+  if (vw === null || !vw.param) return null;
+  const q = entry.params.find((x) => paramKey(x) === vw.param);
+  return q !== undefined && q.raw.hrOffKeepsGated === true ? q : null;
+}
+
+/**
+ * Whether a companion of an `hrOffKeepsGated` gate holds a value other than its
+ * default: a token, and for an enum not its default's label. The emitter writes
+ * the default back, so only these need the HR.
+ */
+function keptWhileOff(entry: GrammarEntry, step: Element, param: GrammarParam): boolean {
+  const val = computeParamHr(entry, step, param);
+  if (!val) return false;
+  if (param.type === 'enum') {
+    const d = param.defaultValue || '';
+    return val !== (param.hrEnumValues[d] || d);
+  }
+  return true;
+}
+
+/**
+ * `<hrLabel>: Off` for an `hrOffKeepsGated` gate that is off while a companion
+ * it gates holds a non-default value (Import Records' `Specify import order:
+ * Off`); otherwise nothing, and the state is derived.
+ */
+function offKeptToken(entry: GrammarEntry, step: Element, gate: GrammarParam): string {
+  const key = paramKey(gate);
+  const gated = entry.params.filter(
+    (q) => q.visibleWhen !== null && q.visibleWhen.param === key && q.visibleWhen.values.length > 0,
+  );
+  if (gated.length === 0 || !gate.hrLabel) return '';
+  const v = readGateRawValue(entry, step, gate) || (gate.defaultValue || '');
+  if (gated[0].visibleWhen!.values.includes(v)) return '';
+  if (!gated.some((q) => keptWhileOff(entry, step, q))) return '';
+  return gate.hrLabel + ': Off';
 }
 
 /** Indices in HR render order — catalog order unless some param sets hrSlot. */
@@ -999,7 +1042,9 @@ export function computeParamHr(entry: GrammarEntry, step: Element, param: Gramma
         const gf = groupFieldsOf(q);
         if (gf.length === 0 || q.xmlElement !== param.xmlElement
             || (q.parentElement || '') !== (param.parentElement || '')) continue;
-        if (paramVisible(entry, step, q)) gf.forEach((k) => shown.add(k));
+        // With an hrOffKeepsGated gate a projection prints its field whenever it
+        // is not the default, which the emitter writes back.
+        if (paramVisible(entry, step, q) || offKeptGate(entry, q) !== null) gf.forEach((k) => shown.add(k));
       }
       const fields = ((param.raw.fields as Record<string, unknown>[]) ?? [])
         .filter((f) => !shown.has(f.key as string));
@@ -1558,7 +1603,13 @@ export function renderStepHr(entry: GrammarEntry, step: Element): string {
   };
   for (const pi of hrParamOrder(entry)) {
     const param = entry.params[pi];
-    if (param.hrHidden) continue;
+    if (param.hrHidden) {
+      if (param.raw.hrOffKeepsGated === true && param.type === 'boolean') {
+        const off = offKeptToken(entry, step, param);
+        if (off) add(paramToken(entry, param, off));
+      }
+      continue;
+    }
     if (governingDiscriminatorFor(entry, param)) continue;
     if (!paramVisible(entry, step, param)) continue;
     if (isGoverningDiscriminator(param)) {

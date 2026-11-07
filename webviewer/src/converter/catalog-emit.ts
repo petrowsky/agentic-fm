@@ -732,6 +732,24 @@ function matchParamValues(
     const param = entry.params[pi];
     if (param.hrHidden) {
       resolved[pi] = true;
+      // hrOffKeepsGated: `<hrLabel>: On|Off` sets the gate's state outright
+      // (Import Records' `Specify import order: Off`), kept as On / Off for the
+      // derive in convertStepWithCatalog.
+      if (param.raw.hrOffKeepsGated === true && param.hrLabel) {
+        const prefix = param.hrLabel.toLowerCase() + ':';
+        for (let i = 0; i < hrParams.length; i++) {
+          const t = trim(hrParams[i]);
+          if (consumed[i] || !t.toLowerCase().startsWith(prefix)) continue;
+          const word = trim(t.slice(prefix.length));
+          if (ciEquals(word, 'On') || ciEquals(word, 'Off')) {
+            values[pi] = ciEquals(word, 'On') ? 'On' : 'Off';
+            consumed[i] = true;
+          } else {
+            reserved[i] = true;
+          }
+          break;
+        }
+      }
       const lineToken = rawStr(param.raw, 'fmLineToken');
       if (lineToken) {
         for (let i = 0; i < hrParams.length; i++)
@@ -1637,7 +1655,11 @@ export function convertStepWithCatalog(
   const impliedBool = new Map<number, string>(); // param idx -> state
   for (let gi = 0; gi < params.length; gi++) {
     const gate = params[gi];
-    if (!gate.hrHidden || gate.type !== 'boolean' || values[gi] !== '') continue;
+    // hrOffKeepsGated: an explicit On / Off from the HR names the state
+    // outright: the gated companions are written as given either way.
+    const explicit = gate.raw.hrOffKeepsGated === true && (values[gi] === 'On' || values[gi] === 'Off')
+      ? values[gi] : '';
+    if (!gate.hrHidden || gate.type !== 'boolean' || (values[gi] !== '' && !explicit)) continue;
     const gateKey = paramKey(gate);
     let onValue = ''; // the gate value that REVEALS a companion
     let gates = false, anyContent = false;
@@ -1650,7 +1672,7 @@ export function convertStepWithCatalog(
     }
     if (!gates) continue; // hrHidden but nothing gates on it: default emit
     const offValue = onValue === 'True' ? 'False' : 'True';
-    impliedBool.set(gi, anyContent ? onValue : offValue);
+    impliedBool.set(gi, explicit ? (explicit === 'On' ? onValue : offValue) : (anyContent ? onValue : offValue));
   }
 
   // G10 nested attribute-bearing wrapper: the step-level rule one level down. An

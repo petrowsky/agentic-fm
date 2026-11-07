@@ -77,7 +77,7 @@ const roundTrip = (xml: string): string => hrToXml(xmlToHr(snippet(xml))).xml;
 describe('Import Records source Profile', () => {
   it('holds every case', () => {
     expect(ALL).toHaveLength(25);
-    expect(CASES).toHaveLength(22);
+    expect(CASES).toHaveLength(23);
   });
 
   it.each(CASES)("FileMaker's copy-back round-trips ($id)", (c) => {

@@ -33,7 +33,10 @@ with open(
     encoding="utf-8",
 ) as fh:
     _FIXTURE = json.load(fh)
-CASES = [c for c in _FIXTURE["cases"] if not c["id"].startswith("ROFF")]  # RESTOREOFF_PENDING
+# ROFF-BARE holds no import order: written back, the step carries the default
+# import options and an empty table, which FileMaker keeps (the converter writes
+# them for every Import Records).
+CASES = [c for c in _FIXTURE["cases"] if c["id"] != "ROFF-BARE"]
 
 
 def _mapping(xml: str) -> tuple:
@@ -46,12 +49,30 @@ def _mapping(xml: str) -> tuple:
 
 def test_fixture_holds_every_case():
     assert len(_FIXTURE["cases"]) == 15
-    assert len(CASES) == 10
+    assert len(CASES) == 14
 
 
 def test_filemakers_copy_back_round_trips():
     for c in CASES:
         assert _mapping(_emit(_line(c["fm"]))) == _mapping(c["fm"]), c["id"]
+
+
+def test_restore_off_keeps_the_stored_order():
+    # FileMaker keeps the table, options and mapping with Restore off and draws
+    # none of them; the HR shows what is not the default and says the order is off.
+    by = {c["id"]: c for c in _FIXTURE["cases"]}
+    line = _line(by["ROFF-FULL"]["fm"])
+    assert line.startswith("Import Records [ With dialog: Off ; Specify import order: Off ; Table: Invoices ;"), line
+    assert "; Update ; Windows ANSI ;" in line and "AutoEnter=False" in line, line
+    assert "Name=Match, Status=Import:2, Date=DoNotImport:1" in line, line
+    line = _line(by["ROFF-STD"]["fm"])
+    assert "Specify import order: Off ; Table: Invoices" in line and "; Add ;" not in line, line
+    assert "Specify import order" not in _line(by["ROFF-BARE"]["fm"])
+    assert "Specify import order" not in _line(by["RON-FULL"]["fm"])
+    xml = _emit("Import Records [ Specify import order: Off ; Table: T ; Import fields: T::A ]")
+    assert '<Restore state="False"' in xml and 'name="T"' in xml, xml
+    xml = _emit("Import Records [ Specify import order: On ]")
+    assert '<Restore state="True"' in xml, xml
 
 
 def test_field_options_print_after_the_map():
