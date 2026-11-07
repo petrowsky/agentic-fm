@@ -71,6 +71,7 @@ from catalog_grammar import (
     hr_param_order,
     is_driven_discriminator,
     is_governing_discriminator,
+    split_field_entry_suffix,
     param_key,
     positional_token_fits_param,
     projection_owner,
@@ -1686,13 +1687,18 @@ def _emit_field_list(param: StepParam, hr_value: str, resolver: IdResolver) -> s
         fieldref = entry_str
         attrval = entry_attr_default
         eq = entry_str.find("=")
+        suffixed: dict[str, str] = {}
         if eq != -1:
             fieldref = _trim(entry_str[:eq])
-            attrval = _trim(entry_str[eq + 1 :])
+            attrval, suffixed = split_field_entry_suffix(param, _trim(entry_str[eq + 1 :]))
+            if suffixed and not attrval:
+                attrval = entry_attr_default
         table, fid, fname = _resolve_field(resolver, _group_unquote_value(fieldref))
         fattrs = ""
         for ff in field_fixed_attrs:
-            fattrs += " " + _raw_str(ff, "xmlAttr") + '="' + esc_xml_attr(_raw_str(ff, "defaultValue")) + '"'
+            xattr = _raw_str(ff, "xmlAttr")
+            fval = suffixed.get(xattr) or _raw_str(ff, "defaultValue")
+            fattrs += " " + xattr + '="' + esc_xml_attr(fval) + '"'
         if entry_attr and not entry_element:
             fattrs += " " + entry_attr + '="' + esc_xml_attr(attrval) + '"'
         node = (

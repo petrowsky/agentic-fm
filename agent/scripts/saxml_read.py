@@ -35,6 +35,7 @@ from catalog_grammar import (
     StepParam,
     _group_quote_value,
     _render_group_element,
+    field_entry_suffix,
     is_governing_discriminator,
     param_key,
 )
@@ -1921,6 +1922,9 @@ def _dec_excel(entry: CatalogEntry, step_el: ET.Element) -> list[str]:
 _IMPORT_SOURCE_KIND = {"1": "File", "2": "Folder", "4": "XMLSource"}
 _IMPORT_XML_TYPE = {"1": "XMLFile", "2": "XMLHttp", "3": "XMLCalculation"}
 _IMPORT_XSL_TYPE = {"0": "NoXSL", "1": "XSLFile", "2": "XSLHttp", "3": "XSLCalculation"}
+# <Map kind> → the TargetFields map FileMaker copies out (FM 26.0.3, pasted and read
+# back). <Map Options> is the field's FieldOptions.
+_IMPORT_MAP_KIND = {"0": "Import", "1": "DoNotImport", "2": "Match"}
 _IMPORT_HTTP_INDEX = "2"
 _IMPORT_CALC_INDEX = "3"
 # <Options> bit FileMaker sets when the step names a data source. The export carries no
@@ -2065,10 +2069,17 @@ def _dec_import(entry: CatalogEntry, step_el: ET.Element) -> list[str]:
         fld = im.find("Field")
         ents = []
         if fld is not None:
+            tf = v.param(xml="TargetFields")
             for m in fld.findall("Map"):
                 fr = m.find("FieldReference")
                 ref = _field_ref_token(fr) if fr is not None else ""
-                ents.append(f"{ref}={'Import' if m.get('kind') == '0' else 'DoNotImport'}")
+                # <Map Options> is the copy's FieldOptions, written after the map
+                # as the catalog's hrEntrySuffix says.
+                kind = _IMPORT_MAP_KIND.get(m.get("kind", ""))
+                if kind is None:
+                    raise UnsupportedSaXML(f"{entry.name}: unknown field map kind {m.get('kind')!r}")
+                opts = ET.Element("Field", {"FieldOptions": m.get("Options", "0")})
+                ents.append(f"{ref}={kind}" + field_entry_suffix(tf, opts))
         v.set(", ".join(ents), xml="TargetFields")
     return v.list()
 

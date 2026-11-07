@@ -220,6 +220,7 @@ Field-object keys:
 | `entryAttrDefault` | Default for `entryAttr`.                                                                            |
 | `fieldWrapper`     | An element wrapping the `<Field>` inside each entry (e.g. `<PrimaryField><Field/></PrimaryField>`). |
 | `fieldFixedAttrs`  | Fixed attributes FileMaker always writes on each entry's `<Field>` (e.g. `FieldOptions="0"`).       |
+| `hrEntrySuffix`    | On a `fieldFixedAttrs` field: the attribute is the field's own setting, not fixed. HR writes it after the entry's value as this separator and the value, only when it differs from `defaultValue`, and reads it back from the last separator in the value (Import Records' FieldOptions: `Invoices::Date=Import:2`). An entry with a suffix and no value takes `entryAttrDefault`. |
 
 ```json
 {
@@ -233,7 +234,8 @@ Field-object keys:
       "key": "FieldOptions",
       "kind": "attr",
       "xmlAttr": "FieldOptions",
-      "defaultValue": "0"
+      "defaultValue": "0",
+      "hrEntrySuffix": ":"
     }
   ]
 }

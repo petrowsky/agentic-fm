@@ -51,6 +51,7 @@ import {
   groupUnquoteValue,
   resolveMirrorSource,
   resolveMirrorSibling,
+  splitFieldEntrySuffix,
 } from './catalog-grammar';
 
 // ---------------------------------------------------------------------------
@@ -1469,11 +1470,20 @@ function emitFieldList(param: GrammarParam, hrValue: string, resolver: IdResolve
     let fieldref = entryStr;
     let attrval = entryAttrDefault;
     const eq = entryStr.indexOf('=');
-    if (eq !== -1) { fieldref = trim(entryStr.slice(0, eq)); attrval = trim(entryStr.slice(eq + 1)); }
+    let suffixed: Record<string, string> = {};
+    if (eq !== -1) {
+      fieldref = trim(entryStr.slice(0, eq));
+      const split = splitFieldEntrySuffix(param, trim(entryStr.slice(eq + 1)));
+      attrval = split.value;
+      suffixed = split.found;
+      if (Object.keys(suffixed).length > 0 && !attrval) attrval = entryAttrDefault;
+    }
     const rf = resolveFieldRef(resolver, groupUnquoteValue(fieldref));
     let fattrs = '';
     for (const ff of fieldFixedAttrs) {
-      fattrs += ` ${rawStr(ff, 'xmlAttr')}="${escXmlAttr(rawStr(ff, 'defaultValue'))}"`;
+      const xattr = rawStr(ff, 'xmlAttr');
+      const fval = suffixed[xattr] || rawStr(ff, 'defaultValue');
+      fattrs += ` ${xattr}="${escXmlAttr(fval)}"`;
     }
     if (entryAttr && !entryElement) fattrs += ` ${entryAttr}="${escXmlAttr(attrval)}"`;
     let node = `<Field${fattrs} table="${escXml(rf.table)}" id="${rf.fieldId}" name="${escXml(rf.fieldName)}"/>`;

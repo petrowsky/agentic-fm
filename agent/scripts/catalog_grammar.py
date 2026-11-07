@@ -1202,6 +1202,37 @@ def _render_repeat_group_positional(container: ET.Element, param: StepParam) -> 
     return _hr_join(tokens, " ; ")
 
 
+def field_entry_suffix(param: StepParam, field_node: ET.Element) -> str:
+    """The HR suffix of a fieldList entry: each ``fieldFixedAttrs`` attribute that
+    declares ``hrEntrySuffix`` and differs from its default, as ``<suffix><value>``
+    after the entry's value (Import Records ``Invoices::Date=Import:2``)."""
+    out = ""
+    for ff in param.raw.get("fieldFixedAttrs", []) or []:
+        sep = ff.get("hrEntrySuffix", "")
+        if not sep:
+            continue
+        v = field_node.get(ff.get("xmlAttr", ""))
+        if v is not None and v != ff.get("defaultValue", ""):
+            out += sep + v
+    return out
+
+
+def split_field_entry_suffix(param: StepParam, value: str) -> tuple[str, dict[str, str]]:
+    """Inverse of :func:`field_entry_suffix`: the entry's value without its
+    suffixes, and each suffix attribute's value by ``xmlAttr``. The last declared
+    suffix is taken first, from the value's end."""
+    found: dict[str, str] = {}
+    for ff in reversed(param.raw.get("fieldFixedAttrs", []) or []):
+        sep = ff.get("hrEntrySuffix", "")
+        if not sep:
+            continue
+        i = value.rfind(sep)
+        if i != -1:
+            found[ff.get("xmlAttr", "")] = value[i + len(sep):].strip()
+            value = value[:i]
+    return value.strip(), found
+
+
 def _render_field_list(container: ET.Element, param: StepParam) -> str:
     entry_el = param.raw.get("entryElement", "")
     entry_attr = param.raw.get("entryAttr", "")
@@ -1215,10 +1246,14 @@ def _render_field_list(container: ET.Element, param: StepParam) -> str:
         name = field_node.get("name", "")
         fieldref = _field_ref_hr(table, name)
         token = _group_quote_value(fieldref)
+        value = ""
         if entry_attr:
             attr_node = field_node if not entry_el else entry_node
             if attr_node is not None:
-                token += "=" + (attr_node.get(entry_attr, "") or "")
+                value = attr_node.get(entry_attr, "") or ""
+        suffix = field_entry_suffix(param, field_node)
+        if entry_attr or suffix:
+            token += "=" + value + suffix
         tokens.append(token)
 
     if entry_el:

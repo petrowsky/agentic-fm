@@ -4044,10 +4044,10 @@
         "entryAttr": "map",
         "entryAttrDefault": "Import",
         "fieldFixedAttrs": [
-          { "key": "FieldOptions", "kind": "attr", "xmlAttr": "FieldOptions", "defaultValue": "0" }
+          { "key": "FieldOptions", "kind": "attr", "xmlAttr": "FieldOptions", "defaultValue": "0", "hrEntrySuffix": ":" }
         ],
         "required": false,
-        "notes": "fieldList (Cluster 1): ordered target field mapping. Each entry is a direct <Field FieldOptions=\"0\" map=\"Import|DoNotImport|Match\"/>. HR token `Import fields: Table::Field=Import, ...`. map=Match only with method=UpdateOnMatch."
+        "notes": "fieldList (Cluster 1): ordered target field mapping. Each entry is a direct <Field FieldOptions=\"0\" map=\"Import|DoNotImport|Match\"/>. HR token `Import fields: Table::Field=Import, ...`. map=Match only with method=UpdateOnMatch. FieldOptions is the field's own import options, a number FileMaker keeps as given and never draws: the HR writes it after the map when it is not 0 (`Invoices::Date=Import:2`, hrEntrySuffix). 2 is Perform auto-enter options for that field: FileMaker keeps it only on a field with auto-enter options, drops it on any other, and sets it on every field it adds when AutoEnter is True. 1, 4, 8 and 16 are kept on any field; their meaning is not measured (FM 26.0.3, pasted and read back)."
       }
     ],
     "hrSignature": "[ With dialog: On|Off ; Table: table ; path ; Add|Update|Replace ; charset ; Verify SSL Certificates ]",

@@ -814,6 +814,45 @@ function renderRepeatGroupPositional(container: Element, param: GrammarParam): s
   return hrJoin(tokens, ' ; ');
 }
 
+/**
+ * The HR suffix of a fieldList entry: each `fieldFixedAttrs` attribute that
+ * declares `hrEntrySuffix` and differs from its default, as `<suffix><value>`
+ * after the entry's value (Import Records `Invoices::Date=Import:2`).
+ */
+export function fieldEntrySuffix(param: GrammarParam, fieldNode: Element): string {
+  let out = '';
+  for (const ff of (param.raw.fieldFixedAttrs as Record<string, unknown>[] | undefined) ?? []) {
+    const sep = (ff.hrEntrySuffix as string) ?? '';
+    if (!sep) continue;
+    const v = fieldNode.getAttribute((ff.xmlAttr as string) ?? '');
+    if (v !== null && v !== ((ff.defaultValue as string) ?? '')) out += sep + v;
+  }
+  return out;
+}
+
+/**
+ * Inverse of fieldEntrySuffix: the entry's value without its suffixes, and each
+ * suffix attribute's value by xmlAttr. The last declared suffix is taken first,
+ * from the value's end.
+ */
+export function splitFieldEntrySuffix(
+  param: GrammarParam,
+  value: string,
+): { value: string; found: Record<string, string> } {
+  const found: Record<string, string> = {};
+  const ffs = ((param.raw.fieldFixedAttrs as Record<string, unknown>[] | undefined) ?? []).slice().reverse();
+  for (const ff of ffs) {
+    const sep = (ff.hrEntrySuffix as string) ?? '';
+    if (!sep) continue;
+    const i = value.lastIndexOf(sep);
+    if (i !== -1) {
+      found[(ff.xmlAttr as string) ?? ''] = value.slice(i + sep.length).trim();
+      value = value.slice(0, i);
+    }
+  }
+  return { value: value.trim(), found };
+}
+
 function renderFieldList(container: Element, param: GrammarParam): string {
   const entryEl = (param.raw.entryElement as string) ?? '';
   const entryAttr = (param.raw.entryAttr as string) ?? '';
@@ -826,10 +865,13 @@ function renderFieldList(container: Element, param: GrammarParam): string {
     const name = fieldNode.getAttribute('name') ?? '';
     const fieldref = fieldRefHr(table, name);
     let token = groupQuoteValue(fieldref);
+    let value = '';
     if (entryAttr) {
       const attrNode = !entryEl ? fieldNode : entryNode;
-      if (attrNode !== null) token += '=' + (attrNode.getAttribute(entryAttr) ?? '');
+      if (attrNode !== null) value = attrNode.getAttribute(entryAttr) ?? '';
     }
+    const suffix = fieldEntrySuffix(param, fieldNode);
+    if (entryAttr || suffix) token += '=' + value + suffix;
     tokens.push(token);
   };
 
