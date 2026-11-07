@@ -824,7 +824,7 @@
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"119\" name=\"Move/Resize Window\">\n    <LimitToWindowsOfCurrentFile state=\"True\"/>\n    <Window value=\"ByName\"/>\n    <Name>\n      <Calculation><![CDATA[\"window name\"]]></Calculation>\n    </Name>\n    <Height>\n      <Calculation><![CDATA[400 // Pixels]]></Calculation>\n    </Height>\n    <Width>\n      <Calculation><![CDATA[600 // Pixels]]></Calculation>\n    </Width>\n    <DistanceFromTop>\n      <Calculation><![CDATA[100 // Pixels from top of screen]]></Calculation>\n    </DistanceFromTop>\n    <DistanceFromLeft>\n      <Calculation><![CDATA[100 // Pixels from left of screen]]></Calculation>\n    </DistanceFromLeft>\n  </Step>\n</fmxmlsnippet>"
   },
   "windows/New Window.xml": {
-    "hr": "New Window [ Style: Document ; Controls: Toolbars, Menu Bar, Close, Minimize, Maximize, Resize ; Layout: <unknown> ]",
+    "hr": "New Window [ Style: Document ; Controls: Toolbars, Menu Bar, Close, Minimize, Maximize, Resize ; Using layout: <unknown> ]",
     "xml": "<?xml version=\"1.0\"?>\n<fmxmlsnippet type=\"FMObjectList\">\n  <Step enable=\"True\" id=\"122\" name=\"New Window\">\n    <LayoutDestination value=\"SelectedLayout\"/>\n    <NewWndStyles DimParentWindow=\"No\" Toolbars=\"Yes\" MenuBar=\"Yes\" Style=\"Document\" Close=\"Yes\" Minimize=\"Yes\" Maximize=\"Yes\" Resize=\"Yes\" Styles=\"1076299266\"/>\n    <Layout id=\"0\" name=\"\"/>\n  </Step>\n</fmxmlsnippet>"
   },
   "windows/Refresh Window.xml": {

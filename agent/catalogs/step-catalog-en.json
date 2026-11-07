@@ -5285,9 +5285,13 @@
         "xmlAttr": "value",
         "defaultValue": "SelectedLayout",
         "enumValues": [
-          "SelectedLayout"
+          "SelectedLayout",
+          "CurrentLayout",
+          "LayoutNameByCalc",
+          "LayoutNumberByCalc"
         ],
-        "hrHidden": true
+        "hrHidden": true,
+        "notes": "Driven discriminator for the sibling Layout (type:layout), encoded in the layout token. Measured FM 26.0.3: OriginalLayout is NOT legal here (FileMaker keeps SelectedLayout and drops the layout)."
       },
       {
         "xmlElement": "Calculation",
@@ -5464,19 +5468,20 @@
       {
         "xmlElement": "Layout",
         "type": "layout",
-        "hrLabel": "Layout",
+        "hrLabel": "Using layout",
         "hrLabelWhen": [
           {
             "param": "LayoutDestination",
             "values": [],
-            "hrLabel": "Using layout"
+            "hrLabel": "Layout"
           }
         ],
         "required": true,
+        "discriminator": "LayoutDestination",
         "hrSlot": 2
       }
     ],
-    "hrSignature": "[ Style: Document ; Name: \"name\" ; Layout: <unknown> ; Controls: Close, Resize ]",
+    "hrSignature": "[ Style: Document ; Name: \"name\" ; Using layout: <unknown> ; Controls: Close, Resize ]",
     "blockPair": null,
     "status": "complete",
     "helpUrl": "https://help.claris.com/en/pro-help/content/new-window.html",

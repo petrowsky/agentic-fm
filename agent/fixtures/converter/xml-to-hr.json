@@ -205,7 +205,7 @@
   "windows/Close Window.xml": "Close Window [ Current file ]",
   "windows/Freeze Window.xml": "Freeze Window",
   "windows/Move_Resize Window.xml": "Move/Resize Window [ Name: \"window name\" ; Current file ; Height: 400 // Pixels ; Width: 600 // Pixels ; Top: 100 // Pixels from top of screen ; Left: 100 // Pixels from left of screen ]",
-  "windows/New Window.xml": "New Window [ Style: Document ; Controls: Toolbars, Menu Bar, Close, Minimize, Maximize, Resize ; Layout: <unknown> ]",
+  "windows/New Window.xml": "New Window [ Style: Document ; Controls: Toolbars, Menu Bar, Close, Minimize, Maximize, Resize ; Using layout: <unknown> ]",
   "windows/Refresh Window.xml": "Refresh Window [ ]",
   "windows/Scroll Window.xml": "Scroll Window [ Home ]",
   "windows/Select Window.xml": "Select Window [ Name: \"name\" ; Current file ]",

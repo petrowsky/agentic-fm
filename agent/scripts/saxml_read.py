@@ -235,21 +235,43 @@ def _target_token(ref_el: ET.Element, allow_calc: bool = True) -> str:
     return tok + _repetition_suffix(ref_el, allow_calc) if tok else ""
 
 
-def _layout_token_from_lrc(lrc: ET.Element) -> str:
+def _layout_destinations(entry: CatalogEntry, param: StepParam) -> list[str]:
+    """The LayoutDestination values a discriminated layout param's step offers
+    (its discriminator's ``enumValues``); empty when the param has none."""
+    if not param.discriminator:
+        return []
+    for p in entry.params:
+        if p.xml_element == param.discriminator:
+            return list(p.enum_values)
+    return []
+
+
+def _layout_token_from_lrc(lrc: ET.Element, destinations: list[str] | None = None) -> str:
     """A ``<LayoutReferenceContainer value="N">`` → the emit's layout HR token.
 
     The ``value`` number is the destination discriminator (mirrors the exploder's
     layout_reference.rs): 5 = a named ``<LayoutReference>`` (SelectedLayout); 3 =
     LayoutNameByCalc; 4 = LayoutNumberByCalc; 1 = a ``<Label>`` (original/current
-    layout). The emit's ``_resolve_layout_token`` reverses these."""
+    layout). The emit's ``_resolve_layout_token`` reverses these.
+
+    ``destinations`` (the step's LayoutDestination values) settles 1 and 0.
+    Measured on FileMaker Pro 26.0.3: the export labels a CurrentLayout step
+    ``original layout`` (value 1) on every step, and a New Window saved in an older
+    form exports CurrentLayout as an empty value 0. On a step that offers no
+    OriginalLayout, both are CurrentLayout."""
     lr = lrc.find("LayoutReference")
     if lr is not None:
         return '"' + lr.get("name", "") + '"'
     val = lrc.get("value", "")
+    offers = destinations or []
+    if val in ("0", "1") and "OriginalLayout" not in offers and "CurrentLayout" in offers:
+        return "<Current Layout>"
+    if val == "0":
+        raise UnsupportedSaXML("layout destination 0 on a step that offers no CurrentLayout")
     if val == "3":
-        # Bare calculation, matching what FileMaker itself renders and what the
-        # grammar now emits; the emit reads a bare calc back as LayoutNameByCalc.
-        return _calc_text(lrc)
+        # Keeps the keyword: a bare calc that is a quoted literal ("Dashboard")
+        # reads back as a named layout, not as a calculation.
+        return "by name: " + _calc_text(lrc)
     if val == "4":
         # Keeps the keyword: FileMaker renders number-by-calculation identically
         # to name-by-calculation, so a bare calc could not round-trip as this one.
@@ -1035,7 +1057,7 @@ def _extract_simple(
             lrc = sp.find("LayoutReferenceContainer")
             if lrc is not None:
                 consumed[i] = True
-                return _layout_token_from_lrc(lrc)
+                return _layout_token_from_lrc(lrc, _layout_destinations(entry, param))
             lay = sp.find("Layout")
             if lay is not None:
                 consumed[i] = True
@@ -1453,11 +1475,9 @@ def _dec_new_window(entry: CatalogEntry, step_el: ET.Element) -> list[str]:
     if nm is not None and _find_value_calc(nm) is not None:
         v.set(_calc_text(nm), wrap="Name")
     lrc = wr.find("LayoutReferenceContainer")
-    lr = lrc.find("LayoutReference") if lrc is not None else None
-    if lr is not None:
-        v.set('"' + lr.get("name", "") + '"', xml="Layout")
-    # A by-calc New Window layout is dropped in FM's own fmxmlsnippet (the catalog's
-    # non-discriminated Layout can't carry it) — leave empty to match.
+    lay = v.param(xml="Layout")
+    if lrc is not None and lay is not None:
+        v.set(_layout_token_from_lrc(lrc, _layout_destinations(entry, lay)), xml="Layout")
     bounds = wr.find("Bounds")
     if bounds is not None:
         for tag, wrap in (("height", "Height"), ("width", "Width"),
@@ -1570,7 +1590,9 @@ def _dec_gtrr(entry: CatalogEntry, step_el: ET.Element) -> list[str]:
         v.set(tor.get("name", ""), xml="Table")
     lrc = rel.find("LayoutReferenceContainer")
     if lrc is not None:
-        v.set(_layout_token_from_lrc(lrc), xml="Layout")  # LayoutDestination derived on emit
+        lay = v.param(xml="Layout")
+        v.set(_layout_token_from_lrc(lrc, _layout_destinations(entry, lay) if lay else None),
+              xml="Layout")  # LayoutDestination derived on emit
     # <WindowReference> present ⇒ result opens a new window.
     if rel.find("WindowReference") is not None:
         v.set("On", xml="ShowInNewWindow")
