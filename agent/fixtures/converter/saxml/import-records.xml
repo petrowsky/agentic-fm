@@ -3,20 +3,31 @@
   <ObjectList>
     <Step id="35" name="Import Records" enable="True">
       <Options>33587362</Options>
-      <ParameterValues membercount="3">
+      <ParameterValues membercount="4">
         <Parameter type="Boolean">
           <Boolean type="Verify SSL Certificates" id="268435456" value="False" />
         </Parameter>
         <Parameter type="Boolean">
           <Boolean type="With dialog" id="128" value="False" />
         </Parameter>
+        <Parameter type="DataSourceReference">
+          <DataSourceReference fileType="COMS" isPredefined="False" delimiter="1" value="1">
+            <UniversalPathList fileType="COMS" membercount="1">
+              <ObjectList>
+                <Location>file:data/a.csv</Location>
+              </ObjectList>
+            </UniversalPathList>
+          </DataSourceReference>
+        </Parameter>
         <Parameter type="ImportField">
-          <ImportField addasnew="False">
-            <Options keepOriginalData="False" copyContainersAsIs="False" matchFieldNames="False" doAutoEntry="True" splitRepetitions="False" />
-            <Target />
+          <ImportField addasnew="True" isPredefined="False" delimiter="1" fieldNameRow="1">
+            <Options keepOriginalData="True" copyContainersAsIs="False" matchFieldNames="False" doAutoEntry="True" splitRepetitions="False" />
+            <Target>
+              <TableOccurrenceReference id="1065094" name="Invoices" />
+            </Target>
             <Field membercount="0" />
-            <CharacterSet name="UTF-8" value="5" />
-            <action name="Add" value="0" />
+            <CharacterSet name="Windows ANSI" value="0" />
+            <action name="Update" value="2" />
           </ImportField>
         </Parameter>
       </ParameterValues>

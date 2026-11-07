@@ -29,11 +29,12 @@ from __future__ import annotations
 
 import xml.etree.ElementTree as ET
 
-from calc_literal import hr_sep, quote_calc_literal
+from calc_literal import decode_whole_calc_literal, hr_sep, quote_calc_literal
 from catalog_grammar import (
     CatalogEntry,
     StepParam,
     _group_quote_value,
+    _render_group_element,
     is_governing_discriminator,
     param_key,
 )
@@ -1882,7 +1883,110 @@ def _dec_excel(entry: CatalogEntry, step_el: ET.Element) -> list[str]:
     return v.list()
 
 
-# ── Import Records (ImportOptions + TargetFields map fieldList) ────────────────
+# ── Import Records (source Profile + ImportOptions + TargetFields map fieldList) ─
+# Measured against FileMaker Pro 26.0.3: 53 Import Records steps pasted into a
+# script, copied back, and exported with Save a Copy as XML, each export compared
+# with FileMaker's copy of the same step.
+#
+# <DataSourceReference value> is the source kind and fileType the Profile's
+# DataType. isPredefined is FileMaker's IsPredefined: True for 1, False for 0 and for
+# an unset -1; the delimiter attribute holds the FieldDelimiter for 1 and 0 and
+# repeats the source kind for -1, where FileMaker exports no delimiter (it neither
+# draws nor uses one then, so the Profile takes the catalog default). FieldNameRow is
+# <ImportField fieldNameRow>. An XML source has an <XML index> (1 file, 2 http, 3
+# calculation) and an <XSL index> (0 none, 1 file, 2 http, 3 calculation); an http
+# source is exported as a text literal, a file source as a path list.
+_IMPORT_SOURCE_KIND = {"1": "File", "2": "Folder", "4": "XMLSource"}
+_IMPORT_XML_TYPE = {"1": "XMLFile", "2": "XMLHttp", "3": "XMLCalculation"}
+_IMPORT_XSL_TYPE = {"0": "NoXSL", "1": "XSLFile", "2": "XSLHttp", "3": "XSLCalculation"}
+_IMPORT_HTTP_INDEX = "2"
+_IMPORT_CALC_INDEX = "3"
+# <Options> bit FileMaker sets when the step names a data source. The export carries no
+# <DataSourceReference> for a source given without a format, so the bit is what tells
+# such a step from one with no source at all.
+_IMPORT_SOURCE_SET_BIT = 0x20
+# SaXML <Options> attribute → <ImportOptions> attribute (same values).
+_IMPORT_OPTION_ATTRS = (
+    ("keepOriginalData", "KeepOriginalData"),
+    ("copyContainersAsIs", "PreserveContainer"),
+    ("matchFieldNames", "MatchFieldNames"),
+    ("doAutoEntry", "AutoEnter"),
+    ("splitRepetitions", "SplitRepetitions"),
+)
+
+
+def _path_list_text(upl: ET.Element | None) -> str:
+    """A SaXML ``<UniversalPathList>``'s paths as FileMaker's path list (one per line)."""
+    if upl is None:
+        return ""
+    return "\n".join(loc.text or "" for loc in upl.iter("Location"))
+
+
+def _import_http_source(entry: CatalogEntry, src: ET.Element) -> str:
+    text = _calc_of(src)
+    value = decode_whole_calc_literal(text) if text else ""
+    if value is None:
+        raise UnsupportedSaXML(f"{entry.name}: http source {text!r} is not one text literal")
+    return value
+
+
+def _import_profile(entry: CatalogEntry, dsr: ET.Element, imf: ET.Element | None) -> ET.Element:
+    """The fmxmlsnippet ``<Profile>`` FileMaker copies out for this source."""
+    prof = ET.Element("Profile")
+    delim = dsr.get("delimiter", "")
+    if dsr.get("isPredefined") == "True":
+        prof.set("IsPredefined", "1")
+        prof.set("FieldDelimiter", delim)
+    elif delim == dsr.get("value"):
+        prof.set("IsPredefined", "-1")
+    else:
+        prof.set("IsPredefined", "0")
+        prof.set("FieldDelimiter", delim)
+    if imf is not None and imf.get("fieldNameRow") is not None:
+        prof.set("FieldNameRow", imf.get("fieldNameRow", ""))
+    prof.set("DataType", dsr.get("fileType", ""))
+    if dsr.get("value") != "4":
+        return prof
+    xml_src, xsl_src = dsr.find("XML"), dsr.find("XSL")
+    if xml_src is None and xsl_src is None:
+        return prof  # an XML source with no source chosen: FileMaker writes no XMLType
+    if xml_src is None or xsl_src is None or xml_src.get("index") is None \
+            or xsl_src.get("index") is None:
+        raise UnsupportedSaXML(f"{entry.name}: XML source without the <XML index> / <XSL index> pair")
+    xml_index, xsl_index = xml_src.get("index", ""), xsl_src.get("index", "")
+    if xml_index not in _IMPORT_XML_TYPE or xsl_index not in _IMPORT_XSL_TYPE:
+        raise UnsupportedSaXML(f"{entry.name}: unknown XML source index {xml_index!r} / XSL {xsl_index!r}")
+    if xml_index == "1":
+        # FileMaker exports the step's path list here, never its <XMLFile>: a pasted
+        # XMLFile exports as an empty list and a stray path list in its place.
+        raise UnsupportedSaXML(
+            f"{entry.name}: FileMaker's Save as XML does not export an XML file source")
+    prof.set("XMLType", _IMPORT_XML_TYPE[xml_index])
+    prof.set("XSLType", _IMPORT_XSL_TYPE[xsl_index])
+    if xml_index == _IMPORT_HTTP_INDEX:
+        ET.SubElement(prof, "XMLHttp").text = _import_http_source(entry, xml_src)
+    elif _calc_of(xml_src):
+        ET.SubElement(ET.SubElement(prof, "XMLCalc"), "Calculation").text = _calc_of(xml_src)
+    if xsl_index == "1":
+        ET.SubElement(prof, "XSLFile").text = _path_list_text(xsl_src.find("UniversalPathList"))
+    elif xsl_index == _IMPORT_HTTP_INDEX:
+        ET.SubElement(prof, "XSLHttp").text = _import_http_source(entry, xsl_src)
+    elif xsl_index == _IMPORT_CALC_INDEX and _calc_of(xsl_src):
+        ET.SubElement(ET.SubElement(prof, "XSLCalc"), "Calculation").text = _calc_of(xsl_src)
+    return prof
+
+
+def _import_enum_value(entry: CatalogEntry, group_field: str, label: str) -> str:
+    """A SaXML label (``Update``, ``Windows ANSI``) → the value FileMaker writes, from
+    the catalog's display projection of that ImportOptions field."""
+    proj = next((p for p in entry.params
+                 if p.xml_element == "ImportOptions" and p.group_fields == [group_field]), None)
+    for value, mapped in (proj.hr_enum_values.items() if proj is not None else ()):
+        if mapped == label:
+            return value
+    raise UnsupportedSaXML(f"{entry.name}: unknown {group_field} {label!r}")
+
+
 @_decoder("Import Records")
 def _dec_import(entry: CatalogEntry, step_el: ET.Element) -> list[str]:
     v = _Vals(entry)
@@ -1894,32 +1998,48 @@ def _dec_import(entry: CatalogEntry, step_el: ET.Element) -> list[str]:
                 v.set(on, xml="NoInteract")
             elif b.get("type") == "Verify SSL Certificates":
                 v.set(on, xml="VerifySSLCertificates")
-    # The import source path lives in <DataSourceReference> (real imports) or a bare
-    # <UniversalPathList> (degenerate). DataSourceReference also names the source type.
-    dsr = _ptype(step_el, "DataSourceReference")
-    src = dsr if dsr is not None else _ptype(step_el, "UniversalPathList")
-    if src is not None:
-        loc = src.find(".//Location")
-        if loc is not None:
-            v.set(loc.text or "", xml="UniversalPathList")
-        v.set("File", xml="DataSourceType")
     imp = _ptype(step_el, "ImportField")
     im = imp.find("ImportField") if imp is not None else None
+    dp = _ptype(step_el, "DataSourceReference")
+    dsr = dp.find("DataSourceReference") if dp is not None else None
+    if dsr is None:
+        if _options_bit(step_el, _IMPORT_SOURCE_SET_BIT):
+            raise UnsupportedSaXML(
+                f"{entry.name}: the step names a data source FileMaker's Save as XML does not export")
+        v.set("File", xml="DataSourceType")
+    else:
+        kind = _IMPORT_SOURCE_KIND.get(dsr.get("value", ""))
+        if kind is None:
+            raise UnsupportedSaXML(f"{entry.name}: unknown data source kind {dsr.get('value')!r}")
+        v.set(kind, xml="DataSourceType")
+        prof_param = v.param(xml="Profile")
+        v.set(_render_group_element(_import_profile(entry, dsr, im),
+                                    prof_param.raw.get("fields") or []), xml="Profile")
+        if kind != "XMLSource":
+            path = _path_list_text(dsr.find("UniversalPathList"))
+            v.set(_quoted_text_token(v.param(xml="UniversalPathList"), path),
+                  xml="UniversalPathList")
     if im is not None:
         o = im.find("Options")
         cs = im.find("CharacterSet")
         act = im.find("action")
-        opts = []
+        io = ET.Element("ImportOptions")
         if cs is not None:
-            opts.append(f"CharacterSet={cs.get('name', '')}")
+            io.set("CharacterSet", _import_enum_value(entry, "CharacterSet", cs.get("name", "")))
+        if im.get("addasnew") == "True":
+            io.set("AddRemainingRecords", "True")
         if o is not None:
-            opts.append(f"PreserveContainer={o.get('copyContainersAsIs', 'False')}")
-            opts.append(f"MatchFieldNames={o.get('matchFieldNames', 'False')}")
-            opts.append(f"AutoEnter={o.get('doAutoEntry', 'True')}")
-            opts.append(f"SplitRepetitions={o.get('splitRepetitions', 'False')}")
+            for saxml_attr, attr in _IMPORT_OPTION_ATTRS:
+                if o.get(saxml_attr) is not None:
+                    io.set(attr, o.get(saxml_attr, ""))
         if act is not None:
-            opts.append(f"method={act.get('name', 'Add')}")
-        v.set(", ".join(opts), xml="ImportOptions")
+            io.set("method", _import_enum_value(entry, "method", act.get("name", "")))
+        group = next(p for p in entry.params
+                     if p.xml_element == "ImportOptions" and p.type == "attrGroup")
+        v.set(_render_group_element(io, group.raw.get("fields") or []), xml="ImportOptions")
+        tor = im.find("Target/TableOccurrenceReference")
+        if tor is not None:
+            v.set(tor.get("name", ""), xml="Table")
         fld = im.find("Field")
         ents = []
         if fld is not None:
