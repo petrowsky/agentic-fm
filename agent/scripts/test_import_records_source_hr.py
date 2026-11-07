@@ -89,7 +89,19 @@ def test_method_and_character_set_labels():
             assert f'method="{xml_method}"' in xml, (label, xml)
             assert f'CharacterSet="{stored}"' in xml, (shown, xml)
             line = _line(xml)
-            assert f"; {label} ; {shown} ;" in line, (label, shown, line)
+            assert re.search(rf"; {label} ; {re.escape(shown)}( ;| \]$)", line), (label, shown, line)
+
+
+def test_table_without_method_or_character_set_writes_the_defaults():
+    # Given no <ImportOptions>, FileMaker reads the file as Mac Roman. Written
+    # back at its catalog defaults (FM 26.0.3), the step keeps UTF-8 and draws
+    # `Add; UTF-8`. Off the defaults, the tokens still win.
+    xml = _emit('Import Records [ With dialog: Off ; Table: Invoices ; "$n" ]')
+    assert '<Restore state="True"' in xml, xml
+    assert 'CharacterSet="UTF-8"' in xml and 'method="Add"' in xml and 'AutoEnter="True"' in xml, xml
+    assert 'AddRemainingRecords' not in xml, xml
+    xml = _emit('Import Records [ With dialog: Off ; Table: Invoices ; "$n" ; Update ; Mac Roman ]')
+    assert 'CharacterSet="Macintosh"' in xml and 'method="UpdateOnMatch"' in xml, xml
 
 
 if __name__ == "__main__":

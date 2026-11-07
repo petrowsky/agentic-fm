@@ -110,6 +110,21 @@ describe('Import Records source Profile', () => {
     const xml = hrToXml(`Import Records [ With dialog: On ; Table: T ; "$p" ; ${label} ; ${shown} ]`).xml;
     expect(xml).toContain(`method="${method}"`);
     expect(xml).toContain(`CharacterSet="${stored}"`);
-    expect(xmlToHr(xml)).toContain(`; ${label} ; ${shown} ;`);
+    expect(xmlToHr(xml)).toMatch(new RegExp(`; ${label} ; ${shown.replace(/[()]/g, '\\$&')}( ;| \\]$)`));
+  });
+
+  it('writes the default options for a table line with no method or character set', () => {
+    // Given no <ImportOptions>, FileMaker reads the file as Mac Roman. Written
+    // back at its catalog defaults (FM 26.0.3), the step keeps UTF-8 and draws
+    // `Add; UTF-8`. Off the defaults, the tokens still win.
+    const xml = hrToXml('Import Records [ With dialog: Off ; Table: Invoices ; "$n" ]').xml;
+    expect(xml).toContain('<Restore state="True"');
+    expect(xml).toContain('CharacterSet="UTF-8"');
+    expect(xml).toContain('method="Add"');
+    expect(xml).toContain('AutoEnter="True"');
+    expect(xml).not.toContain('AddRemainingRecords');
+    const set = hrToXml('Import Records [ With dialog: Off ; Table: Invoices ; "$n" ; Update ; Mac Roman ]').xml;
+    expect(set).toContain('CharacterSet="Macintosh"');
+    expect(set).toContain('method="UpdateOnMatch"');
   });
 });

@@ -3983,6 +3983,7 @@
         "hrSlot": 7,
         "type": "attrGroup",
         "hrLabel": "Import options",
+        "hrOmitAtDefault": true,
         "fmLineHidden": true,
         "visibleWhen": { "param": "Restore", "values": ["True"] },
         "required": false,
