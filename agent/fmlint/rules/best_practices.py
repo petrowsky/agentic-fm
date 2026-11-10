@@ -51,7 +51,9 @@ class ErrorCapturePaired(LintRule):
             name = step.get("name", "")
 
             if name == "Set Error Capture":
-                state_el = step.find("State")
+                state_el = step.find("Set")
+                if state_el is None:
+                    state_el = step.find("State")
                 if state_el is not None and state_el.get("state") == "False":
                     continue  # [Off], skip
                 if not has_error_capture_on:
@@ -411,11 +413,18 @@ class RecordLockUnchecked(LintRule):
         has_record_modify = False
 
         for idx, step in enumerate(steps):
+            # Disabled steps never execute — they cannot acquire a record lock,
+            # enable error capture, or satisfy an error check.
+            if step.get("enable") == "False":
+                continue
+
             name = step.get("name", "")
 
             # Detect Set Error Capture [On]
             if name == "Set Error Capture":
-                state_el = step.find("State")
+                state_el = step.find("Set")
+                if state_el is None:
+                    state_el = step.find("State")
                 if state_el is not None and state_el.get("state") == "False":
                     continue
                 has_error_capture_on = True
