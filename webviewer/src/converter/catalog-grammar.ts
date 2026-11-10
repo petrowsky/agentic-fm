@@ -557,9 +557,52 @@ function paramVisible(entry: GrammarEntry, step: Element, param: GrammarParam): 
   for (const q of entry.params) {
     if (paramKey(q) !== vw.param) continue;
     const v = readGateRawValue(entry, step, q) || (q.defaultValue || '');
-    return vw.values.includes(v);
+    if (vw.values.includes(v)) return true;
+    // hrOffKeepsGated: FileMaker keeps this companion with the gate off, so the
+    // HR shows it when it differs from its default.
+    return q.raw.hrOffKeepsGated === true && keptWhileOff(entry, step, param);
   }
   return true;
+}
+
+/** The `hrOffKeepsGated` gate a param's `visibleWhen` names, or null. */
+function offKeptGate(entry: GrammarEntry, param: GrammarParam): GrammarParam | null {
+  const vw = param.visibleWhen;
+  if (vw === null || !vw.param) return null;
+  const q = entry.params.find((x) => paramKey(x) === vw.param);
+  return q !== undefined && q.raw.hrOffKeepsGated === true ? q : null;
+}
+
+/**
+ * Whether a companion of an `hrOffKeepsGated` gate holds a value other than its
+ * default: a token, and for an enum not its default's label. The emitter writes
+ * the default back, so only these need the HR.
+ */
+function keptWhileOff(entry: GrammarEntry, step: Element, param: GrammarParam): boolean {
+  const val = computeParamHr(entry, step, param);
+  if (!val) return false;
+  if (param.type === 'enum') {
+    const d = param.defaultValue || '';
+    return val !== (param.hrEnumValues[d] || d);
+  }
+  return true;
+}
+
+/**
+ * `<hrLabel>: Off` for an `hrOffKeepsGated` gate that is off while a companion
+ * it gates holds a non-default value (Import Records' `Specify import order:
+ * Off`); otherwise nothing, and the state is derived.
+ */
+function offKeptToken(entry: GrammarEntry, step: Element, gate: GrammarParam): string {
+  const key = paramKey(gate);
+  const gated = entry.params.filter(
+    (q) => q.visibleWhen !== null && q.visibleWhen.param === key && q.visibleWhen.values.length > 0,
+  );
+  if (gated.length === 0 || !gate.hrLabel) return '';
+  const v = readGateRawValue(entry, step, gate) || (gate.defaultValue || '');
+  if (gated[0].visibleWhen!.values.includes(v)) return '';
+  if (!gated.some((q) => keptWhileOff(entry, step, q))) return '';
+  return gate.hrLabel + ': Off';
 }
 
 /** Indices in HR render order — catalog order unless some param sets hrSlot. */
@@ -599,6 +642,15 @@ function repetitionCalcOf(fld: Element): string {
 export const FIELD_MISSING_SENTINEL = '<Field Missing>';
 
 /**
+ * FileMaker's drawing of a field reference with no table and no field: it stores
+ * `<Field table="" id="0" name=""/>` and draws `<Table Missing>` in the slot of a
+ * single-field param (params marked `hrNoTableBlank` draw nothing). An absent
+ * `<Field>` draws no field token. The emit side reads the sentinel back to the
+ * empty reference.
+ */
+export const TABLE_MISSING_SENTINEL = '<Table Missing>';
+
+/**
  * The HR token of a stored `<Field table id name/>`, drawn the way FileMaker
  * draws it: `Table::Field`, the bare name when there is no table, and
  * `Table::<Field Missing>` when there is a table but no field. No table and no
@@ -608,6 +660,17 @@ function fieldRefHr(table: string, name: string): string {
   if (name) return !table ? name : table + '::' + name;
   if (table) return table + '::' + FIELD_MISSING_SENTINEL;
   return '';
+}
+
+/**
+ * A single-field param's stored reference, drawn as FileMaker draws it:
+ * `fieldRefHr`, plus `<Table Missing>` for no table and no field unless the
+ * catalog marks the param `hrNoTableBlank`. Field lists, find requests and group
+ * fields keep `fieldRefHr`: their unconfigured entries draw nothing.
+ */
+function fieldParamRefHr(param: GrammarParam, table: string, name: string): string {
+  if (!table && !name && !param.raw.hrNoTableBlank) return TABLE_MISSING_SENTINEL;
+  return fieldRefHr(table, name);
 }
 
 /**
@@ -633,6 +696,60 @@ function withRepetitionSuffix(ref: string, fld: Element): string {
 // ---------------------------------------------------------------------------
 // Group / repeat / list renderers
 // ---------------------------------------------------------------------------
+/**
+ * Whether a group element is exactly its catalog default (`hrOmitAtDefault`):
+ * every non-optional attr present at its `defaultValue`, every optional attr
+ * absent, a calc / text child present holding its `defaultValue` when it has
+ * one and absent otherwise (a calc's `requireAttr` reading its presence), no
+ * field / script child, every sub-group present and at default. The element
+ * the emitter writes back for an absent token.
+ */
+function groupAtDefault(node: Element, fields: Record<string, unknown>[]): boolean {
+  for (const f of fields) {
+    const kind = (f.kind as string) ?? '';
+    const def = (f.defaultValue as string) ?? '';
+    if (kind === 'attr') {
+      const a = node.getAttribute((f.xmlAttr as string) ?? '');
+      if (f.optional) {
+        if (a !== null) return false;
+        continue;
+      }
+      if (a === null || a !== def) return false;
+    } else if (kind === 'text') {
+      const child = findChild(node, (f.childElement as string) ?? '');
+      if (!def) {
+        if (child !== null) return false;
+        continue;
+      }
+      if (child === null || elemText(child) !== def) return false;
+    } else if (kind === 'calc') {
+      const childEl = (f.childElement as string) ?? '';
+      const calc = childEl ? findChild(node, childEl) : findChild(node, 'Calculation');
+      const has = calc !== null;
+      if (has !== (def !== '')) return false;
+      if (calc !== null) {
+        const v = childEl ? childText(calc, 'Calculation') : elemText(calc);
+        if (v !== def) return false;
+      }
+      const req = (f.requireAttr as string) ?? '';
+      if (req && node.getAttribute(req) !== (has ? 'True' : 'False')) return false;
+    } else if (kind === 'group') {
+      const sub = findChild(node, (f.element as string) ?? '');
+      if (sub === null || !groupAtDefault(sub, (f.fields as Record<string, unknown>[]) ?? [])) {
+        return false;
+      }
+    } else if (kind === 'field') {
+      if (findChild(node, 'Field') !== null) return false;
+    } else if (kind === 'fieldOrVariable') {
+      const fld = findChild(node, 'Field');
+      if (fld === null || elemText(fld).trim() || (fld.getAttribute('name') ?? '')) return false;
+    } else if (kind === 'script') {
+      if (findChild(node, (f.element as string) ?? '') !== null) return false;
+    }
+  }
+  return true;
+}
+
 function renderGroupElement(node: Element, fields: Record<string, unknown>[]): string {
   const parts: string[] = [];
   for (const f of fields) {
@@ -740,6 +857,45 @@ function renderRepeatGroupPositional(container: Element, param: GrammarParam): s
   return hrJoin(tokens, ' ; ');
 }
 
+/**
+ * The HR suffix of a fieldList entry: each `fieldFixedAttrs` attribute that
+ * declares `hrEntrySuffix` and differs from its default, as `<suffix><value>`
+ * after the entry's value (Import Records `Invoices::Date=Import:2`).
+ */
+export function fieldEntrySuffix(param: GrammarParam, fieldNode: Element): string {
+  let out = '';
+  for (const ff of (param.raw.fieldFixedAttrs as Record<string, unknown>[] | undefined) ?? []) {
+    const sep = (ff.hrEntrySuffix as string) ?? '';
+    if (!sep) continue;
+    const v = fieldNode.getAttribute((ff.xmlAttr as string) ?? '');
+    if (v !== null && v !== ((ff.defaultValue as string) ?? '')) out += sep + v;
+  }
+  return out;
+}
+
+/**
+ * Inverse of fieldEntrySuffix: the entry's value without its suffixes, and each
+ * suffix attribute's value by xmlAttr. The last declared suffix is taken first,
+ * from the value's end.
+ */
+export function splitFieldEntrySuffix(
+  param: GrammarParam,
+  value: string,
+): { value: string; found: Record<string, string> } {
+  const found: Record<string, string> = {};
+  const ffs = ((param.raw.fieldFixedAttrs as Record<string, unknown>[] | undefined) ?? []).slice().reverse();
+  for (const ff of ffs) {
+    const sep = (ff.hrEntrySuffix as string) ?? '';
+    if (!sep) continue;
+    const i = value.lastIndexOf(sep);
+    if (i !== -1) {
+      found[(ff.xmlAttr as string) ?? ''] = value.slice(i + sep.length).trim();
+      value = value.slice(0, i);
+    }
+  }
+  return { value: value.trim(), found };
+}
+
 function renderFieldList(container: Element, param: GrammarParam): string {
   const entryEl = (param.raw.entryElement as string) ?? '';
   const entryAttr = (param.raw.entryAttr as string) ?? '';
@@ -752,10 +908,13 @@ function renderFieldList(container: Element, param: GrammarParam): string {
     const name = fieldNode.getAttribute('name') ?? '';
     const fieldref = fieldRefHr(table, name);
     let token = groupQuoteValue(fieldref);
+    let value = '';
     if (entryAttr) {
       const attrNode = !entryEl ? fieldNode : entryNode;
-      if (attrNode !== null) token += '=' + (attrNode.getAttribute(entryAttr) ?? '');
+      if (attrNode !== null) value = attrNode.getAttribute(entryAttr) ?? '';
     }
+    const suffix = fieldEntrySuffix(param, fieldNode);
+    if (entryAttr || suffix) token += '=' + value + suffix;
     tokens.push(token);
   };
 
@@ -868,7 +1027,13 @@ export function computeParamHr(entry: GrammarEntry, step: Element, param: Gramma
     // unless the catalog opts one in with hrLabeled (Rename File's "New name:").
     if (val && (param.omitWhenEmpty || param.hrLabeled) && label) val = label + ': ' + val;
   } else if (ptype === 'attrGroup') {
-    const groupNode = findChild(base, param.xmlElement);
+    let groupNode = findChild(base, param.xmlElement);
+    // hrOmitAtDefault: a group at its catalog default prints nothing (FileMaker
+    // draws `Speak [ ]` / `Create PDF [ ]`); the emitter writes it back.
+    if (groupNode !== null && param.raw.hrOmitAtDefault === true
+        && groupAtDefault(groupNode, (param.raw.fields as Record<string, unknown>[]) ?? [])) {
+      groupNode = null;
+    }
     if (groupNode !== null) {
       // A field a visible display projection prints as its own token is left
       // out of the body; one whose projection is hidden stays.
@@ -877,7 +1042,9 @@ export function computeParamHr(entry: GrammarEntry, step: Element, param: Gramma
         const gf = groupFieldsOf(q);
         if (gf.length === 0 || q.xmlElement !== param.xmlElement
             || (q.parentElement || '') !== (param.parentElement || '')) continue;
-        if (paramVisible(entry, step, q)) gf.forEach((k) => shown.add(k));
+        // With an hrOffKeepsGated gate a projection prints its field whenever it
+        // is not the default, which the emitter writes back.
+        if (paramVisible(entry, step, q) || offKeptGate(entry, q) !== null) gf.forEach((k) => shown.add(k));
       }
       const fields = ((param.raw.fields as Record<string, unknown>[]) ?? [])
         .filter((f) => !shown.has(f.key as string));
@@ -932,6 +1099,11 @@ export function computeParamHr(entry: GrammarEntry, step: Element, param: Gramma
     // back to any declared legacy synonym (e.g. AccoutName). Mirrors Python.
     const wnode = aliasedChild(base, wrapper, entry.elementAliases);
     val = wnode !== null ? childText(wnode, 'Calculation') : '';
+    // hrOmitAtDefault: a calc holding its catalog default prints nothing; HR -> XML
+    // writes the default back when no token is given (Trigger Claris Connect
+    // Flow's cURL options, which FileMaker writes on insert and never draws).
+    const dflt = typeof param.raw.defaultValue === 'string' ? param.raw.defaultValue : '';
+    if (param.raw.hrOmitAtDefault && dflt && val === dflt) val = '';
     // hrBare params (Show Custom Dialog's Title/Message) print positionally
     // with no label, mirroring FileMaker; every other namedCalc keeps its label.
     if (val && !param.hrBare) {
@@ -991,7 +1163,7 @@ export function computeParamHr(entry: GrammarEntry, step: Element, param: Gramma
       if (text && text[0] === '$') val = text;
       else if (name) val = fieldRefHr(table, name);
       else if (text) val = text;
-      else val = fieldRefHr(table, name); // Table::<Field Missing>, or none
+      else val = fieldParamRefHr(param, table, name); // Table::<Field Missing>, <Table Missing>, or none
       val = withRepetitionSuffix(val, fieldNode);
       if (val && label) val = label + ': ' + val;
     }
@@ -1013,7 +1185,7 @@ export function computeParamHr(entry: GrammarEntry, step: Element, param: Gramma
     if (fieldNode !== null) {
       const table = fieldNode.getAttribute('table') ?? '';
       const name = fieldNode.getAttribute('name') ?? '';
-      val = withRepetitionSuffix(fieldRefHr(table, name), fieldNode);
+      val = withRepetitionSuffix(fieldParamRefHr(param, table, name), fieldNode);
       // hrLabeled: label the field where FileMaker does (inverse of bare).
       if (val && param.hrLabeled && label) val = label + ': ' + val;
     }
@@ -1040,8 +1212,18 @@ export function computeParamHr(entry: GrammarEntry, step: Element, param: Gramma
   } else if (ptype === 'reference') {
     const refNode = findChild(base, param.xmlElement);
     if (refNode !== null) {
-      const name = refNode.getAttribute('name') ?? '';
-      if (name) val = !label ? '"' + name + '"' : label + ': ' + name;
+      let name = refNode.getAttribute('name') ?? '';
+      // A fixed-id built-in reads by its id (FM's [File Default] is id="0" name="").
+      const refId = refNode.getAttribute('id');
+      const builtIn = refId !== null && !!param.hrEnumValues[refId];
+      if (builtIn) name = param.hrEnumValues[refId!];
+      if (name && param.hrQuoted && !builtIn) {
+        // hrQuoted: FileMaker draws a named reference quoted (Truncate Table's
+        // `Table: “Line Items”`); write it as one escaped literal. A built-in
+        // stays bare, as FileMaker draws it (`<Current Table>`).
+        const q = quoteCalcLiteral(name);
+        val = !label ? q : label + ': ' + q;
+      } else if (name) val = !label ? '"' + name + '"' : label + ': ' + name;
     }
   } else if (ptype === 'layout') {
     const layoutNode = findChild(base, 'Layout');
@@ -1260,6 +1442,136 @@ function renderDiscriminatorGroupTokens(
 }
 
 /**
+ * The source of a `mirrorOf` param: its owning attrGroup and the field chain.
+ * `mirrorOf` is `"<group param key>/<field key>[/<field key>…]"`: a sibling
+ * attrGroup, then group fields ending at a `calc` field. FileMaker writes the
+ * param as a copy of that field (Create PDF's step-level `<Calculation>` is its
+ * Document Title). Null when the path does not resolve. Mirrors Python
+ * `resolve_mirror_source`.
+ */
+export function resolveMirrorSource(
+  entry: GrammarEntry,
+  param: GrammarParam,
+): { owner: GrammarParam; chain: Record<string, unknown>[] } | null {
+  const segs = String(param.raw.mirrorOf ?? '').split('/').filter((s) => s);
+  if (segs.length < 2) return null;
+  const owner = entry.params.find(
+    (q) => q.type === 'attrGroup' && groupFieldsOf(q).length === 0 && paramKey(q) === segs[0],
+  );
+  if (!owner) return null;
+  let fields = (owner.raw.fields as Record<string, unknown>[]) ?? [];
+  const chain: Record<string, unknown>[] = [];
+  for (let i = 1; i < segs.length; i++) {
+    const hit = fields.find((f) => ciEquals(String(f.key ?? ''), segs[i]));
+    const last = i === segs.length - 1;
+    if (!hit || hit.kind !== (last ? 'calc' : 'group')) return null;
+    chain.push(hit);
+    fields = (hit.fields as Record<string, unknown>[]) ?? [];
+  }
+  return { owner, chain };
+}
+
+/**
+ * The source of a one-segment `mirrorOf`: a sibling step-level `text` / `name`
+ * param whose value FileMaker writes this param as a copy of (Trigger Claris
+ * Connect Flow's `<Text>` repeats its `<Flow>`). Null otherwise. Mirrors Python
+ * `resolve_mirror_sibling`.
+ */
+export function resolveMirrorSibling(entry: GrammarEntry, param: GrammarParam): GrammarParam | null {
+  const segs = String(param.raw.mirrorOf ?? '').split('/').filter((s) => s);
+  if (segs.length !== 1) return null;
+  return (
+    entry.params.find(
+      (q) =>
+        q !== param &&
+        !q.hrHidden &&
+        (q.type === 'text' || q.type === 'name') &&
+        (q.parentElement ?? '') === (param.parentElement ?? '') &&
+        paramKey(q) === segs[0],
+    ) ?? null
+  );
+}
+
+/** The element holding a mirrorOf source field's `<Calculation>`; with `create`
+ * the missing path is appended. */
+function mirrorSourceNode(
+  entry: GrammarEntry,
+  step: Element,
+  owner: GrammarParam,
+  chain: Record<string, unknown>[],
+  create: boolean,
+): Element | null {
+  const childOf = (n: Element, name: string): Element | null => {
+    let c = findChild(n, name);
+    if (c === null && create) {
+      c = n.ownerDocument.createElement(name);
+      n.appendChild(c);
+    }
+    return c;
+  };
+  let n: Element | null = step;
+  for (const seg of (owner.parentElement ?? '').split('/').filter((s) => s)) {
+    if (n === null) return null;
+    n = aliasedChild(n, seg, entry.elementAliases) ?? childOf(n, seg);
+  }
+  if (n === null) return null;
+  n = childOf(n, owner.xmlElement);
+  for (const f of chain) {
+    if (n === null) return null;
+    if (f.kind === 'group') n = childOf(n, String(f.element ?? ''));
+    else if (f.childElement) n = childOf(n, String(f.childElement));
+  }
+  return n;
+}
+
+/**
+ * A hidden `mirrorOf` copy prints nothing, so a step holding the copy but not
+ * its source field would lose the value. FileMaker fills the field from the copy
+ * on paste (Create PDF pasted with only the step-level `<Calculation>` comes back
+ * with that Document Title; the field wins when both are set, FM 26.0.3).
+ * Returns a copy of `step` with the field written from the copy, or null.
+ */
+function applyMirrorFallback(entry: GrammarEntry, step: Element): Element | null {
+  let out: Element | null = null;
+  for (const p of entry.params) {
+    if (!p.raw.mirrorOf) continue;
+    const sib = resolveMirrorSibling(entry, p);
+    if (sib !== null) {
+      // A sibling text source: FileMaker draws the copy's value as the source when
+      // the step holds no source element (its copy-out of a Trigger Claris Connect
+      // Flow pasted without option flags carries only <Text>, drawn `Flow: <text>`,
+      // FM 26.0.3).
+      const s0: Element = out ?? step;
+      const b0 = p.parentElement ? descendPath(s0, p.parentElement, entry.elementAliases) : s0;
+      const v0 = elemText(findChild(b0, p.xmlElement));
+      if (!v0.trim() || b0 === null || findChild(b0, sib.xmlElement) !== null) continue;
+      if (out === null) out = step.cloneNode(true) as Element;
+      const b1 = p.parentElement ? descendPath(out, p.parentElement, entry.elementAliases) : out;
+      if (b1 === null) continue;
+      const el = out.ownerDocument.createElement(sib.xmlElement);
+      el.appendChild(out.ownerDocument.createTextNode(v0));
+      b1.appendChild(el);
+      continue;
+    }
+    const src = resolveMirrorSource(entry, p);
+    if (src === null) continue;
+    const s: Element = out ?? step;
+    const base = p.parentElement ? descendPath(s, p.parentElement, entry.elementAliases) : s;
+    const v = elemText(findChild(base, p.xmlElement));
+    if (!v.trim()) continue;
+    const have = mirrorSourceNode(entry, s, src.owner, src.chain, false);
+    if (have !== null && findChild(have, 'Calculation') !== null) continue;
+    if (out === null) out = step.cloneNode(true) as Element;
+    const target = mirrorSourceNode(entry, out, src.owner, src.chain, true);
+    if (target === null) continue;
+    const calc = out.ownerDocument.createElement('Calculation');
+    calc.appendChild(out.ownerDocument.createTextNode(v));
+    target.appendChild(calc);
+  }
+  return out;
+}
+
+/**
  * Render a full step to its HR bracket line, as the reference does.
  * Returns `entry.name` alone when no param contributes a token, else
  * `Name [ tok ; tok ; … ]`. An empty positional slot followed by a later
@@ -1267,6 +1579,10 @@ function renderDiscriminatorGroupTokens(
  * control-flow steps.
  */
 export function renderStepHr(entry: GrammarEntry, step: Element): string {
+  // A step holding only a mirrorOf copy renders as FileMaker stores it after
+  // paste: with the source field filled from the copy.
+  const mirrored = applyMirrorFallback(entry, step);
+  if (mirrored !== null) return renderStepHr(entry, mirrored);
   const parts: string[] = [];
   const fmEmpty = new Set<number>(); // indexes of hrEmptySlotWith empty slots
   let pendingEmpty = 0;
@@ -1287,7 +1603,13 @@ export function renderStepHr(entry: GrammarEntry, step: Element): string {
   };
   for (const pi of hrParamOrder(entry)) {
     const param = entry.params[pi];
-    if (param.hrHidden) continue;
+    if (param.hrHidden) {
+      if (param.raw.hrOffKeepsGated === true && param.type === 'boolean') {
+        const off = offKeptToken(entry, step, param);
+        if (off) add(paramToken(entry, param, off));
+      }
+      continue;
+    }
     if (governingDiscriminatorFor(entry, param)) continue;
     if (!paramVisible(entry, step, param)) continue;
     if (isGoverningDiscriminator(param)) {
@@ -1306,7 +1628,10 @@ export function renderStepHr(entry: GrammarEntry, step: Element): string {
       add(tok);
     }
   }
-  if (parts.length === 0) return entry.name;
+  // FileMaker draws the option brackets of every step that has options, even
+  // when none of them shows (`Perform Find [ ]`, `Go to Field [ ]`); only a step
+  // with no options at all draws bare (`Beep`). HR->XML reads both forms the same.
+  if (parts.length === 0) return entry.params.length ? entry.name + ' [ ]' : entry.name;
   // An hrEmptySlotWith slot draws as FileMaker draws it: a bare `;`.
   let out = entry.name + ' [ ';
   parts.forEach((item, i) => {

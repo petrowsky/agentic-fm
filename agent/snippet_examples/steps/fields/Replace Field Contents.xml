@@ -2,10 +2,10 @@
 <fmxmlsnippet type="FMObjectList">
   <Step enable="True" id="91" name="Replace Field Contents">
     <NoInteract state="True"/>
-    <Restore state="True"/>
+    <Restore state="False"/>
     <With value="Calculation"/>
     <Calculation><![CDATA["value"]]></Calculation>
-    <SerialNumbers PerformAutoEnter="True" UpdateEntryOptions="False" UseEntryOptions="True"/>
+    <SerialNumbers PerformAutoEnter="False" UpdateEntryOptions="False" increment="0" InitialValue="" UseEntryOptions="False"/>
     <Field table="" id="0" name=""/>
   </Step>
 </fmxmlsnippet>

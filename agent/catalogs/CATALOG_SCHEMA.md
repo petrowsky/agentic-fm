@@ -34,6 +34,8 @@ Each entry is an object with the following top-level keys.
 | `helpUrl`       | string         | yes      | Link to the step's official documentation. Reference only.                                                                                                                                              |
 | `snippetFile`   | string         | no       | Path, relative to the catalog-maintenance corpus, of the reference XML example the entry was derived from. **Maintenance provenance only** — not part of the runtime contract; consumers may ignore it. |
 | `notes`         | string         | no       | Free-text behavioral notes scoped to the whole step (as opposed to a single param).                                                                                                                     |
+| `fmMin`         | string         | no       | The first FileMaker version that has the step, `"any"` or `"unknown"`. See **Version data**. Absent means unknown.                                                                                      |
+| `fmMinSource`   | string         | with `fmMin` | How `fmMin` is known: `"measured"` or `"documented"`. See **Version data**.                                                                                                                         |
 
 ### Block pairs
 
@@ -78,6 +80,7 @@ Every parameter object has these base keys:
 | `wrapperAttr`    | `namedCalc`              | A literal attribute string FileMaker places on the wrapper (e.g. `custom="True"`), emitted verbatim.                            |
 | `parentElement`  | any nested param         | The ancestor element this param nests inside (e.g. a calc that lives under `<Source>` or under a step-named container element). |
 | `notes`          | any                      | Free-text behavioral notes for this param. **Canonical key is `notes`.** See **Known inconsistencies**.                         |
+| `fmMin` / `fmMinSource` | any               | The first FileMaker version that has the element or attribute this param models, and how that is known. Absent: inherits the step's. See **Version data**. |
 
 ## Parameter types
 
@@ -117,7 +120,7 @@ Field/script/layout/table identity (ids, names, table-occurrence attributes) is 
 | `layout`                                        | `<Layout id="N" name="LayoutName"/>` — shape may be governed by a `discriminator` (see below).                                                |
 | `tableOccurrence`, `tableRef`, `tableReference` | A `<Table ...>` reference. (Three spellings exist for historical reasons — see **Known inconsistencies**.)                                    |
 | `fileReference`                                 | `<FileReference>...</FileReference>` — a file path/reference element.                                                                         |
-| `reference`                                     | A generic name-only object reference FileMaker re-resolves by name on paste (e.g. a menu set).                                                |
+| `reference`                                     | A generic name-only object reference FileMaker re-resolves by name on paste (e.g. a custom menu set). Built-in members FileMaker resolves by id instead are listed as `enumValues` (the id FileMaker writes) + `hrEnumValues` (the name it displays) and emit with their id. |
 
 ### Structured (container) types
 
@@ -147,6 +150,7 @@ See **Nested field grammar**.
 `flagStyle: true` on a `boolean` is the machine-readable form of `flagBoolean`, and it is what the converter actually reads — describing the behavior only in `notes` leaves the parser looking for a `Label: value` token that the bare label never matches, so the orphaned label is handed to the next positional param instead.
 For such a param the HR **presence is the value**: label present = `True`, label absent = `False`.
 `defaultValue` documents FileMaker's default for a freshly added step and must never answer for an absent flag — otherwise a flag defaulting to `True` cannot be switched off from HR at all.
+With `invertedHr: true` as well, the flag is drawn when the attribute is `False`: label present = `False`, label absent = `True` (Convert File's `Open File` is drawn when `Option` is `False`).
 
 A param FileMaker renders with **no** HR token needs `hrHidden: true` for the same reason: without it the converter emits a stray bare `On`/`Off` and the param can swallow a positional token belonging to a real one.
 Whether a given boolean renders bare, labeled, or not at all is a per-step FileMaker fact — confirm it against FileMaker's own rendering rather than inferring it from `params[]`.
@@ -162,6 +166,7 @@ Define them precisely:
 | `xmlEnumValues` | The literal XML values, when they differ from the human-facing `enumValues`. When present, this is authoritative for what XML carries.                                                       |
 | `hrEnumValues`  | A map from XML value → HR display string (e.g. `{ "Current": "Current Window" }`).                                                                                                           |
 | `enumStyle`     | How the value is carried. `"text"` means the value is the element's **text content** (`<El>value</El>`); absence (with an `xmlAttr`) means it is an **attribute** (`<El xmlAttr="value"/>`). |
+| `fmMinValues`   | A map from XML value → `{ "fmMin": …, "fmMinSource": … }`: the first FileMaker version that accepts that value. Keys must be members of `enumValues`. See **Version data**.                               |
 
 > **Authoring requirement:** `enumValues`/`xmlEnumValues` must be the exact literals FileMaker writes to XML (e.g. `LayoutNameByCalc`, not the dialog label `Layout Name by Calc`).
 > Human-facing labels belong in `hrEnumValues`/`hrLabel`, never substituted for the XML literal.
@@ -199,7 +204,7 @@ Field-object keys:
 | `key`          | Stable identifier for the field (HR token name / internal handle).      |
 | `kind`         | One of the kinds above.                                                 |
 | `xmlAttr`      | Attribute name when `kind: "attr"`.                                     |
-| `defaultValue` | Default for the field.                                                  |
+| `defaultValue` | Default for the field. On a `calc` / `text` field, the value the group's default element holds (read only by `hrOmitAtDefault`). |
 | `childElement` | Wrapping element for `calc`/`text` kinds (empty string = direct child). |
 | `element`      | Element name when `kind: "group"`.                                      |
 | `fields`       | Nested field list when `kind: "group"`.                                 |
@@ -215,6 +220,7 @@ Field-object keys:
 | `entryAttrDefault` | Default for `entryAttr`.                                                                            |
 | `fieldWrapper`     | An element wrapping the `<Field>` inside each entry (e.g. `<PrimaryField><Field/></PrimaryField>`). |
 | `fieldFixedAttrs`  | Fixed attributes FileMaker always writes on each entry's `<Field>` (e.g. `FieldOptions="0"`).       |
+| `hrEntrySuffix`    | On a `fieldFixedAttrs` field: the attribute is the field's own setting, not fixed. HR writes it after the entry's value as this separator and the value, only when it differs from `defaultValue`, and reads it back from the last separator in the value (Import Records' FieldOptions: `Invoices::Date=Import:2`). An entry with a suffix and no value takes `entryAttrDefault`. |
 
 ```json
 {
@@ -228,7 +234,8 @@ Field-object keys:
       "key": "FieldOptions",
       "kind": "attr",
       "xmlAttr": "FieldOptions",
-      "defaultValue": "0"
+      "defaultValue": "0",
+      "hrEntrySuffix": ":"
     }
   ]
 }
@@ -247,13 +254,156 @@ These keys refine emission/round-trip behavior and may appear on the param types
 | `discriminator`    | a param whose shape/presence depends on a sibling | Names the sibling param (typically an `enum`) that governs this param's form. Example: a `Layout` param discriminated by `LayoutDestination` (none for current/original, an id/name ref for a selected layout, a calc child for the by-calc forms). |
 | `textMarker`       | `fieldOrVariable`                                 | FileMaker prefixes the value with a leading empty `<Text/>` marker in both field-ref and variable forms.                                                                                                                                            |
 | `hrLabelNote`      | any                                               | Free-text note explaining a conditional HR label (e.g. the label changes with another setting).                                                                                                                                                     |
+| `hrSlot`           | any                                               | The param's position in the step's HR, for a step whose HR order differs from its XML order. When any param of a step sets it, HR renders and parses the params in `hrSlot` order (a param without one sorts by its catalog index) while XML keeps catalog order. Set it on every param of such a step. Show/Hide Toolbars draws `Lock` before `Include Edit Record Toolbar`; Convert File draws `Open File ; Skip Indexes ; With dialog` and the path before `Verify SSL Certificates` (FileMaker 26.0.3). |
 | `hrPositionalKey`  | `repeatGroup`                                     | Names the entry `fields` key FileMaker prints bare and positionally, one token per non-empty entry, after the step's own bare params (Show Custom Dialog's input targets: `[ "T" ; "M" ; $a ; Invoices::Number ]`). Render uses that form when it loses nothing and the labeled body form otherwise; parse claims the leftover bare target tokens (a `$variable` or a `Table::Field`). |
 | `hrDefault`        | `repeatGroup`                                     | The HR body of FileMaker's default content (Show Custom Dialog's OK / Cancel buttons). Render omits the token when the body equals it; emit writes it when the HR carries no token. |
 | `repeatCount`      | `repeatGroup`                                     | FileMaker always serializes this many entries, padding with empty ones; emit pads to match. |
-| `groupFields`      | `enum` sharing an `attrGroup`'s `xmlElement`      | The param owns no element: it is a display projection of these top-level fields (`attr` / `text`) of the sibling `attrGroup` with the same `xmlElement`, shown as a token of its own with the param's `hrLabel` / `hrEnumValues` / `hrSlot` / `visibleWhen`. Several fields join with `\|` in field order (`BlankRecord\|WithBoxes`, displayed `Blank record, with boxes`). The group's own token leaves out the fields a visible projection shows; a projection's value sets those fields of the group. Its param key is `<xmlElement>#<first field>` (`PDFOptions#PDFSaveType`). |
+| `groupFields`      | `enum` sharing an `attrGroup`'s `xmlElement`      | The param owns no element: it is a display projection of these top-level fields (`attr` / `text`) of the sibling `attrGroup` with the same `xmlElement`, shown as a token of its own with the param's `hrLabel` / `hrEnumValues` / `hrSlot` / `visibleWhen`. Several fields join with `\|` in field order (`BlankRecord\|WithBoxes`, displayed `Blank record, with boxes`). The group's own token leaves out the fields a visible projection shows; a projection's value sets those fields of the group. A `flagStyle` projection prints its bare `hrLabel` for the non-default value and reads that label back as it (Replace Field Contents' `Skip auto-enter options` is `SerialNumbers#PerformAutoEnter` False, gated on Restore). Its param key is `<xmlElement>#<first field>` (`PDFOptions#PDFSaveType`). |
 | `fmLineHidden`     | any                                               | FileMaker stores the content but never draws it in its Script Workspace line (Export Records' `Profile`, Save Records as Excel's `Worksheet`). An HR form that mirrors FileMaker's line leaves it out; a lossless HR form still prints it, labeled. |
+| `hrOmitAtDefault`  | `attrGroup`, `namedCalc`                          | FileMaker draws nothing for the group (Speak's `SpeechOptions`, Create PDF's `Document` / `Security` / `View`, Import Records' `ImportOptions`). XML → HR prints no token while the element equals its catalog default: every non-optional attr at its `defaultValue`, every optional attr absent, a `calc` / `text` field holding its `defaultValue` when it has one and absent otherwise, every sub-group present and at default. HR → XML with no token writes that default element. Off its default the group prints its whole body. On a `namedCalc`: XML → HR prints no token while the calculation equals the param's `defaultValue`, and HR → XML with no token writes `defaultValue` (Trigger Claris Connect Flow's cURL options, which FileMaker writes on insert, never draws and sends the request with; without them it sends a bare GET). |
+| `mirrorOf`         | `calculation` or `text` (with `hrHidden`)         | FileMaker writes this param as a copy of a `calc` field inside a sibling `attrGroup`, named `"<group param key>/<field key>[/<field key>…]"` (Create PDF's step-level `Calculation` is `Document/Title`; Save Records as PDF's is `PDFOptions/Document/Title`; Convert File's is `Profile/XMLCalc`). For the PDF steps FileMaker adds the copy when only the field is set, fills the field from the copy when only the copy is set, and keeps the field in both when they differ; Convert File keeps the copy instead (only the field set: dropped; the two different: the copy's value in both). HR → XML writes the param from the field's value, nothing when the field is empty. XML → HR prints no token for it, and reads the field from it when the field is absent. A single segment names a sibling step-level `text` / `name` param instead (Trigger Claris Connect Flow's `Text` is `"Flow"`: FileMaker writes `<Text>` as a copy of `<Flow>` and adds it when only the flow is pasted); the param is then a hidden `text` param, written from that param's value and read back as it when the step holds no element for it. |
 | `hrEmptySlotWith`  | positional params                                 | Names the param key of a sibling whose presence FileMaker draws as this param's empty slot when this param is empty, wherever the slot sits (Export Records with no path but a `<Profile>`: `Create folders: On ; ; Unicode (UTF-8)`). An empty token read at that slot means the sibling is present (an `attrGroup` with its defaults). |
-| `fmLineHiddenWhen` | any                                               | Like `fmLineHidden`, but only while every condition in the list holds; each condition is `{ "param": <param key>, "values": [...] }` (that sibling holds one of these raw values, its default when unset) or `{ "param": <param key>, "empty": true }` (that sibling has no value: no element, or an empty one). With no path, Save Records as PDF and four sibling steps draw no `Automatically open` / `Create email` although they keep them on; with Restore off too, Save Records as PDF draws no records source. Only an HR form that mirrors FileMaker's line applies it. |
+| `hrNoTableBlank`   | `field`, `fieldOrVariable`                        | FileMaker draws a stored reference with no table and no field (`<Field table="" id="0" name=""/>`) as nothing in this slot. Every other single-field param draws it `<Table Missing>`, and HR prints the same; the sentinel reads back to the empty reference. Set on Fine-Tune Model's Completion Field, Perform Semantic Find's Save result and Generate Response from Model's Messages / Tool Calls (FileMaker 26.0.3). An absent `<Field>` draws no field token on any param. |
+| `fmLineHiddenWhen` | any                                               | Like `fmLineHidden`, but only while every condition in the list holds; each condition is `{ "param": <param key>, "values": [...] }` (that sibling holds one of these raw values, its default when unset) or `{ "param": <param key>, "empty": true }` (that sibling has no value: no element, or an empty one). With no path, Save Records as PDF and four sibling steps draw no `Automatically open` / `Create email` although they keep them on; with Restore off too, Save Records as PDF draws no records source. A `reference` sibling's raw value is its `id` (Install Menu Set draws no `Use as file default` with [File Default], `<CustomMenuSet id="0"/>`). A `flagElement` sibling's value is `True` when its element is present and `False` otherwise (Set AI Call Logging draws no `Truncate Messages` while Verbose is off). Only an HR form that mirrors FileMaker's line applies it. |
+| `rosterKind`       | `reference`                                       | The kind of named object the reference names in the target file: `CustomMenuSet`, `Table` (base tables, not table occurrences) or `PrivilegeSet`. Set where FileMaker silently swaps a name the file does not have on paste (a custom menu set name it lacks becomes [File Default]; a table name it lacks draws `<Table Missing>` and copies back as `<Current Table>`; a privilege set name it lacks draws `<unknown>`), so a consumer that knows the file's objects of that kind can check the name and report one the file lacks before it is pasted. Built-ins listed in `hrEnumValues` are not checked. |
+| `fmLineToken`      | an `hrHidden` `boolean` that a sibling's `visibleWhen` gates | The bare token FileMaker draws for the param when it is on (Sort Records' `Restore`: `Sort Records [ Restore ; With dialog: Off ]`). Its state is derived from whether a gated sibling has a value, so HR→XML reads the token as a no-op when that derived state is on (a `Sort:` is given) and leaves it unplaced otherwise; it is never taken as a positional value. The lossless XML→HR form does not print it; an HR form that mirrors FileMaker's line prints it, at the param's `hrSlot`, whenever the stored state is on (FileMaker draws `Restore` for every `<Restore state="True"/>`, with or without a sort order). |
+| `hrOffKeepsGated` | an `hrHidden` `boolean` that a sibling's `visibleWhen` gates | FileMaker keeps the gated params while the gate is off and draws none of them (Import Records' `Restore`, the "Specify import order" option). XML→HR: with the gate off, a gated param is printed when it differs from its default (an enum: not its default's label), and the gate prints `<hrLabel>: Off` when any is printed; a display projection's field stays out of its group's body. HR→XML: `<hrLabel>: On` or `<hrLabel>: Off` sets the state outright and the gated params are written as given; without the token the state is derived from whether a gated param has a value. |
+| `fmLineBare`       | a labeled `namedCalc` or `boolean`                 | FileMaker draws the value unlabeled on its own line. A `namedCalc` is drawn after the step's other tokens and left out when empty (Get Folder Path's Dialog title and Default location: `Get Folder Path [ Allow Folder Creation ; $result ; "t" ; Get ( DocumentsPath ) ]`, FileMaker Pro 26.0.3). HR keeps the label. HR→XML reads the bare tokens left after the step's bare params as these params, in catalog order; an empty token keeps a param's slot. Fewer tokens than such params is FileMaker leaving an empty one out, which its line cannot place: the tokens fill the first params. A `boolean` is drawn in its own slot as its bare value, `On` / `Off` or its `hrEnumValues` label (`Set Layout Object Animation [ Off ]`, `Set Error Logging [ On ; Custom debug info: "dbg" ]`); HR→XML reads a bare token naming one of those values as the param when no `Label: value` token gave it one. |
+| `fmLineSubscriptOf` | any param                                         | The param key of a sibling whose token FileMaker draws this value on, as a repetition subscript, nothing for 1 or empty (Get Folder Path's Repetition on its variable: `$result[2]`, `$result[$i]`). HR keeps this param labeled. HR→XML splits a trailing `[…]` off the sibling's token into this param when no labeled token gave it a value. |
+| `fmLineEmptyAs`    | any                                               | What FileMaker's own line draws, after the param's label, when the value is empty or absent (Trigger Claris Connect Flow: `Flow: <unknown>`, and `JSON Data:` followed by two spaces). Only an HR form that mirrors FileMaker's line applies it; the lossless HR prints no token, and HR → XML reads FileMaker's spelling as the value (`<unknown>` as text, a blank calculation as none). |
+| `fmLineFileName`   | text                                              | FileMaker's own line draws this path list cut to the part after its last `/`, else after its first `:`, line breaks as spaces, and no token when nothing is left (Import Records: `“a.csv”` for `file:dir/a.csv`). The converters here have no line form and ignore it. |
+| `fmLineDrawEmpty`  | tableRef                                          | FileMaker's own line draws the label alone for a `<Table>` with no name, and nothing for no element (Import Records: `Table:  ;`). The converters here have no line form and ignore it. |
+| `fmLineJoinAfter`  | any                                               | Param key of the sibling this value joins on FileMaker's own line, with `; ` instead of ` ; ` (Import Records: `Add; UTF-8`). The converters here have no line form and ignore it; an HR line splits on `;` either way. |
+| `fmLineOnOff`      | a `flagStyle` `boolean` or `flagElement`          | FileMaker draws the flag labeled with its state on its own line, `<hrLabel>: On` when set and `<hrLabel>: Off` when clear, instead of the bare label only when set (Set AI Call Logging's `Verbose: Off`, FileMaker Pro 26.0.3). HR keeps the bare flag; HR→XML already reads the labeled spelling. Only an HR form that mirrors FileMaker's line applies it. |
+
+## Version data
+
+`fmMin` records the first FileMaker version that has an item, and `fmMinSource` records how that is known.
+The two keys always appear together, on four kinds of item:
+
+| Item                         | Where the keys sit                                                                                         |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| a step                       | the step entry                                                                                             |
+| a step option                | the parameter object (the element or attribute the parameter models was added in that version)             |
+| one value of an `enum` param | the param's `fmMinValues` map, keyed by the XML value exactly as `enumValues` spells it                   |
+| a calculation function       | the entry in `function-catalog.json` (see **The function catalog**); a `Get` selector is its own entry    |
+
+The values below are illustrative, not data about a real step:
+
+```json
+{
+  "name": "Example Step",
+  "fmMin": "any",
+  "fmMinSource": "measured",
+  "params": [
+    {
+      "xmlElement": "Mode",
+      "type": "enum",
+      "hrLabel": "Mode",
+      "fmMin": "21.0",
+      "fmMinSource": "measured",
+      "enumValues": ["Basic", "Extended"],
+      "fmMinValues": { "Extended": { "fmMin": "22.0", "fmMinSource": "documented" } }
+    }
+  ]
+}
+```
+
+Read: the step exists in every covered version, its `Mode` option from 21.0, and the `Extended` mode from 22.0.
+
+**`fmMin` values.**
+
+- A version: `"MAJOR"`, `"MAJOR.MINOR"` or `"MAJOR.MINOR.PATCH"`, one to three digits each, major not zero (`"21"`, `"21.0"`, `"22.0.2"`). The item exists in that FileMaker version and every later one.
+- `"any"`: the item exists in every FileMaker version the version data covers, which is FileMaker Pro 19.6 and later.
+  It says nothing about when the item was introduced.
+- `"unknown"`: the item was looked at and its minimum is still undecided, or an earlier value was found wrong and withdrawn.
+  `fmMinSource` says how that was concluded. A consumer reads it exactly as unknown; it is not malformed.
+- Absent, on a step entry or a function entry: unknown. A consumer treats an unknown item as it would without version data.
+- Absent, on a parameter object or for a value missing from `fmMinValues`: the option adds no minimum of its own and inherits the one above it (see **Combining**).
+
+`"any"` is a value of its own rather than the oldest covered version (for example `"19.6"`), because a version would state that the item first appeared in that release.
+That is false for nearly every item (`Abs` predates FileMaker 19 by decades), and it would refuse the item on any older FileMaker a consumer still meets.
+It is a string rather than `null` or `""` so that "known, no minimum" cannot be confused with an absent key by a reader that tests for a value.
+A minimum is never written as a negated list ("not in 19"): the data says where an item starts, and every later version is assumed to keep it, because FileMaker does not remove steps or functions.
+
+**Correcting a value.**
+Replace a wrong value with the right one, or with `"unknown"` when the right one is not known.
+Never just delete the keys: a consumer that layers an updated catalog over an older copy keeps keys the update lacks, so a deleted value would survive there.
+
+**`fmMinSource` values.**
+
+| Value          | Meaning                                                                                                                       |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `"measured"`   | Observed on a running FileMaker: the item was tried on each installed version, and `fmMin` is derived from the oldest version that accepted it (see **Measured minimums**). |
+| `"documented"` | Taken from Claris documentation (the "Originated in version" line of the help page, or the release notes), for an item that cannot be exercised directly, or that the documentation dates more finely or later than the measurement. |
+
+**Measured minimums.**
+A set of measured versions brackets each item's true first version: it lies after the newest version measured without the item and at or before the oldest version measured with it.
+A measured `fmMin` names one value inside that bracket:
+
+- the first shipped release of the earliest major measured to have the item, when no earlier measured version of that major lacked it (FileMaker Pro 20 first shipped as 20.1, so such a minimum is `"20.1"`, not `"20.0"`);
+- otherwise the oldest version measured with it, as `MAJOR.MINOR` (or in full when the version measured without it has the same `MAJOR.MINOR`).
+
+A `"documented"` value that falls inside the bracket refines the measurement and is kept when the data is measured again.
+One outside the bracket is a disagreement between the documentation and FileMaker, and is recorded with its reason.
+
+A step option (a parameter object) gets a measured minimum only from a read-back: its label is missing from the step FileMaker draws on every version measured below the minimum, and drawn on that version and every later one.
+Where the option is an attribute, the copied-out XML corroborates the boundary: the attribute is missing below it and present on the newest version measured.
+An option FileMaker draws on no measured version (a block's collapsed state, a hidden flag) has only the copied-out XML, and only a copy-out of a non-default value counts: paste the option set to a value other than its `defaultValue`, copy the step back out, and take the minimum as the one the bracket rules above give for the versions whose copy-out carries the attribute (dropped on every version measured below it, present on every version from the first one that has it, the newest included).
+Present at another value than the one sent is still present: FileMaker has the option and normalized the value.
+A copy-out of the option at its default value proves nothing, because FileMaker may omit a default.
+An option the read-back cannot corroborate inherits the step's minimum.
+
+**How a version check treats an option** (read only by a consumer that checks a script against a FileMaker version, never by the converters):
+
+| Key | On | Meaning |
+| --- | --- | --- |
+| `fmMinOnOlder` | a param with `fmMin` | `"dropped"`: a FileMaker older than `fmMin` discards the option silently on paste and the step behaves the same (a block's collapsed state). A version check reports it as a warning, not a refusal. Absent: a version check refuses. |
+| `fmGateWhen` | a param with version data | `{"param": "<sibling>", "values": ["…"]}`: the option counts as used only when the sibling param (named like `visibleWhen`: its `xmlElement`, or `wrapperElement` for a `namedCalc`) holds one of `values` (Send Mail's `OAuthProvider` only when `SendViaOAuthAuthentication` is `True`). Absent: the option counts whenever it is set. |
+
+**Combining.**
+A step option's minimum is the combination of the chain step → parameter → value:
+
+1. The step's own `fmMin` is always part of the chain; absent there means unknown.
+2. A parameter or value that declares `fmMin` adds it to the chain; one that declares nothing adds nothing (it inherits).
+3. If every part of the chain is known, the option's minimum is the highest of them, with `"any"` lower than every version (all `"any"` means no minimum).
+4. If any part is unknown (`"unknown"`, an absent step value, or malformed), the option's minimum is unknown, except that the option is certainly absent below the highest known part.
+
+So a parameter never needs to repeat its step's minimum, and an option is never available on a version that lacks its step.
+
+**Conformance.**
+
+- `fmMinSource` is required whenever `fmMin` is present, and is absent otherwise.
+- `fmMinValues` appears only on a parameter object, each entry is an object with both keys, and each key names a value in the param's `enumValues`.
+- A malformed pair (wrong type, an unparseable version, a missing or unknown source) is a catalog defect.
+  A consumer reads it as unknown and reports it; it never guesses a version.
+- Version data never changes how a step converts between HR and XML.
+  Converters ignore all three keys.
+
+### The function catalog
+
+`function-catalog.json` lists FileMaker's built-in calculation functions.
+It is a JSON object:
+
+| Key         | Type   | Meaning                                                                          |
+| ----------- | ------ | -------------------------------------------------------------------------------- |
+| `version`   | string | The FileMaker version the list was last reconciled against.                      |
+| `functions` | array  | One entry per function, sorted by name without regard to case.                   |
+
+Each entry:
+
+| Key           | Type   | Required     | Meaning                                                                                                                      |
+| ------------- | ------ | ------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| `name`        | string | yes          | The function name, unique without regard to case. A `Get` selector is its own entry, named `Get(Selector)` with no spaces.   |
+| `prototype`   | string | yes          | The call signature as Claris documents it (`Left ( text ; numberOfCharacters )`, `Get ( WindowUUID )`).                      |
+| `fmMin`       | string | no           | As in **Version data**: the first FileMaker version that has the function or selector, `"any"` or `"unknown"`. Absent means unknown. |
+| `fmMinSource` | string | with `fmMin` | `"measured"` or `"documented"`.                                                                                               |
+
+An illustrative entry (not real data):
+
+```json
+{ "name": "ExampleFunction", "prototype": "ExampleFunction ( text )", "fmMin": "22.0", "fmMinSource": "documented" }
+```
 
 ## Known inconsistencies (non-normative aliases)
 

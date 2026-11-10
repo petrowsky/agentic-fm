@@ -107,7 +107,7 @@ def test_single_literal_calculation_names_its_mode():
 
 
 def test_empty_step():
-    assert snippet_to_hr(_text_xml("")) == ["Perform AppleScript"]
+    assert snippet_to_hr(_text_xml("")) == ["Perform AppleScript [ ]"]
     out = _emit("Perform AppleScript [ ]")
     assert '<ContentType value="Calculation"/>' in out, out
     assert "<Calculation>" not in out and "<Text>" not in out, out

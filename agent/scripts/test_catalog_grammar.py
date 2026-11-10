@@ -6,10 +6,14 @@ parameter is dropped and none carries an unknown type. Runs under pytest, or
 standalone: ``python3 agent/scripts/test_catalog_grammar.py``.
 """
 
+import json
 import os
 
 from catalog_grammar import (
     ABSENT,
+    fm_min_problem,
+    fm_min_problems,
+    fm_min_version,
     KNOWN_PARAM_TYPES,
     CatalogEntry,
     ListValue,
@@ -22,6 +26,7 @@ from catalog_grammar import (
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.dirname(os.path.dirname(HERE))
 CATALOG = os.path.join(REPO_ROOT, "agent", "catalogs", "step-catalog-en.json")
+FUNCTION_CATALOG = os.path.join(REPO_ROOT, "agent", "catalogs", "function-catalog.json")
 
 
 def test_no_params_dropped():
@@ -127,6 +132,91 @@ def _load_steps():
     return data["steps"] if isinstance(data, dict) and "steps" in data else data
 
 
+def test_fm_min_values_read():
+    assert fm_min_version({}) is None
+    assert fm_min_version({"fmMin": "any", "fmMinSource": "measured"}) == ""
+    assert fm_min_version({"fmMin": "21.0", "fmMinSource": "documented"}) == "21.0"
+    assert fm_min_version({"fmMin": "26.0.2", "fmMinSource": "measured"}) == "26.0.2"
+    declared_unknown = {"fmMin": "unknown", "fmMinSource": "measured"}
+    assert fm_min_problem(declared_unknown) is None
+    assert fm_min_version(declared_unknown) is None
+    for bad in ({"fmMin": 21, "fmMinSource": "measured"},
+                {"fmMin": "", "fmMinSource": "measured"},
+                {"fmMin": "21.x", "fmMinSource": "measured"},
+                {"fmMin": "21.0.0.1", "fmMinSource": "measured"},
+                {"fmMin": "ANY", "fmMinSource": "measured"},
+                {"fmMin": "Unknown", "fmMinSource": "measured"},
+                {"fmMin": "0", "fmMinSource": "measured"},
+                {"fmMin": "0.5", "fmMinSource": "measured"},
+                {"fmMin": None, "fmMinSource": "measured"},
+                {"fmMin": "21.0"},
+                {"fmMin": "21.0", "fmMinSource": "guessed"},
+                {"fmMinSource": "measured"}):
+        assert fm_min_problem(bad), bad
+        assert fm_min_version(bad) is None, bad
+
+
+def test_fm_min_problems_name_step_param_and_value():
+    steps = [
+        {"name": "Good", "fmMin": "21.0", "fmMinSource": "measured", "params": [
+            {"xmlElement": "Mode", "hrLabel": "Mode", "enumValues": ["A", "B"],
+             "fmMinValues": {"B": {"fmMin": "22.0", "fmMinSource": "documented"}}}]},
+        {"name": "Bad", "fmMin": "soon", "fmMinSource": "measured", "params": [
+            {"xmlElement": "Mode", "hrLabel": "Mode", "enumValues": ["A"],
+             "fmMinValues": {"Z": {"fmMin": "22.0", "fmMinSource": "measured"}}}]},
+    ]
+    problems = fm_min_problems(steps)
+    assert not [p for p in problems if p.startswith("Good")]
+    assert 'Bad: fmMin "soon" is neither "any", "unknown" nor a version' in problems
+    assert ("Bad / Mode = Z: fmMinValues names a value that is not in enumValues"
+            in problems)
+    assert len(problems) == 2
+
+
+def test_fm_min_gate_keys_checked():
+    steps = [{"name": "S", "params": [
+        {"xmlElement": "Restore", "fmMin": "22.0", "fmMinSource": "measured",
+         "fmMinOnOlder": "dropped"},
+        {"xmlElement": "Via", "fmMin": "20.1", "fmMinSource": "measured"},
+        {"xmlElement": "Provider", "fmGateWhen": {"param": "Via", "values": ["True"]}},
+        {"xmlElement": "Bad", "fmMinOnOlder": "kept"},
+        {"xmlElement": "Lost", "fmGateWhen": {"param": "Nope", "values": ["True"]}},
+    ]}]
+    problems = fm_min_problems(steps)
+    assert 'S / Bad: fmMinOnOlder must be "dropped"' in problems
+    assert "S / Bad: fmMinOnOlder without fmMin" in problems
+    assert "S / Lost: fmGateWhen param names no single sibling param" in problems
+    assert len(problems) == 3
+
+
+def test_shipped_catalogs_version_data_well_formed():
+    with open(CATALOG, encoding="utf-8") as fh:
+        assert fm_min_problems(json.load(fh)) == []
+    with open(FUNCTION_CATALOG, encoding="utf-8") as fh:
+        functions = json.load(fh)["functions"]
+    assert [f["name"] for f in functions if fm_min_problem(f)] == []
+    names = [f["name"] for f in functions]
+    assert len(names) == len(set(n.lower() for n in names)), "duplicate function"
+
+
+
+def test_fm_min_reader_tolerates_malformed_data():
+    from catalog_grammar import CatalogEntry, StepParam
+
+    p = StepParam.from_dict({"xmlElement": "Mode", "type": "enum", "hrLabel": None,
+                             "fmMin": "soon", "fmMinSource": "measured",
+                             "fmMinValues": ["not", "a", "map"]})
+    assert p.fm_min is None and p.fm_min_source is None and p.fm_min_values == {}
+    p = StepParam.from_dict({"xmlElement": "Mode", "type": "enum", "hrLabel": None,
+                             "fmMin": "unknown", "fmMinSource": "documented"})
+    assert p.fm_min == "unknown" and p.fm_min_source == "documented"
+    e = CatalogEntry.from_dict({"name": "S", "fmMin": "21.0", "fmMinSource": "measured"})
+    assert e.fm_min == "21.0"
+    assert fm_min_problems([{"name": "S", "params": [
+        {"xmlElement": "M", "enumValues": ["A"], "fmMinValues": "bad"}]}]) == [
+        "S / M: fmMinValues is not an object"]
+
+
 if __name__ == "__main__":
     test_no_params_dropped()
     test_no_unknown_param_types()
@@ -135,4 +225,9 @@ if __name__ == "__main__":
     test_step_instance_ir_roundtrips_values()
     test_discriminator_branches_parse()
     test_element_alias_reads_both_spellings()
+    test_fm_min_values_read()
+    test_fm_min_problems_name_step_param_and_value()
+    test_fm_min_gate_keys_checked()
+    test_shipped_catalogs_version_data_well_formed()
+    test_fm_min_reader_tolerates_malformed_data()
     print(f"all catalog_grammar tests passed ({len(KNOWN_PARAM_TYPES)} known types)")

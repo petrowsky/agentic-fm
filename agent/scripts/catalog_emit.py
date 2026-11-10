@@ -45,6 +45,7 @@ hand-coded in the SaXML converter (the sanctioned exception).
 
 from __future__ import annotations
 
+import warnings
 from typing import Any, Protocol
 
 from calc_literal import (
@@ -59,6 +60,7 @@ from calc_literal import (
 )
 from catalog_grammar import (
     FIELD_MISSING_SENTINEL,
+    TABLE_MISSING_SENTINEL,
     CatalogEntry,
     StepParam,
     _group_quote_value,
@@ -69,10 +71,13 @@ from catalog_grammar import (
     hr_param_order,
     is_driven_discriminator,
     is_governing_discriminator,
+    split_field_entry_suffix,
     param_key,
     positional_token_fits_param,
     projection_owner,
     renders_bare_in_hr,
+    resolve_mirror_source,
+    resolve_mirror_sibling,
     shape_routed_values,
     value_reveals_companion,
 )
@@ -185,7 +190,12 @@ def esc_xml_attr(s: str) -> str:
 
 
 def cdata(s: str) -> str:
-    return "<![CDATA[" + s + "]]>"
+    """Wrap s in a CDATA section, splitting each "]]>" across two sections.
+
+    "]]>" ends a CDATA section, so an unsplit one leaves malformed XML that
+    FileMaker refuses to paste; FileMaker joins the sections back into one value.
+    """
+    return "<![CDATA[" + s.replace("]]>", "]]]]><![CDATA[>") + "]]>"
 
 
 def _split_top_level_commas(s: str) -> list[str]:
@@ -444,7 +454,10 @@ def _repetition_calc_sibling(calc: str, indent: str) -> str:
 def _resolve_field(resolver: IdResolver, ref: str) -> tuple[str, int, str]:
     """Resolve ``Table::Field``; FileMaker's ``Table::<Field Missing>`` (a table
     with no field) reads back to its stored form, id 0 and an empty name, never a
-    field literally named ``<Field Missing>``."""
+    field literally named ``<Field Missing>``, and its ``<Table Missing>`` (no
+    table, no field) to the empty reference."""
+    if _trim(ref) == TABLE_MISSING_SENTINEL:
+        return "", 0, ""
     sep = ref.find("::")
     if sep >= 0 and _trim(ref[sep + 2 :]) == FIELD_MISSING_SENTINEL:
         return _trim(ref[:sep]), 0, ""
@@ -525,9 +538,10 @@ def _text_param_value(param, hr_value: str) -> str:
 
 
 def _table_param_value(param, hr_value: str) -> str:
-    """The table name for a ``tableRef`` / ``tableOccurrence`` HR token. An
-    ``hr_quoted`` one (Save Records as JSONL's ``Table: “Invoices”``) was rendered
-    as one escaped literal: decode it, else strip one quote pair."""
+    """The name for a ``tableRef`` / ``tableOccurrence`` / ``reference`` HR token.
+    An ``hr_quoted`` one (Save Records as JSONL's ``Table: “Invoices”``, Truncate
+    Table's ``Table: “Line Items”``) was rendered as one escaped literal: decode
+    it, else strip one quote pair (FileMaker's own unescaped display)."""
     if param.hr_quoted:
         t = _trim(hr_value)
         decoded = decode_whole_calc_literal(t)
@@ -648,6 +662,14 @@ def _param_visible_hr(entry: CatalogEntry, values: list[str], param: StepParam) 
 
 def _resolve_bool_state(param: StepParam, hr_value: str) -> str:
     state = param.default_value if param.default_value else "False"
+    # A flagStyle boolean's HR presence is its value: the bare label means True and
+    # its absence means False. ``defaultValue`` documents FileMaker's fresh-step
+    # default; letting it answer for an absent token makes a flag whose default is
+    # "True" impossible to turn off from HR (``Copy [ Invoices::Description ]``
+    # would select the field's contents). The explicit off token keeps invertedHr
+    # and the hrEnumValues map on one path.
+    if param.flag_style and hr_value == "":
+        hr_value = "Off"
     if hr_value != "":
         lower = hr_value.lower()
         if lower in ("on", "true", "yes"):
@@ -766,6 +788,83 @@ def _resolve_layout_token(hr_value: str, resolver: IdResolver) -> tuple[str, str
 # ---------------------------------------------------------------------------
 # Two-phase HR-param matching (parse-HR): pass 1 flags/labels, pass 2 positional.
 # ---------------------------------------------------------------------------
+def _fm_line_bare_boolean_value(param: StepParam, token: str) -> str:
+    """The value a bare token names for an fmLineBare boolean (``On`` / ``Off``,
+    or one of its hrEnumValues labels), or "" when it names none of them."""
+    t = _trim(token)
+    if not t:
+        return ""
+    for label in param.hr_enum_values.values():
+        if label and _ci_equals(t, label):
+            return label
+    for v in ("On", "Off"):
+        if _ci_equals(t, v):
+            return v
+    return ""
+
+
+# A FileMaker path list's own location prefixes (`file:a.csv`, `https://...`,
+# `image:p.png`). The word before their colon is the path, not a label.
+_FM_PATH_PREFIXES = frozenset(
+    {
+        "file", "filemac", "filewin", "filelinux",
+        "image", "imagemac", "imagewin", "imagelinux",
+        "movie", "moviemac", "moviewin", "movielinux",
+        "http", "https", "ftp", "ftps", "fmnet",
+    }
+)
+
+
+def _reads_as_labeled_token(entry: CatalogEntry, raw: str) -> bool:
+    """Whether a token reaching a path slot reads `Word: value`, an option written
+    in labeled style, rather than a path (`XMLSource: $xmlPath`, `XSLT: $xslPath`).
+    FileMaker would keep it as a literal path. The value after the colon is spaced
+    off or is a variable or quoted text, or the word is one of the step's own (an
+    enum value, a group field's key). A location prefix, a drive letter, a quoted
+    path, a variable and a calculation never read this way."""
+    t = _trim(raw)
+    colon = t.find(":")
+    if colon < 2:
+        return False
+    word = t[:colon]
+    if not (word[0].isascii() and word[0].isalpha()):
+        return False
+    if not all(c.isascii() and (c.isalnum() or c in " _-") for c in word):
+        return False
+    if word.lower() in _FM_PATH_PREFIXES:
+        return False
+    rest = t[colon + 1 :]
+    if not rest or rest[0].isspace() or rest[0] in '$"':
+        return True
+    for p in entry.params:
+        if word in _raw_str_arr(p.raw, "enumValues"):
+            return True
+        if any(_raw_str(f, "key") == word for f in _raw_arr(p.raw, "fields")):
+            return True
+    return False
+
+
+def _labeled_token_warning(step_name: str, token: str) -> str:
+    return (
+        f'{step_name}: "{_trim(token)}" reads as a labeled option this step does not have, '
+        "so it was left out of the path. If it is a path, quote it."
+    )
+
+
+def _reads_as_bare_word(raw: str) -> bool:
+    """A token with no value shape: not quoted, a variable, a number, a field
+    reference or a calculation."""
+    t = _trim(raw)
+    if not t:
+        return False
+    c0 = t[0]
+    if c0 in '"$' or not c0.isascii() or c0.isdigit() or c0 in "-+.":
+        return False
+    if "::" in t:
+        return False
+    return not any(c in t for c in '()+*/&=<>"')
+
+
 def match_param_values(entry: CatalogEntry, hr_params: list[str]) -> list[str]:
     """Parse HR bracket params into the per-catalog-param values[] token array."""
     values = [""] * len(entry.params)
@@ -774,10 +873,36 @@ def match_param_values(entry: CatalogEntry, hr_params: list[str]) -> list[str]:
     # Which params claimed an HR token, by label or by position -- distinct from
     # "has a non-empty value": an empty slot is still evidence for the P7.2 derive.
     got_token = [False] * len(entry.params)
+    # Tokens pass 1 recognised as belonging to a param that did not consume them
+    # (a flag written ``Label: <not On/Off>``, a hidden param's FileMaker-drawn
+    # ``fmLineToken``). Never handed to a positional param: taken positionally, a
+    # labeled flag token became Save Records as PDF's file path (``Append: On``).
+    reserved = [False] * len(hr_params)
 
     for pi, param in enumerate(entry.params):
         if param.hr_hidden:
             resolved[pi] = True
+            # hrOffKeepsGated: `<hrLabel>: On|Off` sets the gate's state outright
+            # (Import Records' `Specify import order: Off`), kept as On / Off for
+            # the derive below.
+            if param.raw.get("hrOffKeepsGated") and param.hr_label:
+                prefix = param.hr_label.lower() + ":"
+                for i in range(len(hr_params)):
+                    t = _trim(hr_params[i])
+                    if consumed[i] or not t.lower().startswith(prefix):
+                        continue
+                    word = _trim(t[len(prefix):])
+                    if _ci_equals(word, "On") or _ci_equals(word, "Off"):
+                        values[pi] = "On" if _ci_equals(word, "On") else "Off"
+                        consumed[i] = True
+                    else:
+                        reserved[i] = True
+                    break
+            line_token = _raw_str(param.raw, "fmLineToken")
+            if line_token:
+                for i in range(len(hr_params)):
+                    if not consumed[i] and _ci_equals(_trim(hr_params[i]), line_token):
+                        reserved[i] = True
             continue
         if param.type == "complex":
             resolved[pi] = True
@@ -842,6 +967,7 @@ def match_param_values(entry: CatalogEntry, hr_params: list[str]) -> list[str]:
         is_flag = (param.flag_style or param.type == "flagElement") and bool(param.hr_label)
         if is_flag:
             resolved[pi] = True
+            claimed = False
             for i in range(len(hr_params)):
                 if consumed[i]:
                     continue
@@ -849,7 +975,31 @@ def match_param_values(entry: CatalogEntry, hr_params: list[str]) -> list[str]:
                     consumed[i] = True
                     values[pi] = "True"
                     got_token[pi] = True
+                    claimed = True
                     break
+            # The labeled boolean spelling of a bare flag (``Label: On`` /
+            # ``Label: Off``): On sets it, Off leaves it clear; any other value
+            # after the flag's label is reserved, never taken positionally.
+            prefix = param.hr_label + ":"
+            for i in range(len(hr_params)):
+                if claimed:
+                    break
+                if consumed[i]:
+                    continue
+                t = _trim(hr_params[i])
+                if not _starts_with_ci(t, prefix):
+                    continue
+                v = _trim(t[len(prefix) :])
+                if _ci_equals(v, "On"):
+                    consumed[i] = True
+                    values[pi] = "True"
+                    got_token[pi] = True
+                    claimed = True
+                elif _ci_equals(v, "Off"):
+                    consumed[i] = True
+                    claimed = True
+                else:
+                    reserved[i] = True
             continue
 
         if param.hr_label:
@@ -866,6 +1016,22 @@ def match_param_values(entry: CatalogEntry, hr_params: list[str]) -> list[str]:
                         resolved[pi] = True
                         break
                 if resolved[pi]:
+                    break
+            # fmLineBare boolean: FileMaker draws the value with no label
+            # (``Set Layout Object Animation [ Off ]``, ``Set Error Logging [ On ;
+            # … ]``). Claim the first bare token naming one of its values when no
+            # labeled token gave it one.
+            if not resolved[pi] and param.type == "boolean" and _raw_bool(param.raw, "fmLineBare"):
+                for i in range(len(hr_params)):
+                    if consumed[i]:
+                        continue
+                    v = _fm_line_bare_boolean_value(param, hr_params[i])
+                    if not v:
+                        continue
+                    consumed[i] = True
+                    values[pi] = v
+                    got_token[pi] = True
+                    resolved[pi] = True
                     break
 
     # Shape-routed governing discriminator (shape_routed_values): FileMaker's line
@@ -895,7 +1061,7 @@ def match_param_values(entry: CatalogEntry, hr_params: list[str]) -> list[str]:
                 continue
             before += 1
         for i in range(len(hr_params)):
-            if consumed[i]:
+            if consumed[i] or reserved[i]:
                 continue
             if before > 0:
                 before -= 1
@@ -927,7 +1093,7 @@ def match_param_values(entry: CatalogEntry, hr_params: list[str]) -> list[str]:
     # Copy as with no path: ``[ copy of current file ; Create folders: On ]``).
     # Only a deficit enables the skip. Mirrors the reference converter.
     missing_slots = sum(1 for pi in order if positional_target(pi)) - sum(
-        1 for i in range(len(hr_params)) if not consumed[i] and _trim(hr_params[i])
+        1 for i in range(len(hr_params)) if not consumed[i] and not reserved[i] and _trim(hr_params[i])
     )
 
     def names_later_closed_enum(oi: int, token: str) -> bool:
@@ -942,8 +1108,25 @@ def match_param_values(entry: CatalogEntry, hr_params: list[str]) -> list[str]:
     for oi, pi in enumerate(order):
         if not positional_target(pi):
             continue
-        while pos < len(hr_params) and consumed[pos]:
+        while pos < len(hr_params) and (consumed[pos] or reserved[pos]):
             pos += 1
+        # A path slot takes no labeled option: FileMaker would keep `XMLSource:
+        # $xmlPath` as a literal path, silently. Those tokens stay unplaced. A
+        # value-shaped token after them is still the path; a bare word (`Add`,
+        # `UTF-8`) is not, so the slot stays empty.
+        if entry.params[pi].xml_element == "UniversalPathList":
+            skipped_labeled = False
+            while pos < len(hr_params) and (
+                consumed[pos] or reserved[pos] or _reads_as_labeled_token(entry, hr_params[pos])
+            ):
+                if not consumed[pos] and not reserved[pos]:
+                    reserved[pos] = True
+                    skipped_labeled = True
+                    warnings.warn(_labeled_token_warning(entry.name, hr_params[pos]), stacklevel=2)
+                pos += 1
+            if skipped_labeled and pos < len(hr_params) and _reads_as_bare_word(hr_params[pos]):
+                resolved[pi] = True
+                continue
         if pos < len(hr_params):
             token = _trim(hr_params[pos])
             # A closed-vocabulary enum only claims a token that names one of its
@@ -991,7 +1174,7 @@ def match_param_values(entry: CatalogEntry, hr_params: list[str]) -> list[str]:
 
         parts: list[str] = []
         for i in range(len(hr_params)):
-            if consumed[i]:
+            if consumed[i] or reserved[i]:
                 continue
             tok = _trim(hr_params[i])
             if not tok:
@@ -1006,6 +1189,51 @@ def match_param_values(entry: CatalogEntry, hr_params: list[str]) -> list[str]:
             values[pi] = " | ".join(parts)
             got_token[pi] = True
             resolved[pi] = True
+
+    # fmLineBare: FileMaker draws these labeled params bare, after the step's
+    # other tokens, and leaves an empty one out (Get Folder Path ``[ Allow Folder
+    # Creation ; $result ; "t" ; Get ( DocumentsPath ) ]``). Once the bare params
+    # have their tokens, the bare tokens left are these params', in catalog
+    # order; an explicit empty token keeps its param's slot (``$result ; ; …``).
+    # Fewer tokens than params is FileMaker leaving one out, which the line
+    # cannot place: the tokens fill the first params. Mirrors the reference
+    # converter (which also warns about that guess).
+    # A boolean fmLineBare param is drawn in its own slot and claimed in pass 1.
+    targets = [
+        pi
+        for pi, p in enumerate(entry.params)
+        if _raw_bool(p.raw, "fmLineBare") and p.type != "boolean" and not resolved[pi]
+    ]
+    nxt = 0
+    for i in range(len(hr_params)):
+        if nxt >= len(targets):
+            break
+        if consumed[i] or reserved[i]:
+            continue
+        pi = targets[nxt]
+        nxt += 1
+        consumed[i] = True
+        values[pi] = _trim(hr_params[i])
+        got_token[pi] = True
+        resolved[pi] = True
+
+    # fmLineSubscriptOf: FileMaker draws this param as a repetition subscript on
+    # a sibling's token (``$result[2]``, ``$result[$i]``). With no labeled token of
+    # its own, split a trailing ``[…]`` off the sibling's value into it.
+    for pi, param in enumerate(entry.params):
+        of = _raw_str(param.raw, "fmLineSubscriptOf")
+        if not of or got_token[pi] or _trim(values[pi]):
+            continue
+        for qi, q in enumerate(entry.params):
+            if qi == pi or param_key(q) != of:
+                continue
+            bare, rep, calc = _parse_field_subscript(_trim(values[qi]))
+            if rep > 0 or calc:
+                values[qi] = _trim(bare)
+                values[pi] = calc or str(rep)
+                got_token[pi] = True
+                resolved[pi] = True
+            break
 
     # P7.2 governed-visibility ENUM: a ``visibleWhen`` gate names a sibling enum
     # and the values of it under which this param is shown. FileMaker renders a
@@ -1062,6 +1290,26 @@ def match_param_values(entry: CatalogEntry, hr_params: list[str]) -> list[str]:
                     and _raw_str(f, "defaultValue")
                 )
             break
+
+    # fmLineToken: FileMaker draws a derived hidden boolean as a bare token when
+    # it is on (Sort Records ``[ Restore ; With dialog: Off ]``). Its state is
+    # derived on emit from whether a sibling it gates has a value (P7.1), so the
+    # token adds nothing: consume it when that derived state is on; otherwise it
+    # stays unconsumed. Mirrors the reference converter.
+    for pi, param in enumerate(entry.params):
+        line_token = _raw_str(param.raw, "fmLineToken")
+        if not line_token or not param.hr_hidden or param.type != "boolean":
+            continue
+        key = param_key(param)
+        derived_on = any(
+            q.visible_when is not None and q.visible_when.param == key and q.visible_when.values
+            and q.visible_when.values[0] == "True" and _trim(values[qi])
+            for qi, q in enumerate(entry.params)
+        )
+        if derived_on:
+            for i in range(len(hr_params)):
+                if not consumed[i] and reserved[i] and _ci_equals(_trim(hr_params[i]), line_token):
+                    consumed[i] = True
 
     return values
 
@@ -1203,7 +1451,11 @@ def _emit_group_element(
     kv: dict[str, str],
     indent: str,
     resolver: IdResolver,
+    materialize: bool = False,
 ) -> str:
+    # ``materialize``: an hrOmitAtDefault group with no HR token writes its
+    # default element (a calc / text field with a defaultValue holds it, every
+    # sub-group is written), the element _group_at_default accepts.
     attrs = ""
     children = ""
     ci = indent + "  "
@@ -1212,6 +1464,28 @@ def _emit_group_element(
         key = _raw_str(f, "key")
         it = kv.get(_lower_key(key))
         present = it is not None and it != ""
+        default = _raw_str(f, "defaultValue")
+        if materialize and not present and kind in ("calc", "text") and default:
+            child_element = _raw_str(f, "childElement")
+            if kind == "text":
+                children += ci + "<" + child_element + ">" + esc_xml(default) + "</" + child_element + ">\n"
+                continue
+            require_attr = _raw_str(f, "requireAttr")
+            if require_attr:
+                attrs += " " + require_attr + '="True"'
+            if not child_element:
+                children += ci + "<Calculation>" + cdata(default) + "</Calculation>\n"
+            else:
+                children += ci + "<" + child_element + ">\n"
+                children += ci + "  <Calculation>" + cdata(default) + "</Calculation>\n"
+                children += ci + "</" + child_element + ">\n"
+            continue
+        if materialize and not present and kind == "group":
+            children += (
+                _emit_group_element(_raw_str(f, "element"), _raw_arr(f, "fields"), {}, ci, resolver, True)
+                + "\n"
+            )
+            continue
         if kind == "attr":
             if _raw_bool(f, "optional") and not present:
                 continue
@@ -1307,6 +1581,12 @@ def _emit_attr_group(
 ) -> str:
     # ``projected``: fields a display projection (groupFields) read from its own
     # token, keyed lower-case; they override the body's and make the group present.
+    # hrOmitAtDefault: no token is the group at its catalog default, which the
+    # XML->HR side left out; write that default element back.
+    if not _trim(hr_value) and _raw_bool(param.raw, "hrOmitAtDefault") and not projected:
+        return _emit_group_element(
+            param.xml_element, _raw_arr(param.raw, "fields"), {}, "    ", resolver, True
+        )
     if not _trim(hr_value) and not param.hr_hidden and not projected:
         return ""
     kv = _parse_group_kv(hr_value)
@@ -1423,13 +1703,18 @@ def _emit_field_list(param: StepParam, hr_value: str, resolver: IdResolver) -> s
         fieldref = entry_str
         attrval = entry_attr_default
         eq = entry_str.find("=")
+        suffixed: dict[str, str] = {}
         if eq != -1:
             fieldref = _trim(entry_str[:eq])
-            attrval = _trim(entry_str[eq + 1 :])
+            attrval, suffixed = split_field_entry_suffix(param, _trim(entry_str[eq + 1 :]))
+            if suffixed and not attrval:
+                attrval = entry_attr_default
         table, fid, fname = _resolve_field(resolver, _group_unquote_value(fieldref))
         fattrs = ""
         for ff in field_fixed_attrs:
-            fattrs += " " + _raw_str(ff, "xmlAttr") + '="' + esc_xml_attr(_raw_str(ff, "defaultValue")) + '"'
+            xattr = _raw_str(ff, "xmlAttr")
+            fval = suffixed.get(xattr) or _raw_str(ff, "defaultValue")
+            fattrs += " " + xattr + '="' + esc_xml_attr(fval) + '"'
         if entry_attr and not entry_element:
             fattrs += " " + entry_attr + '="' + esc_xml_attr(attrval) + '"'
         node = (
@@ -1463,6 +1748,37 @@ def convert_step_with_catalog(
 ) -> str:
     """Emit one step's fmxmlsnippet XML from its per-param ``values[]`` token array."""
     params = entry.params
+    values = list(values) + [""] * max(0, len(params) - len(values))
+
+    # mirrorOf: FileMaker writes this param as a copy of a field inside a sibling
+    # attrGroup, so it takes that field's value (Create PDF [ Document: Title="t",
+    # … ] writes the step-level <Calculation> "t" too, as FileMaker does). With the
+    # field empty it keeps its own value: HR gives a hidden copy none, so nothing
+    # is written, and a reader of another serialization that holds only the copy
+    # keeps it (FileMaker fills the field from it on paste).
+    for pi, p in enumerate(params):
+        if not p.raw.get("mirrorOf"):
+            continue
+        # A one-segment mirrorOf copies a sibling text param (Trigger Claris
+        # Connect Flow's <Text> repeats its <Flow>).
+        sib = resolve_mirror_sibling(entry, p)
+        if sib is not None:
+            v = _trim(values[next(i for i, q in enumerate(params) if q is sib)])
+            if v:
+                values[pi] = v
+            continue
+        src = resolve_mirror_source(entry, p)
+        if src is None:
+            continue
+        owner, chain = src
+        body = values[next(i for i, q in enumerate(params) if q is owner)]
+        for i, f in enumerate(chain):
+            kv = _parse_group_kv(body if i == 0 else _strip_parens(body))
+            body = kv.get(_lower_key(str(f.get("key", ""))), "")
+            if not body:
+                break
+        if _trim(body):
+            values[pi] = _trim(body)
     step_id = entry.id if entry.id is not None else 0
     xml = (
         '  <Step enable="'
@@ -1578,7 +1894,10 @@ def convert_step_with_catalog(
     # Records sets its own Restore), and that reading wins.
     implied_bool: dict[int, str] = {}
     for gi, gate in enumerate(params):
-        if not gate.hr_hidden or gate.type != "boolean" or values[gi] != "":
+        # hrOffKeepsGated: an explicit On / Off from the HR names the state
+        # outright: the gated companions are written as given either way.
+        explicit = values[gi] if gate.raw.get("hrOffKeepsGated") and values[gi] in ("On", "Off") else ""
+        if not gate.hr_hidden or gate.type != "boolean" or (values[gi] != "" and not explicit):
             continue
         gate_key = param_key(gate)
         on_value = ""  # the gate value that REVEALS a companion
@@ -1596,6 +1915,9 @@ def convert_step_with_catalog(
         if not gates:
             continue  # hrHidden but nothing gates on it: default emit
         off_value = "False" if on_value == "True" else "True"
+        if explicit:
+            implied_bool[gi] = on_value if explicit == "On" else off_value
+            continue
         implied_bool[gi] = on_value if any_content else off_value
 
     # G10 nested attribute-bearing wrapper: the step-level rule one level down. An
@@ -1760,6 +2082,9 @@ def convert_step_with_catalog(
         elif param.type == "namedCalc":
             if hr_value != "" or param.required:
                 piece = _emit_named_calc(param, hr_value)
+            elif param.raw.get("hrOmitAtDefault") and _raw_str(param.raw, "defaultValue"):
+                # hrOmitAtDefault: no token is the catalog default, written back.
+                piece = _emit_named_calc(param, _raw_str(param.raw, "defaultValue"))
         elif param.type == "parametersList":
             piece = _emit_parameters_list(param, hr_value)
         elif param.type == "findRequests":
@@ -1802,17 +2127,33 @@ def convert_step_with_catalog(
                     + ">"
                 )
         elif param.type == "reference":
-            name = _unquote(hr_value)
+            # Fixed-id built-ins (enumValues = id FM writes, hrEnumValues = name FM
+            # displays) emit with their id: FM resolves some references by id alone
+            # on paste (Install Menu Set's <CustomMenuSet>). Mirrors the reference.
+            # An hr_quoted name came as one escaped literal (or FileMaker's own
+            # quoted display); a built-in label (``<Current Table>``) comes bare.
+            name = _table_param_value(param, hr_value)
+            fixed_id = ""
+            for k in sorted(param.hr_enum_values):
+                label = param.hr_enum_values[k]
+                if label and _ci_equals(label, name):
+                    fixed_id, name = k, label
+                    break
             if name != "" or param.required:
                 wa = _raw_str(param.raw, "wrapperAttr")
                 extra = " " + wa if wa else ""
-                piece = "    <" + param.xml_element + ' name="' + esc_xml(name) + '"' + extra + "/>"
+                id_attr = ' id="' + esc_xml(fixed_id) + '"' if fixed_id else ""
+                piece = "    <" + param.xml_element + id_attr + ' name="' + esc_xml(name) + '"' + extra + "/>"
         elif param.type == "layout":
             if param.discriminator:
                 if pi in layout_piece:
                     piece = layout_piece[pi]
             else:
-                layout_name = _unquote(hr_value)
+                # FileMaker's own line reads “Name” (TO): the curly quotes mark a
+                # layout reference and the suffix is decoration, as for a
+                # discriminated layout token.
+                _, layout_token = _strip_resolved_layout_decoration(_trim(hr_value))
+                layout_name = _unquote(layout_token)
                 if layout_name == "" or _ci_equals(layout_name, "<unknown>"):
                     piece = '    <Layout id="0" name=""/>'
                 else:

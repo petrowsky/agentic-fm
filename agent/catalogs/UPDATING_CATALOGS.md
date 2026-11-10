@@ -128,6 +128,27 @@ Only include sub-keys that have actual content. Do not add empty arrays or empty
 
 Once notes are migrated, the snippet file becomes the **archive** (XML reference only), not the source of behavioral truth. The catalog `notes` field is the live source for agent consumption. Do **not** modify snippet files during this migration — they remain unchanged and read-only.
 
+## Version data (`fmMin`)
+
+Steps, step options, enum values and functions may carry the first FileMaker version that has them (`fmMin` + `fmMinSource`, schema in [`CATALOG_SCHEMA.md`](./CATALOG_SCHEMA.md) § "Version data").
+Prefer measuring to reading documentation, and record which one you did.
+
+- **Measured.** Try the item on each installed FileMaker version and take the oldest that accepts it.
+  A function is tried without running it, as `If ( False ; <call> ; 1 )` evaluated in a calculation: error 1208 means the function does not exist, error 1215 means the `Get` selector does not exist, and any other result (including argument errors) means it exists.
+  A step or option is pasted into the Script Workspace and read back; FileMaker drops what it does not know, so a paste that succeeds proves nothing until the step is read back.
+  A step drawn as `<unknown>`, or as `#[OBSOLETE]` followed by another step's name, does not exist in that version.
+- **Documented.** When an item cannot be exercised (a platform it does not run on, a step that needs a server), take the version from the "Originated in version" line of its Claris help page.
+- An item present in the oldest version measured gets `"any"`, not that version.
+- An item first measured present on a later major gets that major's first shipped release (`"20.1"` for FileMaker Pro 20), unless an earlier measured release of the same major lacked it; then it gets the oldest release measured with it (`CATALOG_SCHEMA.md` § "Measured minimums").
+- A `"documented"` value that falls between the newest version measured without the item and the oldest measured with it is a refinement: keep it when you measure again.
+  A documented value outside that range disagrees with FileMaker; record why next to it before you keep it.
+- Leave `fmMin` out when nobody has looked; write `"unknown"` (with the source that was tried) when you looked and could not decide. Never guess.
+- A parameter or enum value only gets its own `fmMin` when it is newer than the step; otherwise leave it out and it inherits the step's (`CATALOG_SCHEMA.md` § "Version data", "Combining").
+- To retract a wrong value, replace it with the right one or with `"unknown"`.
+  Never just delete the keys: a consumer that layers an updated catalog over an older copy keeps keys the update lacks, so the wrong value would survive there.
+
+Version data is not read by the converters, so adding it changes no HR or XML; it still goes through § "The verification rule" like any other catalog edit.
+
 ## Additional Reference
 
 Official Claris documentation for each script step may be available at `agent/docs/filemaker/script-steps/`. **Note:** this directory only exists if `agent/docs/filemaker/fetch_docs.py` has been run to download the documentation -- it is not checked into the repo. These can be consulted for parameter details, behavior notes, and platform support. **Important:** the official docs only reference terms in the human-readable format — they contain no fmxmlsnippet/XML values. They are useful for understanding HR option names and step behavior, not for XML element or attribute names.

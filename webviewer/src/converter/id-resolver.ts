@@ -16,10 +16,15 @@ export interface IdResolver {
   resolveScript(name: string): { id: number; name: string };
   /** Returns all references that could not be resolved (id=0) */
   getUnresolved(): UnresolvedRef[];
+  /** Records a conversion warning raised while emitting a step */
+  addWarning(line: number, message: string): void;
+  /** Returns the conversion warnings recorded so far */
+  getWarnings(): { line: number; message: string }[];
 }
 
 export function createIdResolver(context: FMContext | null): IdResolver {
   const unresolved: UnresolvedRef[] = [];
+  const warnings: { line: number; message: string }[] = [];
 
   return {
     resolveLayout(name: string) {
@@ -97,6 +102,14 @@ export function createIdResolver(context: FMContext | null): IdResolver {
 
     getUnresolved() {
       return unresolved;
+    },
+
+    addWarning(line: number, message: string) {
+      warnings.push({ line, message });
+    },
+
+    getWarnings() {
+      return warnings;
     },
   };
 }

@@ -1,0 +1,105 @@
+{
+ "provenance": "Captured against FileMaker Pro 26.0.3 on macOS, 2026-10-24. `pasted` is the step as pasted, `fm` FileMaker's copy of it, `fmLine` the line FileMaker draws for it, `hr` the converter's HR for `fm`. `roundTrip` says how HR -> XML of `hr` compares with `fm`: exact; exceptFlags (the four hidden option flags come back at FileMaker's insert defaults); exceptCurl (FileMaker's default <CURLOptions> is added); exceptFlagsAndCurl; hrOnly (FileMaker's copy-out of a step pasted without its option flags holds no <Flow>, which HR -> XML writes). Field ids are not compared (converted without a solution context). `fmLineConverts`: FileMaker's own line converts to `fm` exactly (the line holds every stored value). The element names (Auth, JSONData, the step-level Calculation as the URL, Field as the target) were read from a step configured in FileMaker's own dialog.",
+ "cases": [
+  {
+   "id": "fresh-insert",
+   "note": "Step as FileMaker inserts it (no flow selected; FileMaker writes the <unknown> placeholder and its default cURL options).",
+   "pasted": "<Step enable=\"True\" id=\"211\" name=\"Trigger Claris Connect Flow\"><NoInteract state=\"True\"/><DontEncodeURL state=\"False\"/><SelectAll state=\"True\"/><VerifySSLCertificates state=\"False\"/><Flow>&lt;unknown&gt;</Flow><CURLOptions><Calculation><![CDATA[\"--request POST --header \\\"Content-Type: application/json\\\" --data \"]]></Calculation></CURLOptions><Text>&lt;unknown&gt;</Text></Step>",
+   "fm": "<Step enable=\"True\" id=\"211\" name=\"Trigger Claris Connect Flow\"><NoInteract state=\"True\"></NoInteract><DontEncodeURL state=\"False\"></DontEncodeURL><SelectAll state=\"True\"></SelectAll><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><VerifySSLCertificates state=\"False\"></VerifySSLCertificates><Flow>&lt;unknown&gt;</Flow><CURLOptions><Calculation><![CDATA[\"--request POST --header \\\"Content-Type: application/json\\\" --data \"]]></Calculation></CURLOptions><Text>&lt;unknown&gt;</Text></Step>",
+   "fmLine": "Trigger Claris Connect Flow [ Flow: <unknown> ; JSON Data:    ]",
+   "hr": "Trigger Claris Connect Flow [ Flow: <unknown> ]",
+   "roundTrip": "exact",
+   "fmLineConverts": true
+  },
+  {
+   "id": "full-variable-target",
+   "note": "Flow, AppID:APIKey, JSON data, URL and a variable target.",
+   "pasted": "<Step enable=\"True\" id=\"211\" name=\"Trigger Claris Connect Flow\"><NoInteract state=\"True\"/><DontEncodeURL state=\"False\"/><SelectAll state=\"True\"/><VerifySSLCertificates state=\"False\"/><Flow>Order Sync</Flow><Auth><Calculation><![CDATA[$appID & \":\" & $apiKey]]></Calculation></Auth><JSONData><Calculation><![CDATA[JSONSetElement ( \"{}\" ; \"k\" ; \"v w\" ; JSONString )]]></Calculation></JSONData><CURLOptions><Calculation><![CDATA[\"--request POST --header \\\"Content-Type: application/json\\\" --data \"]]></Calculation></CURLOptions><Calculation><![CDATA[\"https://hooks.example/\" & $id]]></Calculation><Text>Order Sync</Text><Field>$response</Field></Step>",
+   "fm": "<Step enable=\"True\" id=\"211\" name=\"Trigger Claris Connect Flow\"><NoInteract state=\"True\"></NoInteract><DontEncodeURL state=\"False\"></DontEncodeURL><SelectAll state=\"True\"></SelectAll><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><VerifySSLCertificates state=\"False\"></VerifySSLCertificates><Flow>Order Sync</Flow><Auth><Calculation><![CDATA[$appID & \":\" & $apiKey]]></Calculation></Auth><JSONData><Calculation><![CDATA[JSONSetElement ( \"{}\" ; \"k\" ; \"v w\" ; JSONString )]]></Calculation></JSONData><CURLOptions><Calculation><![CDATA[\"--request POST --header \\\"Content-Type: application/json\\\" --data \"]]></Calculation></CURLOptions><Calculation><![CDATA[\"https://hooks.example/\" & $id]]></Calculation><Text>Order Sync</Text><Field>$response</Field></Step>",
+   "fmLine": "Trigger Claris Connect Flow [ Flow: Order Sync ; JSON Data: JSONSetElement ( \"{}\" ; \"k\" ; \"v w\" ; JSONString ) ; Target: $response ]",
+   "hr": "Trigger Claris Connect Flow [ Flow: Order Sync ; URL: \"https://hooks.example/\" & $id ; JSON Data: JSONSetElement ( \"{}\" ; \"k\" ; \"v w\" ; JSONString ) ; AppID:APIKey for Webhooks: $appID & \":\" & $apiKey ; Target: $response ]",
+   "roundTrip": "exact",
+   "fmLineConverts": false
+  },
+  {
+   "id": "field-target",
+   "note": "Field target.",
+   "pasted": "<Step enable=\"True\" id=\"211\" name=\"Trigger Claris Connect Flow\"><NoInteract state=\"True\"/><DontEncodeURL state=\"False\"/><SelectAll state=\"True\"/><VerifySSLCertificates state=\"False\"/><Flow>F3</Flow><JSONData><Calculation><![CDATA[JSONSetElement ( \"{}\" ; \"k\" ; \"v w\" ; JSONString )]]></Calculation></JSONData><CURLOptions><Calculation><![CDATA[\"--request POST --header \\\"Content-Type: application/json\\\" --data \"]]></Calculation></CURLOptions><Calculation><![CDATA[\"https://hooks.example/\" & $id]]></Calculation><Text>F3</Text><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+   "fm": "<Step enable=\"True\" id=\"211\" name=\"Trigger Claris Connect Flow\"><NoInteract state=\"True\"></NoInteract><DontEncodeURL state=\"False\"></DontEncodeURL><SelectAll state=\"True\"></SelectAll><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><VerifySSLCertificates state=\"False\"></VerifySSLCertificates><Flow>F3</Flow><JSONData><Calculation><![CDATA[JSONSetElement ( \"{}\" ; \"k\" ; \"v w\" ; JSONString )]]></Calculation></JSONData><CURLOptions><Calculation><![CDATA[\"--request POST --header \\\"Content-Type: application/json\\\" --data \"]]></Calculation></CURLOptions><Calculation><![CDATA[\"https://hooks.example/\" & $id]]></Calculation><Text>F3</Text><Field table=\"Invoices\" id=\"31\" name=\"Description\"></Field></Step>",
+   "fmLine": "Trigger Claris Connect Flow [ Flow: F3 ; JSON Data: JSONSetElement ( \"{}\" ; \"k\" ; \"v w\" ; JSONString ) ; Target: Invoices::Description ]",
+   "hr": "Trigger Claris Connect Flow [ Flow: F3 ; URL: \"https://hooks.example/\" & $id ; JSON Data: JSONSetElement ( \"{}\" ; \"k\" ; \"v w\" ; JSONString ) ; Target: Invoices::Description ]",
+   "roundTrip": "exact",
+   "fmLineConverts": false
+  },
+  {
+   "id": "curl-put",
+   "note": "cURL options other than FileMaker's default print and round-trip.",
+   "pasted": "<Step enable=\"True\" id=\"211\" name=\"Trigger Claris Connect Flow\"><NoInteract state=\"True\"/><DontEncodeURL state=\"False\"/><SelectAll state=\"True\"/><VerifySSLCertificates state=\"False\"/><Flow>F4</Flow><JSONData><Calculation><![CDATA[JSONSetElement ( \"{}\" ; \"k\" ; \"v w\" ; JSONString )]]></Calculation></JSONData><CURLOptions><Calculation><![CDATA[\"--request PUT --data \"]]></Calculation></CURLOptions><Calculation><![CDATA[\"https://hooks.example/\" & $id]]></Calculation><Text>F4</Text><Field>$r4</Field></Step>",
+   "fm": "<Step enable=\"True\" id=\"211\" name=\"Trigger Claris Connect Flow\"><NoInteract state=\"True\"></NoInteract><DontEncodeURL state=\"False\"></DontEncodeURL><SelectAll state=\"True\"></SelectAll><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><VerifySSLCertificates state=\"False\"></VerifySSLCertificates><Flow>F4</Flow><JSONData><Calculation><![CDATA[JSONSetElement ( \"{}\" ; \"k\" ; \"v w\" ; JSONString )]]></Calculation></JSONData><CURLOptions><Calculation><![CDATA[\"--request PUT --data \"]]></Calculation></CURLOptions><Calculation><![CDATA[\"https://hooks.example/\" & $id]]></Calculation><Text>F4</Text><Field>$r4</Field></Step>",
+   "fmLine": "Trigger Claris Connect Flow [ Flow: F4 ; JSON Data: JSONSetElement ( \"{}\" ; \"k\" ; \"v w\" ; JSONString ) ; Target: $r4 ]",
+   "hr": "Trigger Claris Connect Flow [ Flow: F4 ; URL: \"https://hooks.example/\" & $id ; JSON Data: JSONSetElement ( \"{}\" ; \"k\" ; \"v w\" ; JSONString ) ; cURL options: \"--request PUT --data \" ; Target: $r4 ]",
+   "roundTrip": "exact",
+   "fmLineConverts": false
+  },
+  {
+   "id": "no-flow-url",
+   "note": "Empty flow, URL only: FileMaker draws `Flow: <unknown>`.",
+   "pasted": "<Step enable=\"True\" id=\"211\" name=\"Trigger Claris Connect Flow\"><NoInteract state=\"True\"/><DontEncodeURL state=\"False\"/><SelectAll state=\"True\"/><VerifySSLCertificates state=\"False\"/><Flow></Flow><CURLOptions><Calculation><![CDATA[\"--request POST --header \\\"Content-Type: application/json\\\" --data \"]]></Calculation></CURLOptions><Calculation><![CDATA[\"https://hooks.example/\" & $id]]></Calculation></Step>",
+   "fm": "<Step enable=\"True\" id=\"211\" name=\"Trigger Claris Connect Flow\"><NoInteract state=\"True\"></NoInteract><DontEncodeURL state=\"False\"></DontEncodeURL><SelectAll state=\"True\"></SelectAll><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><VerifySSLCertificates state=\"False\"></VerifySSLCertificates><Flow></Flow><CURLOptions><Calculation><![CDATA[\"--request POST --header \\\"Content-Type: application/json\\\" --data \"]]></Calculation></CURLOptions><Calculation><![CDATA[\"https://hooks.example/\" & $id]]></Calculation></Step>",
+   "fmLine": "Trigger Claris Connect Flow [ Flow: <unknown> ; JSON Data:    ]",
+   "hr": "Trigger Claris Connect Flow [ URL: \"https://hooks.example/\" & $id ]",
+   "roundTrip": "exact",
+   "fmLineConverts": false
+  },
+  {
+   "id": "flags-off-default",
+   "note": "The four option flags off their defaults: FileMaker keeps them but never draws them and its dialog cannot set them; HR -> XML writes the defaults.",
+   "pasted": "<Step enable=\"True\" id=\"211\" name=\"Trigger Claris Connect Flow\"><NoInteract state=\"False\"/><DontEncodeURL state=\"True\"/><SelectAll state=\"False\"/><VerifySSLCertificates state=\"True\"/><Flow>F6</Flow><JSONData><Calculation><![CDATA[JSONSetElement ( \"{}\" ; \"k\" ; \"v w\" ; JSONString )]]></Calculation></JSONData><CURLOptions><Calculation><![CDATA[\"--request POST --header \\\"Content-Type: application/json\\\" --data \"]]></Calculation></CURLOptions><Calculation><![CDATA[\"https://hooks.example/\" & $id]]></Calculation><Text>F6</Text></Step>",
+   "fm": "<Step enable=\"True\" id=\"211\" name=\"Trigger Claris Connect Flow\"><NoInteract state=\"False\"></NoInteract><DontEncodeURL state=\"True\"></DontEncodeURL><SelectAll state=\"False\"></SelectAll><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><VerifySSLCertificates state=\"True\"></VerifySSLCertificates><Flow>F6</Flow><JSONData><Calculation><![CDATA[JSONSetElement ( \"{}\" ; \"k\" ; \"v w\" ; JSONString )]]></Calculation></JSONData><CURLOptions><Calculation><![CDATA[\"--request POST --header \\\"Content-Type: application/json\\\" --data \"]]></Calculation></CURLOptions><Calculation><![CDATA[\"https://hooks.example/\" & $id]]></Calculation><Text>F6</Text></Step>",
+   "fmLine": "Trigger Claris Connect Flow [ Flow: F6 ; JSON Data: JSONSetElement ( \"{}\" ; \"k\" ; \"v w\" ; JSONString ) ]",
+   "hr": "Trigger Claris Connect Flow [ Flow: F6 ; URL: \"https://hooks.example/\" & $id ; JSON Data: JSONSetElement ( \"{}\" ; \"k\" ; \"v w\" ; JSONString ) ]",
+   "roundTrip": "exceptFlags",
+   "fmLineConverts": false
+  },
+  {
+   "id": "json-only",
+   "note": "Flow and JSON data only: FileMaker's own line converts to the same step.",
+   "pasted": "<Step enable=\"True\" id=\"211\" name=\"Trigger Claris Connect Flow\"><NoInteract state=\"True\"/><DontEncodeURL state=\"False\"/><SelectAll state=\"True\"/><VerifySSLCertificates state=\"False\"/><Flow>F7</Flow><JSONData><Calculation><![CDATA[JSONSetElement ( \"{}\" ; \"k\" ; \"v w\" ; JSONString )]]></Calculation></JSONData><CURLOptions><Calculation><![CDATA[\"--request POST --header \\\"Content-Type: application/json\\\" --data \"]]></Calculation></CURLOptions><Text>F7</Text></Step>",
+   "fm": "<Step enable=\"True\" id=\"211\" name=\"Trigger Claris Connect Flow\"><NoInteract state=\"True\"></NoInteract><DontEncodeURL state=\"False\"></DontEncodeURL><SelectAll state=\"True\"></SelectAll><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><VerifySSLCertificates state=\"False\"></VerifySSLCertificates><Flow>F7</Flow><JSONData><Calculation><![CDATA[JSONSetElement ( \"{}\" ; \"k\" ; \"v w\" ; JSONString )]]></Calculation></JSONData><CURLOptions><Calculation><![CDATA[\"--request POST --header \\\"Content-Type: application/json\\\" --data \"]]></Calculation></CURLOptions><Text>F7</Text></Step>",
+   "fmLine": "Trigger Claris Connect Flow [ Flow: F7 ; JSON Data: JSONSetElement ( \"{}\" ; \"k\" ; \"v w\" ; JSONString ) ]",
+   "hr": "Trigger Claris Connect Flow [ Flow: F7 ; JSON Data: JSONSetElement ( \"{}\" ; \"k\" ; \"v w\" ; JSONString ) ]",
+   "roundTrip": "exact",
+   "fmLineConverts": true
+  },
+  {
+   "id": "flow-without-text",
+   "note": "Pasted with <Flow> and no <Text>: FileMaker adds the <Text> copy. No <CURLOptions>: HR -> XML writes FileMaker's default.",
+   "pasted": "<Step enable=\"True\" id=\"211\" name=\"Trigger Claris Connect Flow\"><NoInteract state=\"True\"/><DontEncodeURL state=\"False\"/><SelectAll state=\"True\"/><VerifySSLCertificates state=\"False\"/><Flow>FlowOnly</Flow><Calculation><![CDATA[\"https://u.example/hook\"]]></Calculation></Step>",
+   "fm": "<Step enable=\"True\" id=\"211\" name=\"Trigger Claris Connect Flow\"><NoInteract state=\"True\"></NoInteract><DontEncodeURL state=\"False\"></DontEncodeURL><SelectAll state=\"True\"></SelectAll><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><VerifySSLCertificates state=\"False\"></VerifySSLCertificates><Flow>FlowOnly</Flow><Calculation><![CDATA[\"https://u.example/hook\"]]></Calculation><Text>FlowOnly</Text></Step>",
+   "fmLine": "Trigger Claris Connect Flow [ Flow: FlowOnly ; JSON Data:    ]",
+   "hr": "Trigger Claris Connect Flow [ Flow: FlowOnly ; URL: \"https://u.example/hook\" ]",
+   "roundTrip": "exceptCurl",
+   "fmLineConverts": false
+  },
+  {
+   "id": "text-without-flow",
+   "note": "Pasted with <Text> and no <Flow>: FileMaker drops the copy and stores an empty flow.",
+   "pasted": "<Step enable=\"True\" id=\"211\" name=\"Trigger Claris Connect Flow\"><NoInteract state=\"True\"/><DontEncodeURL state=\"False\"/><SelectAll state=\"True\"/><VerifySSLCertificates state=\"False\"/><Calculation><![CDATA[\"https://u.example/hook\"]]></Calculation><Text>TextOnly</Text></Step>",
+   "fm": "<Step enable=\"True\" id=\"211\" name=\"Trigger Claris Connect Flow\"><NoInteract state=\"True\"></NoInteract><DontEncodeURL state=\"False\"></DontEncodeURL><SelectAll state=\"True\"></SelectAll><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><VerifySSLCertificates state=\"False\"></VerifySSLCertificates><Flow></Flow><Calculation><![CDATA[\"https://u.example/hook\"]]></Calculation></Step>",
+   "fmLine": "Trigger Claris Connect Flow [ Flow: <unknown> ; JSON Data:    ]",
+   "hr": "Trigger Claris Connect Flow [ URL: \"https://u.example/hook\" ]",
+   "roundTrip": "exceptCurl",
+   "fmLineConverts": false
+  },
+  {
+   "id": "pasted-without-flags",
+   "note": "Pasted without the option flags, <Flow>FA</Flow><Text>TB</Text>: FileMaker draws `Flow: FA` and copies out only <Text>FA</Text> (no <Flow>); XML -> HR reads the flow from the copy.",
+   "pasted": "<Step enable=\"True\" id=\"211\" name=\"Trigger Claris Connect Flow\"><Flow>FA</Flow><Text>TB</Text></Step>",
+   "fm": "<Step enable=\"True\" id=\"211\" name=\"Trigger Claris Connect Flow\"><NoInteract state=\"False\"></NoInteract><DontEncodeURL state=\"False\"></DontEncodeURL><SelectAll state=\"False\"></SelectAll><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><VerifySSLCertificates state=\"False\"></VerifySSLCertificates><Text>FA</Text></Step>",
+   "fmLine": "Trigger Claris Connect Flow [ Flow: FA ; JSON Data:    ]",
+   "hr": "Trigger Claris Connect Flow [ Flow: FA ]",
+   "roundTrip": "hrOnly",
+   "fmLineConverts": false
+  }
+ ]
+}

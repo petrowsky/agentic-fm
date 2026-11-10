@@ -23,6 +23,7 @@ import json
 import os
 import re
 import sys
+import warnings
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.dirname(os.path.dirname(HERE))
@@ -142,6 +143,72 @@ def test_save_records_as_jsonl_line_keeps_option_table_and_path():
             assert (got and got.group(1)) == (table and table.group(1)), line
             if "<UniversalPathList>" in c["xml"]:
                 assert "<UniversalPathList>$path</UniversalPathList>" in xml, line
+
+
+# A bare flag written in the labeled boolean spelling every other option of the
+# step uses (``Append: On``): On sets the flag, Off leaves it clear, and neither,
+# nor any other value after the flag's label, is ever read as the file path.
+# Before, the unlabeled path took the token positionally and FileMaker drew the
+# path ``“ On”`` (FileMaker Pro 26.0.3).
+def test_labeled_flag_spelling_sets_the_flag_never_the_path():
+    xml = _emit("Save Records as PDF [ Append: On ; With dialog: Off ]")
+    assert _state(xml, "Option") == "True", xml
+    assert "<UniversalPathList>" not in xml, xml
+    xml = _emit("Export Records [ With dialog: Off ; “$p” ; Automatically open: On ; Create email: Off ]")
+    assert _state(xml, "AutoOpen") == "True" and _state(xml, "CreateEmail") == "False", xml
+    assert "<UniversalPathList>$p</UniversalPathList>" in xml, xml
+    xml = _emit("Export Records [ With dialog: Off ; Automatically open: Yes ]")
+    assert "<UniversalPathList>" not in xml, xml
+
+
+# An option in labeled style that the step does not have is not a path either:
+# FileMaker keeps ``XMLSource: $xmlPath`` as a literal path. A real path, and the
+# Profile that holds an XML source, are unaffected.
+def test_labeled_token_is_never_the_path():
+    for line in (
+        "Import Records [ With dialog: Off ; XMLSource: $xmlPath ; XSLT: $xslPath ; Add ; UTF-8 ; Table: Invoices ]",
+        "Convert File [ With dialog: Off ; XMLSource: $url ]",
+        "Convert File [ With dialog: Off ; XMLSource:$url ]",
+        "Convert File [ With dialog: Off ; XMLHttp:https://e.com/a.xml ]",
+        "Save Records as PDF [ With dialog: Off ; Output: On ]",
+    ):
+        assert "<UniversalPathList" not in _emit(line), line
+    assert "<UniversalPathList>$p</UniversalPathList>" in _emit('Convert File [ With dialog: Off ; XSLT: $x ; "$p" ]')
+    for token, path in (
+        ("$url", "$url"),
+        ('"Reports: Q3.csv"', "Reports: Q3.csv"),
+        ("file:data.csv", "file:data.csv"),
+        ("filewin:/C:/data.csv", "filewin:/C:/data.csv"),
+        ("C:/data.csv", "C:/data.csv"),
+        ("https://e.com:8080/a.xml", "https://e.com:8080/a.xml"),
+        ("file:$name", "file:$name"),
+        ("filelinux:$name", "filelinux:$name"),
+    ):
+        xml = _emit("Convert File [ With dialog: Off ; " + token + " ]")
+        assert "<UniversalPathList>" + path + "</UniversalPathList>" in xml, token
+    xml = _emit('Convert File [ With dialog: Off ; XMLSource ; Profile: DataType="XML ", XMLType=XMLHttp, XSLType=NoXSL, XMLHttp=https://e.com/a.xml ]')
+    assert "<XMLHttp>https://e.com/a.xml</XMLHttp>" in xml, xml
+
+
+# A held-back token is reported, so a dropped path is never silent.
+def test_labeled_token_held_back_is_reported():
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        _emit("Convert File [ With dialog: Off ; Reports: Q3.csv ]")
+    assert any('"Reports: Q3.csv"' in str(w.message) for w in caught), caught
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        _emit('Convert File [ With dialog: Off ; "Reports: Q3.csv" ]')
+    assert not caught, caught
+
+
+# Sort Records' Restore as FileMaker draws it (``fmLineToken``) next to a sort
+# order is a no-op; the sort and the derived Restore are unchanged.
+def test_sort_records_filemakers_restore_token_is_a_no_op():
+    entry = _CATALOG["Sort Records"]
+    (pl,) = parse_hr("Sort Records [ Restore ; With dialog: Off ; Sort: Invoices::Date=Ascending ]")
+    (bare,) = parse_hr("Sort Records [ With dialog: Off ; Sort: Invoices::Date=Ascending ]")
+    assert match_param_values(entry, pl.params) == match_param_values(entry, bare.params)
 
 if __name__ == "__main__":
     failed = 0

@@ -1,0 +1,147 @@
+{
+  "_comment": [
+    "Get Folder Path measured on FileMaker Pro 26.0.3 (macOS, 2026-10-19): every case was pasted into one script, FileMaker's displayed line read, and the script copied back (xml, FileMaker's own bytes). The cases cover Repetition empty, 1, 2 and $i, each with Dialog title and Default location empty or set, plus Allow Folder Creation off, no variable, a global, quoted text holding ; and ], and a calculated subscript.",
+    "FileMaker draws the variable first with the repetition as its subscript (none for 1 or empty), then Dialog title and Default location unlabeled, leaving an empty one out. FileMaker writes no element for an empty calculation.",
+    "kind: exact = the line says everything the step stores; guess = only one of Dialog title and Default location is set, and FileMaker draws the same line for either (read as Dialog title); noVariable = no Name, so the first calculation is drawn where the variable goes."
+  ],
+  "cases": [
+    {
+      "id": "c01",
+      "kind": "exact",
+      "xml": "<Step enable=\"True\" id=\"181\" name=\"Get Folder Path\"><AllowFolderCreation state=\"True\"></AllowFolderCreation><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Name>$result</Name></Step>",
+      "fmLine": "Get Folder Path [ Allow Folder Creation ; $result ]"
+    },
+    {
+      "id": "c02",
+      "kind": "guess",
+      "xml": "<Step enable=\"True\" id=\"181\" name=\"Get Folder Path\"><AllowFolderCreation state=\"True\"></AllowFolderCreation><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><DefaultLocation><Calculation><![CDATA[Get ( DocumentsPath )]]></Calculation></DefaultLocation><Name>$result</Name></Step>",
+      "fmLine": "Get Folder Path [ Allow Folder Creation ; $result ; Get ( DocumentsPath ) ]"
+    },
+    {
+      "id": "c03",
+      "kind": "guess",
+      "xml": "<Step enable=\"True\" id=\"181\" name=\"Get Folder Path\"><AllowFolderCreation state=\"True\"></AllowFolderCreation><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><DialogTitle><Calculation><![CDATA[\"t\"]]></Calculation></DialogTitle><Name>$result</Name></Step>",
+      "fmLine": "Get Folder Path [ Allow Folder Creation ; $result ; \"t\" ]"
+    },
+    {
+      "id": "c04",
+      "kind": "exact",
+      "xml": "<Step enable=\"True\" id=\"181\" name=\"Get Folder Path\"><AllowFolderCreation state=\"True\"></AllowFolderCreation><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><DialogTitle><Calculation><![CDATA[\"t\"]]></Calculation></DialogTitle><DefaultLocation><Calculation><![CDATA[Get ( DocumentsPath )]]></Calculation></DefaultLocation><Name>$result</Name></Step>",
+      "fmLine": "Get Folder Path [ Allow Folder Creation ; $result ; \"t\" ; Get ( DocumentsPath ) ]"
+    },
+    {
+      "id": "c05",
+      "kind": "exact",
+      "xml": "<Step enable=\"True\" id=\"181\" name=\"Get Folder Path\"><AllowFolderCreation state=\"True\"></AllowFolderCreation><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Repetition><Calculation><![CDATA[1]]></Calculation></Repetition><Name>$result</Name></Step>",
+      "fmLine": "Get Folder Path [ Allow Folder Creation ; $result ]"
+    },
+    {
+      "id": "c06",
+      "kind": "guess",
+      "xml": "<Step enable=\"True\" id=\"181\" name=\"Get Folder Path\"><AllowFolderCreation state=\"True\"></AllowFolderCreation><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Repetition><Calculation><![CDATA[1]]></Calculation></Repetition><DefaultLocation><Calculation><![CDATA[Get ( DocumentsPath )]]></Calculation></DefaultLocation><Name>$result</Name></Step>",
+      "fmLine": "Get Folder Path [ Allow Folder Creation ; $result ; Get ( DocumentsPath ) ]"
+    },
+    {
+      "id": "c07",
+      "kind": "guess",
+      "xml": "<Step enable=\"True\" id=\"181\" name=\"Get Folder Path\"><AllowFolderCreation state=\"True\"></AllowFolderCreation><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Repetition><Calculation><![CDATA[1]]></Calculation></Repetition><DialogTitle><Calculation><![CDATA[\"t\"]]></Calculation></DialogTitle><Name>$result</Name></Step>",
+      "fmLine": "Get Folder Path [ Allow Folder Creation ; $result ; \"t\" ]"
+    },
+    {
+      "id": "c08",
+      "kind": "exact",
+      "xml": "<Step enable=\"True\" id=\"181\" name=\"Get Folder Path\"><AllowFolderCreation state=\"True\"></AllowFolderCreation><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Repetition><Calculation><![CDATA[1]]></Calculation></Repetition><DialogTitle><Calculation><![CDATA[\"t\"]]></Calculation></DialogTitle><DefaultLocation><Calculation><![CDATA[Get ( DocumentsPath )]]></Calculation></DefaultLocation><Name>$result</Name></Step>",
+      "fmLine": "Get Folder Path [ Allow Folder Creation ; $result ; \"t\" ; Get ( DocumentsPath ) ]"
+    },
+    {
+      "id": "c09",
+      "kind": "exact",
+      "xml": "<Step enable=\"True\" id=\"181\" name=\"Get Folder Path\"><AllowFolderCreation state=\"True\"></AllowFolderCreation><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Repetition><Calculation><![CDATA[2]]></Calculation></Repetition><Name>$result</Name></Step>",
+      "fmLine": "Get Folder Path [ Allow Folder Creation ; $result[2] ]"
+    },
+    {
+      "id": "c10",
+      "kind": "guess",
+      "xml": "<Step enable=\"True\" id=\"181\" name=\"Get Folder Path\"><AllowFolderCreation state=\"True\"></AllowFolderCreation><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Repetition><Calculation><![CDATA[2]]></Calculation></Repetition><DefaultLocation><Calculation><![CDATA[Get ( DocumentsPath )]]></Calculation></DefaultLocation><Name>$result</Name></Step>",
+      "fmLine": "Get Folder Path [ Allow Folder Creation ; $result[2] ; Get ( DocumentsPath ) ]"
+    },
+    {
+      "id": "c11",
+      "kind": "guess",
+      "xml": "<Step enable=\"True\" id=\"181\" name=\"Get Folder Path\"><AllowFolderCreation state=\"True\"></AllowFolderCreation><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Repetition><Calculation><![CDATA[2]]></Calculation></Repetition><DialogTitle><Calculation><![CDATA[\"t\"]]></Calculation></DialogTitle><Name>$result</Name></Step>",
+      "fmLine": "Get Folder Path [ Allow Folder Creation ; $result[2] ; \"t\" ]"
+    },
+    {
+      "id": "c12",
+      "kind": "exact",
+      "xml": "<Step enable=\"True\" id=\"181\" name=\"Get Folder Path\"><AllowFolderCreation state=\"True\"></AllowFolderCreation><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Repetition><Calculation><![CDATA[2]]></Calculation></Repetition><DialogTitle><Calculation><![CDATA[\"t\"]]></Calculation></DialogTitle><DefaultLocation><Calculation><![CDATA[Get ( DocumentsPath )]]></Calculation></DefaultLocation><Name>$result</Name></Step>",
+      "fmLine": "Get Folder Path [ Allow Folder Creation ; $result[2] ; \"t\" ; Get ( DocumentsPath ) ]"
+    },
+    {
+      "id": "c13",
+      "kind": "exact",
+      "xml": "<Step enable=\"True\" id=\"181\" name=\"Get Folder Path\"><AllowFolderCreation state=\"True\"></AllowFolderCreation><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Repetition><Calculation><![CDATA[$i]]></Calculation></Repetition><Name>$result</Name></Step>",
+      "fmLine": "Get Folder Path [ Allow Folder Creation ; $result[$i] ]"
+    },
+    {
+      "id": "c14",
+      "kind": "guess",
+      "xml": "<Step enable=\"True\" id=\"181\" name=\"Get Folder Path\"><AllowFolderCreation state=\"True\"></AllowFolderCreation><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Repetition><Calculation><![CDATA[$i]]></Calculation></Repetition><DefaultLocation><Calculation><![CDATA[Get ( DocumentsPath )]]></Calculation></DefaultLocation><Name>$result</Name></Step>",
+      "fmLine": "Get Folder Path [ Allow Folder Creation ; $result[$i] ; Get ( DocumentsPath ) ]"
+    },
+    {
+      "id": "c15",
+      "kind": "guess",
+      "xml": "<Step enable=\"True\" id=\"181\" name=\"Get Folder Path\"><AllowFolderCreation state=\"True\"></AllowFolderCreation><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Repetition><Calculation><![CDATA[$i]]></Calculation></Repetition><DialogTitle><Calculation><![CDATA[\"t\"]]></Calculation></DialogTitle><Name>$result</Name></Step>",
+      "fmLine": "Get Folder Path [ Allow Folder Creation ; $result[$i] ; \"t\" ]"
+    },
+    {
+      "id": "c16",
+      "kind": "exact",
+      "xml": "<Step enable=\"True\" id=\"181\" name=\"Get Folder Path\"><AllowFolderCreation state=\"True\"></AllowFolderCreation><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Repetition><Calculation><![CDATA[$i]]></Calculation></Repetition><DialogTitle><Calculation><![CDATA[\"t\"]]></Calculation></DialogTitle><DefaultLocation><Calculation><![CDATA[Get ( DocumentsPath )]]></Calculation></DefaultLocation><Name>$result</Name></Step>",
+      "fmLine": "Get Folder Path [ Allow Folder Creation ; $result[$i] ; \"t\" ; Get ( DocumentsPath ) ]"
+    },
+    {
+      "id": "c17",
+      "kind": "exact",
+      "xml": "<Step enable=\"True\" id=\"181\" name=\"Get Folder Path\"><AllowFolderCreation state=\"False\"></AllowFolderCreation><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Repetition><Calculation><![CDATA[1]]></Calculation></Repetition><DialogTitle><Calculation><![CDATA[\"t\"]]></Calculation></DialogTitle><DefaultLocation><Calculation><![CDATA[Get ( DocumentsPath )]]></Calculation></DefaultLocation><Name>$result</Name></Step>",
+      "fmLine": "Get Folder Path [ $result ; \"t\" ; Get ( DocumentsPath ) ]"
+    },
+    {
+      "id": "c18",
+      "kind": "noVariable",
+      "xml": "<Step enable=\"True\" id=\"181\" name=\"Get Folder Path\"><AllowFolderCreation state=\"True\"></AllowFolderCreation><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Repetition><Calculation><![CDATA[1]]></Calculation></Repetition><DialogTitle><Calculation><![CDATA[\"t\"]]></Calculation></DialogTitle><DefaultLocation><Calculation><![CDATA[Get ( DocumentsPath )]]></Calculation></DefaultLocation></Step>",
+      "fmLine": "Get Folder Path [ Allow Folder Creation ; \"t\" ; Get ( DocumentsPath ) ]"
+    },
+    {
+      "id": "c19",
+      "kind": "noVariable",
+      "xml": "<Step enable=\"True\" id=\"181\" name=\"Get Folder Path\"><AllowFolderCreation state=\"True\"></AllowFolderCreation><DisableStepCollapsed state=\"False\"></DisableStepCollapsed></Step>",
+      "fmLine": "Get Folder Path [ Allow Folder Creation ]"
+    },
+    {
+      "id": "c20",
+      "kind": "exact",
+      "xml": "<Step enable=\"True\" id=\"181\" name=\"Get Folder Path\"><AllowFolderCreation state=\"True\"></AllowFolderCreation><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Repetition><Calculation><![CDATA[3]]></Calculation></Repetition><DialogTitle><Calculation><![CDATA[$t]]></Calculation></DialogTitle><DefaultLocation><Calculation><![CDATA[$p]]></Calculation></DefaultLocation><Name>$$g</Name></Step>",
+      "fmLine": "Get Folder Path [ Allow Folder Creation ; $$g[3] ; $t ; $p ]"
+    },
+    {
+      "id": "c21",
+      "kind": "exact",
+      "xml": "<Step enable=\"True\" id=\"181\" name=\"Get Folder Path\"><AllowFolderCreation state=\"True\"></AllowFolderCreation><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Repetition><Calculation><![CDATA[1]]></Calculation></Repetition><DialogTitle><Calculation><![CDATA[\"a ; b\"]]></Calculation></DialogTitle><DefaultLocation><Calculation><![CDATA[\"/x/]y\"]]></Calculation></DefaultLocation><Name>$r</Name></Step>",
+      "fmLine": "Get Folder Path [ Allow Folder Creation ; $r ; \"a ; b\" ; \"/x/]y\" ]"
+    },
+    {
+      "id": "c22",
+      "kind": "guess",
+      "xml": "<Step enable=\"True\" id=\"181\" name=\"Get Folder Path\"><AllowFolderCreation state=\"True\"></AllowFolderCreation><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Repetition><Calculation><![CDATA[1]]></Calculation></Repetition><DefaultLocation><Calculation><![CDATA[$p]]></Calculation></DefaultLocation><Name>$r</Name></Step>",
+      "fmLine": "Get Folder Path [ Allow Folder Creation ; $r ; $p ]"
+    },
+    {
+      "id": "c23",
+      "kind": "exact",
+      "xml": "<Step enable=\"True\" id=\"181\" name=\"Get Folder Path\"><AllowFolderCreation state=\"True\"></AllowFolderCreation><DisableStepCollapsed state=\"False\"></DisableStepCollapsed><Repetition><Calculation><![CDATA[$i + 1]]></Calculation></Repetition><Name>$r</Name></Step>",
+      "fmLine": "Get Folder Path [ Allow Folder Creation ; $r[$i + 1] ]"
+    }
+  ]
+}

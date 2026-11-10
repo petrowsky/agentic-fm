@@ -1,0 +1,98 @@
+{
+  "_comment": [
+    "Replace Field Contents measured on FileMaker Pro 26.0.3 (macOS, 2026-10-19): each step was pasted into a script, FileMaker's displayed line read, and the step copied back (xml). Ids name the With mode, Restore (RT/RF) and SerialNumbers PerformAutoEnter (PT/PF).",
+    "FileMaker draws `Skip auto-enter options`, bare and last, exactly when Restore is True and PerformAutoEnter is False, in every With mode. Restore True with PerformAutoEnter True draws the same line as Restore False, so that pair is lossy on FileMaker's line by design."
+  ],
+  "cases": [
+    {
+      "id": "None-RT-PT",
+      "xml": "<Step enable=\"True\" id=\"91\" name=\"Replace Field Contents\"><NoInteract state=\"True\"/><DisableStepCollapsed state=\"False\"/><Restore state=\"True\"/><With value=\"None\"/><SerialNumbers PerformAutoEnter=\"True\" UpdateEntryOptions=\"False\" increment=\"1\" InitialValue=\"1\" UseEntryOptions=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Replace Field Contents [ With dialog: Off ; Invoices::Description ]"
+    },
+    {
+      "id": "None-RT-PF",
+      "xml": "<Step enable=\"True\" id=\"91\" name=\"Replace Field Contents\"><NoInteract state=\"True\"/><DisableStepCollapsed state=\"False\"/><Restore state=\"True\"/><With value=\"None\"/><SerialNumbers PerformAutoEnter=\"False\" UpdateEntryOptions=\"False\" increment=\"1\" InitialValue=\"1\" UseEntryOptions=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Replace Field Contents [ With dialog: Off ; Invoices::Description ; Skip auto-enter options ]"
+    },
+    {
+      "id": "None-RF-PT",
+      "xml": "<Step enable=\"True\" id=\"91\" name=\"Replace Field Contents\"><NoInteract state=\"True\"/><DisableStepCollapsed state=\"False\"/><Restore state=\"False\"/><With value=\"None\"/><SerialNumbers PerformAutoEnter=\"True\" UpdateEntryOptions=\"False\" increment=\"1\" InitialValue=\"1\" UseEntryOptions=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Replace Field Contents [ With dialog: Off ; Invoices::Description ]"
+    },
+    {
+      "id": "None-RF-PF",
+      "xml": "<Step enable=\"True\" id=\"91\" name=\"Replace Field Contents\"><NoInteract state=\"True\"/><DisableStepCollapsed state=\"False\"/><Restore state=\"False\"/><With value=\"None\"/><SerialNumbers PerformAutoEnter=\"False\" UpdateEntryOptions=\"False\" increment=\"1\" InitialValue=\"1\" UseEntryOptions=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Replace Field Contents [ With dialog: Off ; Invoices::Description ]"
+    },
+    {
+      "id": "CurrentContents-RT-PT",
+      "xml": "<Step enable=\"True\" id=\"91\" name=\"Replace Field Contents\"><NoInteract state=\"True\"/><DisableStepCollapsed state=\"False\"/><Restore state=\"True\"/><With value=\"CurrentContents\"/><SerialNumbers PerformAutoEnter=\"True\" UpdateEntryOptions=\"False\" increment=\"1\" InitialValue=\"1\" UseEntryOptions=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Replace Field Contents [ With dialog: Off ; Invoices::Description ; Current contents ]"
+    },
+    {
+      "id": "CurrentContents-RT-PF",
+      "xml": "<Step enable=\"True\" id=\"91\" name=\"Replace Field Contents\"><NoInteract state=\"True\"/><DisableStepCollapsed state=\"False\"/><Restore state=\"True\"/><With value=\"CurrentContents\"/><SerialNumbers PerformAutoEnter=\"False\" UpdateEntryOptions=\"False\" increment=\"1\" InitialValue=\"1\" UseEntryOptions=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Replace Field Contents [ With dialog: Off ; Invoices::Description ; Current contents ; Skip auto-enter options ]"
+    },
+    {
+      "id": "CurrentContents-RF-PT",
+      "xml": "<Step enable=\"True\" id=\"91\" name=\"Replace Field Contents\"><NoInteract state=\"True\"/><DisableStepCollapsed state=\"False\"/><Restore state=\"False\"/><With value=\"CurrentContents\"/><SerialNumbers PerformAutoEnter=\"True\" UpdateEntryOptions=\"False\" increment=\"1\" InitialValue=\"1\" UseEntryOptions=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Replace Field Contents [ With dialog: Off ; Invoices::Description ; Current contents ]"
+    },
+    {
+      "id": "CurrentContents-RF-PF",
+      "xml": "<Step enable=\"True\" id=\"91\" name=\"Replace Field Contents\"><NoInteract state=\"True\"/><DisableStepCollapsed state=\"False\"/><Restore state=\"False\"/><With value=\"CurrentContents\"/><SerialNumbers PerformAutoEnter=\"False\" UpdateEntryOptions=\"False\" increment=\"1\" InitialValue=\"1\" UseEntryOptions=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Replace Field Contents [ With dialog: Off ; Invoices::Description ; Current contents ]"
+    },
+    {
+      "id": "SerialNumbers-RT-PT",
+      "xml": "<Step enable=\"True\" id=\"91\" name=\"Replace Field Contents\"><NoInteract state=\"True\"/><DisableStepCollapsed state=\"False\"/><Restore state=\"True\"/><With value=\"SerialNumbers\"/><SerialNumbers PerformAutoEnter=\"True\" UpdateEntryOptions=\"False\" increment=\"1\" InitialValue=\"1\" UseEntryOptions=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Replace Field Contents [ With dialog: Off ; Invoices::Description ; Serial numbers ]"
+    },
+    {
+      "id": "SerialNumbers-RT-PF",
+      "xml": "<Step enable=\"True\" id=\"91\" name=\"Replace Field Contents\"><NoInteract state=\"True\"/><DisableStepCollapsed state=\"False\"/><Restore state=\"True\"/><With value=\"SerialNumbers\"/><SerialNumbers PerformAutoEnter=\"False\" UpdateEntryOptions=\"False\" increment=\"1\" InitialValue=\"1\" UseEntryOptions=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Replace Field Contents [ With dialog: Off ; Invoices::Description ; Serial numbers ; Skip auto-enter options ]"
+    },
+    {
+      "id": "SerialNumbers-RF-PT",
+      "xml": "<Step enable=\"True\" id=\"91\" name=\"Replace Field Contents\"><NoInteract state=\"True\"/><DisableStepCollapsed state=\"False\"/><Restore state=\"False\"/><With value=\"SerialNumbers\"/><SerialNumbers PerformAutoEnter=\"True\" UpdateEntryOptions=\"False\" increment=\"1\" InitialValue=\"1\" UseEntryOptions=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Replace Field Contents [ With dialog: Off ; Invoices::Description ; Serial numbers ]"
+    },
+    {
+      "id": "SerialNumbers-RF-PF",
+      "xml": "<Step enable=\"True\" id=\"91\" name=\"Replace Field Contents\"><NoInteract state=\"True\"/><DisableStepCollapsed state=\"False\"/><Restore state=\"False\"/><With value=\"SerialNumbers\"/><SerialNumbers PerformAutoEnter=\"False\" UpdateEntryOptions=\"False\" increment=\"1\" InitialValue=\"1\" UseEntryOptions=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Replace Field Contents [ With dialog: Off ; Invoices::Description ; Serial numbers ]"
+    },
+    {
+      "id": "Calculation-RT-PT",
+      "xml": "<Step enable=\"True\" id=\"91\" name=\"Replace Field Contents\"><NoInteract state=\"True\"/><DisableStepCollapsed state=\"False\"/><Restore state=\"True\"/><With value=\"Calculation\"/><Calculation><![CDATA[\"value\"]]></Calculation><SerialNumbers PerformAutoEnter=\"True\" UpdateEntryOptions=\"False\" increment=\"1\" InitialValue=\"1\" UseEntryOptions=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Replace Field Contents [ With dialog: Off ; Invoices::Description ; \"value\" ]"
+    },
+    {
+      "id": "Calculation-RT-PF",
+      "xml": "<Step enable=\"True\" id=\"91\" name=\"Replace Field Contents\"><NoInteract state=\"True\"/><DisableStepCollapsed state=\"False\"/><Restore state=\"True\"/><With value=\"Calculation\"/><Calculation><![CDATA[\"value\"]]></Calculation><SerialNumbers PerformAutoEnter=\"False\" UpdateEntryOptions=\"False\" increment=\"1\" InitialValue=\"1\" UseEntryOptions=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Replace Field Contents [ With dialog: Off ; Invoices::Description ; \"value\" ; Skip auto-enter options ]"
+    },
+    {
+      "id": "Calculation-RF-PT",
+      "xml": "<Step enable=\"True\" id=\"91\" name=\"Replace Field Contents\"><NoInteract state=\"True\"/><DisableStepCollapsed state=\"False\"/><Restore state=\"False\"/><With value=\"Calculation\"/><Calculation><![CDATA[\"value\"]]></Calculation><SerialNumbers PerformAutoEnter=\"True\" UpdateEntryOptions=\"False\" increment=\"1\" InitialValue=\"1\" UseEntryOptions=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Replace Field Contents [ With dialog: Off ; Invoices::Description ; \"value\" ]"
+    },
+    {
+      "id": "Calculation-RF-PF",
+      "xml": "<Step enable=\"True\" id=\"91\" name=\"Replace Field Contents\"><NoInteract state=\"True\"/><DisableStepCollapsed state=\"False\"/><Restore state=\"False\"/><With value=\"Calculation\"/><Calculation><![CDATA[\"value\"]]></Calculation><SerialNumbers PerformAutoEnter=\"False\" UpdateEntryOptions=\"False\" increment=\"1\" InitialValue=\"1\" UseEntryOptions=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Replace Field Contents [ With dialog: Off ; Invoices::Description ; \"value\" ]"
+    },
+    {
+      "id": "Calculation-RT-PF-dlgOn",
+      "xml": "<Step enable=\"True\" id=\"91\" name=\"Replace Field Contents\"><NoInteract state=\"False\"/><DisableStepCollapsed state=\"False\"/><Restore state=\"True\"/><With value=\"Calculation\"/><Calculation><![CDATA[\"value\"]]></Calculation><SerialNumbers PerformAutoEnter=\"False\" UpdateEntryOptions=\"False\" increment=\"1\" InitialValue=\"1\" UseEntryOptions=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Replace Field Contents [ With dialog: On ; Invoices::Description ; \"value\" ; Skip auto-enter options ]"
+    },
+    {
+      "id": "Calculation-RF-PF-dlgOn",
+      "xml": "<Step enable=\"True\" id=\"91\" name=\"Replace Field Contents\"><NoInteract state=\"False\"/><DisableStepCollapsed state=\"False\"/><Restore state=\"False\"/><With value=\"Calculation\"/><Calculation><![CDATA[\"value\"]]></Calculation><SerialNumbers PerformAutoEnter=\"False\" UpdateEntryOptions=\"False\" increment=\"1\" InitialValue=\"1\" UseEntryOptions=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Replace Field Contents [ With dialog: On ; Invoices::Description ; \"value\" ]"
+    }
+  ]
+}

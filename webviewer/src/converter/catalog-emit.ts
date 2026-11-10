@@ -32,6 +32,7 @@ import {
 } from './calc-literal';
 import {
   FIELD_MISSING_SENTINEL,
+  TABLE_MISSING_SENTINEL,
   type GrammarEntry,
   type GrammarParam,
   paramKey,
@@ -48,6 +49,9 @@ import {
   shapeRoutedValues,
   groupQuoteValue,
   groupUnquoteValue,
+  resolveMirrorSource,
+  resolveMirrorSibling,
+  splitFieldEntrySuffix,
 } from './catalog-grammar';
 
 // ---------------------------------------------------------------------------
@@ -308,12 +312,14 @@ function repetitionCalcSibling(calc: string, indent: string): string {
 /**
  * Resolve `Table::Field`; FileMaker's `Table::<Field Missing>` (a table with no
  * field) reads back to its stored form, id 0 and an empty name, never a field
- * literally named `<Field Missing>`.
+ * literally named `<Field Missing>`, and its `<Table Missing>` (no table, no
+ * field) to the empty reference.
  */
 function resolveFieldRef(
   resolver: IdResolver,
   ref: string,
 ): { table: string; fieldId: number; fieldName: string } {
+  if (trim(ref) === TABLE_MISSING_SENTINEL) return { table: '', fieldId: 0, fieldName: '' };
   const sep = ref.indexOf('::');
   if (sep >= 0 && trim(ref.slice(sep + 2)) === FIELD_MISSING_SENTINEL) {
     return { table: trim(ref.slice(0, sep)), fieldId: 0, fieldName: '' };
@@ -366,9 +372,10 @@ function unquoteTextValue(s: string): string {
 }
 
 /**
- * The table name for a `tableRef` / `tableOccurrence` HR token. An `hrQuoted` one
- * (Save Records as JSONL's `Table: “Invoices”`) was rendered as one escaped
- * literal: decode it, else strip one quote pair.
+ * The name for a `tableRef` / `tableOccurrence` / `reference` HR token. An
+ * `hrQuoted` one (Save Records as JSONL's `Table: “Invoices”`, Truncate Table's
+ * `Table: “Line Items”`) was rendered as one escaped literal: decode it, else
+ * strip one quote pair (FileMaker's own unescaped display).
  */
 function tableParamValue(param: GrammarParam, hrValue: string): string {
   if (param.hrQuoted) {
@@ -502,6 +509,13 @@ function paramVisibleHr(entry: GrammarEntry, values: string[], param: GrammarPar
 
 function resolveBoolState(param: GrammarParam, hrValue: string): string {
   let state = param.defaultValue ? param.defaultValue : 'False';
+  // A flagStyle boolean's HR presence is its value: the bare label means True and
+  // its absence means False. `defaultValue` documents FileMaker's fresh-step
+  // default; letting it answer for an absent token makes a flag whose default is
+  // "True" impossible to turn off from HR (`Copy [ Invoices::Description ]` would
+  // select the field's contents). The explicit off token keeps invertedHr and the
+  // hrEnumValues map on one path.
+  if (param.flagStyle && hrValue === '') hrValue = 'Off';
   if (hrValue !== '') {
     const lower = hrValue.toLowerCase();
     let hrMeansTrue: boolean;
@@ -644,7 +658,62 @@ function resolveLayoutToken(
 // ---------------------------------------------------------------------------
 // Two-phase HR-param matching (parse-HR): pass 1 flags/labels, pass 2 positional.
 // ---------------------------------------------------------------------------
-function matchParamValues(entry: GrammarEntry, hrParams: string[]): string[] {
+// The value a bare token names for an fmLineBare boolean (`On` / `Off`, or one of
+// its hrEnumValues labels), or '' when it names none of them.
+function fmLineBareBooleanValue(param: GrammarParam, token: string): string {
+  const t = trim(token);
+  if (!t) return '';
+  for (const label of Object.values(param.hrEnumValues)) if (label && ciEquals(t, label)) return label;
+  for (const v of ['On', 'Off']) if (ciEquals(t, v)) return v;
+  return '';
+}
+
+// A FileMaker path list's own location prefixes (`file:a.csv`, `https://...`,
+// `image:p.png`). The word before their colon is the path, not a label.
+const FM_PATH_PREFIXES = new Set([
+  'file', 'filemac', 'filewin', 'filelinux',
+  'image', 'imagemac', 'imagewin', 'imagelinux',
+  'movie', 'moviemac', 'moviewin', 'movielinux',
+  'http', 'https', 'ftp', 'ftps', 'fmnet',
+]);
+
+// Whether a token reaching a path slot reads `Word: value`, an option written in
+// labeled style, rather than a path (`XMLSource: $xmlPath`, `XSLT: $xslPath`).
+// FileMaker would keep it as a literal path. The value after the colon is spaced
+// off or is a variable or quoted text, or the word is one of the step's own (an
+// enum value, a group field's key). A location prefix, a drive letter, a quoted
+// path, a variable and a calculation never read this way.
+function readsAsLabeledToken(entry: GrammarEntry, raw: string): boolean {
+  const t = trim(raw);
+  const colon = t.indexOf(':');
+  if (colon < 2) return false;
+  const word = t.slice(0, colon);
+  if (!/^[A-Za-z][A-Za-z0-9 _-]*$/.test(word)) return false;
+  if (FM_PATH_PREFIXES.has(word.toLowerCase())) return false;
+  const rest = t.slice(colon + 1);
+  if (rest === '' || /^\s/.test(rest) || rest[0] === '$' || rest[0] === '"') return true;
+  return entry.params.some(
+    (p) =>
+      rawStrArr(p.raw, 'enumValues').includes(word) ||
+      rawArr(p.raw, 'fields').some((f) => rawStr(f, 'key') === word),
+  );
+}
+
+// A token with no value shape: not quoted, a variable, a number, a field reference
+// or a calculation.
+function readsAsBareWord(raw: string): boolean {
+  const t = trim(raw);
+  if (t === '') return false;
+  if (/^["$0-9+.-]/.test(t) || t.charCodeAt(0) >= 0x80) return false;
+  if (t.includes('::')) return false;
+  return !/[()+*/&=<>"]/.test(t);
+}
+
+function matchParamValues(
+  entry: GrammarEntry,
+  hrParams: string[],
+  addWarning: (message: string) => void,
+): string[] {
   const values: string[] = new Array(entry.params.length).fill('');
   const resolved: boolean[] = new Array(entry.params.length).fill(false);
   const consumed: boolean[] = new Array(hrParams.length).fill(false);
@@ -653,10 +722,41 @@ function matchParamValues(entry: GrammarEntry, hrParams: string[]): string[] {
   // present-but-empty slot for a revealed companion, and that empty slot is
   // still evidence of which gate value is active (see the P7.2 derive below).
   const gotToken: boolean[] = new Array(entry.params.length).fill(false);
+  // Tokens pass 1 recognised as belonging to a param that did not consume them
+  // (a flag written `Label: <not On/Off>`, a hidden param's FileMaker-drawn
+  // `fmLineToken`). Never handed to a positional param: taken positionally, a
+  // labeled flag token became Save Records as PDF's file path (`Append: On`).
+  const reserved: boolean[] = new Array(hrParams.length).fill(false);
 
   for (let pi = 0; pi < entry.params.length; pi++) {
     const param = entry.params[pi];
-    if (param.hrHidden) { resolved[pi] = true; continue; }
+    if (param.hrHidden) {
+      resolved[pi] = true;
+      // hrOffKeepsGated: `<hrLabel>: On|Off` sets the gate's state outright
+      // (Import Records' `Specify import order: Off`), kept as On / Off for the
+      // derive in convertStepWithCatalog.
+      if (param.raw.hrOffKeepsGated === true && param.hrLabel) {
+        const prefix = param.hrLabel.toLowerCase() + ':';
+        for (let i = 0; i < hrParams.length; i++) {
+          const t = trim(hrParams[i]);
+          if (consumed[i] || !t.toLowerCase().startsWith(prefix)) continue;
+          const word = trim(t.slice(prefix.length));
+          if (ciEquals(word, 'On') || ciEquals(word, 'Off')) {
+            values[pi] = ciEquals(word, 'On') ? 'On' : 'Off';
+            consumed[i] = true;
+          } else {
+            reserved[i] = true;
+          }
+          break;
+        }
+      }
+      const lineToken = rawStr(param.raw, 'fmLineToken');
+      if (lineToken) {
+        for (let i = 0; i < hrParams.length; i++)
+          if (!consumed[i] && ciEquals(trim(hrParams[i]), lineToken)) reserved[i] = true;
+      }
+      continue;
+    }
     if (param.type === 'complex') { resolved[pi] = true; continue; }
     if (isDrivenDiscriminator(entry, param)) { resolved[pi] = true; continue; }
 
@@ -713,13 +813,36 @@ function matchParamValues(entry: GrammarEntry, hrParams: string[]): string[] {
     const isFlag = (param.flagStyle || param.type === 'flagElement') && !!param.hrLabel;
     if (isFlag) {
       resolved[pi] = true;
+      let claimed = false;
       for (let i = 0; i < hrParams.length; i++) {
         if (consumed[i]) continue;
         if (ciEquals(trim(hrParams[i]), param.hrLabel!)) {
           consumed[i] = true;
           values[pi] = 'True';
           gotToken[pi] = true;
+          claimed = true;
           break;
+        }
+      }
+      // The labeled boolean spelling of a bare flag (`Label: On` / `Label: Off`):
+      // On sets it, Off leaves it clear; any other value after the flag's label
+      // is reserved, never taken positionally.
+      const prefix = param.hrLabel + ':';
+      for (let i = 0; i < hrParams.length && !claimed; i++) {
+        if (consumed[i]) continue;
+        const t = trim(hrParams[i]);
+        if (!startsWithCi(t, prefix)) continue;
+        const v = trim(t.slice(prefix.length));
+        if (ciEquals(v, 'On')) {
+          consumed[i] = true;
+          values[pi] = 'True';
+          gotToken[pi] = true;
+          claimed = true;
+        } else if (ciEquals(v, 'Off')) {
+          consumed[i] = true;
+          claimed = true;
+        } else {
+          reserved[i] = true;
         }
       }
       continue;
@@ -740,6 +863,22 @@ function matchParamValues(entry: GrammarEntry, hrParams: string[]): string[] {
           }
         }
         if (resolved[pi]) break;
+      }
+      // fmLineBare boolean: FileMaker draws the value with no label
+      // (`Set Layout Object Animation [ Off ]`, `Set Error Logging [ On ; … ]`).
+      // Claim the first bare token naming one of its values when no labeled
+      // token gave it one.
+      if (!resolved[pi] && param.type === 'boolean' && rawBool(param.raw, 'fmLineBare')) {
+        for (let i = 0; i < hrParams.length; i++) {
+          if (consumed[i]) continue;
+          const v = fmLineBareBooleanValue(param, hrParams[i]);
+          if (!v) continue;
+          consumed[i] = true;
+          values[pi] = v;
+          gotToken[pi] = true;
+          resolved[pi] = true;
+          break;
+        }
       }
     }
   }
@@ -767,7 +906,7 @@ function matchParamValues(entry: GrammarEntry, hrParams: string[]): string[] {
       before++;
     }
     for (let i = 0; i < hrParams.length; i++) {
-      if (consumed[i]) continue;
+      if (consumed[i] || reserved[i]) continue;
       if (before > 0) {
         before--;
         continue;
@@ -803,7 +942,7 @@ function matchParamValues(entry: GrammarEntry, hrParams: string[]): string[] {
   // deficit enables the skip. Mirrors the reference converter.
   let missingSlots =
     order.filter((pi) => positionalTarget(pi)).length -
-    hrParams.filter((t, i) => !consumed[i] && trim(t) !== '').length;
+    hrParams.filter((t, i) => !consumed[i] && !reserved[i] && trim(t) !== '').length;
   const namesLaterClosedEnum = (oi: number, token: string): boolean =>
     order
       .slice(oi + 1)
@@ -817,7 +956,31 @@ function matchParamValues(entry: GrammarEntry, hrParams: string[]): string[] {
   for (let oi = 0; oi < order.length; oi++) {
     const pi = order[oi];
     if (!positionalTarget(pi)) continue;
-    while (pos < hrParams.length && consumed[pos]) pos++;
+    while (pos < hrParams.length && (consumed[pos] || reserved[pos])) pos++;
+    // A path slot takes no labeled option: FileMaker would keep `XMLSource:
+    // $xmlPath` as a literal path, silently. Those tokens stay unplaced. A
+    // value-shaped token after them is still the path; a bare word (`Add`, `UTF-8`)
+    // is not, so the slot stays empty.
+    if (entry.params[pi].xmlElement === 'UniversalPathList') {
+      let skippedLabeled = false;
+      while (
+        pos < hrParams.length &&
+        (consumed[pos] || reserved[pos] || readsAsLabeledToken(entry, hrParams[pos]))
+      ) {
+        if (!consumed[pos] && !reserved[pos]) {
+          reserved[pos] = true;
+          skippedLabeled = true;
+          addWarning(
+            `${entry.name}: "${trim(hrParams[pos])}" reads as a labeled option this step does not have, so it was left out of the path. If it is a path, quote it.`,
+          );
+        }
+        pos++;
+      }
+      if (skippedLabeled && pos < hrParams.length && readsAsBareWord(hrParams[pos])) {
+        resolved[pi] = true;
+        continue;
+      }
+    }
     if (pos < hrParams.length) {
       const token = trim(hrParams[pos]);
       // A closed-vocabulary enum only claims a token that names one of its own
@@ -857,7 +1020,7 @@ function matchParamValues(entry: GrammarEntry, hrParams: string[]): string[] {
     };
     const parts: string[] = [];
     for (let i = 0; i < hrParams.length; i++) {
-      if (consumed[i]) continue;
+      if (consumed[i] || reserved[i]) continue;
       const tok = trim(hrParams[i]);
       if (!tok) continue;
       if (cap > 0 && parts.length >= cap) break;
@@ -869,6 +1032,47 @@ function matchParamValues(entry: GrammarEntry, hrParams: string[]): string[] {
       values[pi] = parts.join(' | ');
       gotToken[pi] = true;
       resolved[pi] = true;
+    }
+  }
+
+  // fmLineBare: FileMaker draws these labeled params bare, after the step's other
+  // tokens, and leaves an empty one out (Get Folder Path `[ Allow Folder Creation ;
+  // $result ; "t" ; Get ( DocumentsPath ) ]`). Once the bare params have their
+  // tokens, the bare tokens left are these params', in catalog order; an explicit
+  // empty token keeps its param's slot (`$result ; ; …`). Fewer tokens than params
+  // is FileMaker leaving one out, which the line cannot place: the tokens fill the
+  // first params. Mirrors the reference converter (which also warns about that guess).
+  const bareTargets: number[] = [];
+  for (let pi = 0; pi < entry.params.length; pi++)
+    // A boolean fmLineBare param is drawn in its own slot and claimed in pass 1.
+    if (rawBool(entry.params[pi].raw, 'fmLineBare') && entry.params[pi].type !== 'boolean' && !resolved[pi])
+      bareTargets.push(pi);
+  let nextBare = 0;
+  for (let i = 0; i < hrParams.length && nextBare < bareTargets.length; i++) {
+    if (consumed[i] || reserved[i]) continue;
+    const pi = bareTargets[nextBare++];
+    consumed[i] = true;
+    values[pi] = trim(hrParams[i]);
+    gotToken[pi] = true;
+    resolved[pi] = true;
+  }
+
+  // fmLineSubscriptOf: FileMaker draws this param as a repetition subscript on a
+  // sibling's token (`$result[2]`, `$result[$i]`). With no labeled token of its
+  // own, split a trailing `[…]` off the sibling's value into it.
+  for (let pi = 0; pi < entry.params.length; pi++) {
+    const of = rawStr(entry.params[pi].raw, 'fmLineSubscriptOf');
+    if (!of || gotToken[pi] || trim(values[pi])) continue;
+    for (let qi = 0; qi < entry.params.length; qi++) {
+      if (qi === pi || paramKey(entry.params[qi]) !== of) continue;
+      const [bare, rep, calc] = parseFieldSubscript(trim(values[qi]));
+      if (rep > 0 || calc) {
+        values[qi] = trim(bare);
+        values[pi] = calc || String(rep);
+        gotToken[pi] = true;
+        resolved[pi] = true;
+      }
+      break;
     }
   }
 
@@ -923,6 +1127,25 @@ function matchParamValues(entry: GrammarEntry, hrParams: string[]): string[] {
       }
       break;
     }
+  }
+
+  // fmLineToken: FileMaker draws a derived hidden boolean as a bare token when it
+  // is on (Sort Records `[ Restore ; With dialog: Off ]`). Its state is derived
+  // on emit from whether a sibling it gates has a value (P7.1), so the token adds
+  // nothing: consume it when that derived state is on; otherwise it stays
+  // unconsumed. Mirrors the reference converter.
+  for (const param of entry.params) {
+    const lineToken = rawStr(param.raw, 'fmLineToken');
+    if (!lineToken || !param.hrHidden || param.type !== 'boolean') continue;
+    const key = paramKey(param);
+    const derivedOn = entry.params.some(
+      (q, qi) =>
+        !!q.visibleWhen && q.visibleWhen.param === key && q.visibleWhen.values.length > 0 &&
+        q.visibleWhen.values[0] === 'True' && trim(values[qi]) !== '',
+    );
+    if (!derivedOn) continue;
+    for (let i = 0; i < hrParams.length; i++)
+      if (!consumed[i] && reserved[i] && ciEquals(trim(hrParams[i]), lineToken)) consumed[i] = true;
   }
 
   return values;
@@ -1041,7 +1264,11 @@ function emitGroupElement(
   kv: Map<string, string>,
   indent: string,
   resolver: IdResolver,
+  materialize = false,
 ): string {
+  // `materialize`: an hrOmitAtDefault group with no HR token writes its default
+  // element (a calc / text field with a defaultValue holds it, every sub-group
+  // is written), the element groupAtDefault accepts.
   let attrs = '';
   let children = '';
   const ci = indent + '  ';
@@ -1050,6 +1277,30 @@ function emitGroupElement(
     const key = rawStr(f, 'key');
     const it = kv.get(lowerKey(key));
     const present = it !== undefined && it !== '';
+    const def = rawStr(f, 'defaultValue');
+    if (materialize && !present && (kind === 'calc' || kind === 'text') && def) {
+      const childElement = rawStr(f, 'childElement');
+      if (kind === 'text') {
+        children += `${ci}<${childElement}>${escXml(def)}</${childElement}>\n`;
+        continue;
+      }
+      const requireAttr = rawStr(f, 'requireAttr');
+      if (requireAttr) attrs += ` ${requireAttr}="True"`;
+      if (!childElement) {
+        children += `${ci}<Calculation>${cdata(def)}</Calculation>\n`;
+      } else {
+        children += `${ci}<${childElement}>\n`;
+        children += `${ci}  <Calculation>${cdata(def)}</Calculation>\n`;
+        children += `${ci}</${childElement}>\n`;
+      }
+      continue;
+    }
+    if (materialize && !present && kind === 'group') {
+      children += emitGroupElement(
+        rawStr(f, 'element'), rawArr(f, 'fields'), new Map(), ci, resolver, true,
+      ) + '\n';
+      continue;
+    }
     if (kind === 'attr') {
       if (rawBool(f, 'optional') && !present) continue;
       const v = present ? groupUnquoteValue(it!) : rawStr(f, 'defaultValue');
@@ -1126,6 +1377,11 @@ function emitAttrGroup(
 ): string {
   // `projected`: fields a display projection (groupFields) read from its own
   // token, keyed lower-case; they override the body's and make the group present.
+  // hrOmitAtDefault: no token is the group at its catalog default, which the
+  // XML->HR side left out; write that default element back.
+  if (!trim(hrValue) && param.raw.hrOmitAtDefault === true && !(projected && projected.size > 0)) {
+    return emitGroupElement(param.xmlElement, rawArr(param.raw, 'fields'), new Map(), '    ', resolver, true);
+  }
   if (!trim(hrValue) && !param.hrHidden && !(projected && projected.size > 0)) return '';
   const kv = parseGroupKV(hrValue);
   for (const [k, v] of projected ?? []) kv.set(k, v);
@@ -1232,11 +1488,20 @@ function emitFieldList(param: GrammarParam, hrValue: string, resolver: IdResolve
     let fieldref = entryStr;
     let attrval = entryAttrDefault;
     const eq = entryStr.indexOf('=');
-    if (eq !== -1) { fieldref = trim(entryStr.slice(0, eq)); attrval = trim(entryStr.slice(eq + 1)); }
+    let suffixed: Record<string, string> = {};
+    if (eq !== -1) {
+      fieldref = trim(entryStr.slice(0, eq));
+      const split = splitFieldEntrySuffix(param, trim(entryStr.slice(eq + 1)));
+      attrval = split.value;
+      suffixed = split.found;
+      if (Object.keys(suffixed).length > 0 && !attrval) attrval = entryAttrDefault;
+    }
     const rf = resolveFieldRef(resolver, groupUnquoteValue(fieldref));
     let fattrs = '';
     for (const ff of fieldFixedAttrs) {
-      fattrs += ` ${rawStr(ff, 'xmlAttr')}="${escXmlAttr(rawStr(ff, 'defaultValue'))}"`;
+      const xattr = rawStr(ff, 'xmlAttr');
+      const fval = suffixed[xattr] || rawStr(ff, 'defaultValue');
+      fattrs += ` ${xattr}="${escXmlAttr(fval)}"`;
     }
     if (entryAttr && !entryElement) fattrs += ` ${entryAttr}="${escXmlAttr(attrval)}"`;
     let node = `<Field${fattrs} table="${escXml(rf.table)}" id="${rf.fieldId}" name="${escXml(rf.fieldName)}"/>`;
@@ -1263,7 +1528,34 @@ export function convertStepWithCatalog(
   const params = entry.params;
   let xml = `  <Step enable="${!line.disabled ? 'True' : 'False'}" id="${entry.id}" name="${escXml(entry.name)}">\n`;
 
-  const values = matchParamValues(entry, line.params);
+  const values = matchParamValues(entry, line.params, (message) =>
+    resolver.addWarning(line.lineNumber, message),
+  );
+
+  // mirrorOf: FileMaker writes this param as a copy of a field inside a sibling
+  // attrGroup, so it takes that field's value (Create PDF [ Document: Title="t",
+  // … ] writes the step-level <Calculation> "t" too, as FileMaker does). HR gives
+  // the hidden copy no token, so with the field empty nothing is written.
+  for (let pi = 0; pi < params.length; pi++) {
+    const p = params[pi];
+    if (!p.raw.mirrorOf) continue;
+    // A one-segment mirrorOf copies a sibling text param (Trigger Claris Connect
+    // Flow's <Text> repeats its <Flow>).
+    const sib = resolveMirrorSibling(entry, p);
+    if (sib !== null) {
+      const v = trim(values[params.indexOf(sib)] ?? '');
+      if (v) values[pi] = v;
+      continue;
+    }
+    const src = resolveMirrorSource(entry, p);
+    if (src === null) continue;
+    let body = values[params.indexOf(src.owner)] ?? '';
+    for (let i = 0; i < src.chain.length && body; i++) {
+      const kv = parseGroupKV(i === 0 ? body : stripParens(body));
+      body = kv.get(lowerKey(String(src.chain[i].key ?? ''))) ?? '';
+    }
+    if (body.trim()) values[pi] = body.trim();
+  }
 
   // G10 attribute-bearing wrapper: a wrapper element may carry an enum value as an
   // attribute (FM serializes <Action value="Queue"> holding children).
@@ -1363,7 +1655,11 @@ export function convertStepWithCatalog(
   const impliedBool = new Map<number, string>(); // param idx -> state
   for (let gi = 0; gi < params.length; gi++) {
     const gate = params[gi];
-    if (!gate.hrHidden || gate.type !== 'boolean' || values[gi] !== '') continue;
+    // hrOffKeepsGated: an explicit On / Off from the HR names the state
+    // outright: the gated companions are written as given either way.
+    const explicit = gate.raw.hrOffKeepsGated === true && (values[gi] === 'On' || values[gi] === 'Off')
+      ? values[gi] : '';
+    if (!gate.hrHidden || gate.type !== 'boolean' || (values[gi] !== '' && !explicit)) continue;
     const gateKey = paramKey(gate);
     let onValue = ''; // the gate value that REVEALS a companion
     let gates = false, anyContent = false;
@@ -1376,7 +1672,7 @@ export function convertStepWithCatalog(
     }
     if (!gates) continue; // hrHidden but nothing gates on it: default emit
     const offValue = onValue === 'True' ? 'False' : 'True';
-    impliedBool.set(gi, anyContent ? onValue : offValue);
+    impliedBool.set(gi, explicit ? (explicit === 'On' ? onValue : offValue) : (anyContent ? onValue : offValue));
   }
 
   // G10 nested attribute-bearing wrapper: the step-level rule one level down. An
@@ -1546,6 +1842,9 @@ export function convertStepWithCatalog(
       if (trim(hrValue)) piece = emitFieldList(param, hrValue, resolver);
     } else if (param.type === 'namedCalc') {
       if (hrValue !== '' || param.required) piece = emitNamedCalc(param, hrValue);
+      // hrOmitAtDefault: no token is the catalog default, written back.
+      else if (param.raw.hrOmitAtDefault && typeof param.raw.defaultValue === 'string' && param.raw.defaultValue)
+        piece = emitNamedCalc(param, param.raw.defaultValue);
     } else if (param.type === 'parametersList') {
       piece = emitParametersList(param, hrValue);
     } else if (param.type === 'findRequests') {
@@ -1582,17 +1881,34 @@ export function convertStepWithCatalog(
           `      <UniversalPathList>${escXml(emitValue)}</UniversalPathList>\n    </${param.xmlElement}>`;
       }
     } else if (param.type === 'reference') {
-      const name = unquote(hrValue);
+      // Fixed-id built-ins (enumValues = id FM writes, hrEnumValues = name FM
+      // displays) emit with their id: FM resolves some references by id alone on
+      // paste (Install Menu Set's <CustomMenuSet>). Mirrors the reference.
+      // An hrQuoted name came as one escaped literal (or FileMaker's own quoted
+      // display); a built-in label (`<Current Table>`) comes bare.
+      let name = tableParamValue(param, hrValue);
+      let fixedId = '';
+      for (const k of Object.keys(param.hrEnumValues).sort()) {
+        const label = param.hrEnumValues[k];
+        if (label && ciEquals(label, name)) {
+          fixedId = k;
+          name = label;
+          break;
+        }
+      }
       if (name !== '' || param.required) {
         const wa = rawStr(param.raw, 'wrapperAttr');
         const extra = wa ? ' ' + wa : '';
-        piece = `    <${param.xmlElement} name="${escXml(name)}"${extra}/>`;
+        const idAttr = fixedId ? ` id="${escXml(fixedId)}"` : '';
+        piece = `    <${param.xmlElement}${idAttr} name="${escXml(name)}"${extra}/>`;
       }
     } else if (param.type === 'layout') {
       if (param.discriminator) {
         if (layoutPiece.has(pi)) piece = layoutPiece.get(pi)!;
       } else {
-        const layoutName = unquote(hrValue);
+        // FileMaker's own line reads “Name” (TO): the curly quotes mark a layout
+        // reference and the suffix is decoration, as for a discriminated token.
+        const layoutName = unquote(stripResolvedLayoutDecoration(hrValue.trim()).tok);
         if (layoutName === '' || ciEquals(layoutName, '<unknown>')) {
           piece = '    <Layout id="0" name=""/>';
         } else {

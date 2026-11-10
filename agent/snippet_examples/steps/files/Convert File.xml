@@ -8,7 +8,7 @@
     <DataSourceType value="File"/>
     <Profile FieldDelimiter="&#9;" IsPredefined="-1" FieldNameRow="-1" DataType="    "/>
     <UniversalPathList>$path</UniversalPathList>
-    <ImportOptions TargetTableName="Table" CharacterSet="Macintosh" PreserveContainer="False" MatchFieldNames="False" AutoEnter="False" SplitRepetitions="False" method="Add"/>
+    <ImportOptions TargetTableName="Table" CharacterSet="Macintosh" KeepOriginalData="False" PreserveContainer="False" MatchFieldNames="False" AutoEnter="False" SplitRepetitions="False" method="Add"/>
   </Step>
 </fmxmlsnippet>
 <!-- NoInteract state: "True" suppresses dialogs (HR: With dialog: Off). "False" shows dialogs (HR: With dialog: On). Inverted in HR. -->
@@ -19,9 +19,12 @@
 <!-- UniversalPathList: source file path. Supports $variable, file:, filemac:, filewin:, fmnet: formats. If omitted, Open File dialog is shown. -->
 <!-- Profile element varies by DataSourceType and source method: -->
 <!--   File type: <Profile FieldDelimiter="&#9;" IsPredefined="-1" FieldNameRow="-1" DataType="    "/> -->
-<!--   XMLSource HTTP: XMLType="XMLHttp" XSLType="XSLHttp" with <XMLHttp> and <XSLHttp> children containing URLs. -->
-<!--   XMLSource File: XMLType="XMLFile" XSLType="XSLFile" with <XMLFile> and <XSLFile> children containing $variable paths. -->
-<!--   XMLSource Calc: XMLType="XMLCalculation" XSLType="XSLCalculation" with <XMLCalc><Calculation/></XMLCalc> and <XSLCalc><Calculation/></XSLCalc> children. -->
-<!-- ImportOptions: dialog-configured element with TargetTableName, CharacterSet, PreserveContainer, MatchFieldNames, AutoEnter, SplitRepetitions, method attributes. -->
+<!--   XMLSource: the File attributes stay, DataType="XML ", plus XMLType (XMLFile | XMLHttp | XMLCalculation) and XSLType (XSLFile | XSLHttp | XSLCalculation | NoXSL), mixed freely. -->
+<!--   XMLSource HTTP: <XMLHttp> / <XSLHttp> children containing URLs. -->
+<!--   XMLSource File: <XMLFile> / <XSLFile> children containing paths, one per line. -->
+<!--   XMLSource Calc: <XMLCalc><Calculation/></XMLCalc> / <XSLCalc><Calculation/></XSLCalc> children. An XML calculation is also written as a step-level <Calculation> after the Profile; FileMaker keeps that copy and drops an <XMLCalc> pasted without it. -->
+<!--   Example (FileMaker Pro 26.0.3): <Profile XSLType="NoXSL" XMLType="XMLCalculation" FieldDelimiter="&#9;" IsPredefined="-1" FieldNameRow="-1" DataType="XML "><XMLCalc><Calculation><![CDATA[$url]]></Calculation></XMLCalc></Profile><Calculation><![CDATA[$url]]></Calculation> -->
+<!-- UniversalPathList: absent with an XML source and with no path. -->
+<!-- ImportOptions: dialog-configured element with TargetTableName, CharacterSet, KeepOriginalData, PreserveContainer, MatchFieldNames, AutoEnter, SplitRepetitions, method attributes; AddRemainingRecords with an update method. -->
 <!-- FileMaker Pro only; not supported on Go, WebDirect, Server, Cloud, Data API, or CWP. -->
 <!-- See https://help.claris.com/en/pro-help/content/convert-file.html -->

@@ -24,6 +24,7 @@ deliberately parallel so a facet added to one port is obviously missing from the
 
 from __future__ import annotations
 
+import copy
 import json
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
@@ -237,6 +238,14 @@ class StepParam:
     # token read at that slot makes the sibling present.
     hr_empty_slot_with: str | None = None
     description: str | None = None
+    # Version data (see ``fm_min_problem``): the param's own minimum FileMaker
+    # version and its source (well-formed values only; malformed reads None),
+    # and an enum param's per-value minimums keyed by the XML value
+    # ({value: {"fmMin": ..., "fmMinSource": ...}}, raw: read each with
+    # ``fm_min_version``). Never read by the converters; ``None`` = undeclared.
+    fm_min: str | None = None
+    fm_min_source: str | None = None
+    fm_min_values: dict[str, dict[str, Any]] = field(default_factory=dict)
     raw: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
@@ -286,6 +295,10 @@ class StepParam:
             group_fields=list(d.get("groupFields", [])),
             hr_empty_slot_with=d.get("hrEmptySlotWith"),
             description=d.get("description"),
+            fm_min=_fm_min_of(d),
+            fm_min_source=_fm_min_source_of(d),
+            fm_min_values=(dict(d["fmMinValues"])
+                           if isinstance(d.get("fmMinValues"), dict) else {}),
             raw=dict(d),
         )
 
@@ -331,6 +344,10 @@ class CatalogEntry:
     # `parentElementAliases` fields, keyed by the canonical element name (the
     # last parent-path segment for a parent).
     element_aliases: dict[str, list[str]] = field(default_factory=dict)
+    # Version data: the step's minimum FileMaker version and its source
+    # (see ``fm_min_problem``). ``None`` means unknown.
+    fm_min: str | None = None
+    fm_min_source: str | None = None
     raw: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
@@ -363,8 +380,129 @@ class CatalogEntry:
             help_url=d.get("helpUrl"),
             notes=d.get("notes"),
             element_aliases=ea,
+            fm_min=_fm_min_of(d),
+            fm_min_source=_fm_min_source_of(d),
             raw=dict(d),
         )
+
+
+# ---------------------------------------------------------------------------
+# Version data: `fmMin` / `fmMinSource`
+# ---------------------------------------------------------------------------
+# The minimum FileMaker version of a step, a param, an enum value (a param's
+# `fmMinValues` map) or a function-catalog entry. `fmMin` is a version
+# ("MAJOR", "MAJOR.MINOR" or "MAJOR.MINOR.PATCH") or `FM_MIN_ANY` (present in
+# every version the data covers) or `FM_MIN_UNKNOWN` (looked at and still
+# undecided, or a retracted value); `fmMinSource` says how it is known. An
+# absent `fmMin` is unknown; a malformed pair is unknown too and is a catalog
+# defect.
+FM_MIN_ANY = "any"
+FM_MIN_UNKNOWN = "unknown"
+FM_MIN_SOURCES: frozenset[str] = frozenset({"measured", "documented"})
+
+
+def _is_fm_version(text: str) -> bool:
+    """1-3 dot-separated runs of 1-3 ASCII digits, major not zero."""
+    parts = text.split(".")
+    return (1 <= len(parts) <= 3
+            and all(p.isascii() and p.isdigit() and 1 <= len(p) <= 3 for p in parts)
+            and int(parts[0]) != 0)
+
+
+def _fm_min_of(obj: dict[str, Any]) -> str | None:
+    """`obj`'s `fmMin` when the pair is well formed, else ``None``."""
+    return obj.get("fmMin") if fm_min_problem(obj) is None else None
+
+
+def _fm_min_source_of(obj: dict[str, Any]) -> str | None:
+    return obj.get("fmMinSource") if fm_min_problem(obj) is None else None
+
+
+def fm_min_problem(obj: Any) -> str | None:
+    """What is wrong with ``obj``'s `fmMin` / `fmMinSource` pair, or ``None``.
+
+    Absent keys are not a problem (unknown is a legal state).
+    """
+    if not isinstance(obj, dict):
+        return "not an object"
+    if "fmMin" not in obj:
+        return "fmMinSource without fmMin" if "fmMinSource" in obj else None
+    value = obj["fmMin"]
+    if not isinstance(value, str):
+        return "fmMin is not a string"
+    if value not in (FM_MIN_ANY, FM_MIN_UNKNOWN) and not _is_fm_version(value):
+        return f'fmMin "{value}" is neither "{FM_MIN_ANY}", "{FM_MIN_UNKNOWN}" nor a version'
+    source = obj.get("fmMinSource")
+    if not isinstance(source, str):
+        return f'fmMin "{value}" without a string fmMinSource'
+    if source not in FM_MIN_SOURCES:
+        return f'fmMinSource "{source}" is neither "measured" nor "documented"'
+    return None
+
+
+def fm_min_version(obj: dict[str, Any]) -> str | None:
+    """The minimum version: ``None`` unknown, ``""`` none (`any`), else the version.
+
+    Absent, ``"unknown"`` and malformed all read ``None``.
+    """
+    if fm_min_problem(obj) is not None or obj.get("fmMin") in (None, FM_MIN_UNKNOWN):
+        return None
+    return "" if obj["fmMin"] == FM_MIN_ANY else obj["fmMin"]
+
+
+def fm_min_problems(steps: list[dict[str, Any]]) -> list[str]:
+    """Every malformed version datum in a raw step catalog, one line each.
+
+    `fmMinValues` belongs on a param, holds one object per value, and names only
+    values the param's `enumValues` holds. `fmMinOnOlder` is "dropped" and sits
+    beside an `fmMin`; `fmGateWhen` names exactly one sibling param and values.
+    """
+    out: list[str] = []
+    for step in steps:
+        name = step.get("name", "")
+        problem = fm_min_problem(step)
+        if problem:
+            out.append(f"{name}: {problem}")
+        if "fmMinValues" in step:
+            out.append(f"{name}: fmMinValues belongs on a param, not a step")
+        for param in step.get("params", []):
+            if not isinstance(param, dict):
+                continue
+            where = f"{name} / {param.get('hrLabel') or param.get('xmlElement')}"
+            problem = fm_min_problem(param)
+            if problem:
+                out.append(f"{where}: {problem}")
+            if "fmMinOnOlder" in param:
+                if param["fmMinOnOlder"] != "dropped":
+                    out.append(f'{where}: fmMinOnOlder must be "dropped"')
+                if "fmMin" not in param:
+                    out.append(f"{where}: fmMinOnOlder without fmMin")
+            if "fmGateWhen" in param:
+                scope = param["fmGateWhen"]
+                keys = [p.get("wrapperElement") or p.get("xmlElement")
+                        for p in step.get("params", [])
+                        if isinstance(p, dict) and p is not param and not p.get("groupFields")]
+                if (not isinstance(scope, dict) or not scope.get("param")
+                        or not scope.get("values")):
+                    out.append(f"{where}: fmGateWhen needs a param and values")
+                elif keys.count(scope["param"]) != 1:
+                    out.append(f"{where}: fmGateWhen param names no single sibling param")
+            values = param.get("fmMinValues")
+            if values is None:
+                continue
+            if not isinstance(values, dict):
+                out.append(f"{where}: fmMinValues is not an object")
+                continue
+            for value, spec in values.items():
+                problem = fm_min_problem(spec)
+                if problem is None and "fmMin" not in spec:
+                    problem = "fmMinValues entry has no fmMin"
+                if problem:
+                    out.append(f"{where} = {value}: {problem}")
+                if value not in (param.get("enumValues") or []):
+                    out.append(f"{where} = {value}: fmMinValues names a value "
+                               "that is not in enumValues")
+    return out
 
 
 def param_key(param: StepParam) -> str:
@@ -591,6 +729,13 @@ def _repetition_calc_of(fld: ET.Element, parent: ET.Element | None) -> str:
 # The emit side reads the sentinel back to the empty name.
 FIELD_MISSING_SENTINEL = "<Field Missing>"
 
+# FileMaker's drawing of a field reference with no table and no field: it stores
+# <Field table="" id="0" name=""/> and draws `<Table Missing>` in the slot of a
+# single-field param (params marked hrNoTableBlank draw nothing). An absent
+# <Field> draws no field token. The emit side reads the sentinel back to the
+# empty reference.
+TABLE_MISSING_SENTINEL = "<Table Missing>"
+
 
 def _field_ref_hr(table: str, name: str) -> str:
     """The HR token of a stored ``<Field table id name/>``, drawn the way FileMaker
@@ -602,6 +747,16 @@ def _field_ref_hr(table: str, name: str) -> str:
     if table:
         return table + "::" + FIELD_MISSING_SENTINEL
     return ""
+
+
+def _field_param_ref_hr(param: StepParam, table: str, name: str) -> str:
+    """A single-field param's stored reference, drawn as FileMaker draws it:
+    ``_field_ref_hr``, plus ``<Table Missing>`` for no table and no field unless
+    the catalog marks the param ``hrNoTableBlank``. Field lists, find requests and
+    group fields keep ``_field_ref_hr``: their unconfigured entries draw nothing."""
+    if not table and not name and not param.raw.get("hrNoTableBlank"):
+        return TABLE_MISSING_SENTINEL
+    return _field_ref_hr(table, name)
 
 
 def _with_repetition_suffix(ref: str, fld: ET.Element, parent: ET.Element | None = None) -> str:
@@ -856,8 +1011,51 @@ def param_visible(entry: CatalogEntry, step: ET.Element, param: StepParam) -> bo
         if param_key(q) != vw.param:
             continue
         v = read_gate_raw_value(entry, step, q) or (q.default_value or "")
-        return v in vw.values
+        if v in vw.values:
+            return True
+        # hrOffKeepsGated: FileMaker keeps this companion with the gate off, so
+        # the HR shows it when it differs from its default.
+        return bool(q.raw.get("hrOffKeepsGated")) and kept_while_off(entry, step, param)
     return True
+
+
+def off_kept_gate(entry: CatalogEntry, param: StepParam) -> StepParam | None:
+    """The ``hrOffKeepsGated`` gate ``param``'s ``visibleWhen`` names, or None."""
+    vw = param.visible_when
+    if vw is None or not vw.param:
+        return None
+    q = next((q for q in entry.params if param_key(q) == vw.param), None)
+    return q if q is not None and q.raw.get("hrOffKeepsGated") else None
+
+
+def kept_while_off(entry: CatalogEntry, step: ET.Element, param: StepParam) -> bool:
+    """Whether a companion of an ``hrOffKeepsGated`` gate holds a value other than
+    its default: a token, and for an enum not its default's label. The emitter
+    writes the default back, so only these need the HR."""
+    val = compute_param_hr(entry, step, param)
+    if not val:
+        return False
+    if param.type == "enum":
+        d = param.default_value or ""
+        return val != (param.hr_enum_values.get(d) or d)
+    return True
+
+
+def off_kept_token(entry: CatalogEntry, step: ET.Element, gate: StepParam) -> str:
+    """``<hrLabel>: Off`` for an ``hrOffKeepsGated`` gate that is off while a
+    companion it gates holds a non-default value (Import Records' ``Specify
+    import order: Off``); otherwise nothing, and the state is derived."""
+    key = param_key(gate)
+    gated = [q for q in entry.params
+             if q.visible_when is not None and q.visible_when.param == key and q.visible_when.values]
+    if not gated or not gate.hr_label:
+        return ""
+    v = read_gate_raw_value(entry, step, gate) or (gate.default_value or "")
+    if v in gated[0].visible_when.values:
+        return ""
+    if not any(kept_while_off(entry, step, q) for q in gated):
+        return ""
+    return gate.hr_label + ": Off"
 
 
 def hr_param_order(entry: CatalogEntry) -> list[int]:
@@ -874,6 +1072,64 @@ def hr_param_order(entry: CatalogEntry) -> list[int]:
 
 
 # --- group / repeat / list renderers ----------------------------------------
+def _group_at_default(node: ET.Element, fields: list[dict]) -> bool:
+    """Whether a group element is exactly its catalog default (``hrOmitAtDefault``).
+
+    Every non-optional attr present at its ``defaultValue``, every optional attr
+    absent, a calc / text child present holding its ``defaultValue`` when it has
+    one and absent otherwise (a calc's ``requireAttr`` reading its presence), no
+    field / script child, every sub-group present and at default. The element
+    the emitter writes back for an absent token.
+    """
+    for f in fields:
+        kind = f.get("kind", "")
+        default = f.get("defaultValue") or ""
+        if kind == "attr":
+            a = node.get(f.get("xmlAttr", ""))
+            if f.get("optional"):
+                if a is not None:
+                    return False
+                continue
+            if a is None or a != default:
+                return False
+        elif kind == "text":
+            child = node.find(f.get("childElement", ""))
+            if not default:
+                if child is not None:
+                    return False
+                continue
+            if child is None or (child.text or "") != default:
+                return False
+        elif kind == "calc":
+            child_el = f.get("childElement", "")
+            calc = node.find("Calculation") if not child_el else node.find(child_el)
+            has = calc is not None
+            if has != bool(default):
+                return False
+            if has:
+                v = (calc.text or "") if not child_el else _child_text(calc, "Calculation")
+                if v != default:
+                    return False
+            req = f.get("requireAttr", "")
+            if req and node.get(req) != ("True" if has else "False"):
+                return False
+        elif kind == "group":
+            sub = node.find(f.get("element", ""))
+            if sub is None or not _group_at_default(sub, f.get("fields", [])):
+                return False
+        elif kind == "field":
+            if node.find("Field") is not None:
+                return False
+        elif kind == "fieldOrVariable":
+            fld = node.find("Field")
+            if fld is None or (fld.text or "").strip() or fld.get("name", ""):
+                return False
+        elif kind == "script":
+            if node.find(f.get("element", "")) is not None:
+                return False
+    return True
+
+
 def _render_group_element(node: ET.Element, fields: list[dict]) -> str:
     """Render one attrGroup element to its HR body ('k=v, k=v'); mirrors the ref."""
     parts: list[str] = []
@@ -989,6 +1245,37 @@ def _render_repeat_group_positional(container: ET.Element, param: StepParam) -> 
     return _hr_join(tokens, " ; ")
 
 
+def field_entry_suffix(param: StepParam, field_node: ET.Element) -> str:
+    """The HR suffix of a fieldList entry: each ``fieldFixedAttrs`` attribute that
+    declares ``hrEntrySuffix`` and differs from its default, as ``<suffix><value>``
+    after the entry's value (Import Records ``Invoices::Date=Import:2``)."""
+    out = ""
+    for ff in param.raw.get("fieldFixedAttrs", []) or []:
+        sep = ff.get("hrEntrySuffix", "")
+        if not sep:
+            continue
+        v = field_node.get(ff.get("xmlAttr", ""))
+        if v is not None and v != ff.get("defaultValue", ""):
+            out += sep + v
+    return out
+
+
+def split_field_entry_suffix(param: StepParam, value: str) -> tuple[str, dict[str, str]]:
+    """Inverse of :func:`field_entry_suffix`: the entry's value without its
+    suffixes, and each suffix attribute's value by ``xmlAttr``. The last declared
+    suffix is taken first, from the value's end."""
+    found: dict[str, str] = {}
+    for ff in reversed(param.raw.get("fieldFixedAttrs", []) or []):
+        sep = ff.get("hrEntrySuffix", "")
+        if not sep:
+            continue
+        i = value.rfind(sep)
+        if i != -1:
+            found[ff.get("xmlAttr", "")] = value[i + len(sep):].strip()
+            value = value[:i]
+    return value.strip(), found
+
+
 def _render_field_list(container: ET.Element, param: StepParam) -> str:
     entry_el = param.raw.get("entryElement", "")
     entry_attr = param.raw.get("entryAttr", "")
@@ -1002,10 +1289,14 @@ def _render_field_list(container: ET.Element, param: StepParam) -> str:
         name = field_node.get("name", "")
         fieldref = _field_ref_hr(table, name)
         token = _group_quote_value(fieldref)
+        value = ""
         if entry_attr:
             attr_node = field_node if not entry_el else entry_node
             if attr_node is not None:
-                token += "=" + (attr_node.get(entry_attr, "") or "")
+                value = attr_node.get(entry_attr, "") or ""
+        suffix = field_entry_suffix(param, field_node)
+        if entry_attr or suffix:
+            token += "=" + value + suffix
         tokens.append(token)
 
     if entry_el:
@@ -1115,6 +1406,12 @@ def compute_param_hr(entry: CatalogEntry, step: ET.Element, param: StepParam) ->
             val = label + ": " + val
     elif ptype == "attrGroup":
         group_node = base.find(param.xml_element)
+        # hrOmitAtDefault: a group at its catalog default prints nothing
+        # (FileMaker draws `Speak [ ]` / `Create PDF [ ]`); the emitter writes
+        # the default element back.
+        if (group_node is not None and param.raw.get("hrOmitAtDefault")
+                and _group_at_default(group_node, param.raw.get("fields", []))):
+            group_node = None
         if group_node is not None:
             # A field a visible display projection prints as its own token is
             # left out of the body; one whose projection is hidden stays.
@@ -1123,7 +1420,9 @@ def compute_param_hr(entry: CatalogEntry, step: ET.Element, param: StepParam) ->
                 for q in entry.params
                 if q.group_fields and q.xml_element == param.xml_element
                 and (q.parent_element or "") == (param.parent_element or "")
-                and param_visible(entry, step, q)
+                # With an hrOffKeepsGated gate a projection prints its field
+                # whenever it is not the default, which the emitter writes back.
+                and (param_visible(entry, step, q) or off_kept_gate(entry, q) is not None)
                 for k in q.group_fields
             }
             fields = [f for f in param.raw.get("fields", []) if f.get("key") not in shown]
@@ -1180,6 +1479,13 @@ def compute_param_hr(entry: CatalogEntry, step: ET.Element, param: StepParam) ->
         # falling back to any declared legacy synonym (e.g. AccoutName).
         wnode = _aliased_child(base, wrapper, entry.element_aliases)
         val = _child_text(wnode, "Calculation") if wnode is not None else ""
+        # hrOmitAtDefault: a calc holding its catalog default prints nothing; HR ->
+        # XML writes the default back when no token is given (Trigger Claris
+        # Connect Flow's cURL options, which FileMaker writes on insert and never
+        # draws).
+        dflt = str(param.raw.get("defaultValue") or "")
+        if param.raw.get("hrOmitAtDefault") and dflt and val == dflt:
+            val = ""
         # hr_bare params (Show Custom Dialog's Title/Message) print positionally
         # with no label, mirroring FileMaker; every other namedCalc keeps its label.
         if val and not param.hr_bare:
@@ -1244,7 +1550,8 @@ def compute_param_hr(entry: CatalogEntry, step: ET.Element, param: StepParam) ->
             elif text:
                 val = text
             else:
-                val = _field_ref_hr(table, name)  # Table::<Field Missing>, or none
+                # Table::<Field Missing>, <Table Missing>, or none
+                val = _field_param_ref_hr(param, table, name)
             val = _with_repetition_suffix(val, field_node, base)
             if val and label:
                 val = label + ": " + val
@@ -1269,7 +1576,9 @@ def compute_param_hr(entry: CatalogEntry, step: ET.Element, param: StepParam) ->
         if field_node is not None:
             table = field_node.get("table", "")
             name = field_node.get("name", "")
-            val = _with_repetition_suffix(_field_ref_hr(table, name), field_node, base)
+            val = _with_repetition_suffix(
+                _field_param_ref_hr(param, table, name), field_node, base
+            )
             # hr_labeled: label the field where FileMaker does (inverse of bare).
             if val and param.hr_labeled and label:
                 val = label + ": " + val
@@ -1299,7 +1608,18 @@ def compute_param_hr(entry: CatalogEntry, step: ET.Element, param: StepParam) ->
         ref_node = base.find(param.xml_element)
         if ref_node is not None:
             name = ref_node.get("name", "")
-            if name:
+            # A fixed-id built-in reads by its id (FM's [File Default] is id="0" name="").
+            ref_id = ref_node.get("id")
+            built_in = ref_id is not None and bool(param.hr_enum_values.get(ref_id))
+            if built_in:
+                name = param.hr_enum_values[ref_id]
+            if name and param.hr_quoted and not built_in:
+                # hr_quoted: FileMaker draws a named reference quoted (Truncate
+                # Table's ``Table: “Line Items”``); write it as one escaped literal.
+                # A built-in stays bare, as FileMaker draws it (``<Current Table>``).
+                q = quote_calc_literal(name)
+                val = q if not label else (label + ": " + q)
+            elif name:
                 val = ('"' + name + '"') if not label else (label + ": " + name)
     elif ptype == "layout":
         layout_node = base.find("Layout")
@@ -1531,6 +1851,126 @@ def render_discriminator_group_tokens(
     return parts
 
 
+def resolve_mirror_source(
+    entry: CatalogEntry, param: StepParam
+) -> tuple[StepParam, list[dict]] | None:
+    """The source of a ``mirrorOf`` param: its owning attrGroup and the field chain.
+
+    ``mirrorOf`` is ``"<group param key>/<field key>[/<field key>…]"``: a sibling
+    attrGroup, then group fields ending at a ``calc`` field. FileMaker writes the
+    param as a copy of that field (Create PDF's step-level ``<Calculation>`` is its
+    Document Title). ``None`` when the path does not resolve.
+    """
+    segs = [s for s in str(param.raw.get("mirrorOf") or "").split("/") if s]
+    if len(segs) < 2:
+        return None
+    owner = next((q for q in entry.params if q.type == "attrGroup" and not q.group_fields
+                  and param_key(q) == segs[0]), None)
+    if owner is None:
+        return None
+    fields = owner.raw.get("fields", []) or []
+    chain: list[dict] = []
+    for i, seg in enumerate(segs[1:]):
+        hit = next((f for f in fields if _ci_equals(str(f.get("key", "")), seg)), None)
+        last = i == len(segs) - 2
+        if hit is None or hit.get("kind") != ("calc" if last else "group"):
+            return None
+        chain.append(hit)
+        fields = hit.get("fields", []) or []
+    return owner, chain
+
+
+def resolve_mirror_sibling(entry: CatalogEntry, param: StepParam) -> StepParam | None:
+    """The source of a one-segment ``mirrorOf``: a sibling step-level ``text`` /
+    ``name`` param whose value FileMaker writes this param as a copy of (Trigger
+    Claris Connect Flow's ``<Text>`` repeats its ``<Flow>``). ``None`` otherwise."""
+    segs = [s for s in str(param.raw.get("mirrorOf") or "").split("/") if s]
+    if len(segs) != 1:
+        return None
+    return next((q for q in entry.params
+                 if q is not param and not q.hr_hidden and q.type in ("text", "name")
+                 and (q.parent_element or "") == (param.parent_element or "")
+                 and param_key(q) == segs[0]), None)
+
+
+def _mirror_source_node(entry: CatalogEntry, step: ET.Element, owner: StepParam,
+                        chain: list[dict], create: bool) -> ET.Element | None:
+    """The element holding a mirrorOf source field's ``<Calculation>`` (its child
+    element, or the group element for a bare calc); with ``create`` the missing
+    path is appended."""
+    def child_of(n: ET.Element, name: str) -> ET.Element | None:
+        c = n.find(name)
+        if c is None and create:
+            c = ET.SubElement(n, name)
+        return c
+
+    n: ET.Element | None = step
+    for seg in [s for s in (owner.parent_element or "").split("/") if s]:
+        c = _aliased_child(n, seg, entry.element_aliases)
+        n = c if c is not None else child_of(n, seg)
+        if n is None:
+            return None
+    n = child_of(n, owner.xml_element)
+    for f in chain:
+        if n is None:
+            return None
+        if f.get("kind") == "group":
+            n = child_of(n, f.get("element", ""))
+        elif f.get("childElement"):
+            n = child_of(n, f["childElement"])
+    return n
+
+
+def apply_mirror_fallback(entry: CatalogEntry, step: ET.Element) -> ET.Element | None:
+    """A hidden ``mirrorOf`` copy prints nothing, so a step holding the copy but
+    not its source field would lose the value. FileMaker fills the field from the
+    copy on paste (Create PDF pasted with only the step-level ``<Calculation>``
+    comes back with that Document Title; the field wins when both are set, FM
+    26.0.3). Returns a copy of ``step`` with the field written from the copy, or
+    ``None`` when nothing applies."""
+    out: ET.Element | None = None
+    for p in entry.params:
+        if not p.raw.get("mirrorOf"):
+            continue
+        sib = resolve_mirror_sibling(entry, p)
+        if sib is not None:
+            # A sibling text source: FileMaker draws the copy's value as the source
+            # when the step holds no source element (its copy-out of a Trigger
+            # Claris Connect Flow pasted without option flags carries only <Text>,
+            # drawn `Flow: <text>`, FM 26.0.3).
+            s = out if out is not None else step
+            base = s if not p.parent_element else _descend_path(s, p.parent_element, entry.element_aliases)
+            own = base.find(p.xml_element) if base is not None else None
+            v = "".join(own.itertext()) if own is not None else ""
+            if not v.strip() or base.find(sib.xml_element) is not None:
+                continue
+            if out is None:
+                out = copy.deepcopy(step)
+                base = out if not p.parent_element else _descend_path(out, p.parent_element, entry.element_aliases)
+            if base is not None:
+                ET.SubElement(base, sib.xml_element).text = v
+            continue
+        src = resolve_mirror_source(entry, p)
+        if src is None:
+            continue
+        owner, chain = src
+        s = out if out is not None else step
+        base = s if not p.parent_element else _descend_path(s, p.parent_element, entry.element_aliases)
+        own = base.find(p.xml_element) if base is not None else None
+        v = "".join(own.itertext()) if own is not None else ""
+        if not v.strip():
+            continue
+        have = _mirror_source_node(entry, s, owner, chain, False)
+        if have is not None and have.find("Calculation") is not None:
+            continue
+        if out is None:
+            out = copy.deepcopy(step)
+        target = _mirror_source_node(entry, out, owner, chain, True)
+        if target is not None:
+            ET.SubElement(target, "Calculation").text = v
+    return out
+
+
 def render_step_hr(entry: CatalogEntry, step: ET.Element) -> str:
     """Render a full step to its HR bracket line, as the reference does.
 
@@ -1539,6 +1979,11 @@ def render_step_hr(entry: CatalogEntry, step: ET.Element) -> str:
     positional token renders as an empty token (``[  ; 100 ]``). Does not handle
     control-flow steps.
     """
+    # A step holding only a mirrorOf copy renders as FileMaker stores it after
+    # paste: with the source field filled from the copy.
+    mirrored = apply_mirror_fallback(entry, step)
+    if mirrored is not None:
+        return render_step_hr(entry, mirrored)
     parts: list[str] = []
     fm_empty: set[int] = set()  # indexes of hrEmptySlotWith empty slots
     pending_empty = 0
@@ -1564,6 +2009,10 @@ def render_step_hr(entry: CatalogEntry, step: ET.Element) -> str:
     for pi in hr_param_order(entry):
         param = entry.params[pi]
         if param.hr_hidden:
+            if param.raw.get("hrOffKeepsGated") and param.type == "boolean":
+                off = off_kept_token(entry, step, param)
+                if off:
+                    add(_param_token(entry, param, off))
             continue
         if governing_discriminator_for(entry, param):
             continue
@@ -1585,7 +2034,11 @@ def render_step_hr(entry: CatalogEntry, step: ET.Element) -> str:
                 continue
             add(tok)
     if not parts:
-        return entry.name
+        # FileMaker draws the option brackets of every step that has options,
+        # even when none of them shows (``Perform Find [ ]``, ``Go to Field [ ]``);
+        # only a step with no options at all draws bare (``Beep``). HR->XML reads
+        # both forms the same.
+        return entry.name + " [ ]" if entry.params else entry.name
     # An hrEmptySlotWith slot draws as FileMaker draws it: a bare ``;``.
     out = entry.name + " [ "
     for i, item in enumerate(parts):

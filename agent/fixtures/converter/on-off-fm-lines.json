@@ -1,0 +1,89 @@
+{
+  "_comment": [
+    "Five steps FileMaker draws with a bare On / Off, measured on FileMaker Pro 26.0.3 (macOS, 2026-10-19): every case was pasted into one script, FileMaker's displayed line read, and the script copied back (xml, FileMaker's own bytes, DisableStepCollapsed left out).",
+    "FileMaker draws the on/off option of Set Error Logging, Set AI Call Logging, Set Layout Object Animation, Set Revert Transaction on Error and Set Use System Formats with no label. Set AI Call Logging draws Verbose labeled with its state on every line, and Truncate Messages the same way only while Verbose is on; pasted with Verbose off, FileMaker drops the truncate element (case ai_t_tr).",
+    "FileMaker labels Set Error Logging's custom debug info (Custom debug info: \"dbg\"); the converter's HR labels it the same way."
+  ],
+  "cases": [
+    {
+      "id": "sel_t_calc",
+      "xml": "<Step enable=\"True\" id=\"200\" name=\"Set Error Logging\"><Option state=\"True\"/><Calculation><![CDATA[\"dbg\"]]></Calculation></Step>",
+      "fmLine": "Set Error Logging [ On ; Custom debug info: \"dbg\" ]"
+    },
+    {
+      "id": "sel_t",
+      "xml": "<Step enable=\"True\" id=\"200\" name=\"Set Error Logging\"><Option state=\"True\"/></Step>",
+      "fmLine": "Set Error Logging [ On ]"
+    },
+    {
+      "id": "sel_f",
+      "xml": "<Step enable=\"True\" id=\"200\" name=\"Set Error Logging\"><Option state=\"False\"/></Step>",
+      "fmLine": "Set Error Logging [ Off ]"
+    },
+    {
+      "id": "ai_t_all",
+      "xml": "<Step enable=\"True\" id=\"217\" name=\"Set AI Call Logging\"><Set state=\"True\"/><LLMDebugLog><FileName><Calculation><![CDATA[\"ai_log.txt\"]]></Calculation></FileName><VerboseMode/><TruncateEmbeddingVectorsMode/></LLMDebugLog></Step>",
+      "fmLine": "Set AI Call Logging [ On ; Filename: \"ai_log.txt\" ; Verbose: On ; Truncate Messages: On ]"
+    },
+    {
+      "id": "ai_t_fn",
+      "xml": "<Step enable=\"True\" id=\"217\" name=\"Set AI Call Logging\"><Set state=\"True\"/><LLMDebugLog><FileName><Calculation><![CDATA[\"ai_log.txt\"]]></Calculation></FileName></LLMDebugLog></Step>",
+      "fmLine": "Set AI Call Logging [ On ; Filename: \"ai_log.txt\" ; Verbose: Off ]"
+    },
+    {
+      "id": "ai_t_v",
+      "xml": "<Step enable=\"True\" id=\"217\" name=\"Set AI Call Logging\"><Set state=\"True\"/><LLMDebugLog><VerboseMode/></LLMDebugLog></Step>",
+      "fmLine": "Set AI Call Logging [ On ; Verbose: On ; Truncate Messages: Off ]"
+    },
+    {
+      "id": "ai_t_tr",
+      "xml": "<Step enable=\"True\" id=\"217\" name=\"Set AI Call Logging\"><Set state=\"True\"/><LLMDebugLog/></Step>",
+      "fmLine": "Set AI Call Logging [ On ; Verbose: Off ]"
+    },
+    {
+      "id": "ai_t_none",
+      "xml": "<Step enable=\"True\" id=\"217\" name=\"Set AI Call Logging\"><Set state=\"True\"/><LLMDebugLog/></Step>",
+      "fmLine": "Set AI Call Logging [ On ; Verbose: Off ]"
+    },
+    {
+      "id": "ai_f",
+      "xml": "<Step enable=\"True\" id=\"217\" name=\"Set AI Call Logging\"><Set state=\"False\"/><LLMDebugLog/></Step>",
+      "fmLine": "Set AI Call Logging [ Off ; Verbose: Off ]"
+    },
+    {
+      "id": "ai_f_all",
+      "xml": "<Step enable=\"True\" id=\"217\" name=\"Set AI Call Logging\"><Set state=\"False\"/><LLMDebugLog><FileName><Calculation><![CDATA[\"x.txt\"]]></Calculation></FileName><VerboseMode/><TruncateEmbeddingVectorsMode/></LLMDebugLog></Step>",
+      "fmLine": "Set AI Call Logging [ Off ; Filename: \"x.txt\" ; Verbose: On ; Truncate Messages: On ]"
+    },
+    {
+      "id": "anim_t",
+      "xml": "<Step enable=\"True\" id=\"168\" name=\"Set Layout Object Animation\"><Set state=\"True\"/></Step>",
+      "fmLine": "Set Layout Object Animation [ On ]"
+    },
+    {
+      "id": "anim_f",
+      "xml": "<Step enable=\"True\" id=\"168\" name=\"Set Layout Object Animation\"><Set state=\"False\"/></Step>",
+      "fmLine": "Set Layout Object Animation [ Off ]"
+    },
+    {
+      "id": "rev_t",
+      "xml": "<Step enable=\"True\" id=\"223\" name=\"Set Revert Transaction on Error\"><Set state=\"True\"/></Step>",
+      "fmLine": "Set Revert Transaction on Error [ On ]"
+    },
+    {
+      "id": "rev_f",
+      "xml": "<Step enable=\"True\" id=\"223\" name=\"Set Revert Transaction on Error\"><Set state=\"False\"/></Step>",
+      "fmLine": "Set Revert Transaction on Error [ Off ]"
+    },
+    {
+      "id": "usf_t",
+      "xml": "<Step enable=\"True\" id=\"94\" name=\"Set Use System Formats\"><Set state=\"True\"/></Step>",
+      "fmLine": "Set Use System Formats [ On ]"
+    },
+    {
+      "id": "usf_f",
+      "xml": "<Step enable=\"True\" id=\"94\" name=\"Set Use System Formats\"><Set state=\"False\"/></Step>",
+      "fmLine": "Set Use System Formats [ Off ]"
+    }
+  ]
+}

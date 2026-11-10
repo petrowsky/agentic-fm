@@ -1,0 +1,133 @@
+{
+  "_comment": [
+    "Select and the other bare flags on Copy, Cut, Clear, Check Selection, Paste, Execute FileMaker Data API, Go to Field, Insert Calculated Result and Insert Current Date, measured on FileMaker Pro 26.0.3 (macOS, 2026-10-14): each step was pasted into a script, FileMaker's displayed line read, and the step copied back (xml).",
+    "FileMaker draws Select (Select/perform on Go to Field) and Paste's No style as bare flags only when on. Paste's Link if available is never drawn, so FileMaker's line does not carry it."
+  ],
+  "cases": [
+    {
+      "step": "Copy",
+      "xml": "<Step enable=\"True\" id=\"47\" name=\"Copy\"><SelectAll state=\"True\"/><DisableStepCollapsed state=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Copy [ Select ; Invoices::Description ]"
+    },
+    {
+      "step": "Copy",
+      "xml": "<Step enable=\"True\" id=\"47\" name=\"Copy\"><SelectAll state=\"False\"/><DisableStepCollapsed state=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Copy [ Invoices::Description ]"
+    },
+    {
+      "step": "Copy",
+      "xml": "<Step enable=\"True\" id=\"47\" name=\"Copy\"><SelectAll state=\"True\"/><DisableStepCollapsed state=\"False\"/></Step>",
+      "fmLine": "Copy [ Select ]"
+    },
+    {
+      "step": "Cut",
+      "xml": "<Step enable=\"True\" id=\"46\" name=\"Cut\"><SelectAll state=\"True\"/><DisableStepCollapsed state=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Cut [ Select ; Invoices::Description ]"
+    },
+    {
+      "step": "Cut",
+      "xml": "<Step enable=\"True\" id=\"46\" name=\"Cut\"><SelectAll state=\"False\"/><DisableStepCollapsed state=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Cut [ Invoices::Description ]"
+    },
+    {
+      "step": "Cut",
+      "xml": "<Step enable=\"True\" id=\"46\" name=\"Cut\"><SelectAll state=\"True\"/><DisableStepCollapsed state=\"False\"/></Step>",
+      "fmLine": "Cut [ Select ]"
+    },
+    {
+      "step": "Clear",
+      "xml": "<Step enable=\"True\" id=\"49\" name=\"Clear\"><SelectAll state=\"True\"/><DisableStepCollapsed state=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Clear [ Select ; Invoices::Description ]"
+    },
+    {
+      "step": "Clear",
+      "xml": "<Step enable=\"True\" id=\"49\" name=\"Clear\"><SelectAll state=\"False\"/><DisableStepCollapsed state=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Clear [ Invoices::Description ]"
+    },
+    {
+      "step": "Clear",
+      "xml": "<Step enable=\"True\" id=\"49\" name=\"Clear\"><SelectAll state=\"True\"/><DisableStepCollapsed state=\"False\"/></Step>",
+      "fmLine": "Clear [ Select ]"
+    },
+    {
+      "step": "Check Selection",
+      "xml": "<Step enable=\"True\" id=\"18\" name=\"Check Selection\"><SelectAll state=\"True\"/><DisableStepCollapsed state=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Check Selection [ Select ; Invoices::Description ]"
+    },
+    {
+      "step": "Check Selection",
+      "xml": "<Step enable=\"True\" id=\"18\" name=\"Check Selection\"><SelectAll state=\"False\"/><DisableStepCollapsed state=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Check Selection [ Invoices::Description ]"
+    },
+    {
+      "step": "Check Selection",
+      "xml": "<Step enable=\"True\" id=\"18\" name=\"Check Selection\"><SelectAll state=\"True\"/><DisableStepCollapsed state=\"False\"/></Step>",
+      "fmLine": "Check Selection [ Select ]"
+    },
+    {
+      "step": "Paste",
+      "xml": "<Step enable=\"True\" id=\"48\" name=\"Paste\"><NoStyle state=\"True\"/><SelectAll state=\"True\"/><LinkAvail state=\"True\"/><DisableStepCollapsed state=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Paste [ Select ; No style ; Invoices::Description ]"
+    },
+    {
+      "step": "Paste",
+      "xml": "<Step enable=\"True\" id=\"48\" name=\"Paste\"><NoStyle state=\"False\"/><SelectAll state=\"True\"/><LinkAvail state=\"False\"/><DisableStepCollapsed state=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Paste [ Select ; Invoices::Description ]"
+    },
+    {
+      "step": "Paste",
+      "xml": "<Step enable=\"True\" id=\"48\" name=\"Paste\"><NoStyle state=\"True\"/><SelectAll state=\"False\"/><LinkAvail state=\"False\"/><DisableStepCollapsed state=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Paste [ No style ; Invoices::Description ]"
+    },
+    {
+      "step": "Paste",
+      "xml": "<Step enable=\"True\" id=\"48\" name=\"Paste\"><NoStyle state=\"False\"/><SelectAll state=\"False\"/><LinkAvail state=\"True\"/><DisableStepCollapsed state=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Paste [ Invoices::Description ]"
+    },
+    {
+      "step": "Paste",
+      "xml": "<Step enable=\"True\" id=\"48\" name=\"Paste\"><NoStyle state=\"False\"/><SelectAll state=\"False\"/><LinkAvail state=\"False\"/><DisableStepCollapsed state=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Paste [ Invoices::Description ]"
+    },
+    {
+      "step": "Execute FileMaker Data API",
+      "xml": "<Step enable=\"True\" id=\"203\" name=\"Execute FileMaker Data API\"><SelectAll state=\"True\"/><DisableStepCollapsed state=\"False\"/><Calculation><![CDATA[$query]]></Calculation><Text/><Field>$response</Field></Step>",
+      "fmLine": "Execute FileMaker Data API [ Select ; Target: $response ; $query ]"
+    },
+    {
+      "step": "Execute FileMaker Data API",
+      "xml": "<Step enable=\"True\" id=\"203\" name=\"Execute FileMaker Data API\"><SelectAll state=\"False\"/><DisableStepCollapsed state=\"False\"/><Calculation><![CDATA[$query]]></Calculation><Text/><Field>$response</Field></Step>",
+      "fmLine": "Execute FileMaker Data API [ Target: $response ; $query ]"
+    },
+    {
+      "step": "Go to Field",
+      "xml": "<Step enable=\"True\" id=\"17\" name=\"Go to Field\"><SelectAll state=\"True\"/><DisableStepCollapsed state=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Go to Field [ Select/perform ; Invoices::Description ]"
+    },
+    {
+      "step": "Insert Calculated Result",
+      "xml": "<Step enable=\"True\" id=\"77\" name=\"Insert Calculated Result\"><SelectAll state=\"True\"/><DisableStepCollapsed state=\"False\"/><Calculation><![CDATA[\"abc\"]]></Calculation><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Insert Calculated Result [ Select ; Target: Invoices::Description ; \"abc\" ]"
+    },
+    {
+      "step": "Insert Current Date",
+      "xml": "<Step enable=\"True\" id=\"13\" name=\"Insert Current Date\"><SelectAll state=\"True\"/><DisableStepCollapsed state=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Insert Current Date [ Select ; Target: Invoices::Description ]"
+    },
+    {
+      "step": "Go to Field",
+      "xml": "<Step enable=\"True\" id=\"17\" name=\"Go to Field\"><SelectAll state=\"False\"/><DisableStepCollapsed state=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Go to Field [ Invoices::Description ]"
+    },
+    {
+      "step": "Insert Calculated Result",
+      "xml": "<Step enable=\"True\" id=\"77\" name=\"Insert Calculated Result\"><SelectAll state=\"False\"/><DisableStepCollapsed state=\"False\"/><Calculation><![CDATA[\"abc\"]]></Calculation><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Insert Calculated Result [ Target: Invoices::Description ; \"abc\" ]"
+    },
+    {
+      "step": "Insert Current Date",
+      "xml": "<Step enable=\"True\" id=\"13\" name=\"Insert Current Date\"><SelectAll state=\"False\"/><DisableStepCollapsed state=\"False\"/><Field table=\"Invoices\" id=\"31\" name=\"Description\"/></Step>",
+      "fmLine": "Insert Current Date [ Target: Invoices::Description ]"
+    }
+  ]
+}

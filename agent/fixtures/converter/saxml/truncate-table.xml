@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<Script>
+  <ObjectList>
+    <Step id="182" name="Truncate Table" enable="True">
+      <Options>138</Options>
+      <ParameterValues membercount="2">
+        <Parameter type="Boolean">
+          <Boolean type="With dialog" id="128" value="False" />
+        </Parameter>
+        <Parameter type="List">
+          <List name="Clients" value="1">
+            <BaseTableReference id="140" name="Clients" />
+          </List>
+        </Parameter>
+      </ParameterValues>
+    </Step>
+  </ObjectList>
+</Script>

@@ -91,7 +91,7 @@ describe('Perform AppleScript HR', () => {
   });
 
   it('an empty step reads as the default mode with nothing in it', () => {
-    expect(xmlToHr(textXml(''))).toBe('Perform AppleScript');
+    expect(xmlToHr(textXml(''))).toBe('Perform AppleScript [ ]');
     const out = hrToXml('Perform AppleScript [ ]').xml;
     expect(out).toContain('<ContentType value="Calculation"/>');
     expect(out).not.toContain('<Calculation>');

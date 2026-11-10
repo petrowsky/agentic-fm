@@ -29,10 +29,13 @@ from __future__ import annotations
 
 import xml.etree.ElementTree as ET
 
-from calc_literal import hr_sep, quote_calc_literal
+from calc_literal import decode_whole_calc_literal, hr_sep, quote_calc_literal
 from catalog_grammar import (
     CatalogEntry,
     StepParam,
+    _group_quote_value,
+    _render_group_element,
+    field_entry_suffix,
     is_governing_discriminator,
     param_key,
 )
@@ -215,8 +218,8 @@ def _repetition_suffix(ref_el: ET.Element, allow_calc: bool = True) -> str:
     if allow_calc:
         return "[" + text + hr_sep(text, "]")
     raise UnsupportedSaXML(
-        "calculated repetition %r on %s %r has no fmxmlsnippet form"
-        % (text, ref_el.tag, ref_el.get("name") or ref_el.get("value") or "")
+        f"calculated repetition {text!r} on {ref_el.tag} "
+        f"{ref_el.get('name') or ref_el.get('value') or ''!r} has no fmxmlsnippet form"
     )
 
 
@@ -233,21 +236,43 @@ def _target_token(ref_el: ET.Element, allow_calc: bool = True) -> str:
     return tok + _repetition_suffix(ref_el, allow_calc) if tok else ""
 
 
-def _layout_token_from_lrc(lrc: ET.Element) -> str:
+def _layout_destinations(entry: CatalogEntry, param: StepParam) -> list[str]:
+    """The LayoutDestination values a discriminated layout param's step offers
+    (its discriminator's ``enumValues``); empty when the param has none."""
+    if not param.discriminator:
+        return []
+    for p in entry.params:
+        if p.xml_element == param.discriminator:
+            return list(p.enum_values)
+    return []
+
+
+def _layout_token_from_lrc(lrc: ET.Element, destinations: list[str] | None = None) -> str:
     """A ``<LayoutReferenceContainer value="N">`` → the emit's layout HR token.
 
     The ``value`` number is the destination discriminator (mirrors the exploder's
     layout_reference.rs): 5 = a named ``<LayoutReference>`` (SelectedLayout); 3 =
     LayoutNameByCalc; 4 = LayoutNumberByCalc; 1 = a ``<Label>`` (original/current
-    layout). The emit's ``_resolve_layout_token`` reverses these."""
+    layout). The emit's ``_resolve_layout_token`` reverses these.
+
+    ``destinations`` (the step's LayoutDestination values) settles 1 and 0.
+    Measured on FileMaker Pro 26.0.3: the export labels a CurrentLayout step
+    ``original layout`` (value 1) on every step, and a New Window saved in an older
+    form exports CurrentLayout as an empty value 0. On a step that offers no
+    OriginalLayout, both are CurrentLayout."""
     lr = lrc.find("LayoutReference")
     if lr is not None:
         return '"' + lr.get("name", "") + '"'
     val = lrc.get("value", "")
+    offers = destinations or []
+    if val in ("0", "1") and "OriginalLayout" not in offers and "CurrentLayout" in offers:
+        return "<Current Layout>"
+    if val == "0":
+        raise UnsupportedSaXML("layout destination 0 on a step that offers no CurrentLayout")
     if val == "3":
-        # Bare calculation, matching what FileMaker itself renders and what the
-        # grammar now emits; the emit reads a bare calc back as LayoutNameByCalc.
-        return _calc_text(lrc)
+        # Keeps the keyword: a bare calc that is a quoted literal ("Dashboard")
+        # reads back as a named layout, not as a calculation.
+        return "by name: " + _calc_text(lrc)
     if val == "4":
         # Keeps the keyword: FileMaker renders number-by-calculation identically
         # to name-by-calculation, so a bare calc could not round-trip as this one.
@@ -634,6 +659,167 @@ _SAXML_ENUM_LABELS: dict[str, dict[str, dict[str, str]]] = {
 }
 
 
+# ---------------------------------------------------------------------------
+# Flags FileMaker exports as a labeled <Boolean>
+# ---------------------------------------------------------------------------
+# A flag-style enum whose SaXML is neither a ``<List>`` nor a parameter of its own,
+# but a ``<Boolean type="…">`` FileMaker writes for it, possibly nested inside
+# another param's value. Its value True is FileMaker drawing the flag on the step's
+# line. Measured, never inferred: the boolean's label and polarity come from an
+# export of the step in every state.
+#
+# ``Replace Field Contents``' ``Skip auto-enter options`` (the catalog's
+# ``SerialNumbers#PerformAutoEnter`` projection) sits inside the replace ``<List>``
+# and is True exactly when the step stores ``<Restore state="True"/>`` and
+# ``PerformAutoEnter="False"`` (FileMaker Pro 26.0.3, every With mode; Restore alone
+# is bit 0x02000000 of ``<Options>``, and Restore True with PerformAutoEnter True
+# exports False, the same line as Restore False).
+_SAXML_FLAG_BOOLEANS: dict[str, dict[str, str]] = {
+    "Replace Field Contents": {
+        "SerialNumbers#PerformAutoEnter": "Skip auto-enter options",
+    },
+}
+
+
+def _take_labeled_boolean(
+    sparams: list[ET.Element], consumed: list[bool], claimed: set[int], label: str
+) -> ET.Element | None:
+    """The ``<Boolean type="label">``, claimed once: a top-level param's own boolean
+    first (that param is consumed), then one nested inside another param's value,
+    never through an object reference."""
+    for i, sp in enumerate(sparams):
+        if consumed[i]:
+            continue
+        b = sp.find("Boolean")
+        if b is not None and b.get("type") == label and id(b) not in claimed:
+            consumed[i] = True
+            claimed.add(id(b))
+            return b
+
+    def walk(el: ET.Element) -> ET.Element | None:
+        for ch in el:
+            if ch.tag in _CALC_REF_SKIP:
+                continue
+            if ch.tag == "Boolean" and ch.get("type") == label and id(ch) not in claimed:
+                return ch
+            found = walk(ch)
+            if found is not None:
+                return found
+        return None
+
+    for sp in sparams:
+        b = walk(sp)
+        if b is not None:
+            claimed.add(id(b))
+            return b
+    return None
+
+
+# ---------------------------------------------------------------------------
+# Fields of a hidden attrGroup FileMaker still exports
+# ---------------------------------------------------------------------------
+# step -> hrHidden attrGroup xmlElement -> group field key -> SaXML attribute
+# address. An address is ``/``-separated element steps from a top-level
+# ``<Parameter>`` (named by its type, as ``_saxml_seg`` reads it) down direct
+# children, each ``Tag`` or ``Tag[label]`` (label = the element's ``name`` or
+# ``type`` attribute, exact), ending ``@attr``. The first element the path reaches
+# supplies the field's raw value; a field the export lacks keeps its catalog
+# default, because FileMaker exports a field only in the mode that uses it.
+#
+# ``Replace Field Contents``' ``<SerialNumbers>`` (FileMaker Pro 26.0.3, Serial
+# numbers mode): UseEntryOptions is ``<List name="Entry option values" value>`` and
+# UpdateEntryOptions ``<Boolean type="Update Entry Options" value>``, both inside the
+# replace ``<List>``; InitialValue / increment are that list's ``<Initial value>`` /
+# ``<increment value>``, exported only when UseEntryOptions is False.
+_SAXML_ATTR_GROUP_FIELDS: dict[str, dict[str, dict[str, str]]] = {
+    "Replace Field Contents": {
+        "SerialNumbers": {
+            "UseEntryOptions": "replace/List/List[Entry option values]@value",
+            "UpdateEntryOptions": "replace/List/Boolean[Update Entry Options]@value",
+            "InitialValue": "replace/List/List[Entry option values]/Initial@value",
+            "increment": "replace/List/List[Entry option values]/increment@value",
+        },
+    },
+}
+
+
+def _parse_attr_address(address: str) -> tuple[list[tuple[str, str]], str]:
+    """``(steps, attr)`` of an attribute address; each step is ``(tag, label)``.
+    A malformed address is a table defect: the step is refused."""
+    path, sep, attr = address.rpartition("@")
+    if not sep or not attr or not path:
+        raise UnsupportedSaXML(f"attribute address {address!r} names no @attribute")
+    steps: list[tuple[str, str]] = []
+    for seg in path.split("/"):
+        tag, lb, rest = seg.partition("[")
+        if lb and not rest.endswith("]"):
+            raise UnsupportedSaXML(f"attribute address {address!r} has a malformed step")
+        if not tag:
+            raise UnsupportedSaXML(f"attribute address {address!r} has an empty step")
+        steps.append((tag, rest[:-1] if lb else ""))
+    return steps, attr
+
+
+def _addr_step_matches(el: ET.Element, step: tuple[str, str]) -> bool:
+    tag, label = step
+    if _saxml_seg(el) != tag:
+        return False
+    return not label or el.get("name") == label or el.get("type") == label
+
+
+def _take_addressed_attr(
+    sparams: list[ET.Element], claimed: set[int], address: str
+) -> str | None:
+    """The attribute the address reaches (its element claimed), or None when the
+    export has no such element."""
+    steps, attr = _parse_attr_address(address)
+
+    def walk(el: ET.Element, i: int) -> ET.Element | None:
+        if i == len(steps):
+            return el
+        for ch in el:
+            if _addr_step_matches(ch, steps[i]):
+                hit = walk(ch, i + 1)
+                if hit is not None:
+                    return hit
+        return None
+
+    for sp in sparams:
+        if not _addr_step_matches(sp, steps[0]):
+            continue
+        hit = walk(sp, 1)
+        if hit is None or hit.get(attr) is None:
+            continue
+        claimed.add(id(hit))
+        return hit.get(attr)
+    return None
+
+
+def _hidden_attr_group_token(
+    entry: CatalogEntry, param: StepParam, sparams: list[ET.Element], claimed: set[int]
+) -> str:
+    """A hidden attrGroup's measured fields as the group's HR body
+    (``key=value, …``, values quoted the way the emit parses them back). Empty when
+    the step has no addresses for the group."""
+    table = _SAXML_ATTR_GROUP_FIELDS.get(entry.name, {}).get(param.xml_element)
+    if not table:
+        return ""
+    keys = [f.get("key") for f in (param.raw.get("fields") or []) if isinstance(f, dict)]
+    unknown = sorted(set(table) - set(keys))
+    if unknown:
+        raise UnsupportedSaXML(
+            f"{entry.name}: SaXML attribute table addresses {unknown} that attrGroup "
+            f"{param.xml_element!r} does not declare")
+    items = []
+    for key in keys:
+        if key not in table:
+            continue
+        value = _take_addressed_attr(sparams, claimed, table[key])
+        if value is not None:
+            items.append(f"{key}={_group_quote_value(value)}")
+    return ", ".join(items)
+
+
 def _saxml_enum_value(entry: CatalogEntry, param: StepParam, label: str) -> str:
     """A SaXML ``<List name>`` → the XML value FileMaker writes for it.
 
@@ -839,6 +1025,32 @@ def _extract_simple(
                 return '"' + sr.get("name", "") + '"'
         return ""
 
+    if ptype == "reference":
+        # A named object FileMaker exports as ``<{xmlElement}Reference id name>``,
+        # directly under the <Parameter> (``<CustomMenuSetReference>``,
+        # ``<PrivilegeSetReference>``) or inside its <List> (``<BaseTableReference>``).
+        # A fixed-id built-in reads by its id, as the clipboard reader does; anything
+        # else by its name. Options FileMaker nests inside the reference (Install Menu
+        # Set's ``Use as file default``) are read by their own params' labels.
+        tag = param.xml_element + "Reference"
+        for i, sp in enumerate(sparams):
+            if consumed[i]:
+                continue
+            ref = sp.find(".//" + tag)
+            if ref is None:
+                continue
+            consumed[i] = True
+            built_in = param.hr_enum_values.get(ref.get("id", ""))
+            name = built_in or ref.get("name", "")
+            if not name:
+                return ""
+            # An hr_quoted name goes to the emitter as one escaped literal, as the
+            # clipboard reader writes it; a built-in label stays bare.
+            if param.hr_quoted:
+                return name if built_in else _quoted_text_token(param, name)
+            return '"' + name + '"'
+        return ""
+
     if ptype == "layout":
         for i, sp in enumerate(sparams):
             if consumed[i]:
@@ -846,7 +1058,7 @@ def _extract_simple(
             lrc = sp.find("LayoutReferenceContainer")
             if lrc is not None:
                 consumed[i] = True
-                return _layout_token_from_lrc(lrc)
+                return _layout_token_from_lrc(lrc, _layout_destinations(entry, param))
             lay = sp.find("Layout")
             if lay is not None:
                 consumed[i] = True
@@ -854,14 +1066,16 @@ def _extract_simple(
         return ""
 
     if ptype == "boolean":
-        # Match by the SaXML <Boolean type="…"> attribute against the catalog hrLabel.
+        # Match by the SaXML <Boolean type="…"> attribute against the catalog hrLabel:
+        # a <Parameter>'s own boolean first, then one FileMaker nests inside another
+        # param's value (``Exit after last`` in Go to Record/Request/Page's Next
+        # <List>, ``Use as file default`` in Install Menu Set's
+        # <CustomMenuSetReference>). A nested option belongs to its own param, not to
+        # whatever param holds it.
         if param.hr_label:
-            for i, sp in enumerate(sparams):
-                if consumed[i]:
-                    continue
-                if _bool_type(sp) == param.hr_label:
-                    consumed[i] = True
-                    return _bool_on_off(sp) or ""
+            b = _take_labeled_boolean(sparams, consumed, claimed, param.hr_label)
+            if b is not None:
+                return "On" if b.get("value", "False") == "True" else "Off"
         # Fallback: the one unconsumed Boolean left, positionally — and ONLY when
         # exactly one is left.
         #
@@ -897,6 +1111,20 @@ def _extract_simple(
         return _bool_on_off(sparams[cands[0]]) or ""
 
     if ptype == "enum":
+        # A flag FileMaker exports as a labeled <Boolean> (see _SAXML_FLAG_BOOLEANS).
+        # An export without the measured boolean is a changed shape: refuse the step
+        # rather than read the flag as off.
+        flag_label = _SAXML_FLAG_BOOLEANS.get(entry.name, {}).get(param_key(param))
+        if flag_label is not None and param.flag_style:
+            b = _take_labeled_boolean(sparams, consumed, claimed, flag_label)
+            if b is None:
+                raise UnsupportedSaXML(
+                    f"{entry.name}: no SaXML <Boolean type={flag_label!r}> for flag "
+                    f"param {param_key(param)!r}")
+            # Drawn = the HR token present; not drawn = absent (empty), which is how
+            # the emitter derives a gating sibling's state (Restore here).
+            return "True" if b.get("value") == "True" else ""
+
         # <Animation> is its own SaXML element, not a <List>, and only ever belongs to
         # the param named for it — so it is matched by name and never competes for a
         # list with the layout-destination enum it sits beside.
@@ -1248,11 +1476,9 @@ def _dec_new_window(entry: CatalogEntry, step_el: ET.Element) -> list[str]:
     if nm is not None and _find_value_calc(nm) is not None:
         v.set(_calc_text(nm), wrap="Name")
     lrc = wr.find("LayoutReferenceContainer")
-    lr = lrc.find("LayoutReference") if lrc is not None else None
-    if lr is not None:
-        v.set('"' + lr.get("name", "") + '"', xml="Layout")
-    # A by-calc New Window layout is dropped in FM's own fmxmlsnippet (the catalog's
-    # non-discriminated Layout can't carry it) — leave empty to match.
+    lay = v.param(xml="Layout")
+    if lrc is not None and lay is not None:
+        v.set(_layout_token_from_lrc(lrc, _layout_destinations(entry, lay)), xml="Layout")
     bounds = wr.find("Bounds")
     if bounds is not None:
         for tag, wrap in (("height", "Height"), ("width", "Width"),
@@ -1353,42 +1579,6 @@ def _dec_show_dialog(entry: CatalogEntry, step_el: ET.Element) -> list[str]:
     return v.list()
 
 
-# ── Find family (Perform Find / Constrain / Extend / Enter Find Mode) ──────────
-# Verified for the empty-query case (no inline <FindRequestSet>) — the only shape
-# in the corpus (the whole solution carries 0 inline find requests). A step WITH a
-# <FindRequestSet> fails loud: its decode can't be live-verified yet (constraint #3;
-# see plans/… P6.4 worklist — collect a script with real find criteria first).
-def _find_family(entry: CatalogEntry, step_el: ET.Element, restore_default_on: bool) -> list[str]:
-    if step_el.find(".//FindRequestSet") is not None:
-        raise UnsupportedSaXML(
-            f"{entry.name}: inline <FindRequestSet> decode unverified (no live sample)")
-    v = _Vals(entry)
-    # Explicit toggles carried as <Parameter type="Boolean"><Boolean type="hrLabel">.
-    for p in step_el.findall("ParameterValues/Parameter"):
-        b = p.find("Boolean")
-        if b is None:
-            continue
-        for param in entry.params:
-            if param.type == "boolean" and param.hr_label == b.get("type"):
-                v.set("On" if b.get("value") == "True" else "Off", xml=param.xml_element)
-                break
-    # Restore: empty-query Perform Find restores the saved find (default On); the
-    # setup steps (Enter Find Mode / Constrain / Extend) do not (Off), overriding the
-    # catalog's True default which only applies when requests are restored.
-    v.set("On" if restore_default_on else "Off", xml="Restore")
-    return v.list()
-
-
-@_decoder("Perform Find")
-def _dec_perform_find(entry: CatalogEntry, step_el: ET.Element) -> list[str]:
-    return _find_family(entry, step_el, restore_default_on=True)
-
-
-@_decoder("Constrain Found Set", "Extend Found Set", "Enter Find Mode")
-def _dec_find_setup(entry: CatalogEntry, step_el: ET.Element) -> list[str]:
-    return _find_family(entry, step_el, restore_default_on=False)
-
-
 # ── Go to Related Record (attrGroup default-fill + TO/Layout refs) ────────────
 @_decoder("Go to Related Record")
 def _dec_gtrr(entry: CatalogEntry, step_el: ET.Element) -> list[str]:
@@ -1401,7 +1591,9 @@ def _dec_gtrr(entry: CatalogEntry, step_el: ET.Element) -> list[str]:
         v.set(tor.get("name", ""), xml="Table")
     lrc = rel.find("LayoutReferenceContainer")
     if lrc is not None:
-        v.set(_layout_token_from_lrc(lrc), xml="Layout")  # LayoutDestination derived on emit
+        lay = v.param(xml="Layout")
+        v.set(_layout_token_from_lrc(lrc, _layout_destinations(entry, lay) if lay else None),
+              xml="Layout")  # LayoutDestination derived on emit
     # <WindowReference> present ⇒ result opens a new window.
     if rel.find("WindowReference") is not None:
         v.set("On", xml="ShowInNewWindow")
@@ -1714,7 +1906,113 @@ def _dec_excel(entry: CatalogEntry, step_el: ET.Element) -> list[str]:
     return v.list()
 
 
-# ── Import Records (ImportOptions + TargetFields map fieldList) ────────────────
+# ── Import Records (source Profile + ImportOptions + TargetFields map fieldList) ─
+# Measured against FileMaker Pro 26.0.3: 53 Import Records steps pasted into a
+# script, copied back, and exported with Save a Copy as XML, each export compared
+# with FileMaker's copy of the same step.
+#
+# <DataSourceReference value> is the source kind and fileType the Profile's
+# DataType. isPredefined is FileMaker's IsPredefined: True for 1, False for 0 and for
+# an unset -1; the delimiter attribute holds the FieldDelimiter for 1 and 0 and
+# repeats the source kind for -1, where FileMaker exports no delimiter (it neither
+# draws nor uses one then, so the Profile takes the catalog default). FieldNameRow is
+# <ImportField fieldNameRow>. An XML source has an <XML index> (1 file, 2 http, 3
+# calculation) and an <XSL index> (0 none, 1 file, 2 http, 3 calculation); an http
+# source is exported as a text literal, a file source as a path list.
+_IMPORT_SOURCE_KIND = {"1": "File", "2": "Folder", "4": "XMLSource"}
+_IMPORT_XML_TYPE = {"1": "XMLFile", "2": "XMLHttp", "3": "XMLCalculation"}
+_IMPORT_XSL_TYPE = {"0": "NoXSL", "1": "XSLFile", "2": "XSLHttp", "3": "XSLCalculation"}
+# <Map kind> → the TargetFields map FileMaker copies out (FM 26.0.3, pasted and read
+# back). <Map Options> is the field's FieldOptions.
+_IMPORT_MAP_KIND = {"0": "Import", "1": "DoNotImport", "2": "Match"}
+_IMPORT_HTTP_INDEX = "2"
+_IMPORT_CALC_INDEX = "3"
+# <Options> bit FileMaker sets when the step names a data source. The export carries no
+# <DataSourceReference> for a source given without a format, so the bit is what tells
+# such a step from one with no source at all.
+_IMPORT_SOURCE_SET_BIT = 0x20
+# SaXML <Options> attribute → <ImportOptions> attribute (same values).
+_IMPORT_OPTION_ATTRS = (
+    ("keepOriginalData", "KeepOriginalData"),
+    ("copyContainersAsIs", "PreserveContainer"),
+    ("matchFieldNames", "MatchFieldNames"),
+    ("doAutoEntry", "AutoEnter"),
+    ("splitRepetitions", "SplitRepetitions"),
+)
+
+
+def _path_list_text(upl: ET.Element | None) -> str:
+    """A SaXML ``<UniversalPathList>``'s paths as FileMaker's path list (one per line)."""
+    if upl is None:
+        return ""
+    return "\n".join(loc.text or "" for loc in upl.iter("Location"))
+
+
+def _import_http_source(entry: CatalogEntry, src: ET.Element) -> str:
+    text = _calc_of(src)
+    value = decode_whole_calc_literal(text) if text else ""
+    if value is None:
+        raise UnsupportedSaXML(f"{entry.name}: http source {text!r} is not one text literal")
+    return value
+
+
+def _import_profile(entry: CatalogEntry, dsr: ET.Element, imf: ET.Element | None) -> ET.Element:
+    """The fmxmlsnippet ``<Profile>`` FileMaker copies out for this source."""
+    prof = ET.Element("Profile")
+    delim = dsr.get("delimiter", "")
+    if dsr.get("isPredefined") == "True":
+        prof.set("IsPredefined", "1")
+        prof.set("FieldDelimiter", delim)
+    elif delim == dsr.get("value"):
+        prof.set("IsPredefined", "-1")
+    else:
+        prof.set("IsPredefined", "0")
+        prof.set("FieldDelimiter", delim)
+    if imf is not None and imf.get("fieldNameRow") is not None:
+        prof.set("FieldNameRow", imf.get("fieldNameRow", ""))
+    prof.set("DataType", dsr.get("fileType", ""))
+    if dsr.get("value") != "4":
+        return prof
+    xml_src, xsl_src = dsr.find("XML"), dsr.find("XSL")
+    if xml_src is None and xsl_src is None:
+        return prof  # an XML source with no source chosen: FileMaker writes no XMLType
+    if xml_src is None or xsl_src is None or xml_src.get("index") is None \
+            or xsl_src.get("index") is None:
+        raise UnsupportedSaXML(f"{entry.name}: XML source without the <XML index> / <XSL index> pair")
+    xml_index, xsl_index = xml_src.get("index", ""), xsl_src.get("index", "")
+    if xml_index not in _IMPORT_XML_TYPE or xsl_index not in _IMPORT_XSL_TYPE:
+        raise UnsupportedSaXML(f"{entry.name}: unknown XML source index {xml_index!r} / XSL {xsl_index!r}")
+    if xml_index == "1":
+        # FileMaker exports the step's path list here, never its <XMLFile>: a pasted
+        # XMLFile exports as an empty list and a stray path list in its place.
+        raise UnsupportedSaXML(
+            f"{entry.name}: FileMaker's Save as XML does not export an XML file source")
+    prof.set("XMLType", _IMPORT_XML_TYPE[xml_index])
+    prof.set("XSLType", _IMPORT_XSL_TYPE[xsl_index])
+    if xml_index == _IMPORT_HTTP_INDEX:
+        ET.SubElement(prof, "XMLHttp").text = _import_http_source(entry, xml_src)
+    elif _calc_of(xml_src):
+        ET.SubElement(ET.SubElement(prof, "XMLCalc"), "Calculation").text = _calc_of(xml_src)
+    if xsl_index == "1":
+        ET.SubElement(prof, "XSLFile").text = _path_list_text(xsl_src.find("UniversalPathList"))
+    elif xsl_index == _IMPORT_HTTP_INDEX:
+        ET.SubElement(prof, "XSLHttp").text = _import_http_source(entry, xsl_src)
+    elif xsl_index == _IMPORT_CALC_INDEX and _calc_of(xsl_src):
+        ET.SubElement(ET.SubElement(prof, "XSLCalc"), "Calculation").text = _calc_of(xsl_src)
+    return prof
+
+
+def _import_enum_value(entry: CatalogEntry, group_field: str, label: str) -> str:
+    """A SaXML label (``Update``, ``Windows ANSI``) → the value FileMaker writes, from
+    the catalog's display projection of that ImportOptions field."""
+    proj = next((p for p in entry.params
+                 if p.xml_element == "ImportOptions" and p.group_fields == [group_field]), None)
+    for value, mapped in (proj.hr_enum_values.items() if proj is not None else ()):
+        if mapped == label:
+            return value
+    raise UnsupportedSaXML(f"{entry.name}: unknown {group_field} {label!r}")
+
+
 @_decoder("Import Records")
 def _dec_import(entry: CatalogEntry, step_el: ET.Element) -> list[str]:
     v = _Vals(entry)
@@ -1726,39 +2024,62 @@ def _dec_import(entry: CatalogEntry, step_el: ET.Element) -> list[str]:
                 v.set(on, xml="NoInteract")
             elif b.get("type") == "Verify SSL Certificates":
                 v.set(on, xml="VerifySSLCertificates")
-    # The import source path lives in <DataSourceReference> (real imports) or a bare
-    # <UniversalPathList> (degenerate). DataSourceReference also names the source type.
-    dsr = _ptype(step_el, "DataSourceReference")
-    src = dsr if dsr is not None else _ptype(step_el, "UniversalPathList")
-    if src is not None:
-        loc = src.find(".//Location")
-        if loc is not None:
-            v.set(loc.text or "", xml="UniversalPathList")
-        v.set("File", xml="DataSourceType")
     imp = _ptype(step_el, "ImportField")
     im = imp.find("ImportField") if imp is not None else None
+    dp = _ptype(step_el, "DataSourceReference")
+    dsr = dp.find("DataSourceReference") if dp is not None else None
+    if dsr is None:
+        if _options_bit(step_el, _IMPORT_SOURCE_SET_BIT):
+            raise UnsupportedSaXML(
+                f"{entry.name}: the step names a data source FileMaker's Save as XML does not export")
+        v.set("File", xml="DataSourceType")
+    else:
+        kind = _IMPORT_SOURCE_KIND.get(dsr.get("value", ""))
+        if kind is None:
+            raise UnsupportedSaXML(f"{entry.name}: unknown data source kind {dsr.get('value')!r}")
+        v.set(kind, xml="DataSourceType")
+        prof_param = v.param(xml="Profile")
+        v.set(_render_group_element(_import_profile(entry, dsr, im),
+                                    prof_param.raw.get("fields") or []), xml="Profile")
+        if kind != "XMLSource":
+            path = _path_list_text(dsr.find("UniversalPathList"))
+            v.set(_quoted_text_token(v.param(xml="UniversalPathList"), path),
+                  xml="UniversalPathList")
     if im is not None:
         o = im.find("Options")
         cs = im.find("CharacterSet")
         act = im.find("action")
-        opts = []
+        io = ET.Element("ImportOptions")
         if cs is not None:
-            opts.append(f"CharacterSet={cs.get('name', '')}")
+            io.set("CharacterSet", _import_enum_value(entry, "CharacterSet", cs.get("name", "")))
+        if im.get("addasnew") == "True":
+            io.set("AddRemainingRecords", "True")
         if o is not None:
-            opts.append(f"PreserveContainer={o.get('copyContainersAsIs', 'False')}")
-            opts.append(f"MatchFieldNames={o.get('matchFieldNames', 'False')}")
-            opts.append(f"AutoEnter={o.get('doAutoEntry', 'True')}")
-            opts.append(f"SplitRepetitions={o.get('splitRepetitions', 'False')}")
+            for saxml_attr, attr in _IMPORT_OPTION_ATTRS:
+                if o.get(saxml_attr) is not None:
+                    io.set(attr, o.get(saxml_attr, ""))
         if act is not None:
-            opts.append(f"method={act.get('name', 'Add')}")
-        v.set(", ".join(opts), xml="ImportOptions")
+            io.set("method", _import_enum_value(entry, "method", act.get("name", "")))
+        group = next(p for p in entry.params
+                     if p.xml_element == "ImportOptions" and p.type == "attrGroup")
+        v.set(_render_group_element(io, group.raw.get("fields") or []), xml="ImportOptions")
+        tor = im.find("Target/TableOccurrenceReference")
+        if tor is not None:
+            v.set(tor.get("name", ""), xml="Table")
         fld = im.find("Field")
         ents = []
         if fld is not None:
+            tf = v.param(xml="TargetFields")
             for m in fld.findall("Map"):
                 fr = m.find("FieldReference")
                 ref = _field_ref_token(fr) if fr is not None else ""
-                ents.append(f"{ref}={'Import' if m.get('kind') == '0' else 'DoNotImport'}")
+                # <Map Options> is the copy's FieldOptions, written after the map
+                # as the catalog's hrEntrySuffix says.
+                kind = _IMPORT_MAP_KIND.get(m.get("kind", ""))
+                if kind is None:
+                    raise UnsupportedSaXML(f"{entry.name}: unknown field map kind {m.get('kind')!r}")
+                opts = ET.Element("Field", {"FieldOptions": m.get("Options", "0")})
+                ents.append(f"{ref}={kind}" + field_entry_suffix(tf, opts))
         v.set(", ".join(ents), xml="TargetFields")
     return v.list()
 
@@ -1978,7 +2299,26 @@ def _decode_find_requests(step_el: ET.Element) -> str:
     return " | ".join(rows)
 
 
-def _find_family(entry: CatalogEntry, step_el: ET.Element, restore_default_on: bool) -> list[str]:
+# FileMaker keeps the find steps' "Restore" (Specify find requests) only in the
+# step's <Options> bitmask: no <Parameter> carries it, and a step whose stored
+# request set is empty has no <FindRequestSet> either way. Measured over every
+# find-family step in several FileMaker 22.0.4 and 26.0.3 Save a Copy as XML
+# exports: each one FileMaker draws with Restore has this bit set (33554432 alone
+# for a Perform Find [ Restore ] with no request set, its clipboard XML
+# <Restore state="True"/>), and each one without it has Options 0. The bit is
+# the same number FileMaker writes as the id of the matching <Boolean>, as Enter
+# Find Mode's Pause (id 16777216) shows.
+_FIND_RESTORE_OPTION_BIT = 0x02000000
+
+
+def _options_bit(step_el: ET.Element, bit: int) -> bool:
+    try:
+        return bool(int((step_el.findtext("Options") or "0").strip()) & bit)
+    except ValueError:
+        raise UnsupportedSaXML(f"unreadable <Options> {step_el.findtext('Options')!r}")
+
+
+def _find_family(entry: CatalogEntry, step_el: ET.Element) -> list[str]:
     v = _Vals(entry)
     for p in step_el.findall("ParameterValues/Parameter"):
         b = p.find("Boolean")
@@ -1990,23 +2330,17 @@ def _find_family(entry: CatalogEntry, step_el: ET.Element, restore_default_on: b
                 break
     query = _decode_find_requests(step_el)
     v.set(query, xml="Query")
-    # Restore: an inline request set is 'restored'; else Perform Find restores the
-    # saved find (default On) while the setup steps do not (Off).
-    if query:
-        v.set("On", xml="Restore")
-    else:
-        v.set("On" if restore_default_on else "Off", xml="Restore")
+    restore = _options_bit(step_el, _FIND_RESTORE_OPTION_BIT)
+    if query and not restore:
+        # Never measured: a stored request set FileMaker does not restore.
+        raise UnsupportedSaXML(f"{entry.name}: <FindRequestSet> without the Restore option bit")
+    v.set("On" if restore else "Off", xml="Restore")
     return v.list()
 
 
-@_decoder("Perform Find")
-def _dec_perform_find(entry: CatalogEntry, step_el: ET.Element) -> list[str]:
-    return _find_family(entry, step_el, restore_default_on=True)
-
-
-@_decoder("Constrain Found Set", "Extend Found Set", "Enter Find Mode")
-def _dec_find_setup(entry: CatalogEntry, step_el: ET.Element) -> list[str]:
-    return _find_family(entry, step_el, restore_default_on=False)
+@_decoder("Perform Find", "Constrain Found Set", "Extend Found Set", "Enter Find Mode")
+def _dec_find_family(entry: CatalogEntry, step_el: ET.Element) -> list[str]:
+    return _find_family(entry, step_el)
 
 
 # ---------------------------------------------------------------------------
@@ -2049,13 +2383,19 @@ def read_saxml_step(
     resolver = _seed_resolver(step_el)
     dec = _DECODERS.get(entry.name)
     if dec is not None:
-        return disabled, dec(entry, step_el), resolver
+        return disabled, _keep_unread_flag_defaults(entry, dec(entry, step_el)), resolver
     sparams = _params(step_el)
     consumed = [False] * len(sparams)
     claimed: set[int] = set()
     values = [""] * len(entry.params)
     for pi, param in enumerate(entry.params):
-        if param.hr_hidden or param.type == "complex":
+        if param.type == "complex":
+            continue
+        if param.hr_hidden:
+            # A hidden attrGroup FileMaker still exports (Replace Field Contents'
+            # serial-number options): its measured fields.
+            if param.type == "attrGroup":
+                values[pi] = _hidden_attr_group_token(entry, param, sparams, claimed)
             continue
         if param.type in _COMPOSITE_TYPES:
             builder = _COMPOSITE_BUILDERS.get((entry.name, param.xml_element))
@@ -2066,4 +2406,34 @@ def read_saxml_step(
         else:
             values[pi] = _extract_simple(entry, param, sparams, consumed, claimed)
     _reject_unaddressed_calcs(entry, sparams, claimed)
-    return disabled, values, resolver
+    return disabled, _keep_unread_flag_defaults(entry, values), resolver
+
+
+def _keep_unread_flag_defaults(entry: CatalogEntry, values: list[str]) -> list[str]:
+    """Give a flag-style boolean this reader found no value for its catalog default.
+
+    In HR an absent flag-style label means off, and the emit reads an empty value
+    that way. Here an empty value means the SaXML carried nothing this reader
+    decodes for the param (``Go to Related Record``'s Restore, ``Print``'s
+    ``<Parameter type="Restore">``), which is not the same as off: keep the
+    fresh-step default the emit used to apply, as an explicit token."""
+    out = list(values)
+    # A companion a sibling discriminator reveals (Set Window Title's Current file
+    # under Current Window) takes its state from that discriminator on emit.
+    governed = {
+        name
+        for q in entry.params
+        for dv in (q.raw.get("discriminatorValues") or {}).values()
+        if isinstance(dv, dict)
+        for name in (dv.get("reveal") or [])
+    }
+    for i, param in enumerate(entry.params):
+        if i >= len(out) or out[i] != "" or not param.flag_style or param.type != "boolean":
+            continue
+        if param.xml_element in governed:
+            continue
+        if not param.default_value:
+            continue
+        on = (param.default_value == "True") != bool(param.inverted_hr)
+        out[i] = "On" if on else "Off"
+    return out

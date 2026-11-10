@@ -3,1435 +3,2211 @@
   "functions": [
     {
       "name": "Abs",
-      "prototype": "Abs ( number )"
+      "prototype": "Abs ( number )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Acos",
-      "prototype": "Acos ( number )"
+      "prototype": "Acos ( number )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "AddEmbeddings",
-      "prototype": "AddEmbeddings ( v1 ; v2 )"
+      "prototype": "AddEmbeddings ( v1 ; v2 )",
+      "fmMin": "22.0",
+      "fmMinSource": "measured"
     },
     {
       "name": "Asin",
-      "prototype": "Asin ( number )"
+      "prototype": "Asin ( number )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Atan",
-      "prototype": "Atan ( number )"
+      "prototype": "Atan ( number )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Average",
-      "prototype": "Average ( field {; field...} )"
+      "prototype": "Average ( field {; field...} )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Base64Decode",
-      "prototype": "Base64Decode ( text {; fileNameWithExtension } )"
+      "prototype": "Base64Decode ( text {; fileNameWithExtension } )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Base64Encode",
-      "prototype": "Base64Encode ( data )"
+      "prototype": "Base64Encode ( data )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Base64EncodeRFC",
-      "prototype": "Base64EncodeRFC ( RFCNumber ; data )"
+      "prototype": "Base64EncodeRFC ( RFCNumber ; data )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
+    },
+    {
+      "name": "BaseTableComment",
+      "prototype": "BaseTableComment ( fileName ; baseTableName )",
+      "fmMin": "26.0",
+      "fmMinSource": "measured"
     },
     {
       "name": "BaseTableIDs",
-      "prototype": "BaseTableIDs ( fileName )"
+      "prototype": "BaseTableIDs ( fileName )",
+      "fmMin": "20.1",
+      "fmMinSource": "measured"
     },
     {
       "name": "BaseTableNames",
-      "prototype": "BaseTableNames ( fileName )"
+      "prototype": "BaseTableNames ( fileName )",
+      "fmMin": "20.1",
+      "fmMinSource": "measured"
     },
     {
       "name": "Case",
-      "prototype": "Case ( test1 ; result1 {; test2 ; result2 ; ... ; defaultResult } )"
+      "prototype": "Case ( test1 ; result1 {; test2 ; result2 ; ... ; defaultResult } )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Ceiling",
-      "prototype": "Ceiling ( number )"
+      "prototype": "Ceiling ( number )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Char",
-      "prototype": "Char ( number )"
+      "prototype": "Char ( number )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Choose",
-      "prototype": "Choose ( test ; result0 {; result1 ; result2...} )"
+      "prototype": "Choose ( test ; result0 {; result1 ; result2...} )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Code",
-      "prototype": "Code ( text )"
+      "prototype": "Code ( text )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Combination",
-      "prototype": "Combination ( setSize ; numberOfChoices )"
+      "prototype": "Combination ( setSize ; numberOfChoices )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
+    },
+    {
+      "name": "ComputeModel",
+      "prototype": "ComputeModel ( modelName ; parameterName1 ; value1 {; parameterName2 ; value2 ...} )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "ConvertFromFileMakerPath",
-      "prototype": "ConvertFromFileMakerPath ( filemakerPath ; format )"
+      "prototype": "ConvertFromFileMakerPath ( filemakerPath ; format )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "ConvertToFileMakerPath",
-      "prototype": "ConvertToFileMakerPath ( standardPath ; format )"
+      "prototype": "ConvertToFileMakerPath ( standardPath ; format )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Cos",
-      "prototype": "Cos ( angleInRadians )"
+      "prototype": "Cos ( angleInRadians )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "CosineSimilarity",
-      "prototype": "CosineSimilarity ( v1 ; v2 )"
+      "prototype": "CosineSimilarity ( v1 ; v2 )",
+      "fmMin": "21.0",
+      "fmMinSource": "measured"
     },
     {
       "name": "Count",
-      "prototype": "Count ( field {; field...} )"
+      "prototype": "Count ( field {; field...} )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "CryptAuthCode",
-      "prototype": "CryptAuthCode ( data ; algorithm ; key )"
+      "prototype": "CryptAuthCode ( data ; algorithm ; key )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "CryptDecrypt",
-      "prototype": "CryptDecrypt ( container ; key )"
+      "prototype": "CryptDecrypt ( container ; key )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "CryptDecryptBase64",
-      "prototype": "CryptDecryptBase64 ( text ; key )"
+      "prototype": "CryptDecryptBase64 ( text ; key )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "CryptDigest",
-      "prototype": "CryptDigest ( data ; algorithm )"
+      "prototype": "CryptDigest ( data ; algorithm )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "CryptEncrypt",
-      "prototype": "CryptEncrypt ( data ; key )"
+      "prototype": "CryptEncrypt ( data ; key )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "CryptEncryptBase64",
-      "prototype": "CryptEncryptBase64 ( data ; key )"
+      "prototype": "CryptEncryptBase64 ( data ; key )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "CryptGenerateSignature",
-      "prototype": "CryptGenerateSignature ( data ; algorithm ; privateRSAKey ; keyPassword )"
+      "prototype": "CryptGenerateSignature ( data ; algorithm ; privateRSAKey ; keyPassword )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "CryptVerifySignature",
-      "prototype": "CryptVerifySignature ( data ; algorithm ; publicRSAKey ; signature )"
+      "prototype": "CryptVerifySignature ( data ; algorithm ; publicRSAKey ; signature )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "DatabaseNames",
-      "prototype": "DatabaseNames"
+      "prototype": "DatabaseNames",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Date",
-      "prototype": "Date ( month ; day ; year )"
+      "prototype": "Date ( month ; day ; year )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Day",
-      "prototype": "Day ( date )"
+      "prototype": "Day ( date )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "DayName",
-      "prototype": "DayName ( date )"
+      "prototype": "DayName ( date )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "DayNameJ",
-      "prototype": "DayNameJ ( date )"
+      "prototype": "DayNameJ ( date )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "DayOfWeek",
-      "prototype": "DayOfWeek ( date )"
+      "prototype": "DayOfWeek ( date )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "DayOfYear",
-      "prototype": "DayOfYear ( date )"
+      "prototype": "DayOfYear ( date )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Degrees",
-      "prototype": "Degrees ( angleInRadians )"
+      "prototype": "Degrees ( angleInRadians )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Div",
-      "prototype": "Div ( number ; divisor )"
+      "prototype": "Div ( number ; divisor )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Evaluate",
-      "prototype": "Evaluate ( expression {; [field1 ; field2 ;...]} )"
+      "prototype": "Evaluate ( expression {; [field1 ; field2 ;...]} )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "EvaluationError",
-      "prototype": "EvaluationError ( expression )"
+      "prototype": "EvaluationError ( expression )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Exact",
-      "prototype": "Exact ( originalText ; comparisonText )"
+      "prototype": "Exact ( originalText ; comparisonText )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "ExecuteSQL",
-      "prototype": "ExecuteSQL ( sqlQuery ; fieldSeparator ; rowSeparator { ; arguments... } )"
+      "prototype": "ExecuteSQL ( sqlQuery ; fieldSeparator ; rowSeparator { ; arguments... } )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "ExecuteSQLe",
-      "prototype": "ExecuteSQLe ( sqlQuery ; fieldSeparator ; rowSeparator { ; arguments... } )"
+      "prototype": "ExecuteSQLe ( sqlQuery ; fieldSeparator ; rowSeparator { ; arguments... } )",
+      "fmMin": "21.1",
+      "fmMinSource": "documented"
     },
     {
       "name": "Exp",
-      "prototype": "Exp ( number )"
+      "prototype": "Exp ( number )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Extend",
-      "prototype": "Extend ( non-repeatingField )"
+      "prototype": "Extend ( non-repeatingField )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Factorial",
-      "prototype": "Factorial ( number {; numberOfFactors } )"
+      "prototype": "Factorial ( number {; numberOfFactors } )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
+    },
+    {
+      "name": "FieldAnnotation",
+      "prototype": "FieldAnnotation ( fileName ; fieldName )",
+      "fmMin": "26.0",
+      "fmMinSource": "measured"
     },
     {
       "name": "FieldBounds",
-      "prototype": "FieldBounds ( fileName ; layoutName ; fieldName )"
+      "prototype": "FieldBounds ( fileName ; layoutName ; fieldName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "FieldComment",
-      "prototype": "FieldComment ( fileName ; fieldName )"
+      "prototype": "FieldComment ( fileName ; fieldName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
+    },
+    {
+      "name": "FieldDisplayNames",
+      "prototype": "FieldDisplayNames ( fileName ; fieldName )",
+      "fmMin": "26.0",
+      "fmMinSource": "measured"
     },
     {
       "name": "FieldIDs",
-      "prototype": "FieldIDs ( fileName ; layoutName )"
+      "prototype": "FieldIDs ( fileName ; layoutName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "FieldNames",
-      "prototype": "FieldNames ( fileName ; layoutName )"
+      "prototype": "FieldNames ( fileName ; layoutName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "FieldRepetitions",
-      "prototype": "FieldRepetitions ( fileName ; layoutName ; fieldName )"
+      "prototype": "FieldRepetitions ( fileName ; layoutName ; fieldName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "FieldStyle",
-      "prototype": "FieldStyle ( fileName ; layoutName ; fieldName )"
+      "prototype": "FieldStyle ( fileName ; layoutName ; fieldName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "FieldType",
-      "prototype": "FieldType ( fileName ; fieldName )"
+      "prototype": "FieldType ( fileName ; fieldName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Filter",
-      "prototype": "Filter ( textToFilter ; filterText )"
+      "prototype": "Filter ( textToFilter ; filterText )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "FilterValues",
-      "prototype": "FilterValues ( textToFilter ; filterValues )"
+      "prototype": "FilterValues ( textToFilter ; filterValues )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Floor",
-      "prototype": "Floor ( number )"
+      "prototype": "Floor ( number )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Furigana",
-      "prototype": "Furigana ( text {; option } )"
+      "prototype": "Furigana ( text {; option } )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "FV",
-      "prototype": "FV ( payment ; interestRate ; periods )"
+      "prototype": "FV ( payment ; interestRate ; periods )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(AccountExtendedPrivileges)",
-      "prototype": "Get ( AccountExtendedPrivileges )"
+      "prototype": "Get ( AccountExtendedPrivileges )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(AccountGroupName)",
-      "prototype": "Get ( AccountGroupName )"
+      "prototype": "Get ( AccountGroupName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(AccountName)",
-      "prototype": "Get ( AccountName )"
+      "prototype": "Get ( AccountName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
+    },
+    {
+      "name": "Get(AccountPasswordDaysRemaining)",
+      "prototype": "Get ( AccountPasswordDaysRemaining )",
+      "fmMin": "26.0",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(AccountPrivilegeSetName)",
-      "prototype": "Get ( AccountPrivilegeSetName )"
+      "prototype": "Get ( AccountPrivilegeSetName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(AccountType)",
-      "prototype": "Get ( AccountType )"
+      "prototype": "Get ( AccountType )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(ActiveFieldContents)",
-      "prototype": "Get ( ActiveFieldContents )"
+      "prototype": "Get ( ActiveFieldContents )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(ActiveFieldName)",
-      "prototype": "Get ( ActiveFieldName )"
+      "prototype": "Get ( ActiveFieldName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(ActiveFieldTableName)",
-      "prototype": "Get ( ActiveFieldTableName )"
+      "prototype": "Get ( ActiveFieldTableName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(ActiveLayoutObjectName)",
-      "prototype": "Get ( ActiveLayoutObjectName )"
+      "prototype": "Get ( ActiveLayoutObjectName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(ActiveModifierKeys)",
-      "prototype": "Get ( ActiveModifierKeys )"
+      "prototype": "Get ( ActiveModifierKeys )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(ActivePortalRowNumber)",
-      "prototype": "Get ( ActivePortalRowNumber )"
+      "prototype": "Get ( ActivePortalRowNumber )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(ActiveRecordNumber)",
-      "prototype": "Get ( ActiveRecordNumber )"
+      "prototype": "Get ( ActiveRecordNumber )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(ActiveRepetitionNumber)",
-      "prototype": "Get ( ActiveRepetitionNumber )"
+      "prototype": "Get ( ActiveRepetitionNumber )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(ActiveSelectionSize)",
-      "prototype": "Get ( ActiveSelectionSize )"
+      "prototype": "Get ( ActiveSelectionSize )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(ActiveSelectionStart)",
-      "prototype": "Get ( ActiveSelectionStart )"
+      "prototype": "Get ( ActiveSelectionStart )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(AllowAbortState)",
-      "prototype": "Get ( AllowAbortState )"
+      "prototype": "Get ( AllowAbortState )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(AllowFormattingBarState)",
-      "prototype": "Get ( AllowFormattingBarState )"
+      "prototype": "Get ( AllowFormattingBarState )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(ApplicationArchitecture)",
-      "prototype": "Get ( ApplicationArchitecture )"
+      "prototype": "Get ( ApplicationArchitecture )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(ApplicationLanguage)",
-      "prototype": "Get ( ApplicationLanguage )"
+      "prototype": "Get ( ApplicationLanguage )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(ApplicationVersion)",
-      "prototype": "Get ( ApplicationVersion )"
+      "prototype": "Get ( ApplicationVersion )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(CacheFileName)",
-      "prototype": "Get ( CacheFileName )"
+      "prototype": "Get ( CacheFileName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(CacheFilePath)",
-      "prototype": "Get ( CacheFilePath )"
+      "prototype": "Get ( CacheFilePath )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(CalculationRepetitionNumber)",
-      "prototype": "Get ( CalculationRepetitionNumber )"
+      "prototype": "Get ( CalculationRepetitionNumber )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(ConnectionAttributes)",
-      "prototype": "Get ( ConnectionAttributes )"
+      "prototype": "Get ( ConnectionAttributes )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(ConnectionState)",
-      "prototype": "Get ( ConnectionState )"
+      "prototype": "Get ( ConnectionState )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(CurrentDate)",
-      "prototype": "Get ( CurrentDate )"
+      "prototype": "Get ( CurrentDate )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(CurrentExtendedPrivileges)",
-      "prototype": "Get ( CurrentExtendedPrivileges )"
+      "prototype": "Get ( CurrentExtendedPrivileges )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(CurrentHostTimestamp)",
-      "prototype": "Get ( CurrentHostTimestamp )"
+      "prototype": "Get ( CurrentHostTimestamp )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(CurrentPrivilegeSetName)",
-      "prototype": "Get ( CurrentPrivilegeSetName )"
+      "prototype": "Get ( CurrentPrivilegeSetName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(CurrentTime)",
-      "prototype": "Get ( CurrentTime )"
+      "prototype": "Get ( CurrentTime )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(CurrentTimestamp)",
-      "prototype": "Get ( CurrentTimestamp )"
+      "prototype": "Get ( CurrentTimestamp )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(CurrentTimeUTCMicroseconds)",
-      "prototype": "Get ( CurrentTimeUTCMicroseconds )"
+      "prototype": "Get ( CurrentTimeUTCMicroseconds )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(CurrentTimeUTCMilliseconds)",
-      "prototype": "Get ( CurrentTimeUTCMilliseconds )"
+      "prototype": "Get ( CurrentTimeUTCMilliseconds )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(CustomMenuSetName)",
-      "prototype": "Get ( CustomMenuSetName )"
+      "prototype": "Get ( CustomMenuSetName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(DesktopPath)",
-      "prototype": "Get ( DesktopPath )"
+      "prototype": "Get ( DesktopPath )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(Device)",
-      "prototype": "Get ( Device )"
+      "prototype": "Get ( Device )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(DocumentsPath)",
-      "prototype": "Get ( DocumentsPath )"
+      "prototype": "Get ( DocumentsPath )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(DocumentsPathListing)",
-      "prototype": "Get ( DocumentsPathListing )"
+      "prototype": "Get ( DocumentsPathListing )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(EncryptionState)",
-      "prototype": "Get ( EncryptionState )"
+      "prototype": "Get ( EncryptionState )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(ErrorCaptureState)",
-      "prototype": "Get ( ErrorCaptureState )"
+      "prototype": "Get ( ErrorCaptureState )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(FileLocaleElements)",
-      "prototype": "Get ( FileLocaleElements )"
+      "prototype": "Get ( FileLocaleElements )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(FileMakerPath)",
-      "prototype": "Get ( FileMakerPath )"
+      "prototype": "Get ( FileMakerPath )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(FileName)",
-      "prototype": "Get ( FileName )"
+      "prototype": "Get ( FileName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(FilePath)",
-      "prototype": "Get ( FilePath )"
+      "prototype": "Get ( FilePath )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(FileSize)",
-      "prototype": "Get ( FileSize )"
+      "prototype": "Get ( FileSize )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(FoundCount)",
-      "prototype": "Get ( FoundCount )"
+      "prototype": "Get ( FoundCount )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
+    },
+    {
+      "name": "Get(GuidedAccessState)",
+      "prototype": "Get ( GuidedAccessState )",
+      "fmMin": "26.0",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(HighContrastState)",
-      "prototype": "Get ( HighContrastState )"
+      "prototype": "Get ( HighContrastState )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(HostApplicationVersion)",
-      "prototype": "Get ( HostApplicationVersion )"
+      "prototype": "Get ( HostApplicationVersion )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(HostIPAddress)",
-      "prototype": "Get ( HostIPAddress )"
+      "prototype": "Get ( HostIPAddress )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(HostName)",
-      "prototype": "Get ( HostName )"
+      "prototype": "Get ( HostName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(InstalledFMPlugins)",
-      "prototype": "Get ( InstalledFMPlugins )"
+      "prototype": "Get ( InstalledFMPlugins )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(InstalledFMPluginsAsJSON)",
-      "prototype": "Get ( InstalledFMPluginsAsJSON )"
+      "prototype": "Get ( InstalledFMPluginsAsJSON )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(LastError)",
-      "prototype": "Get ( LastError )"
+      "prototype": "Get ( LastError )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(LastErrorDetail)",
-      "prototype": "Get ( LastErrorDetail )"
+      "prototype": "Get ( LastErrorDetail )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(LastErrorLocation)",
-      "prototype": "Get ( LastErrorLocation )"
+      "prototype": "Get ( LastErrorLocation )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(LastMessageChoice)",
-      "prototype": "Get ( LastMessageChoice )"
+      "prototype": "Get ( LastMessageChoice )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(LastStepTokensUsed)",
-      "prototype": "Get ( LastStepTokensUsed )"
+      "prototype": "Get ( LastStepTokensUsed )",
+      "fmMin": "21.0",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(LayoutAccess)",
-      "prototype": "Get ( LayoutAccess )"
+      "prototype": "Get ( LayoutAccess )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(LayoutCount)",
-      "prototype": "Get ( LayoutCount )"
+      "prototype": "Get ( LayoutCount )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(LayoutName)",
-      "prototype": "Get ( LayoutName )"
+      "prototype": "Get ( LayoutName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(LayoutNumber)",
-      "prototype": "Get ( LayoutNumber )"
+      "prototype": "Get ( LayoutNumber )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(LayoutTableName)",
-      "prototype": "Get ( LayoutTableName )"
+      "prototype": "Get ( LayoutTableName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(LayoutViewState)",
-      "prototype": "Get ( LayoutViewState )"
+      "prototype": "Get ( LayoutViewState )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(MenubarState)",
-      "prototype": "Get ( MenubarState )"
+      "prototype": "Get ( MenubarState )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(ModifiedFields)",
-      "prototype": "Get ( ModifiedFields )"
+      "prototype": "Get ( ModifiedFields )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(MultiUserState)",
-      "prototype": "Get ( MultiUserState )"
+      "prototype": "Get ( MultiUserState )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(NetworkProtocol)",
-      "prototype": "Get ( NetworkProtocol )"
+      "prototype": "Get ( NetworkProtocol )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(NetworkType)",
-      "prototype": "Get ( NetworkType )"
+      "prototype": "Get ( NetworkType )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(OpenDataFileInfo)",
-      "prototype": "Get ( OpenDataFileInfo )"
+      "prototype": "Get ( OpenDataFileInfo )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(PageCount)",
-      "prototype": "Get ( PageCount )"
+      "prototype": "Get ( PageCount )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(PageNumber)",
-      "prototype": "Get ( PageNumber )"
+      "prototype": "Get ( PageNumber )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(PersistentID)",
-      "prototype": "Get ( PersistentID )"
+      "prototype": "Get ( PersistentID )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(PreferencesPath)",
-      "prototype": "Get ( PreferencesPath )"
+      "prototype": "Get ( PreferencesPath )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(PrinterName)",
-      "prototype": "Get ( PrinterName )"
+      "prototype": "Get ( PrinterName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(QuickFindText)",
-      "prototype": "Get ( QuickFindText )"
+      "prototype": "Get ( QuickFindText )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(RecordAccess)",
-      "prototype": "Get ( RecordAccess )"
+      "prototype": "Get ( RecordAccess )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(RecordID)",
-      "prototype": "Get ( RecordID )"
+      "prototype": "Get ( RecordID )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(RecordModificationCount)",
-      "prototype": "Get ( RecordModificationCount )"
+      "prototype": "Get ( RecordModificationCount )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(RecordNumber)",
-      "prototype": "Get ( RecordNumber )"
+      "prototype": "Get ( RecordNumber )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(RecordOpenCount)",
-      "prototype": "Get ( RecordOpenCount )"
+      "prototype": "Get ( RecordOpenCount )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(RecordOpenState)",
-      "prototype": "Get ( RecordOpenState )"
+      "prototype": "Get ( RecordOpenState )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(RegionMonitorEvents)",
-      "prototype": "Get ( RegionMonitorEvents )"
+      "prototype": "Get ( RegionMonitorEvents )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(RequestCount)",
-      "prototype": "Get ( RequestCount )"
+      "prototype": "Get ( RequestCount )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(RequestOmitState)",
-      "prototype": "Get ( RequestOmitState )"
+      "prototype": "Get ( RequestOmitState )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(RevertTransactionOnErrorState)",
-      "prototype": "Get ( RevertTransactionOnErrorState )"
+      "prototype": "Get ( RevertTransactionOnErrorState )",
+      "fmMin": "21.0",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(ScreenDepth)",
-      "prototype": "Get ( ScreenDepth )"
+      "prototype": "Get ( ScreenDepth )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(ScreenHeight)",
-      "prototype": "Get ( ScreenHeight )"
+      "prototype": "Get ( ScreenHeight )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(ScreenScaleFactor)",
-      "prototype": "Get ( ScreenScaleFactor )"
+      "prototype": "Get ( ScreenScaleFactor )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(ScreenWidth)",
-      "prototype": "Get ( ScreenWidth )"
+      "prototype": "Get ( ScreenWidth )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(ScriptAnimationState)",
-      "prototype": "Get ( ScriptAnimationState )"
+      "prototype": "Get ( ScriptAnimationState )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(ScriptName)",
-      "prototype": "Get ( ScriptName )"
+      "prototype": "Get ( ScriptName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(ScriptParameter)",
-      "prototype": "Get ( ScriptParameter )"
+      "prototype": "Get ( ScriptParameter )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(ScriptResult)",
-      "prototype": "Get ( ScriptResult )"
+      "prototype": "Get ( ScriptResult )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(SessionIdentifier)",
-      "prototype": "Get ( SessionIdentifier )"
+      "prototype": "Get ( SessionIdentifier )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(SortState)",
-      "prototype": "Get ( SortState )"
+      "prototype": "Get ( SortState )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(StatusAreaState)",
-      "prototype": "Get ( StatusAreaState )"
+      "prototype": "Get ( StatusAreaState )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(SystemAppearance)",
-      "prototype": "Get ( SystemAppearance )"
+      "prototype": "Get ( SystemAppearance )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(SystemDrive)",
-      "prototype": "Get ( SystemDrive )"
+      "prototype": "Get ( SystemDrive )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(SystemIPAddress)",
-      "prototype": "Get ( SystemIPAddress )"
+      "prototype": "Get ( SystemIPAddress )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(SystemLanguage)",
-      "prototype": "Get ( SystemLanguage )"
+      "prototype": "Get ( SystemLanguage )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(SystemLocaleElements)",
-      "prototype": "Get ( SystemLocaleElements )"
+      "prototype": "Get ( SystemLocaleElements )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(SystemNICAddress)",
-      "prototype": "Get ( SystemNICAddress )"
+      "prototype": "Get ( SystemNICAddress )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(SystemPlatform)",
-      "prototype": "Get ( SystemPlatform )"
+      "prototype": "Get ( SystemPlatform )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(SystemStorageAvailable)",
-      "prototype": "Get ( SystemStorageAvailable )"
+      "prototype": "Get ( SystemStorageAvailable )",
+      "fmMin": "21.0",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(SystemVersion)",
-      "prototype": "Get ( SystemVersion )"
+      "prototype": "Get ( SystemVersion )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(TemporaryPath)",
-      "prototype": "Get ( TemporaryPath )"
+      "prototype": "Get ( TemporaryPath )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(TextRulerVisible)",
-      "prototype": "Get ( TextRulerVisible )"
+      "prototype": "Get ( TextRulerVisible )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(TotalRecordCount)",
-      "prototype": "Get ( TotalRecordCount )"
+      "prototype": "Get ( TotalRecordCount )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(TouchKeyboardState)",
-      "prototype": "Get ( TouchKeyboardState )"
+      "prototype": "Get ( TouchKeyboardState )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(TransactionOpenState)",
-      "prototype": "Get ( TransactionOpenState )"
+      "prototype": "Get ( TransactionOpenState )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(TriggerCurrentPanel)",
-      "prototype": "Get ( TriggerCurrentPanel )"
+      "prototype": "Get ( TriggerCurrentPanel )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(TriggerExternalEvent)",
-      "prototype": "Get ( TriggerExternalEvent )"
+      "prototype": "Get ( TriggerExternalEvent )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(TriggerGestureInfo)",
-      "prototype": "Get ( TriggerGestureInfo )"
+      "prototype": "Get ( TriggerGestureInfo )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(TriggerKeystroke)",
-      "prototype": "Get ( TriggerKeystroke )"
+      "prototype": "Get ( TriggerKeystroke )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(TriggerModifierKeys)",
-      "prototype": "Get ( TriggerModifierKeys )"
+      "prototype": "Get ( TriggerModifierKeys )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(TriggerTargetPanel)",
-      "prototype": "Get ( TriggerTargetPanel )"
+      "prototype": "Get ( TriggerTargetPanel )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(UserCount)",
-      "prototype": "Get ( UserCount )"
+      "prototype": "Get ( UserCount )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(UserName)",
-      "prototype": "Get ( UserName )"
+      "prototype": "Get ( UserName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(UseSystemFormatsState)",
-      "prototype": "Get ( UseSystemFormatsState )"
+      "prototype": "Get ( UseSystemFormatsState )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(UUID)",
-      "prototype": "Get ( UUID )"
+      "prototype": "Get ( UUID )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(UUIDNumber)",
-      "prototype": "Get ( UUIDNumber )"
+      "prototype": "Get ( UUIDNumber )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(WindowContentHeight)",
-      "prototype": "Get ( WindowContentHeight )"
+      "prototype": "Get ( WindowContentHeight )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(WindowContentWidth)",
-      "prototype": "Get ( WindowContentWidth )"
+      "prototype": "Get ( WindowContentWidth )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(WindowDesktopHeight)",
-      "prototype": "Get ( WindowDesktopHeight )"
+      "prototype": "Get ( WindowDesktopHeight )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(WindowDesktopWidth)",
-      "prototype": "Get ( WindowDesktopWidth )"
+      "prototype": "Get ( WindowDesktopWidth )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(WindowHeight)",
-      "prototype": "Get ( WindowHeight )"
+      "prototype": "Get ( WindowHeight )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(WindowLeft)",
-      "prototype": "Get ( WindowLeft )"
+      "prototype": "Get ( WindowLeft )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(WindowMode)",
-      "prototype": "Get ( WindowMode )"
+      "prototype": "Get ( WindowMode )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(WindowName)",
-      "prototype": "Get ( WindowName )"
+      "prototype": "Get ( WindowName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(WindowOrientation)",
-      "prototype": "Get ( WindowOrientation )"
+      "prototype": "Get ( WindowOrientation )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(WindowStyle)",
-      "prototype": "Get ( WindowStyle )"
+      "prototype": "Get ( WindowStyle )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(WindowTop)",
-      "prototype": "Get ( WindowTop )"
+      "prototype": "Get ( WindowTop )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
+    },
+    {
+      "name": "Get(WindowUUID)",
+      "prototype": "Get ( WindowUUID )",
+      "fmMin": "26.0",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(WindowVisible)",
-      "prototype": "Get ( WindowVisible )"
+      "prototype": "Get ( WindowVisible )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(WindowWidth)",
-      "prototype": "Get ( WindowWidth )"
+      "prototype": "Get ( WindowWidth )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Get(WindowZoomLevel)",
-      "prototype": "Get ( WindowZoomLevel )"
+      "prototype": "Get ( WindowZoomLevel )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetAddonInfo",
-      "prototype": "GetAddonInfo ( addonID )"
+      "prototype": "GetAddonInfo ( addonID )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetAsBoolean",
-      "prototype": "GetAsBoolean ( data )"
+      "prototype": "GetAsBoolean ( data )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetAsCSS",
-      "prototype": "GetAsCSS ( text )"
+      "prototype": "GetAsCSS ( text )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetAsDate",
-      "prototype": "GetAsDate ( text )"
+      "prototype": "GetAsDate ( text )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetAsNumber",
-      "prototype": "GetAsNumber ( text )"
+      "prototype": "GetAsNumber ( text )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetAsSVG",
-      "prototype": "GetAsSVG ( text )"
+      "prototype": "GetAsSVG ( text )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetAsText",
-      "prototype": "GetAsText ( data )"
+      "prototype": "GetAsText ( data )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetAsTime",
-      "prototype": "GetAsTime ( text )"
+      "prototype": "GetAsTime ( text )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetAsTimestamp",
-      "prototype": "GetAsTimestamp ( text )"
+      "prototype": "GetAsTimestamp ( text )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetAsURLEncoded",
-      "prototype": "GetAsURLEncoded ( text )"
+      "prototype": "GetAsURLEncoded ( text )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetAVPlayerAttribute",
-      "prototype": "GetAVPlayerAttribute ( attributeName )"
+      "prototype": "GetAVPlayerAttribute ( attributeName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetBaseTableName",
-      "prototype": "GetBaseTableName ( field )"
+      "prototype": "GetBaseTableName ( field )",
+      "fmMin": "20.1",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetContainerAttribute",
-      "prototype": "GetContainerAttribute ( field ; attributeName )"
+      "prototype": "GetContainerAttribute ( field ; attributeName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetEmbedding",
-      "prototype": "GetEmbedding ( account ; model ; input )"
+      "prototype": "GetEmbedding ( account ; model ; input )",
+      "fmMin": "21.0",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetEmbeddingAsFile",
-      "prototype": "GetEmbeddingAsFile ( text {; fileNameWithExtension } )"
+      "prototype": "GetEmbeddingAsFile ( text {; fileNameWithExtension } )",
+      "fmMin": "21.0",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetEmbeddingAsText",
-      "prototype": "GetEmbeddingAsText ( data )"
+      "prototype": "GetEmbeddingAsText ( data )",
+      "fmMin": "21.0",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetField",
-      "prototype": "GetField ( fieldName )"
+      "prototype": "GetField ( fieldName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetFieldName",
-      "prototype": "GetFieldName ( field )"
+      "prototype": "GetFieldName ( field )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetFieldsOnLayout",
-      "prototype": "GetFieldsOnLayout ( layoutName )"
+      "prototype": "GetFieldsOnLayout ( layoutName )",
+      "fmMin": "22.0",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetHeight",
-      "prototype": "GetHeight ( field )"
+      "prototype": "GetHeight ( field )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetLayoutObjectAttribute",
-      "prototype": "GetLayoutObjectAttribute ( objectName ; attributeName {; repetitionNumber ; portalRowNumber } )"
+      "prototype": "GetLayoutObjectAttribute ( objectName ; attributeName {; repetitionNumber ; portalRowNumber } )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetLayoutObjectOwnerInfo",
-      "prototype": "GetLayoutObjectOwnerInfo ( objectID )"
+      "prototype": "GetLayoutObjectOwnerInfo ( objectID )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetLiveText",
-      "prototype": "GetLiveText ( container ; language )"
+      "prototype": "GetLiveText ( container ; language )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetLiveTextAsJSON",
-      "prototype": "GetLiveTextAsJSON ( container ; language )"
+      "prototype": "GetLiveTextAsJSON ( container ; language )",
+      "fmMin": "21.0",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetModelAttributes",
-      "prototype": "GetModelAttributes ( modelName )"
+      "prototype": "GetModelAttributes ( modelName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetNextSerialValue",
-      "prototype": "GetNextSerialValue ( fileName ; fieldName )"
+      "prototype": "GetNextSerialValue ( fileName ; fieldName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetNthRecord",
-      "prototype": "GetNthRecord ( field ; recordNumber )"
+      "prototype": "GetNthRecord ( field ; recordNumber )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
+    },
+    {
+      "name": "GetPersistentData",
+      "prototype": "GetPersistentData ( name ; instanceID )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetRAGSpaceInfo",
-      "prototype": "GetRAGSpaceInfo ( ragAccountName {; spaceID } )"
+      "prototype": "GetRAGSpaceInfo ( ragAccountName {; spaceID } )",
+      "fmMin": "22.0",
+      "fmMinSource": "documented"
     },
     {
       "name": "GetRecordIDsFromFoundSet",
-      "prototype": "GetRecordIDsFromFoundSet ( type )"
+      "prototype": "GetRecordIDsFromFoundSet ( type )",
+      "fmMin": "22.0",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetRepetition",
-      "prototype": "GetRepetition ( repeatingField ; number )"
+      "prototype": "GetRepetition ( repeatingField ; number )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetSensor",
-      "prototype": "GetSensor ( sensorName {; option1 ; option2 } )"
+      "prototype": "GetSensor ( sensorName {; option1 ; option2 } )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetSummary",
-      "prototype": "GetSummary ( summaryField ; breakField )"
+      "prototype": "GetSummary ( summaryField ; breakField )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetTableDDL",
-      "prototype": "GetTableDDL ( tableOccurrenceNames ; ignoreError )"
+      "prototype": "GetTableDDL ( tableOccurrenceNames ; ignoreError )",
+      "fmMin": "21.0",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetTextFromPDF",
-      "prototype": "GetTextFromPDF ( container )"
+      "prototype": "GetTextFromPDF ( container )",
+      "fmMin": "22.0",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetThumbnail",
-      "prototype": "GetThumbnail ( field ; width ; height )"
+      "prototype": "GetThumbnail ( field ; width ; height )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetTokenCount",
-      "prototype": "GetTokenCount ( text )"
+      "prototype": "GetTokenCount ( text )",
+      "fmMin": "21.0",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetValue",
-      "prototype": "GetValue ( listOfValues ; valueNumber )"
+      "prototype": "GetValue ( listOfValues ; valueNumber )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "GetWidth",
-      "prototype": "GetWidth ( field )"
+      "prototype": "GetWidth ( field )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "HexDecode",
-      "prototype": "HexDecode ( data {; fileNameWithExtension } )"
+      "prototype": "HexDecode ( data {; fileNameWithExtension } )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "HexEncode",
-      "prototype": "HexEncode ( data )"
+      "prototype": "HexEncode ( data )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Hiragana",
-      "prototype": "Hiragana ( text )"
+      "prototype": "Hiragana ( text )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Hour",
-      "prototype": "Hour ( time )"
+      "prototype": "Hour ( time )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "If",
-      "prototype": "If ( test ; result1 {; result2 } )"
+      "prototype": "If ( test ; result1 {; result2 } )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Int",
-      "prototype": "Int ( number )"
+      "prototype": "Int ( number )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "IsEmpty",
-      "prototype": "IsEmpty ( field )"
+      "prototype": "IsEmpty ( field )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "IsValid",
-      "prototype": "IsValid ( field )"
+      "prototype": "IsValid ( field )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "IsValidExpression",
-      "prototype": "IsValidExpression ( expression )"
+      "prototype": "IsValidExpression ( expression )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "JSONDeleteElement",
-      "prototype": "JSONDeleteElement ( json ; keyOrIndexOrPath )"
+      "prototype": "JSONDeleteElement ( json ; keyOrIndexOrPath )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "JSONFormatElements",
-      "prototype": "JSONFormatElements ( json )"
+      "prototype": "JSONFormatElements ( json )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "JSONGetElement",
-      "prototype": "JSONGetElement ( json ; keyOrIndexOrPath )"
+      "prototype": "JSONGetElement ( json ; keyOrIndexOrPath )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "JSONGetElementType",
-      "prototype": "JSONGetElementType ( json ; keyOrIndexOrPath )"
+      "prototype": "JSONGetElementType ( json ; keyOrIndexOrPath )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "JSONListKeys",
-      "prototype": "JSONListKeys ( json ; keyOrIndexOrPath )"
+      "prototype": "JSONListKeys ( json ; keyOrIndexOrPath )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "JSONListValues",
-      "prototype": "JSONListValues ( json ; keyOrIndexOrPath )"
+      "prototype": "JSONListValues ( json ; keyOrIndexOrPath )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "JSONMakeArray",
-      "prototype": "JSONMakeArray ( listOfValues ; separator ; type )"
+      "prototype": "JSONMakeArray ( listOfValues ; separator ; type )",
+      "fmMin": "21.0",
+      "fmMinSource": "measured"
     },
     {
       "name": "JSONParse",
-      "prototype": "JSONParse ( json )"
+      "prototype": "JSONParse ( json )",
+      "fmMin": "22.0",
+      "fmMinSource": "measured"
     },
     {
       "name": "JSONParsedState",
-      "prototype": "JSONParsedState ( json )"
+      "prototype": "JSONParsedState ( json )",
+      "fmMin": "22.0",
+      "fmMinSource": "measured"
     },
     {
       "name": "JSONSetElement",
-      "prototype": "JSONSetElement ( json ; keyOrIndexOrPath ; value ; type )"
+      "prototype": "JSONSetElement ( json ; keyOrIndexOrPath ; value ; type )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "KanaHankaku",
-      "prototype": "KanaHankaku ( text )"
+      "prototype": "KanaHankaku ( text )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "KanaZenkaku",
-      "prototype": "KanaZenkaku ( text )"
+      "prototype": "KanaZenkaku ( text )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "KanjiNumeral",
-      "prototype": "KanjiNumeral ( text )"
+      "prototype": "KanjiNumeral ( text )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Katakana",
-      "prototype": "Katakana ( text )"
+      "prototype": "Katakana ( text )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Last",
-      "prototype": "Last ( repeatingField )"
+      "prototype": "Last ( repeatingField )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "LayoutIDs",
-      "prototype": "LayoutIDs ( fileName )"
+      "prototype": "LayoutIDs ( fileName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "LayoutNames",
-      "prototype": "LayoutNames ( fileName )"
+      "prototype": "LayoutNames ( fileName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "LayoutObjectNames",
-      "prototype": "LayoutObjectNames ( fileName ; layoutName )"
+      "prototype": "LayoutObjectNames ( fileName ; layoutName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "LayoutObjectUUID",
-      "prototype": "LayoutObjectUUID"
+      "prototype": "LayoutObjectUUID",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Left",
-      "prototype": "Left ( text ; numberOfCharacters )"
+      "prototype": "Left ( text ; numberOfCharacters )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "LeftValues",
-      "prototype": "LeftValues ( text ; numberOfValues )"
+      "prototype": "LeftValues ( text ; numberOfValues )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "LeftWords",
-      "prototype": "LeftWords ( text ; numberOfWords )"
+      "prototype": "LeftWords ( text ; numberOfWords )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Length",
-      "prototype": "Length ( text )"
+      "prototype": "Length ( text )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Let",
-      "prototype": "Let ( {[} var1 = expression1 {; var2 = expression2...]} ; calculation )"
+      "prototype": "Let ( {[} var1 = expression1 {; var2 = expression2...]} ; calculation )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Lg",
-      "prototype": "Lg ( number )"
+      "prototype": "Lg ( number )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "List",
-      "prototype": "List ( field {; field...} )"
+      "prototype": "List ( field {; field...} )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
+    },
+    {
+      "name": "ListPersistentDataIDs",
+      "prototype": "ListPersistentDataIDs ( name )",
+      "fmMin": "26.0",
+      "fmMinSource": "measured"
     },
     {
       "name": "Ln",
-      "prototype": "Ln ( number )"
+      "prototype": "Ln ( number )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Location",
-      "prototype": "Location ( accuracy {; timeout } )"
+      "prototype": "Location ( accuracy {; timeout } )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "LocationValues",
-      "prototype": "LocationValues ( accuracy {; timeout } )"
+      "prototype": "LocationValues ( accuracy {; timeout } )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Log",
-      "prototype": "Log ( number )"
+      "prototype": "Log ( number )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Lookup",
-      "prototype": "Lookup ( sourceField {; failExpression } )"
+      "prototype": "Lookup ( sourceField {; failExpression } )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "LookupNext",
-      "prototype": "LookupNext ( sourceField ; lower/higherFlag )"
+      "prototype": "LookupNext ( sourceField ; lower/higherFlag )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Lower",
-      "prototype": "Lower ( text )"
+      "prototype": "Lower ( text )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Max",
-      "prototype": "Max ( field {; field...} )"
+      "prototype": "Max ( field {; field...} )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Middle",
-      "prototype": "Middle ( text ; start ; numberOfCharacters )"
+      "prototype": "Middle ( text ; start ; numberOfCharacters )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "MiddleValues",
-      "prototype": "MiddleValues ( text ; startingValue ; numberOfValues )"
+      "prototype": "MiddleValues ( text ; startingValue ; numberOfValues )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "MiddleWords",
-      "prototype": "MiddleWords ( text ; startingWord ; numberOfWords )"
+      "prototype": "MiddleWords ( text ; startingWord ; numberOfWords )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Min",
-      "prototype": "Min ( field {; field...} )"
+      "prototype": "Min ( field {; field...} )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Minute",
-      "prototype": "Minute ( time )"
+      "prototype": "Minute ( time )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Mod",
-      "prototype": "Mod ( number ; divisor )"
+      "prototype": "Mod ( number ; divisor )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Month",
-      "prototype": "Month ( date )"
+      "prototype": "Month ( date )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "MonthName",
-      "prototype": "MonthName ( date )"
+      "prototype": "MonthName ( date )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "MonthNameJ",
-      "prototype": "MonthNameJ ( date )"
+      "prototype": "MonthNameJ ( date )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "NormalizeEmbedding",
-      "prototype": "NormalizeEmbedding ( data { ; dimension } )"
+      "prototype": "NormalizeEmbedding ( data { ; dimension } )",
+      "fmMin": "22.0",
+      "fmMinSource": "measured"
     },
     {
       "name": "NPV",
-      "prototype": "NPV ( payment ; interestRate )"
+      "prototype": "NPV ( payment ; interestRate )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "NumToJText",
-      "prototype": "NumToJText ( number ; separator ; characterType )"
+      "prototype": "NumToJText ( number ; separator ; characterType )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "PatternCount",
-      "prototype": "PatternCount ( text ; searchString )"
+      "prototype": "PatternCount ( text ; searchString )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Pi",
-      "prototype": "Pi"
+      "prototype": "Pi",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "PMT",
-      "prototype": "PMT ( principal ; interestRate ; term )"
+      "prototype": "PMT ( principal ; interestRate ; term )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Position",
-      "prototype": "Position ( text ; searchString ; start ; occurrence )"
+      "prototype": "Position ( text ; searchString ; start ; occurrence )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "PredictFromModel",
-      "prototype": "PredictFromModel ( modelName ; v1 )"
+      "prototype": "PredictFromModel ( modelName ; v1 )",
+      "fmMin": "22.0",
+      "fmMinSource": "measured"
     },
     {
       "name": "Proper",
-      "prototype": "Proper ( text )"
+      "prototype": "Proper ( text )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "PV",
-      "prototype": "PV ( payment ; interestRate ; periods )"
+      "prototype": "PV ( payment ; interestRate ; periods )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Quote",
-      "prototype": "Quote ( text )"
+      "prototype": "Quote ( text )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Radians",
-      "prototype": "Radians ( angleInDegrees )"
+      "prototype": "Radians ( angleInDegrees )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
+    },
+    {
+      "name": "Random",
+      "prototype": "Random",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "RangeBeacons",
-      "prototype": "RangeBeacons ( UUID {; timeout ; major ; minor } )"
+      "prototype": "RangeBeacons ( UUID {; timeout ; major ; minor } )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "ReadQRCode",
-      "prototype": "ReadQRCode ( container )"
+      "prototype": "ReadQRCode ( container )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "RelationInfo",
-      "prototype": "RelationInfo ( fileName ; tableName )"
+      "prototype": "RelationInfo ( fileName ; tableName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Replace",
-      "prototype": "Replace ( text ; start ; numberOfCharacters ; replacementText )"
+      "prototype": "Replace ( text ; start ; numberOfCharacters ; replacementText )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "RGB",
-      "prototype": "RGB ( red ; green ; blue )"
+      "prototype": "RGB ( red ; green ; blue )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Right",
-      "prototype": "Right ( text ; numberOfCharacters )"
+      "prototype": "Right ( text ; numberOfCharacters )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "RightValues",
-      "prototype": "RightValues ( text ; numberOfValues )"
+      "prototype": "RightValues ( text ; numberOfValues )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "RightWords",
-      "prototype": "RightWords ( text ; numberOfWords )"
+      "prototype": "RightWords ( text ; numberOfWords )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "RomanHankaku",
-      "prototype": "RomanHankaku ( text )"
+      "prototype": "RomanHankaku ( text )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "RomanZenkaku",
-      "prototype": "RomanZenkaku ( text )"
+      "prototype": "RomanZenkaku ( text )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Round",
-      "prototype": "Round ( number ; precision )"
+      "prototype": "Round ( number ; precision )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "ScriptIDs",
-      "prototype": "ScriptIDs ( fileName )"
+      "prototype": "ScriptIDs ( fileName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "ScriptNames",
-      "prototype": "ScriptNames ( fileName )"
+      "prototype": "ScriptNames ( fileName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Seconds",
-      "prototype": "Seconds ( time )"
+      "prototype": "Seconds ( time )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Self",
-      "prototype": "Self"
+      "prototype": "Self",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "SerialIncrement",
-      "prototype": "SerialIncrement ( text ; incrementBy )"
+      "prototype": "SerialIncrement ( text ; incrementBy )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "SetPrecision",
-      "prototype": "SetPrecision ( expression ; precision )"
+      "prototype": "SetPrecision ( expression ; precision )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "SetRecursion",
-      "prototype": "SetRecursion ( expression ; maxIterations )"
+      "prototype": "SetRecursion ( expression ; maxIterations )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Sign",
-      "prototype": "Sign ( number )"
+      "prototype": "Sign ( number )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Sin",
-      "prototype": "Sin ( angleInRadians )"
+      "prototype": "Sin ( angleInRadians )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "SortValues",
-      "prototype": "SortValues ( values {; datatype ; locale } )"
+      "prototype": "SortValues ( values {; datatype ; locale } )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Sqrt",
-      "prototype": "Sqrt ( number )"
+      "prototype": "Sqrt ( number )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "StDev",
-      "prototype": "StDev ( field {; field...} )"
+      "prototype": "StDev ( field {; field...} )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "StDevP",
-      "prototype": "StDevP ( field {; field...} )"
+      "prototype": "StDevP ( field {; field...} )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Substitute",
-      "prototype": "Substitute ( text ; searchString ; replaceString )"
+      "prototype": "Substitute ( text ; searchString ; replaceString )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "SubtractEmbeddings",
-      "prototype": "SubtractEmbeddings ( v1 ; v2 )"
+      "prototype": "SubtractEmbeddings ( v1 ; v2 )",
+      "fmMin": "22.0",
+      "fmMinSource": "measured"
     },
     {
       "name": "Sum",
-      "prototype": "Sum ( field {; field...} )"
+      "prototype": "Sum ( field {; field...} )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "TableIDs",
-      "prototype": "TableIDs ( fileName )"
+      "prototype": "TableIDs ( fileName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "TableNames",
-      "prototype": "TableNames ( fileName )"
+      "prototype": "TableNames ( fileName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Tan",
-      "prototype": "Tan ( angleInRadians )"
+      "prototype": "Tan ( angleInRadians )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "TextColor",
-      "prototype": "TextColor ( text ; RGB ( red ; green ; blue ) )"
+      "prototype": "TextColor ( text ; RGB ( red ; green ; blue ) )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "TextColorRemove",
-      "prototype": "TextColorRemove ( text {; RGB ( red ; green ; blue )} )"
+      "prototype": "TextColorRemove ( text {; RGB ( red ; green ; blue )} )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "TextDecode",
-      "prototype": "TextDecode ( container ; encoding )"
+      "prototype": "TextDecode ( container ; encoding )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "TextEncode",
-      "prototype": "TextEncode ( text ; encoding ; lineEndings )"
+      "prototype": "TextEncode ( text ; encoding ; lineEndings )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "TextFont",
-      "prototype": "TextFont ( text ; fontName )"
+      "prototype": "TextFont ( text ; fontName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "TextFontRemove",
-      "prototype": "TextFontRemove ( text {; fontToRemove } )"
+      "prototype": "TextFontRemove ( text {; fontToRemove } )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "TextFormatRemove",
-      "prototype": "TextFormatRemove ( text )"
+      "prototype": "TextFormatRemove ( text )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "TextSize",
-      "prototype": "TextSize ( text ; fontSize )"
+      "prototype": "TextSize ( text ; fontSize )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "TextSizeRemove",
-      "prototype": "TextSizeRemove ( text {; sizeToRemove } )"
+      "prototype": "TextSizeRemove ( text {; sizeToRemove } )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "TextStyleAdd",
-      "prototype": "TextStyleAdd ( text ; styles )"
+      "prototype": "TextStyleAdd ( text ; styles )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "TextStyleRemove",
-      "prototype": "TextStyleRemove ( text ; styles )"
+      "prototype": "TextStyleRemove ( text ; styles )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Time",
-      "prototype": "Time ( hours ; minutes ; seconds )"
+      "prototype": "Time ( hours ; minutes ; seconds )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Timestamp",
-      "prototype": "Timestamp ( date ; time )"
+      "prototype": "Timestamp ( date ; time )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Trim",
-      "prototype": "Trim ( text )"
+      "prototype": "Trim ( text )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "TrimAll",
-      "prototype": "TrimAll ( text ; trimSpaces ; trimType )"
+      "prototype": "TrimAll ( text ; trimSpaces ; trimType )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Truncate",
-      "prototype": "Truncate ( number ; precision )"
+      "prototype": "Truncate ( number ; precision )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "UniqueValues",
-      "prototype": "UniqueValues ( values {; datatype ; locale } )"
+      "prototype": "UniqueValues ( values {; datatype ; locale } )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Upper",
-      "prototype": "Upper ( text )"
+      "prototype": "Upper ( text )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "ValueCount",
-      "prototype": "ValueCount ( text )"
+      "prototype": "ValueCount ( text )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "ValueListIDs",
-      "prototype": "ValueListIDs ( fileName )"
+      "prototype": "ValueListIDs ( fileName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "ValueListItems",
-      "prototype": "ValueListItems ( fileName ; valueList )"
+      "prototype": "ValueListItems ( fileName ; valueList )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "ValueListNames",
-      "prototype": "ValueListNames ( fileName )"
+      "prototype": "ValueListNames ( fileName )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Variance",
-      "prototype": "Variance ( field {; field...} )"
+      "prototype": "Variance ( field {; field...} )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "VarianceP",
-      "prototype": "VarianceP ( field {; field...} )"
+      "prototype": "VarianceP ( field {; field...} )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "VerifyContainer",
-      "prototype": "VerifyContainer ( field )"
+      "prototype": "VerifyContainer ( field )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "WeekOfYear",
-      "prototype": "WeekOfYear ( date )"
+      "prototype": "WeekOfYear ( date )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "WeekOfYearFiscal",
-      "prototype": "WeekOfYearFiscal ( date ; startingDay )"
+      "prototype": "WeekOfYearFiscal ( date ; startingDay )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "While",
-      "prototype": "While ( [ initialVariable ] ; condition ; [ logic ] ; result )"
+      "prototype": "While ( [ initialVariable ] ; condition ; [ logic ] ; result )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "WindowNames",
-      "prototype": "WindowNames {( fileName )}"
+      "prototype": "WindowNames {( fileName )}",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "WordCount",
-      "prototype": "WordCount ( text )"
+      "prototype": "WordCount ( text )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "Year",
-      "prototype": "Year ( date )"
+      "prototype": "Year ( date )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     },
     {
       "name": "YearName",
-      "prototype": "YearName ( date ; format )"
+      "prototype": "YearName ( date ; format )",
+      "fmMin": "any",
+      "fmMinSource": "measured"
     }
   ]
 }

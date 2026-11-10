@@ -62,7 +62,6 @@ CONTROL_FLOW = {
 FM26_AI_SKIP = {
     "Fine-Tune Model",
     "Generate Response from Model",
-    "Install Menu Set",
 }
 
 
@@ -870,3 +869,28 @@ def test_saxml_insert_text_with_quotes_keeps_its_value(tmp_path):
         )
         out = translate_script(src)
         assert "<Text>" + want + "</Text>" in out, out
+
+
+def test_cdata_splits_close_sequence():
+    """A calc holding "]]>" is split across CDATA sections and reads back whole."""
+    import xml.etree.ElementTree as ET
+
+    from catalog_emit import cdata
+    from fm_xml_to_snippet import cdata as saxml_cdata
+
+    for calc in ['"x]]>y"', '"]]>" & "]]>"', '"]]]>"', "$x[2]", ""]:
+        for wrap in (cdata, saxml_cdata):
+            out = wrap(calc)
+            assert ("]]]]><![CDATA[>" in out) == ("]]>" in calc), out
+            assert (ET.fromstring("<C>" + out + "</C>").text or "") == calc, out
+
+
+def test_new_window_reads_the_line_filemaker_draws():
+    """FileMaker draws a named layout as `Using layout: “Name” (TO)`: same step as `Layout: "Name"`."""
+    entries = {e.name: e for e in load_catalog(_CATALOG)}
+    entry = entries["New Window"]
+    emit = lambda token: convert_step_with_catalog(
+        entry, False, match_param_values(entry, ["Style: Document", token]), EmptyResolver())
+    written = emit('Layout: "Clients"')
+    assert 'name="Clients"' in written
+    assert emit("Using layout: “Clients” (Primary)") == written

@@ -16,7 +16,9 @@
     "hrSignature": "# {text}",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/comment.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/comment.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Add Account",
@@ -68,21 +70,27 @@
         "xmlElement": "PrivilegeSet",
         "type": "reference",
         "hrLabel": "Privilege Set",
-        "required": true
+        "required": true,
+        "rosterKind": "PrivilegeSet",
+        "note": "FileMaker resolves the name against the file's privilege sets, the bracketed built-ins included, case-insensitively; a name the file lacks draws `<unknown>` and copies back as id=\"0\" name=\"\" (FM 26.0.3), so the name is checked against the file's privilege sets where a converter knows them (rosterKind)."
       },
       {
         "xmlElement": "ChgPwdOnNextLogin",
         "type": "boolean",
+        "flagStyle": true,
         "hrLabel": "Expire password",
         "xmlAttr": "value",
         "required": false,
-        "defaultValue": "False"
+        "defaultValue": "False",
+        "notes": "Flag-style: FileMaker draws \"Expire password\" when True and nothing when False (live, FM 26.0.3; same line on 19.6.3 and 22.0.4)."
       }
     ],
     "hrSignature": "[ Authenticate via: type ; Account Name: calc ; Password: calc ; Privilege Set: name ; Expire password ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/add-account.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/add-account.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Adjust Window",
@@ -113,7 +121,9 @@
     "hrSignature": "[ Resize to Fit|Maximize|Minimize|Restore|Hide ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/adjust-window.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/adjust-window.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Allow Formatting Bar",
@@ -138,7 +148,9 @@
     "hrSignature": "[ On|Off ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/allow-formatting-bar.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/allow-formatting-bar.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Allow User Abort",
@@ -159,7 +171,9 @@
     "hrSignature": "[ On|Off ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Arrange All Windows",
@@ -192,7 +206,9 @@
     "hrSignature": "[ Tile Horizontally|Tile Vertically|Cascade Window|Bring All To Front ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/arrange-all-windows.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/arrange-all-windows.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "AVPlayer Play",
@@ -285,7 +301,9 @@
     "hrSignature": "[ Object Name|Field|URL : source ; Repetition: n ; Presentation: option ; Position: n ; Start Offset: n ; End Offset: n ; Hide Controls: Yes ; Disable Interaction: Yes ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/avplayer-play.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/avplayer-play.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "AVPlayer Set Options",
@@ -407,7 +425,9 @@
     "hrSignature": "[ Presentation: option ; Disable Interaction: Yes ; Hide Controls: Yes ; Disable External Controls: Yes ; Pause in Background: Yes ; Position: n ; Start Offset: n ; End Offset: n ; Volume: n ; Zoom: option ; Sequence: option ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/avplayer-set-options.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/avplayer-set-options.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "AVPlayer Set Playback State",
@@ -433,7 +453,9 @@
     "hrSignature": "[ Stopped|Paused|Playing ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/avplayer-set-playback-state.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/avplayer-set-playback-state.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Beep",
@@ -445,7 +467,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/beep.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/beep.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Change Password",
@@ -481,7 +505,9 @@
     "hrSignature": "[ Old Password: calc ; Password: calc ; With dialog: On|Off ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/change-password.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/change-password.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Check Found Set",
@@ -493,7 +519,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/check-found-set.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/check-found-set.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Check Record",
@@ -505,7 +533,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/check-record.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/check-record.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Check Selection",
@@ -516,11 +546,13 @@
     "params": [
       {
         "xmlElement": "SelectAll",
+        "flagStyle": true,
         "type": "boolean",
         "hrLabel": "Select",
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "True"
+        "defaultValue": "True",
+        "notes": "Flag-style: FileMaker draws \"Select\" when True and nothing when False (live, FM 26.0.3)."
       },
       {
         "xmlElement": "Field",
@@ -532,7 +564,9 @@
     "hrSignature": "[ Select ; field ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/check-selection.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/check-selection.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Clear",
@@ -543,11 +577,13 @@
     "params": [
       {
         "xmlElement": "SelectAll",
+        "flagStyle": true,
         "type": "boolean",
         "hrLabel": "Select",
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "True"
+        "defaultValue": "True",
+        "notes": "Flag-style: FileMaker draws \"Select\" when True and nothing when False (live, FM 26.0.3)."
       },
       {
         "xmlElement": "Field",
@@ -559,7 +595,9 @@
     "hrSignature": "[ Select ; field ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/clear.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/clear.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Close Data File",
@@ -579,7 +617,9 @@
     "hrSignature": "[ File ID: calc ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/close-data-file.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/close-data-file.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Close File",
@@ -598,7 +638,9 @@
     "hrSignature": "[ Current File | \"filename\" ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/close-file.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/close-file.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Close Popover",
@@ -610,7 +652,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/close-popover.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/close-popover.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
     {
     "name": "Close Window",
@@ -662,7 +706,9 @@
     "hrSignature": "[ Current Window | Name: <name> [ ; Current file ] ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/close-window.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/close-window.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Commit Records/Requests",
@@ -702,7 +748,9 @@
     "hrSignature": "[ Skip data entry validation ; With dialog: <On/Off> ; Force Commit ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/commit-records-requests.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/commit-records-requests.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Commit Transaction",
@@ -719,7 +767,9 @@
       ]
     },
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/commit-transaction.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/commit-transaction.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Configure AI Account",
@@ -794,7 +844,9 @@
     "hrSignature": "[ Account Name: calc ; Model Provider: option ; Endpoint: calc ; Verify SSL Certificates ; API key: calc ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "21.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Configure Local Notification",
@@ -928,7 +980,9 @@
     "hrSignature": "[ Action: Queue|Clear ; Name: calc ; Script: script ; Delay: calc ; Title: calc ; Body: calc ; Button 1 Label: calc ; Button 2 Label: calc ; Button 3 Label: calc ; Button 1 Foreground: calc ; Button 2 Foreground: calc ; Button 3 Foreground: calc ; Show when app in foreground: calc ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/configure-local-notification.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/configure-local-notification.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Configure Machine Learning Model",
@@ -973,7 +1027,9 @@
     "hrSignature": "[ Operation: Unload|Vision|General ; Name: calc ; From: field ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Configure NFC Reading",
@@ -1043,7 +1099,9 @@
     "hrSignature": "[ Action: Read|Cancel ; Script: script ; Parameter: calc ; Timeout: calc ; Continuous Reading: calc ; Format Result as JSON: calc ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Configure Persistent Data",
@@ -1086,7 +1144,9 @@
         "notes": "Set mode only. Mutually exclusive with Delete (Option state=True)."
       }
     ],
-    "hrSignature": "[ <name> ; Instance ID: <calc> ; Value: <calc> ; Delete ]"
+    "hrSignature": "[ <name> ; Instance ID: <calc> ; Value: <calc> ; Delete ]",
+    "fmMin": "26.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Configure Prompt Template",
@@ -1186,7 +1246,9 @@
     "hrSignature": "[ Template Name: calc ; Model Provider: option ; Template Type: option ; SQL Prompt: calc ; Natural Language Prompt: calc ; Find Request Prompt: calc ; RAG Prompt: calc ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "22.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Configure RAG Account ",
@@ -1232,7 +1294,9 @@
     "hrSignature": "[ RAG Account Name: calc ; Endpoint: calc ; API key: calc ; Verify SSL Certificates ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "22.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Configure Region Monitor Script",
@@ -1342,7 +1406,9 @@
     "hrSignature": "[ Monitor: Clear|iBeacon|Geofence ; Name: calc ; Script: script ; Parameter: calc ; UUID: calc ; Major: calc ; Minor: calc ; Latitude: calc ; Longitude: calc ; Radius: calc ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/configure-region-monitor-script.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/configure-region-monitor-script.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Configure Regression Model",
@@ -1406,7 +1472,9 @@
     "hrSignature": "[ Action: option ; Model Name: calc ; Algorithm: option ; Save Model To|Load Model From: field ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "22.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Constrain Found Set",
@@ -1433,7 +1501,9 @@
         "xmlAttr": "state",
         "required": false,
         "defaultValue": "False",
-        "notes": "Flag-style: shown as \"Find without indexes\" when True, omitted when False"
+        "notes": "Flag-style: shown as \"Find without indexes\" when True, omitted when False",
+        "fmMin": "21.0",
+        "fmMinSource": "measured"
       },
       {
         "xmlElement": "Query",
@@ -1446,7 +1516,9 @@
     "hrSignature": "[ Restore ; Find without indexes ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/constrain-found-set.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/constrain-found-set.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Convert File",
@@ -1457,6 +1529,7 @@
     "params": [
       {
         "xmlElement": "NoInteract",
+        "hrSlot": 2,
         "type": "boolean",
         "hrLabel": "With dialog",
         "xmlAttr": "state",
@@ -1470,23 +1543,30 @@
       },
       {
         "xmlElement": "Option",
+        "hrSlot": 0,
         "type": "boolean",
+        "flagStyle": true,
+        "invertedHr": true,
         "hrLabel": "Open File",
         "xmlAttr": "state",
         "required": false,
         "defaultValue": "False",
-        "notes": "HR always shows 'Open File'. State False = Open File shown."
+        "notes": "Inverted flag: FileMaker draws \"Open File\" when state is False and nothing when True (live, FM 26.0.3; same line on 19.6.3 and 22.0.4)."
       },
       {
         "xmlElement": "SkipIndexes",
+        "hrSlot": 1,
         "type": "boolean",
+        "flagStyle": true,
         "hrLabel": "Skip Indexes",
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "False"
+        "defaultValue": "False",
+        "notes": "Flag-style: FileMaker draws \"Skip Indexes\" when True and nothing when False (live, FM 26.0.3; same line on 19.6.3 and 22.0.4)."
       },
       {
         "xmlElement": "VerifySSLCertificates",
+        "hrSlot": 7,
         "type": "boolean",
         "flagStyle": true,
         "hrLabel": "Verify SSL Certificates",
@@ -1496,6 +1576,8 @@
       },
       {
         "xmlElement": "DataSourceType",
+        "hrSlot": 3,
+        "fmLineHidden": true,
         "type": "enum",
         "hrLabel": null,
         "xmlAttr": "value",
@@ -1504,10 +1586,11 @@
           "File",
           "XMLSource"
         ],
-        "notes": "Implicit in HR based on source paths shown inline. Not a labeled HR parameter."
+        "notes": "Implicit in HR based on source paths shown inline. Not a labeled HR parameter. FileMaker never draws it on its line, for File or XMLSource (fmLineHidden; FM 26.0.3)."
       },
       {
         "xmlElement": "Profile",
+        "hrSlot": 4,
         "type": "attrGroup",
         "hrLabel": "Profile",
         "required": false,
@@ -1515,39 +1598,66 @@
           { "key": "FieldDelimiter", "kind": "attr", "xmlAttr": "FieldDelimiter", "defaultValue": "\t" },
           { "key": "IsPredefined", "kind": "attr", "xmlAttr": "IsPredefined", "defaultValue": "-1" },
           { "key": "FieldNameRow", "kind": "attr", "xmlAttr": "FieldNameRow", "defaultValue": "-1" },
-          { "key": "DataType", "kind": "attr", "xmlAttr": "DataType", "defaultValue": "    " }
+          { "key": "DataType", "kind": "attr", "xmlAttr": "DataType", "defaultValue": "    " },
+          { "key": "XMLType", "kind": "attr", "xmlAttr": "XMLType", "optional": true },
+          { "key": "XSLType", "kind": "attr", "xmlAttr": "XSLType", "optional": true },
+          { "key": "XMLFile", "kind": "text", "childElement": "XMLFile", "fmLineDraw": "value" },
+          { "key": "XMLHttp", "kind": "text", "childElement": "XMLHttp", "fmLineDraw": "value" },
+          { "key": "XMLCalc", "kind": "calc", "childElement": "XMLCalc", "fmLineDraw": "value" },
+          { "key": "XSLFile", "kind": "text", "childElement": "XSLFile", "fmLineDraw": "fileName" },
+          { "key": "XSLHttp", "kind": "text", "childElement": "XSLHttp", "fmLineDraw": "value" },
+          { "key": "XSLCalc", "kind": "calc", "childElement": "XSLCalc", "fmLineDraw": "value" }
         ],
-        "notes": "Source-format profile; whitespace attr values (tab FieldDelimiter, space-padded DataType) use the comma/whitespace-safe attrGroup value grammar."
+        "notes": "Source-format profile; whitespace attr values (tab FieldDelimiter, space-padded DataType) use the comma/whitespace-safe attrGroup value grammar. FileMaker never draws its attributes on its line, at their defaults or changed; with an XML source it draws the sources in the path slot, bare, joined by \"; \" with the XML source first, line breaks as spaces, the XSL file path cut to its file name and an empty source left out (`$xml; $xsl`, `file:a b.xml file:c.xml; s.xsl`, `https://e.com/n.xml` with NoXSL; fmLineDraw, FM 26.0.3). With DataSourceType XMLSource FileMaker keeps the four File attributes, sets DataType to \"XML \" and adds XMLType (XMLFile | XMLHttp | XMLCalculation) and XSLType (XSLFile | XSLHttp | XSLCalculation | NoXSL), and one child for each source: <XMLFile> / <XSLFile> hold file paths (one per line), <XMLHttp> / <XSLHttp> a URL, <XMLCalc> / <XSLCalc> a calculation (FM 26.0.3, authored in the Specify XML and XSL Options dialog and pasted, read back)."
+      },
+      {
+        "xmlElement": "Calculation",
+        "hrSlot": 8,
+        "type": "calculation",
+        "hrLabel": null,
+        "hrHidden": true,
+        "mirrorOf": "Profile/XMLCalc",
+        "omitWhenEmpty": true,
+        "required": false,
+        "notes": "FileMaker's copy of the XML source calculation (XMLType XMLCalculation), written after the Profile. Unlike Create PDF's Title copy this copy is the one FileMaker keeps: pasted with only <XMLCalc> it drops the calculation, pasted with only this copy it fills <XMLCalc> from it, and with the two different it writes this value to both (FM 26.0.3). No HR token of its own; written from Profile: XMLCalc= (mirrorOf), absent with no XML calculation."
       },
       {
         "xmlElement": "UniversalPathList",
+        "hrSlot": 5,
         "type": "text",
         "hrLabel": null,
         "hrQuoted": true,
+        "omitWhenEmpty": true,
         "required": false,
-        "notes": "Source file path or URL. Can be a variable."
+        "notes": "Source file path or URL. Can be a variable. FileMaker writes no element when there is no path, and none for an XML source, whose sources are in the Profile (omitWhenEmpty; FM 26.0.3)."
       },
       {
         "xmlElement": "ImportOptions",
+        "hrSlot": 6,
+        "fmLineHidden": true,
         "type": "attrGroup",
         "hrLabel": "Import options",
         "required": false,
         "fields": [
           { "key": "TargetTableName", "kind": "attr", "xmlAttr": "TargetTableName", "defaultValue": "Table" },
           { "key": "CharacterSet", "kind": "attr", "xmlAttr": "CharacterSet", "defaultValue": "Macintosh" },
+          { "key": "AddRemainingRecords", "kind": "attr", "xmlAttr": "AddRemainingRecords", "optional": true },
+          { "key": "KeepOriginalData", "kind": "attr", "xmlAttr": "KeepOriginalData", "defaultValue": "False" },
           { "key": "PreserveContainer", "kind": "attr", "xmlAttr": "PreserveContainer", "defaultValue": "False" },
           { "key": "MatchFieldNames", "kind": "attr", "xmlAttr": "MatchFieldNames", "defaultValue": "False" },
           { "key": "AutoEnter", "kind": "attr", "xmlAttr": "AutoEnter", "defaultValue": "False" },
           { "key": "SplitRepetitions", "kind": "attr", "xmlAttr": "SplitRepetitions", "defaultValue": "False" },
           { "key": "method", "kind": "attr", "xmlAttr": "method", "defaultValue": "Add" }
         ],
-        "notes": "Destination import settings (faithful passthrough)."
+        "notes": "Destination import settings (faithful passthrough). FileMaker never draws them on its line, at their defaults or changed (fmLineHidden; FM 26.0.3). FileMaker draws Open File, Skip Indexes, With dialog, the path, Verify SSL Certificates in that order (hrSlot). KeepOriginalData exists from FileMaker 26.0 only: 26.0.3 keeps it at True and False and writes False when it is absent, while 19.6.3 and 22.0.4 drop it from the copy-out even at True and keep every other import option at its non-default value (value evidence, 2026-10-30). The converters still write it on every version; an older FileMaker discards it and the step behaves the same. Version data is not recorded for it because fmMin applies to whole params only, not to attrGroup fields."
       }
     ],
-    "hrSignature": "Convert File [ With dialog: {On|Off} ; Open File ; Skip Indexes ; Verify SSL Certificates ; {source} ; Profile: ... ; Import options: ... ]",
+    "hrSignature": "Convert File [ Open File ; Skip Indexes ; With dialog: {On|Off} ; {File|XMLSource} ; Profile: ... ; {path} ; Import options: ... ; Verify SSL Certificates ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/convert-file.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/convert-file.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Copy",
@@ -1558,11 +1668,13 @@
     "params": [
       {
         "xmlElement": "SelectAll",
+        "flagStyle": true,
         "type": "boolean",
         "hrLabel": "Select",
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "True"
+        "defaultValue": "True",
+        "notes": "Flag-style: FileMaker draws \"Select\" when True and nothing when False (live, FM 26.0.3)."
       },
       {
         "xmlElement": "Field",
@@ -1574,7 +1686,9 @@
     "hrSignature": "Copy [ Select ; {field} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/copy.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/copy.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Copy All Records/Requests",
@@ -1586,7 +1700,9 @@
     "hrSignature": "Copy All Records/Requests",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/copy-all-records-requests.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/copy-all-records-requests.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Copy Record/Request",
@@ -1598,7 +1714,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/copy-record-request.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/copy-record-request.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Correct Word",
@@ -1610,7 +1728,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/correct-word.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/correct-word.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Create Data File",
@@ -1642,7 +1762,9 @@
     "hrSignature": "Create Data File [ {path} ; Create folders: {On|Off} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/create-data-file.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/create-data-file.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Cut",
@@ -1653,11 +1775,13 @@
     "params": [
       {
         "xmlElement": "SelectAll",
+        "flagStyle": true,
         "type": "boolean",
         "hrLabel": "Select",
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "True"
+        "defaultValue": "True",
+        "notes": "Flag-style: FileMaker draws \"Select\" when True and nothing when False (live, FM 26.0.3)."
       },
       {
         "xmlElement": "Field",
@@ -1669,7 +1793,9 @@
     "hrSignature": "Cut [ Select ; {field} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/cut.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/cut.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Delete Account",
@@ -1689,7 +1815,9 @@
     "hrSignature": "Delete Account [ Account Name: {calc} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/delete-account.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/delete-account.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Delete All Records",
@@ -1715,7 +1843,9 @@
     "hrSignature": "[ With dialog: On|Off ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/delete-all-records.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/delete-all-records.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Delete File",
@@ -1736,7 +1866,9 @@
     "hrSignature": "Delete File [ Target file: {path} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/delete-file.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/delete-file.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Delete Portal Row",
@@ -1762,7 +1894,9 @@
     "hrSignature": "Delete Portal Row [ With dialog: {On|Off} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/delete-portal-row.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/delete-portal-row.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Delete Record/Request",
@@ -1788,7 +1922,9 @@
     "hrSignature": "[ With dialog: On|Off ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/delete-record-request.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/delete-record-request.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Dial Phone",
@@ -1830,7 +1966,9 @@
     "hrSignature": "Dial Phone [ With dialog: {On|Off} ; {calc} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/dial-phone.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/dial-phone.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Duplicate Record/Request",
@@ -1842,7 +1980,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/duplicate-record-request.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/duplicate-record-request.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Edit User Dictionary",
@@ -1854,7 +1994,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/edit-user-dictionary.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/edit-user-dictionary.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Else",
@@ -1869,7 +2011,10 @@
         "hrLabel": null,
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "False"
+        "defaultValue": "False",
+        "fmMin": "22.0",
+        "fmMinSource": "measured",
+        "fmMinOnOlder": "dropped"
       }
     ],
     "hrSignature": "Else",
@@ -1881,7 +2026,9 @@
       ]
     },
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/else.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/else.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Else If",
@@ -1896,7 +2043,10 @@
         "hrLabel": null,
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "False"
+        "defaultValue": "False",
+        "fmMin": "22.0",
+        "fmMinSource": "measured",
+        "fmMinOnOlder": "dropped"
       },
       {
         "xmlElement": "Calculation",
@@ -1914,7 +2064,9 @@
       ]
     },
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/else-if.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/else-if.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Enable Account",
@@ -1946,7 +2098,9 @@
     "hrSignature": "Enable Account [ Account Name: {calc} ; {Activate|Deactivate} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/enable-account.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/enable-account.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Enable Touch Keyboard",
@@ -1976,7 +2130,9 @@
     "hrSignature": "Enable Touch Keyboard [ {On|Off|Toggle} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/enable-touch-keyboard.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/enable-touch-keyboard.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "End If",
@@ -1993,7 +2149,9 @@
       ]
     },
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/end-if.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/end-if.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "End Loop",
@@ -2010,7 +2168,9 @@
       ]
     },
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/end-loop.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/end-loop.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Enter Browse Mode",
@@ -2035,7 +2195,9 @@
     "hrSignature": "[ Pause: On|Off ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/enter-browse-mode.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/enter-browse-mode.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Enter Find Mode",
@@ -2077,7 +2239,9 @@
     "hrSignature": "[ Restore ; Pause: On|Off ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/enter-find-mode.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/enter-find-mode.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Enter Preview Mode",
@@ -2102,7 +2266,9 @@
     "hrSignature": "Enter Preview Mode [ Pause: {On|Off} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/enter-preview-mode.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/enter-preview-mode.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Execute FileMaker Data API",
@@ -2113,11 +2279,13 @@
     "params": [
       {
         "xmlElement": "SelectAll",
+        "flagStyle": true,
         "type": "boolean",
         "hrLabel": "Select",
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "True"
+        "defaultValue": "True",
+        "notes": "Flag-style: FileMaker draws \"Select\" when True and nothing when False (live, FM 26.0.3)."
       },
       {
         "xmlElement": "Field",
@@ -2136,7 +2304,9 @@
     "hrSignature": "Execute FileMaker Data API [ Select ; Target: {field|$variable} ; {calc} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/execute-filemaker-data-api.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/execute-filemaker-data-api.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Execute SQL",
@@ -2241,7 +2411,9 @@
       "platform": "Supported on FileMaker Pro, Go, and Server. WebDirect, Data API, and CWP require With dialog: Off."
     },
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/execute-sql.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/execute-sql.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Exit Application",
@@ -2253,7 +2425,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/exit-application.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/exit-application.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Exit Loop If",
@@ -2278,7 +2452,9 @@
       ]
     },
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/exit-loop-if.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/exit-loop-if.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Exit Script",
@@ -2297,7 +2473,9 @@
     "hrSignature": "[ Result: value ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/exit-script.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/exit-script.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Export Field Contents",
@@ -2367,7 +2545,9 @@
     "hrSignature": "Export Field Contents [ {field} ; {path} ; Automatically open ; Create email ; Create folders: {On|Off} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/export-field-contents.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/export-field-contents.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Export Records",
@@ -2541,7 +2721,9 @@
         "dataapi": "Not supported.",
         "cwp": "Not supported."
       }
-    }
+    },
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Extend Found Set",
@@ -2571,7 +2753,9 @@
     "hrSignature": "[ Restore ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/extend-found-set.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/extend-found-set.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Find Matching Records",
@@ -2609,7 +2793,9 @@
     "hrSignature": "Find Matching Records [ {Replace|Constrain|Extend} ; {field} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/find-matching-records.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/find-matching-records.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Fine-Tune Model",
@@ -2705,6 +2891,7 @@
         "hrLabel": "Completion Field",
         "parentElement": "FineTuneLLM",
         "required": false,
+        "hrNoTableBlank": true,
         "hrSlot": 4,
         "notes": "Inside <FineTuneLLM>. Field ref only (table/id/name) in practice; DataTable source only. Uses the fieldOrVariable grammar (not the bare `field` type) so it renders WITH its label; parentElement=FineTuneLLM scopes the read to the wrapper, disambiguating it from the top-level Response Target <Field>. Live-verified against FM 26.0.2 copy-back."
       }
@@ -2712,7 +2899,9 @@
     "hrSignature": "Fine-Tune Model [ Account Name: {calc} ; Base Model: {calc} ; Training Data: {Table|File} ; {table|path} ; Completion Field: {field} ; Response Target: {field|$variable} ; Parameters: {calc} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "22.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Flush Cache to Disk",
@@ -2724,7 +2913,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/flush-cache-to-disk.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/flush-cache-to-disk.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Freeze Window",
@@ -2736,7 +2927,9 @@
     "hrSignature": "Freeze Window",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/freeze-window.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/freeze-window.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Generate Response from Model",
@@ -2874,6 +3067,7 @@
         "typeAttr": "type",
         "typeValue": "Messages",
         "required": false,
+        "hrNoTableBlank": true,
         "notes": "Inside LLMRequestWithTools with type='Messages'. Variable only.",
         "hrSlot": 7
       },
@@ -2936,6 +3130,7 @@
         "typeAttr": "type",
         "typeValue": "ToolCalls",
         "required": false,
+        "hrNoTableBlank": true,
         "notes": "Inside LLMRequestWithTools with type='ToolCalls'. Variable only.",
         "hrSlot": 5
       },
@@ -2989,7 +3184,9 @@
     "hrSignature": "Generate Response from Model [ Account Name: {calc} ; Model: {calc} ; User Prompt: {calc} ; Agentic mode ; Response: {field|$variable} ; Tool Calls from Model: {$variable} ; Instructions: {calc} ; Messages: {$variable} ; Save Message History To: {$variable} ; Message History Count: {calc} ; Include tool calls in message history ; Temperature: {calc} ; Tool Definitions: {calc} ; Stream ; Parameters: {calc} ; Web Viewer: {calc} ; Function Name: {calc} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "22.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Get Data File Position",
@@ -3016,7 +3213,9 @@
     "hrSignature": "Get Data File Position [ File ID: {calc} ; Target: {field|$variable} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/get-data-file-position.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/get-data-file-position.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Get File Exists",
@@ -3043,7 +3242,9 @@
     "hrSignature": "Get File Exists [ {path} ; Target: {field|$variable} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/get-file-exists.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/get-file-exists.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Get File Size",
@@ -3070,7 +3271,9 @@
     "hrSignature": "Get File Size [ {path} ; Target: {field|$variable} ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/get-file-size.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/get-file-size.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Get Folder Path",
@@ -3082,10 +3285,12 @@
       {
         "xmlElement": "AllowFolderCreation",
         "type": "boolean",
+        "flagStyle": true,
         "hrLabel": "Allow Folder Creation",
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "True"
+        "defaultValue": "True",
+        "notes": "Flag-style: FileMaker draws \"Allow Folder Creation\" when True and nothing when False (live, FM 26.0.3; same line on 19.6.3 and 22.0.4). The default documents a fresh step; an absent flag reads as False."
       },
       {
         "xmlElement": "Calculation",
@@ -3093,7 +3298,8 @@
         "hrLabel": "Repetition",
         "wrapperElement": "Repetition",
         "required": true,
-        "notes": "FM always serializes Repetition/DialogTitle/DefaultLocation for this step (even empty). Labeled to avoid positional scramble; required so the empty default round-trips."
+        "fmLineSubscriptOf": "Name",
+        "notes": "Labeled in HR. FileMaker draws it as a subscript on the variable ($result[2], $result[$i]; nothing for 1 or empty). FileMaker writes no element for an empty Repetition, Dialog title or Default location (FileMaker Pro 26.0.3) and accepts the empty element on paste."
       },
       {
         "xmlElement": "Calculation",
@@ -3101,7 +3307,8 @@
         "hrLabel": "Dialog title",
         "wrapperElement": "DialogTitle",
         "required": true,
-        "notes": "Custom title for the folder selection dialog."
+        "fmLineBare": true,
+        "notes": "Custom title for the folder selection dialog. Labeled in HR; FileMaker draws it unlabeled after the variable and leaves it out when empty, so a lone unlabeled calculation reads as the title."
       },
       {
         "xmlElement": "Calculation",
@@ -3109,20 +3316,23 @@
         "hrLabel": "Default location",
         "wrapperElement": "DefaultLocation",
         "required": true,
-        "notes": "Path that dialog displays when opened."
+        "fmLineBare": true,
+        "notes": "Path that dialog displays when opened. Labeled in HR; FileMaker draws it unlabeled after the dialog title."
       },
       {
         "xmlElement": "Name",
         "type": "text",
         "hrLabel": null,
         "required": false,
-        "notes": "Variable name ($local or $$global); FM serializes it last. Bare positional token in HR."
+        "notes": "Variable name ($local or $$global); FM serializes it last. Bare positional token in HR; FileMaker draws it first, with the repetition as its subscript."
       }
     ],
     "hrSignature": "Get Folder Path [ Allow Folder Creation ; Repetition: <n> ; Dialog title: <calc> ; Default location: <calc> ; $variable ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/get-directory.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/get-directory.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Go to Field",
@@ -3152,7 +3362,9 @@
     "hrSignature": "[ Select/perform ; Table::Field ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-field.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-field.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Go to Layout",
@@ -3197,7 +3409,9 @@
     "notes": {
       "gotchas": "Layout is a sibling of LayoutDestination, both direct children of Step — do NOT nest Layout inside LayoutDestination. Layout must use explicit open/close tags; self-closing form is silently dropped on paste into FileMaker."
     },
-    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-layout.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-layout.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Go to List of Records",
@@ -3246,11 +3460,12 @@
       {
         "xmlElement": "ShowInNewWindow",
         "type": "boolean",
+        "flagStyle": true,
         "hrLabel": "New window",
         "xmlAttr": "state",
         "required": false,
         "defaultValue": "False",
-        "notes": "When True, HR shows 'New window' instead of Animation. Enables window params (Name, Height, Width, DistanceFromTop, DistanceFromLeft). See window-enums.md."
+        "notes": "Flag-style (live, FM 26.0.3): FileMaker draws a bare 'New window' when True, nothing when False. When True, HR shows 'New window' instead of Animation. Enables window params (Name, Height, Width, DistanceFromTop, DistanceFromLeft). See window-enums.md."
       },
       {
         "xmlElement": "NewWndStyles",
@@ -3263,7 +3478,9 @@
     "hrSignature": "Go to List of Records [ List of record IDs: {calc} ; Using layout: {layout} ; Animation: {type} | New window ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-list-of-records.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-list-of-records.html",
+    "fmMin": "22.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Go to Next Field",
@@ -3275,7 +3492,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-next-field.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-next-field.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Go to Object",
@@ -3302,7 +3521,9 @@
     "hrSignature": "[ Object Name: <value> ; Repetition: <value> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-object.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-object.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Go to Portal Row",
@@ -3351,11 +3572,13 @@
         "xmlAttr": "state",
         "required": false,
         "defaultValue": "True",
+        "omitWhenEmpty": true,
+        "visibleWhen": { "param": "RowPageLocation", "values": ["Previous", "Next"] },
         "enumValues": [
           "On",
           "Off"
         ],
-        "notes": "Only applies when RowPageLocation is Previous or Next"
+        "notes": "Only applies when RowPageLocation is Previous or Next. FileMaker writes <Exit> only for Previous and Next (absent reads as False there) and drops it for First, Last and ByCalculation even when pasted; its line draws `Exit after last: On|Off` only for Previous and Next (live copy-back, FM 26.0.3). The visibleWhen gate + omitWhenEmpty hide the token and stop the emit for the other three, so a SaXML step (which carries no Exit for them) does not render the catalog default."
       },
       {
         "xmlElement": "NoInteract",
@@ -3384,7 +3607,9 @@
     "hrSignature": "[ Select: On|Off ; First|Last|Previous|Next ; Exit after last: On|Off ; With dialog: On|Off ; calc ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-portal-row.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-portal-row.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Go to Previous Field",
@@ -3396,7 +3621,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-previous-field.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-previous-field.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Go to Record/Request/Page",
@@ -3432,11 +3659,13 @@
         "xmlAttr": "state",
         "required": false,
         "defaultValue": "True",
+        "omitWhenEmpty": true,
+        "visibleWhen": { "param": "RowPageLocation", "values": ["Previous", "Next"] },
         "enumValues": [
           "On",
           "Off"
         ],
-        "notes": "Only applies when RowPageLocation is Previous or Next"
+        "notes": "Only applies when RowPageLocation is Previous or Next. FileMaker writes <Exit> only for Previous and Next (absent reads as False there) and drops it for First, Last and ByCalculation even when pasted; its line draws `Exit after last: On|Off` only for Previous and Next (live copy-back, FM 26.0.3). The visibleWhen gate + omitWhenEmpty hide the token and stop the emit for the other three, so a SaXML step (which carries no Exit for them) does not render the catalog default."
       },
       {
         "xmlElement": "NoInteract",
@@ -3465,7 +3694,9 @@
     "hrSignature": "[ First|Last|Previous|Next ; Exit after last: On|Off ; With dialog: On|Off ; calc ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-record-request-page.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/go-to-record-request-page.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Go to Related Record",
@@ -3587,7 +3818,9 @@
         "dataapi": "Animation option not supported.",
         "cwp": "Animation option not supported."
       }
-    }
+    },
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Halt Script",
@@ -3599,7 +3832,9 @@
     "hrSignature": "Halt Script",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/halt-script.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/halt-script.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "If",
@@ -3614,7 +3849,10 @@
         "hrLabel": null,
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "False"
+        "defaultValue": "False",
+        "fmMin": "22.0",
+        "fmMinSource": "measured",
+        "fmMinOnOlder": "dropped"
       },
       {
         "xmlElement": "Calculation",
@@ -3631,7 +3869,9 @@
       ]
     },
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/if-script-step.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/if-script-step.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Import Records",
@@ -3642,6 +3882,7 @@
     "params": [
       {
         "xmlElement": "NoInteract",
+        "hrSlot": 0,
         "type": "boolean",
         "hrLabel": "With dialog",
         "xmlAttr": "state",
@@ -3655,16 +3896,19 @@
       },
       {
         "xmlElement": "Restore",
+        "hrSlot": 1,
         "type": "boolean",
         "hrHidden": true,
-        "hrLabel": null,
+        "hrLabel": "Specify import order",
+        "hrOffKeepsGated": true,
         "xmlAttr": "state",
         "required": false,
         "defaultValue": "True",
-        "notes": "Renders no HR token of its own; FM shows the stored import order (target table, method, character set) only when True (live copy-back: <Table> and <ImportOptions> are serialized in BOTH states, so this gates RENDERING, not presence). FM does NOT re-canonicalize it from content — handed False with a non-default method it kept False, reset the options and wiped the table — so the converter derives the state from whether a gated companion carries an HR token."
+        "notes": "FileMaker draws no token for it; FM shows the stored import order (target table, method, character set) only when True (live copy-back: <Table> and <ImportOptions> are serialized in BOTH states, so this gates RENDERING, not presence). FileMaker does not re-canonicalize it from content, so the converter derives the state from whether a gated companion carries an HR token. With Restore off FileMaker still keeps the table, import options and field mapping it is given, and draws none of them (FM 26.0.3, pasted and read back): the HR then shows the companions that differ from their defaults and writes `Specify import order: Off`, the label of FileMaker's own option (hrOffKeepsGated), which HR->XML reads as the explicit state. FileMaker's Save as XML exports no import order with Restore off, so that reading has none to keep."
       },
       {
         "xmlElement": "VerifySSLCertificates",
+        "hrSlot": 9,
         "flagStyle": true,
         "type": "boolean",
         "hrLabel": "Verify SSL Certificates",
@@ -3675,6 +3919,8 @@
       },
       {
         "xmlElement": "DataSourceType",
+        "hrSlot": 3,
+        "fmLineHidden": true,
         "type": "enum",
         "hrLabel": null,
         "xmlAttr": "value",
@@ -3685,53 +3931,128 @@
           "Folder",
           "XMLSource"
         ],
-        "notes": "Determines Profile structure. See shared-enums.md for details."
+        "notes": "Determines Profile structure. See shared-enums.md for details. FileMaker never draws it on its line, for File, Folder or XMLSource (fmLineHidden; FM 26.0.3)."
+      },
+      {
+        "xmlElement": "Profile",
+        "hrSlot": 4,
+        "type": "attrGroup",
+        "hrLabel": "Profile",
+        "required": false,
+        "fields": [
+          { "key": "FieldDelimiter", "kind": "attr", "xmlAttr": "FieldDelimiter", "defaultValue": "\t" },
+          { "key": "IsPredefined", "kind": "attr", "xmlAttr": "IsPredefined", "defaultValue": "-1" },
+          { "key": "FieldNameRow", "kind": "attr", "xmlAttr": "FieldNameRow", "defaultValue": "-1" },
+          { "key": "DataType", "kind": "attr", "xmlAttr": "DataType", "defaultValue": "    " },
+          { "key": "table", "kind": "attr", "xmlAttr": "table", "optional": true },
+          { "key": "XMLType", "kind": "attr", "xmlAttr": "XMLType", "optional": true },
+          { "key": "XSLType", "kind": "attr", "xmlAttr": "XSLType", "optional": true },
+          { "key": "XMLFile", "kind": "text", "childElement": "XMLFile", "fmLineDraw": "value" },
+          { "key": "XMLHttp", "kind": "text", "childElement": "XMLHttp", "fmLineDraw": "value" },
+          { "key": "XMLCalc", "kind": "calc", "childElement": "XMLCalc", "fmLineDraw": "value" },
+          { "key": "XSLFile", "kind": "text", "childElement": "XSLFile", "fmLineDraw": "fileName" },
+          { "key": "XSLHttp", "kind": "text", "childElement": "XSLHttp", "fmLineDraw": "value" },
+          { "key": "XSLCalc", "kind": "calc", "childElement": "XSLCalc", "fmLineDraw": "value" }
+        ],
+        "notes": "Source-format profile, the same grammar as Convert File's (FM 26.0.3, pasted and read back). A file source keeps what it is given: FieldDelimiter, IsPredefined, FieldNameRow and DataType (TABS, COMS, FMPR, ...), and table on a FileMaker source. A folder source keeps the four attributes at their defaults. An XML source keeps the four File attributes, sets DataType to \"XML \" and adds XMLType (XMLFile | XMLHttp | XMLCalculation), XSLType (XSLFile | XSLHttp | XSLCalculation | NoXSL) and one child per source. FileMaker writes no Profile when it is given none. Its line never draws the attributes; with an XML source it draws the sources in the path slot, bare, joined by \"; \" with the XML source first, line breaks as spaces, the XSL file path cut to its file name and an empty source left out (`$ix; $is`, `https://e.com/i.xml` with NoXSL; fmLineDraw)."
+      },
+      {
+        "xmlElement": "Calculation",
+        "type": "calculation",
+        "hrLabel": null,
+        "hrHidden": true,
+        "mirrorOf": "Profile/XMLCalc",
+        "omitWhenEmpty": true,
+        "required": false,
+        "notes": "FileMaker's copy of the XML source calculation (XMLType XMLCalculation), written after the Profile, as for Convert File: pasted with only <XMLCalc> FileMaker drops the calculation, pasted with only this copy it fills <XMLCalc> from it (FM 26.0.3). No HR token of its own; written from Profile: XMLCalc= (mirrorOf), absent with no XML calculation."
       },
       {
         "xmlElement": "UniversalPathList",
+        "hrSlot": 5,
         "type": "text",
         "hrLabel": null,
         "hrQuoted": true,
+        "omitWhenEmpty": true,
+        "fmLineFileName": true,
+        "fmLineHiddenWhen": [
+          { "param": "DataSourceType", "values": ["XMLSource", "Folder"] }
+        ],
         "required": false,
-        "notes": "File path, folder path, or URL. Can be a variable."
+        "notes": "File path, folder path, or URL. Can be a variable. FileMaker writes no element when it is given none (omitWhenEmpty), and an XML source's sources are in the Profile. A path pasted next to an XML source is kept but not drawn on FileMaker's line, which draws the Profile's sources instead, and a folder source draws nothing in the path slot (fmLineHiddenWhen; FM 26.0.3). Otherwise FileMaker's line draws the path cut to its file name, line breaks as spaces: file:dir/a.csv draws “a.csv”, a path ending in / draws nothing (fmLineFileName; FM 26.0.3)."
       },
       {
         "xmlElement": "ImportOptions",
+        "hrSlot": 8,
         "type": "attrGroup",
         "hrLabel": "Import options",
+        "hrOmitAtDefault": true,
+        "fmLineHidden": true,
         "visibleWhen": { "param": "Restore", "values": ["True"] },
         "required": false,
         "fields": [
           { "key": "CharacterSet", "kind": "attr", "xmlAttr": "CharacterSet", "defaultValue": "UTF-8" },
+          { "key": "AddRemainingRecords", "kind": "attr", "xmlAttr": "AddRemainingRecords", "optional": true },
+          { "key": "KeepOriginalData", "kind": "attr", "xmlAttr": "KeepOriginalData", "defaultValue": "False" },
           { "key": "PreserveContainer", "kind": "attr", "xmlAttr": "PreserveContainer", "defaultValue": "False" },
           { "key": "MatchFieldNames", "kind": "attr", "xmlAttr": "MatchFieldNames", "defaultValue": "False" },
           { "key": "AutoEnter", "kind": "attr", "xmlAttr": "AutoEnter", "defaultValue": "True" },
           { "key": "SplitRepetitions", "kind": "attr", "xmlAttr": "SplitRepetitions", "defaultValue": "False" },
           { "key": "method", "kind": "attr", "xmlAttr": "method", "defaultValue": "Add" }
         ],
-        "notes": "Import settings. method: Add | UpdateOnMatch (HR 'Update') | Update (HR 'Replace'). Faithful passthrough of the raw method token."
+        "notes": "Import settings. method: Add | UpdateOnMatch (HR 'Update') | Update (HR 'Replace'). Faithful passthrough of the raw method token. FileMaker 26.0.3 writes KeepOriginalData on every Import Records, False when it is given none, and keeps AddRemainingRecords when it is given one, for every source (pasted and read back). KeepOriginalData is new in FileMaker 26.0, as on Convert File; an older FileMaker discards it."
+      },
+      {
+        "xmlElement": "ImportOptions",
+        "groupFields": ["method"],
+        "hrSlot": 6,
+        "type": "enum",
+        "hrLabel": null,
+        "visibleWhen": { "param": "Restore", "values": ["True"] },
+        "required": false,
+        "defaultValue": "Add",
+        "enumValues": ["Add", "UpdateOnMatch", "Update"],
+        "hrEnumValues": { "Add": "Add", "UpdateOnMatch": "Update", "Update": "Replace" },
+        "notes": "A view of the group's method, as FileMaker draws it with the stored import order. FileMaker writes Update for the action it draws Replace and UpdateOnMatch for the one it draws Update, and turns any other value into Add (FM 26.0.3)."
+      },
+      {
+        "xmlElement": "ImportOptions",
+        "groupFields": ["CharacterSet"],
+        "hrSlot": 7,
+        "type": "enum",
+        "hrLabel": null,
+        "visibleWhen": { "param": "Restore", "values": ["True"] },
+        "fmLineJoinAfter": "ImportOptions#method",
+        "required": false,
+        "defaultValue": "UTF-8",
+        "enumValues": ["UTF-8", "Unicode", "Windows", "DOS", "Macintosh", "ShiftJIS", "ChineseSimplified", "ChineseTraditional", "EUC-KR"],
+        "hrEnumValues": { "UTF-8": "UTF-8", "Unicode": "Unicode", "Windows": "Windows ANSI", "DOS": "DOS OEM", "Macintosh": "Mac Roman", "ShiftJIS": "Shift JIS", "ChineseSimplified": "Simplified Chinese (GB)", "ChineseTraditional": "Traditional Chinese (Big-5)", "EUC-KR": "Korean (EUC-KR)" },
+        "notes": "A view of the group's character set, drawn after the method and joined to it by \"; \" on FileMaker's line (`Add; UTF-8`, `Update; Windows ANSI`). These labels differ from Export Records' (FM 26.0.3, all nine values)."
       },
       {
         "xmlElement": "Table",
+        "hrSlot": 2,
         "type": "tableRef",
         "hrLabel": "Table",
+        "fmLineDrawEmpty": true,
         "visibleWhen": { "param": "Restore", "values": ["True"] },
         "required": false
       },
       {
         "xmlElement": "TargetFields",
+        "hrSlot": 10,
+        "fmLineHidden": true,
         "type": "fieldList",
         "hrLabel": "Import fields",
         "entryAttr": "map",
         "entryAttrDefault": "Import",
         "fieldFixedAttrs": [
-          { "key": "FieldOptions", "kind": "attr", "xmlAttr": "FieldOptions", "defaultValue": "0" }
+          { "key": "FieldOptions", "kind": "attr", "xmlAttr": "FieldOptions", "defaultValue": "0", "hrEntrySuffix": ":" }
         ],
         "required": false,
-        "notes": "fieldList (Cluster 1): ordered target field mapping. Each entry is a direct <Field FieldOptions=\"0\" map=\"Import|DoNotImport|Match\"/>. HR token `Import fields: Table::Field=Import, ...`. map=Match only with method=UpdateOnMatch."
+        "notes": "fieldList (Cluster 1): ordered target field mapping. Each entry is a direct <Field FieldOptions=\"0\" map=\"Import|DoNotImport|Match\"/>. HR token `Import fields: Table::Field=Import, ...`. map=Match only with method=UpdateOnMatch. FieldOptions is the field's own import options, a number FileMaker keeps as given and never draws: the HR writes it after the map when it is not 0 (`Invoices::Date=Import:2`, hrEntrySuffix). 2 is Perform auto-enter options for that field: FileMaker keeps it only on a field with auto-enter options, drops it on any other, and sets it on every field it adds when AutoEnter is True. 1, 4, 8 and 16 are kept on any field; their meaning is not measured (FM 26.0.3, pasted and read back)."
       }
     ],
-    "hrSignature": "[ With dialog: On|Off ; Table: table ; path ; Add|Update|Replace ; charset ; Verify SSL Certificates ]",
+    "hrSignature": "[ With dialog: On|Off ; Specify import order: Off ; Table: table ; path ; Add|Update|Replace ; charset ; Verify SSL Certificates ; Import fields: Table::Field=Import|DoNotImport|Match[:options], ... ]",
     "blockPair": null,
     "status": "complete",
     "helpUrl": "https://help.claris.com/en/pro-help/content/import-records.html",
@@ -3752,7 +4073,9 @@
       "constraints": [
         "Server-side scripts, Go, and WebDirect support the following options only when NoInteract is True: custom-separated values source files; any row as field names (when NoInteract is False, only first row can be specified); performing auto-enter options for individual fields."
       ]
-    }
+    },
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert Audio/Video",
@@ -3787,7 +4110,9 @@
     "hrSignature": "[ Reference ; path ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-audio-video.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-audio-video.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert Calculated Result",
@@ -3827,7 +4152,9 @@
     "hrSignature": "[ Select ; Target: Table::Field| ; calc ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-calculated-result.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-calculated-result.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert Current Date",
@@ -3857,7 +4184,9 @@
     "hrSignature": "[ Select ; Target: Table::Field| ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-current-date.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-current-date.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert Current Time",
@@ -3887,7 +4216,9 @@
     "hrSignature": "[ Select ; Target: Table::Field| ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-current-time.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-current-time.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert Current User Name",
@@ -3917,7 +4248,9 @@
     "hrSignature": "[ Select ; Target: Table::Field| ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-current-user-name.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-current-user-name.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert Embedding",
@@ -3972,7 +4305,9 @@
     "hrSignature": "[ Account Name: calc ; Embedding Model: calc ; Input: calc ; Target: Table::Field| ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "21.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert Embedding in Found Set",
@@ -4050,7 +4385,9 @@
     "hrSignature": "[ Account Name: calc ; Embedding Model: calc ; Source Field: Table::Field ; Target Field: Table::Field ; Replace target contents ; Continue on error ; Show summary ; Parameters: calc ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "21.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert File",
@@ -4111,7 +4448,9 @@
     "hrSignature": "Insert File [ <path> ; <Reference ;> Target: Table::Field|$var ; Dialog: asFile=<True|False>, enable=<True|False>, Title=<calc>, Storage=( type=<token> ), Compress=( type=<token> ), FilterList=() ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-file.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-file.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert from Device",
@@ -4292,7 +4631,9 @@
           }
         ],
         "hrSlot": 6,
-        "note": "Drawn `Flash:` for Camera / Video Camera and `Flashlight:` for Barcode (hrLabelWhen). With the front camera FileMaker draws no Flashlight token on Barcode although the step keeps the value; the converter still prints it (FM 26.0.3)."
+        "note": "Drawn `Flash:` for Camera / Video Camera and `Flashlight:` for Barcode (hrLabelWhen). With the front camera FileMaker draws no Flashlight token on Barcode although the step keeps the value; the converter still prints it (FM 26.0.3).",
+        "fmMin": "26.0",
+        "fmMinSource": "measured"
       },
       {
         "xmlElement": "MaxDuration",
@@ -4397,7 +4738,9 @@
     "hrSignature": "Insert from Device [ <Table::Field|$var> ; Type: <Camera|Video Camera|Microphone|Photo Library|Music Library|Barcode|Signature> ; <options, joined with \"; \": Camera: <Back|Front>; Resolution: <Full|Large|Medium|Small>; Flash|Flashlight: <Auto|On|Off>; Max duration: <calc>; Start immediately | Scan from: <Table::Field> | Title: <calc>; Message: <calc>; Prompt: <calc>; Presentation: <Full Screen|Overlay|Embedded>> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-from-device.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-from-device.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert from Index",
@@ -4427,7 +4770,9 @@
     "hrSignature": "[ Select ; Table::Field ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-from-index.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-from-index.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert from Last Visited",
@@ -4457,7 +4802,9 @@
     "hrSignature": "[ Select ; Table::Field ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-from-last-visited.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-from-last-visited.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert from URL",
@@ -4534,7 +4881,9 @@
     "hrSignature": "[ Select ; With dialog: On|Off ; Target: Table::Field| ; calc_url ; Verify SSL Certificates ; cURL options: calc ; Do not automatically encode URL ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-from-url.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-from-url.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert PDF",
@@ -4569,7 +4918,9 @@
     "hrSignature": "Insert PDF [ <Reference ;> \"$path\" ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-pdf.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-pdf.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert Picture",
@@ -4604,7 +4955,9 @@
     "hrSignature": "Insert Picture [ <Reference ;> \"$path\" ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-picture.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-picture.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert Text",
@@ -4641,7 +4994,9 @@
     "hrSignature": "Insert Text [ <Select ;> Target: <target> ; \"<text>\" ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-text.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-text.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Install Menu Set",
@@ -4660,20 +5015,37 @@
         "hrValues": [
           "On",
           "Off"
-        ]
+        ],
+        "hrSlot": 1,
+        "fmLineHiddenWhen": [
+          { "param": "CustomMenuSet", "values": ["0"] }
+        ],
+        "note": "With [File Default] (CustomMenuSet id 0) FileMaker draws no option but keeps the state on copy-back (fmLineHiddenWhen, FM 26.0.3); the converter's own HR still prints it."
       },
       {
         "xmlElement": "CustomMenuSet",
         "type": "reference",
         "hrLabel": null,
         "required": true,
-        "note": "Generic name-only reference (FM re-resolves id by name on paste). Built-in: name=\"[Standard FileMaker Menus]\"; reset: name=\"[File Default]\"."
+        "enumValues": [
+          "0",
+          "1"
+        ],
+        "hrEnumValues": {
+          "0": "[File Default]",
+          "1": "[Standard FileMaker Menus]"
+        },
+        "hrSlot": 0,
+        "rosterKind": "CustomMenuSet",
+        "note": "FileMaker resolves the built-in menu sets by id alone on paste (FM 26.0.3: a name-only <CustomMenuSet name=\"[Standard FileMaker Menus]\"/> becomes [File Default]; id=\"1\" stays [Standard FileMaker Menus] whatever name rides with it), so they are listed as enumValues (the id FM writes) + hrEnumValues (the name FM displays) and their names emit with the id. A custom menu set resolves by name, case-insensitively, whatever id rides with it, and a name the file does not have becomes [File Default] (FM 26.0.3, FM_Quickstart), so a custom name emits name-only and is checked against the file's custom menu sets where a converter knows them (rosterKind). FM prints the menu set before the option."
       }
     ],
     "hrSignature": "[ \"<menu set>\" ; Use as file default: On/Off ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/install-menu-set.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/install-menu-set.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Install OnTimer Script",
@@ -4699,7 +5071,9 @@
     "hrSignature": "[ <script> ; Interval: <seconds> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/install-ontimer-script.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/install-ontimer-script.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Install Plug-In File",
@@ -4718,7 +5092,9 @@
     "hrSignature": "[ <container field> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/install-plug-in-file.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/install-plug-in-file.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Loop",
@@ -4737,7 +5113,10 @@
         "enumValues": [
           "On",
           "Off"
-        ]
+        ],
+        "fmMin": "22.0",
+        "fmMinSource": "measured",
+        "fmMinOnOlder": "dropped"
       },
       {
         "xmlElement": "FlushType",
@@ -4753,7 +5132,9 @@
         ],
         "hrEnumValues": {
           "Min": "Minimum"
-        }
+        },
+        "fmMin": "20.1",
+        "fmMinSource": "measured"
       }
     ],
     "hrSignature": "Loop [ Collapsed: {Off|On} ; Flush: {Always|Minimum|Defer} ]",
@@ -4764,7 +5145,9 @@
       ]
     },
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/loop.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/loop.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Modify Last Find",
@@ -4776,7 +5159,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/modify-last-find.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/modify-last-find.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
     {
     "name": "Move/Resize Window",
@@ -4856,7 +5241,9 @@
     "hrSignature": "[ Current Window | Name: <name> [ ; Current file ] ; Height: <h> ; Width: <w> ; Top: <t> ; Left: <l> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/move-resize-window.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/move-resize-window.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "New File",
@@ -4868,7 +5255,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/new-file.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/new-file.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "New Record/Request",
@@ -4880,7 +5269,9 @@
     "hrSignature": "New Record/Request",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/new-record-request.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/new-record-request.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
     {
     "name": "New Window",
@@ -4896,9 +5287,13 @@
         "xmlAttr": "value",
         "defaultValue": "SelectedLayout",
         "enumValues": [
-          "SelectedLayout"
+          "SelectedLayout",
+          "CurrentLayout",
+          "LayoutNameByCalc",
+          "LayoutNumberByCalc"
         ],
-        "hrHidden": true
+        "hrHidden": true,
+        "notes": "Driven discriminator for the sibling Layout (type:layout), encoded in the layout token. Measured FM 26.0.3: OriginalLayout is NOT legal here (FileMaker keeps SelectedLayout and drops the layout)."
       },
       {
         "xmlElement": "Calculation",
@@ -5075,15 +5470,25 @@
       {
         "xmlElement": "Layout",
         "type": "layout",
-        "hrLabel": "Layout",
+        "hrLabel": "Using layout",
+        "hrLabelWhen": [
+          {
+            "param": "LayoutDestination",
+            "values": [],
+            "hrLabel": "Layout"
+          }
+        ],
         "required": true,
+        "discriminator": "LayoutDestination",
         "hrSlot": 2
       }
     ],
-    "hrSignature": "[ Style: Document ; Name: \"name\" ; Layout: <unknown> ; Controls: Close, Resize ]",
+    "hrSignature": "[ Style: Document ; Name: \"name\" ; Using layout: <unknown> ; Controls: Close, Resize ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/new-window.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/new-window.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Omit Multiple Records",
@@ -5115,7 +5520,9 @@
     "hrSignature": "[ With dialog: <On/Off> ; <count> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/omit-multiple-records.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/omit-multiple-records.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Omit Record",
@@ -5127,7 +5534,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/omit-record.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/omit-record.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Data File",
@@ -5153,7 +5562,9 @@
     "hrSignature": "[ <path> ; Target: <field or variable> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-data-file.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-data-file.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Edit Saved Finds",
@@ -5165,7 +5576,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-edit-saved-finds.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-edit-saved-finds.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Favorites",
@@ -5177,7 +5590,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open File",
@@ -5213,7 +5628,9 @@
       "platform": "Not supported on WebDirect, FileMaker Server, Claris Cloud, Data API, or CWP."
     },
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-file.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-file.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open File Options",
@@ -5225,7 +5642,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-file-options.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-file-options.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Find/Replace",
@@ -5237,7 +5656,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-find-replace.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-find-replace.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Help",
@@ -5249,7 +5670,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-help.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-help.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Hosts",
@@ -5261,7 +5684,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-hosts.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-hosts.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Manage Containers",
@@ -5273,7 +5698,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-manage-containers.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-manage-containers.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Manage Data Sources",
@@ -5285,7 +5712,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-manage-data-sources.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-manage-data-sources.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Manage Database",
@@ -5297,7 +5726,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-manage-database.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-manage-database.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Manage Layouts",
@@ -5309,7 +5740,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-manage-layouts.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-manage-layouts.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Manage Themes",
@@ -5321,7 +5754,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-manage-themes.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-manage-themes.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Manage Value Lists",
@@ -5333,7 +5768,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-manage-value-lists.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-manage-value-lists.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Record/Request",
@@ -5345,7 +5782,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-record-request.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-record-request.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Script Workspace",
@@ -5357,7 +5796,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-script-workspace.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-script-workspace.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Settings",
@@ -5369,7 +5810,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-preferences.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-preferences.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Sharing",
@@ -5381,7 +5824,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-sharing.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-sharing.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Transaction",
@@ -5415,7 +5860,9 @@
         "xmlAttr": "state",
         "flagStyle": true,
         "required": false,
-        "defaultValue": "False"
+        "defaultValue": "False",
+        "fmMin": "21.0",
+        "fmMinSource": "measured"
       },
       {
         "xmlElement": "Restore",
@@ -5425,7 +5872,10 @@
         "xmlAttr": "state",
         "required": false,
         "defaultValue": "False",
-        "notes": "Renders no HR token, and FM will not store True: pasted True alongside the step's other three flags (which all landed True), it came back False. A dead flag. Probed with a paired Commit Transaction, since FM rejects the opener alone."
+        "notes": "Renders no HR token, and FM will not store True: pasted True alongside the step's other three flags (which all landed True), it came back False. A dead flag. Probed with a paired Commit Transaction, since FM rejects the opener alone.",
+        "fmMin": "22.0",
+        "fmMinSource": "measured",
+        "fmMinOnOlder": "dropped"
       }
     ],
     "hrSignature": "[ Skip auto-enter options ; Skip data entry validation ; Override ESS locking conflicts ]",
@@ -5436,7 +5886,9 @@
       ]
     },
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open Upload to Host",
@@ -5448,7 +5900,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/upload-to-server.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/upload-to-server.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open URL",
@@ -5477,7 +5931,9 @@
         "xmlAttr": "state",
         "flagStyle": true,
         "required": false,
-        "defaultValue": "False"
+        "defaultValue": "False",
+        "fmMin": "21.0",
+        "fmMinSource": "measured"
       },
       {
         "xmlElement": "Calculation",
@@ -5489,7 +5945,9 @@
     "hrSignature": "[ With dialog: <On/Off> ; In external browser ; <url> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-url.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-url.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Paste",
@@ -5500,27 +5958,33 @@
     "params": [
       {
         "xmlElement": "SelectAll",
+        "flagStyle": true,
         "type": "flagBoolean",
         "hrLabel": "Select",
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "False"
+        "defaultValue": "False",
+        "notes": "Flag-style: FileMaker draws \"Select\" when True and nothing when False (live, FM 26.0.3)."
       },
       {
         "xmlElement": "NoStyle",
+        "flagStyle": true,
         "type": "flagBoolean",
         "hrLabel": "No style",
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "False"
+        "defaultValue": "False",
+        "notes": "Flag-style: FileMaker draws \"No style\" when True and nothing when False (live, FM 26.0.3)."
       },
       {
         "xmlElement": "LinkAvail",
+        "flagStyle": true,
         "type": "flagBoolean",
         "hrLabel": "Link if available",
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "False"
+        "defaultValue": "False",
+        "notes": "FileMaker 26.0.3 draws no token for this in either state, so its line is lossy here; printed bare when True so the converter's line keeps it."
       },
       {
         "xmlElement": "Field",
@@ -5532,7 +5996,9 @@
     "hrSignature": "[ <Select> ; <No style> ; <Table::Field> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/paste.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/paste.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Pause/Resume Script",
@@ -5574,7 +6040,9 @@
     "hrSignature": "[ Indefinitely | Duration (seconds): <n> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/pause-resume-script.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/pause-resume-script.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Perform AppleScript",
@@ -5630,7 +6098,9 @@
     "hrSignature": "[ <applescript or calculation> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-applescript-os-x.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-applescript-os-x.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Perform Find",
@@ -5658,7 +6128,9 @@
     "hrSignature": "[ Restore ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-find.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-find.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Perform Find by Natural Language",
@@ -5759,7 +6231,9 @@
     "hrSignature": "[ Account Name: <name> ; Model: <model> ; Prompt: <prompt> ; Get: <Found Set | Found Set as JSON | Find Request as JSON> ; Parameters: <params> ; Response Target: <field or variable> ; Prompt Template Name: <name> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "22.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Perform Find/Replace",
@@ -5814,7 +6288,9 @@
     "hrSignature": "[ With dialog: <On/Off> ; <find text> ; <replace text> ; <Find Next | Replace and Find | Replace | Replace All> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-find-replace.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-find-replace.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Perform JavaScript in Web Viewer",
@@ -5848,7 +6324,9 @@
     "hrSignature": "[ Object Name: <name> ; Function Name: <function> ; Parameters: <p1>, <p2>, ... ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-javascript-in-web-viewer.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-javascript-in-web-viewer.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Perform Quick Find",
@@ -5867,7 +6345,9 @@
     "hrSignature": "[ <search text> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-quick-find.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-quick-find.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Perform RAG Action",
@@ -6039,7 +6519,9 @@
     "hrSignature": "[ RAG Account Name: <name> ; Space ID: <id> ; Action: <Add Data | Send Prompt | Remove Data> ; <action companions> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "22.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Perform Script",
@@ -6069,7 +6551,9 @@
     "hrSignature": "[ \"ScriptName\" [from file: \"FileName\"] ; Parameter: value ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-script.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-script.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Perform Script on Server",
@@ -6114,7 +6598,9 @@
     "hrSignature": "[ <script> ; Specified: <From list | By name> ; Parameter: <param> ; Wait for completion: <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-script-on-server.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-script-on-server.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Perform Script on Server with Callback",
@@ -6143,7 +6629,9 @@
           "Exit",
           "Resume",
           "Pause"
-        ]
+        ],
+        "fmMin": "21.0",
+        "fmMinSource": "measured"
       },
       {
         "xmlElement": "Calculation",
@@ -6175,7 +6663,9 @@
     "hrSignature": "[ Specified: <From list | By name> ; <script> ; Parameter: <param> ; State: <Continue | Halt | Exit | Resume | Pause> ; Callback script: Script=<callback script>, Parameter=<param> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-script-on-server-callback.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/perform-script-on-server-callback.html",
+    "fmMin": "20.1",
+    "fmMinSource": "measured"
   },
   {
     "name": "Perform Semantic Find",
@@ -6319,13 +6809,16 @@
         "parentElement": "LLMSemanticFind/SaveResult",
         "emitEmptyDefault": true,
         "required": false,
+        "hrNoTableBlank": true,
         "note": "The <Field> inside <SaveResult> (nested in LLMSemanticFind) — dual-format: <Field table=\"\" id=\"0\" name=\"\"/> for field refs, or <Field>$var</Field> for variables. emitEmptyDefault keeps FM's empty placeholder so the unconfigured SaveResult round-trips. Variable form also emits a <Text/> at step level before the outer Target field (FM's variable-target marker)."
       }
     ],
     "hrSignature": "[ Query by: <Natural language | Vector data | Image> ; Account Name: <name> ; Embedding Model: <model> ; Text: <text> ; Record set: <All records | Current found set> ; Target field: <field> ; Return count: <n> ; Cosine similarity condition: <condition> ; Cosine similarity value: <value> ; Save result: <field or variable> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "21.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Perform SQL Query by Natural Language",
@@ -6514,7 +7007,9 @@
     "hrSignature": "[ Account Name: <calc> ; Model: <calc> ; Prompt: <calc> ; Options specified: <From list | By JSON data> ; <By List: Action: <action> ; Data Tables: From list ; Tables...> <By JSON data: <json options>> ; <Stream> ; Prompt Template Name: <calc> ; Parameters: <calc> ; Response Target: <Table::Field | $var> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "22.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Print",
@@ -6565,7 +7060,9 @@
     "hrSignature": "[ Restore: <printer name> ; With dialog: <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/print.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/print.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Print Setup",
@@ -6613,7 +7110,9 @@
     "hrSignature": "[ Restore ; With dialog: <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/print-setup.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/print-setup.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Re-Login",
@@ -6649,7 +7148,9 @@
     "hrSignature": "[ Account Name: <value> ; Password: <value> ; With dialog: <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/re-login.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/re-login.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Read from Data File",
@@ -6710,7 +7211,9 @@
     "hrSignature": "[ File ID: <value> ; Amount (bytes): <value> ; Target: <field/variable> ; Read as: <UTF-16/UTF-8/Bytes> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/read-from-data-file.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/read-from-data-file.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Recover File",
@@ -6739,7 +7242,9 @@
     "hrSignature": "[ With dialog: <On/Off> ; <path> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/recover-file.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/recover-file.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Refresh Object",
@@ -6766,7 +7271,9 @@
     "hrSignature": "[ Object Name: <value> ; Repetition: <value> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/refresh-object.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/refresh-object.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Refresh Portal",
@@ -6786,7 +7293,9 @@
     "hrSignature": "[ Object Name: <value> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/refresh-portal.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/refresh-portal.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Refresh Window",
@@ -6817,7 +7326,9 @@
     "hrSignature": "[ Flush cached join results ; Flush cached external data ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/refresh-window.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/refresh-window.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Relookup Field Contents",
@@ -6845,7 +7356,9 @@
     "hrSignature": "[ With dialog: <On/Off> ; <Table::Field> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/relookup-field-contents.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/relookup-field-contents.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Rename File",
@@ -6873,7 +7386,9 @@
     "hrSignature": "[ Source file: <path> ; New name: <value> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/rename-file.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/rename-file.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Replace Field Contents",
@@ -6899,7 +7414,10 @@
         "xmlAttr": "state",
         "required": false,
         "defaultValue": "False",
-        "notes": "FM always serializes <Restore state=\"False\"> for this step and never renders it in HR (the dialog exposes no Restore control). Hidden: emits the default, never claims an HR token."
+        "notes": "No HR token of its own. FileMaker draws `Skip auto-enter options` exactly when Restore is True and <SerialNumbers PerformAutoEnter> is False, in every With mode (the SerialNumbers#PerformAutoEnter projection below); Restore True with PerformAutoEnter True draws nothing, the same line as Restore False (measured FM Pro 26.0.3). Its state is derived on HR->XML from that projection's token (visibleWhen): the token gives True, its absence False.",
+        "fmMin": "22.0",
+        "fmMinSource": "measured",
+        "fmMinOnOlder": "dropped"
       },
       {
         "xmlElement": "Field",
@@ -6928,8 +7446,9 @@
         "type": "calc",
         "hrLabel": null,
         "required": false,
+        "omitWhenEmpty": true,
         "visibleWhen": { "param": "With", "values": ["Calculation"] },
-        "note": "Shown only when With=Calculation; rendered bare (no label) as the replacement value, omitted from XML for the None / Current contents / Serial numbers branches. Its presence in HR is what selects With=Calculation on read-back (With renders no token for Calculation)."
+        "note": "Shown only when With=Calculation; rendered bare (no label) as the replacement value. FileMaker writes no <Calculation> for the None / Current contents / Serial numbers branches (measured FileMaker Pro 26.0.3), so omitWhenEmpty: an empty value emits nothing rather than an empty element. Its presence in HR is what selects With=Calculation on read-back (With renders no token for Calculation)."
       },
       {
         "xmlElement": "SerialNumbers",
@@ -6944,13 +7463,27 @@
           { "key": "InitialValue", "kind": "attr", "xmlAttr": "InitialValue", "defaultValue": "" },
           { "key": "UseEntryOptions", "kind": "attr", "xmlAttr": "UseEntryOptions", "defaultValue": "False" }
         ],
-        "notes": "Always-present <SerialNumbers> config attrs, in FileMaker's serialization order (PerformAutoEnter, UpdateEntryOptions, increment, InitialValue, UseEntryOptions). FM never renders them in HR (the 'Serial numbers' HR token comes from the With enum value, not this group). Hidden: emits catalog defaults, never claims an HR token. The serial start (InitialValue) / increment and the auto-enter sub-options are not encoded in FM's HR text, so they are not authorable from HR and an HR round-trip emits these defaults - the same fidelity FM's own serialization has."
+        "notes": "Always-present <SerialNumbers> config attrs, in FileMaker's serialization order (PerformAutoEnter, UpdateEntryOptions, increment, InitialValue, UseEntryOptions). FM never renders them in HR (the 'Serial numbers' HR token comes from the With enum value, not this group), except PerformAutoEnter, which FileMaker draws as `Skip auto-enter options` under Restore (the projection below). Hidden: emits catalog defaults, never claims an HR token. The serial start (InitialValue) / increment and the auto-enter sub-options are not encoded in FM's HR text, so they are not authorable from HR and an HR round-trip emits these defaults - the same fidelity FM's own serialization has."
+      },
+      {
+        "xmlElement": "SerialNumbers",
+        "groupFields": ["PerformAutoEnter"],
+        "type": "enum",
+        "flagStyle": true,
+        "hrLabel": "Skip auto-enter options",
+        "visibleWhen": { "param": "Restore", "values": ["True"] },
+        "required": false,
+        "defaultValue": "True",
+        "enumValues": ["True", "False"],
+        "note": "Display projection of SerialNumbers' PerformAutoEnter (groupFields), the dialog's 'Perform auto-enter options' checkbox: FileMaker draws the bare `Skip auto-enter options` last on the line when Restore is True and PerformAutoEnter is False, for None, Current contents, Serial numbers and Calculation alike (FM Pro 26.0.3). flagStyle with defaultValue True: the label prints only for False, and only under Restore True (visibleWhen). Reading the token back writes PerformAutoEnter False and derives Restore True; without it the group keeps its own defaults and Restore is False."
       }
     ],
-    "hrSignature": "[ With dialog: <On/Off> ; <Table::Field> ; <calculation | Current contents | Serial numbers> ]",
+    "hrSignature": "[ With dialog: <On/Off> ; <Table::Field> ; <calculation | Current contents | Serial numbers> ; Skip auto-enter options ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/replace-field-contents.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/replace-field-contents.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Reset Account Password",
@@ -6976,17 +7509,20 @@
       {
         "xmlElement": "ChgPwdOnNextLogin",
         "type": "boolean",
+        "flagStyle": true,
         "hrLabel": "Expire password",
         "xmlAttr": "value",
         "required": false,
         "defaultValue": "False",
-        "note": "Flag-style: shown in HR as \"Expire password\" only when value is True"
+        "note": "Flag-style: FileMaker draws \"Expire password\" when True and nothing when False (live, FM 26.0.3; same line on 19.6.3 and 22.0.4)."
       }
     ],
     "hrSignature": "[ Account Name: <value> ; Password: <value> ; Expire password ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/reset-account-password.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/reset-account-password.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Revert Record/Request",
@@ -7012,7 +7548,9 @@
     "hrSignature": "[ With dialog: <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/revert-record-request.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/revert-record-request.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Revert Transaction",
@@ -7064,7 +7602,9 @@
       ]
     },
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/revert-transaction.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/revert-transaction.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Save a Copy as",
@@ -7150,7 +7690,9 @@
     "hrSignature": "[ <path> ; <copy type> ; <Automatically open> ; <Create email> ; Create folders: <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/save-a-copy-as.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/save-a-copy-as.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Save a Copy as Add-on Package",
@@ -7182,7 +7724,9 @@
     "hrSignature": "[ Window name: <calc> ; Replace UUIDs: <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/save-a-copy-as-add-on-package.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/save-a-copy-as-add-on-package.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Save a Copy as XML",
@@ -7200,7 +7744,9 @@
         "required": false,
         "defaultValue": "False",
         "hrSlot": 2,
-        "note": "FM renders this bare (flag) when On, nothing when Off (live copy-back: state=True -> 'Include details for analysis tools'). flagStyle."
+        "note": "FM renders this bare (flag) when On, nothing when Off (live copy-back: state=True -> 'Include details for analysis tools'). flagStyle.",
+        "fmMin": "21.0",
+        "fmMinSource": "measured"
       },
       {
         "xmlElement": "OutputEntireBinaryData",
@@ -7211,7 +7757,9 @@
         "required": false,
         "defaultValue": "False",
         "hrSlot": 3,
-        "note": "FM 26. Bare flag: FM shows the label only when state=True (live copy-back: 'Save each layout object's binary data under its node'), nothing when False. flagStyle."
+        "note": "FM 26. Bare flag: FM shows the label only when state=True (live copy-back: 'Save each layout object's binary data under its node'), nothing when False. flagStyle.",
+        "fmMin": "26.0",
+        "fmMinSource": "measured"
       },
       {
         "xmlElement": "SpecifyJSONOptions",
@@ -7222,7 +7770,9 @@
         "required": false,
         "defaultValue": "False",
         "hrSlot": 4,
-        "note": "FM 26 gate flag FM always serializes (live copy-back: <SpecifyJSONOptions state=\"...\"/>); renders NO HR token (hrHidden). Its True/False state is preserved on round-trip by P7.1 governed-visibility (derived on emit from whether the JSONOptions calc contributed an HR token — Import/Export/Sort Restore precedent), NOT by FM re-canonicalization (live FM keeps whatever state is pasted, unlike Perform SQL's Option). The <SaXML> subtree is emitted by FM regardless of this flag."
+        "note": "FM 26 gate flag FM always serializes (live copy-back: <SpecifyJSONOptions state=\"...\"/>); renders NO HR token (hrHidden). Its True/False state is preserved on round-trip by P7.1 governed-visibility (derived on emit from whether the JSONOptions calc contributed an HR token — Import/Export/Sort Restore precedent), NOT by FM re-canonicalization (live FM keeps whatever state is pasted, unlike Perform SQL's Option). The <SaXML> subtree is emitted by FM regardless of this flag.",
+        "fmMin": "26.0",
+        "fmMinSource": "measured"
       },
       {
         "xmlElement": "UniversalPathList",
@@ -7253,13 +7803,17 @@
         "omitWhenEmpty": true,
         "hrSlot": 5,
         "visibleWhen": { "param": "SpecifyJSONOptions", "values": ["True"] },
-        "note": "FM 26. The catalog-options JSON expression, nested <SaXML><JSONOptions><Calculation> (live copy-back). Rendered 'Specify options as JSON: <calc>' only when SpecifyJSONOptions is True (P7.1 governed-visibility: FM shows this token only when the JSON option is on, and derives SpecifyJSONOptions=True on paste from this calc's presence — Import/Export/Sort Restore precedent). omitWhenEmpty: an unconfigured step emits no empty subtree; FM supplies its default catalog JSONSetElement on paste."
+        "note": "FM 26. The catalog-options JSON expression, nested <SaXML><JSONOptions><Calculation> (live copy-back). Rendered 'Specify options as JSON: <calc>' only when SpecifyJSONOptions is True (P7.1 governed-visibility: FM shows this token only when the JSON option is on, and derives SpecifyJSONOptions=True on paste from this calc's presence — Import/Export/Sort Restore precedent). omitWhenEmpty: an unconfigured step emits no empty subtree; FM supplies its default catalog JSONSetElement on paste.",
+        "fmMin": "26.0",
+        "fmMinSource": "measured"
       }
     ],
     "hrSignature": "[ Window name: <calc> ; Destination file: <path> ; <Include details for analysis tools> ; <Save each layout object's binary data under its node> ; Specify options as JSON: <calc> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/save-a-copy-as-xml.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/save-a-copy-as-xml.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Save Records as Excel",
@@ -7427,7 +7981,9 @@
     "hrSignature": "[ <Restore> ; With dialog: <On/Off> ; <path> ; <Automatically open> ; <Create email> ; <SaveType> ; Create folders: <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/save-records-as-excel.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/save-records-as-excel.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Save Records as JSONL",
@@ -7570,7 +8126,9 @@
     "hrSignature": "[ Format for fine-tuning: <On/Off> ; Table: “<name>” ; System Prompt: <calc> ; User Prompt: <calc> ; Assistant Prompt: <calc> ; <path> ; <Automatically open> ; <Create email> ; Create folders: <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/save-records-as-jsonl.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/save-records-as-jsonl.html",
+    "fmMin": "22.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Save Records as PDF",
@@ -7675,11 +8233,12 @@
       {
         "xmlElement": "Calculation",
         "type": "calculation",
-        "hrLabel": "Saved label",
+        "hrLabel": null,
+        "hrHidden": true,
+        "mirrorOf": "PDFOptions/Document/Title",
         "omitWhenEmpty": true,
         "required": false,
-        "fmLineHidden": true,
-        "note": "Stored label/title for the PDF specification. FileMaker writes it from the document Title and never draws it on its line (fmLineHidden; FM 26.0.3).",
+        "note": "FileMaker's copy of the document Title: it writes the Title here too, Restore on or off, fills the Title from it when only this is pasted, and keeps the Title when the two differ (FM 26.0.3). No HR token of its own; written from Records: Document=( Title= ) (mirrorOf), absent with no Title.",
         "hrSlot": 10
       },
       {
@@ -7768,10 +8327,12 @@
         "hrSlot": 9
       }
     ],
-    "hrSignature": "[ <Restore> ; Save to: <File/Target> ; <Append> ; <path> ; Create folders: <On/Off> ; With dialog: <On/Off> ; <Automatically open> ; <Create email> ; Target: <field or $variable> ; <Records being browsed/Current record/Blank record, …> ; Saved label: <calc> ; Records: Document=( … ), Security=( … ), View=( … ) ]",
+    "hrSignature": "[ <Restore> ; Save to: <File/Target> ; <Append> ; <path> ; Create folders: <On/Off> ; With dialog: <On/Off> ; <Automatically open> ; <Create email> ; Target: <field or $variable> ; <Records being browsed/Current record/Blank record, …> ; Records: Document=( … ), Security=( … ), View=( … ) ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/save-records-as-pdf.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/save-records-as-pdf.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Save Records as Snapshot Link",
@@ -7834,7 +8395,9 @@
     "hrSignature": "[ <path> ; <Create email> ; <SaveType> ; Create folders: <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/save-records-as-snapshot-link.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/save-records-as-snapshot-link.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Scroll Window",
@@ -7862,7 +8425,9 @@
     "hrSignature": "[ <Home/End/Page Up/Page Down/To Selection> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/scroll-window.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/scroll-window.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Select All",
@@ -7874,7 +8439,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/select-all.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/select-all.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Select Dictionaries",
@@ -7886,7 +8453,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/select-dictionaries.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/select-dictionaries.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
     {
     "name": "Select Window",
@@ -7938,7 +8507,9 @@
     "hrSignature": "[ Current Window | Name: <name> [ ; Current file ] ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/select-window.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/select-window.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Send DDE Execute",
@@ -7960,7 +8531,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/send-dde-execute-windows.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/send-dde-execute-windows.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Send Event",
@@ -8014,7 +8587,9 @@
     "hrSignature": "[ <content type> ; Calculation: <calc> ; Event: <attrs> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/send-event.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/send-event.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Send Mail",
@@ -8146,42 +8721,90 @@
         "type": "namedCalc",
         "hrLabel": "OAuth name",
         "wrapperElement": "OAuthNameDescription",
-        "required": false
+        "required": false,
+        "fmMin": "20.1",
+        "fmMinSource": "measured",
+        "fmGateWhen": {
+          "param": "SendViaOAuthAuthentication",
+          "values": [
+            "True"
+          ]
+        }
       },
       {
         "xmlElement": "Calculation",
         "type": "namedCalc",
         "hrLabel": "OAuth from address",
         "wrapperElement": "OAuthEmailAddress",
-        "required": false
+        "required": false,
+        "fmMin": "20.1",
+        "fmMinSource": "measured",
+        "fmGateWhen": {
+          "param": "SendViaOAuthAuthentication",
+          "values": [
+            "True"
+          ]
+        }
       },
       {
         "xmlElement": "Calculation",
         "type": "namedCalc",
         "hrLabel": "OAuth reply address",
         "wrapperElement": "OAuthReplyAddress",
-        "required": false
+        "required": false,
+        "fmMin": "20.1",
+        "fmMinSource": "measured",
+        "fmGateWhen": {
+          "param": "SendViaOAuthAuthentication",
+          "values": [
+            "True"
+          ]
+        }
       },
       {
         "xmlElement": "Calculation",
         "type": "namedCalc",
         "hrLabel": "Admin user ID",
         "wrapperElement": "OAuthUserID",
-        "required": false
+        "required": false,
+        "fmMin": "20.1",
+        "fmMinSource": "measured",
+        "fmGateWhen": {
+          "param": "SendViaOAuthAuthentication",
+          "values": [
+            "True"
+          ]
+        }
       },
       {
         "xmlElement": "Calculation",
         "type": "namedCalc",
         "hrLabel": "Service account email",
         "wrapperElement": "OAuthAccountEmail",
-        "required": false
+        "required": false,
+        "fmMin": "20.1",
+        "fmMinSource": "measured",
+        "fmGateWhen": {
+          "param": "SendViaOAuthAuthentication",
+          "values": [
+            "True"
+          ]
+        }
       },
       {
         "xmlElement": "Calculation",
         "type": "namedCalc",
         "hrLabel": "Private key",
         "wrapperElement": "OAuthPrivateKey",
-        "required": false
+        "required": false,
+        "fmMin": "20.1",
+        "fmMinSource": "measured",
+        "fmGateWhen": {
+          "param": "SendViaOAuthAuthentication",
+          "values": [
+            "True"
+          ]
+        }
       },
       {
         "xmlElement": "Calculation",
@@ -8241,7 +8864,9 @@
         "xmlAttr": "state",
         "required": false,
         "defaultValue": "False",
-        "note": "True = Send via OAuth 2.0"
+        "note": "True = Send via OAuth 2.0",
+        "fmMin": "20.1",
+        "fmMinSource": "measured"
       },
       {
         "xmlElement": "SMTPEncryptionType",
@@ -8262,7 +8887,15 @@
         "type": "enum",
         "hrLabel": null,
         "xmlAttr": "type",
-        "required": false
+        "required": false,
+        "fmMin": "20.1",
+        "fmMinSource": "measured",
+        "fmGateWhen": {
+          "param": "SendViaOAuthAuthentication",
+          "values": [
+            "True"
+          ]
+        }
       }
     ],
     "hrSignature": "[ Send via E-mail Client/SMTP Server/OAuth 2.0 ; With dialog/No dialog: <On/Off> ; Attachment path: <path> ; To: useFoundSet=<True/False>, value=<calc> ; CC: … ; BCC: … ; Subject: <calc> ; Message: <calc> ; <SMTP/OAuth fields> ]",
@@ -8277,7 +8910,9 @@
         "MultipleEmails=True sends one email per record in the found set; False sends one email using data from the current record.",
         "Microsoft OAuth requires additional fields beyond the Google OAuth set: OAuthPrincipalName, OAuthTenantID, OAuthClientID, OAuthClientSecret."
       ]
-    }
+    },
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set AI Call Logging",
@@ -8296,7 +8931,9 @@
         "hrEnumValues": {
           "True": "On",
           "False": "Off"
-        }
+        },
+        "fmLineBare": true,
+        "note": "FileMaker draws the value with no label (`Set AI Call Logging [ Off ; Verbose: Off ]`, FM 26.0.3; fmLineBare); HR keeps the label and reads the bare value too."
       },
       {
         "xmlElement": "Calculation",
@@ -8312,7 +8949,8 @@
         "hrLabel": "Verbose",
         "parentElement": "LLMDebugLog",
         "required": false,
-        "note": "Presence = Verbose: On. Absence = Verbose: Off."
+        "fmLineOnOff": true,
+        "note": "Presence = Verbose: On. Absence = Verbose: Off. FileMaker draws it labeled with its state, `Verbose: On` / `Verbose: Off`, on every line, whatever Logging is (fmLineOnOff, FM 26.0.3)."
       },
       {
         "xmlElement": "TruncateEmbeddingVectorsMode",
@@ -8320,13 +8958,19 @@
         "hrLabel": "Truncate Messages",
         "parentElement": "LLMDebugLog",
         "required": false,
-        "note": "Presence = Truncate Messages: On. Absence = Off."
+        "fmLineOnOff": true,
+        "fmLineHiddenWhen": [
+          { "param": "VerboseMode", "values": ["False"] }
+        ],
+        "note": "Presence = Truncate Messages: On. Absence = Off. FileMaker draws it labeled with its state (`Truncate Messages: Off`) only when Verbose is on (fmLineOnOff, fmLineHiddenWhen), and drops the element on paste when Verbose is off (FM 26.0.3)."
       }
     ],
     "hrSignature": "[ <On/Off> ; Filename: <calc> ; Verbose: <On/Off> ; Truncate Messages: <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": null
+    "helpUrl": null,
+    "fmMin": "21.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set Data File Position",
@@ -8353,7 +8997,9 @@
     "hrSignature": "[ File ID: <calc> ; New position: <calc> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-data-file-position.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-data-file-position.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set Dictionary",
@@ -8384,7 +9030,9 @@
     "hrSignature": "[ Spelling Language: <language> ; User Dictionary: <path> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-dictionary.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-dictionary.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set Error Capture",
@@ -8405,7 +9053,9 @@
     "hrSignature": "[ On|Off ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-error-capture.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-error-capture.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set Error Logging",
@@ -8424,20 +9074,25 @@
         "hrEnumValues": {
           "True": "On",
           "False": "Off"
-        }
+        },
+        "fmLineBare": true,
+        "note": "FileMaker draws the value with no label (`Set Error Logging [ On ; Custom debug info: \"dbg\" ]`, FM 26.0.3; fmLineBare); HR keeps the label and reads the bare value too."
       },
       {
         "xmlElement": "Calculation",
         "type": "calculation",
         "hrLabel": "Custom debug info",
         "required": false,
-        "note": "Only present when Option state=True"
+        "omitWhenEmpty": true,
+        "note": "Optional, independent of the Option state: FileMaker keeps it while logging is off and writes no <Calculation> when there is none. FileMaker labels it (`Set Error Logging [ On ; Custom debug info: \"dbg\" ]`, measured FileMaker Pro 19.6.3 to 26.0.3), so omitWhenEmpty: it renders and reads by its label."
       }
     ],
     "hrSignature": "[ <On/Off> ; Custom debug info: <calc> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-error-logging.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-error-logging.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set Field",
@@ -8465,7 +9120,9 @@
     "hrSignature": "[ Table::Field ; value ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-field.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-field.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set Field By Name",
@@ -8490,7 +9147,9 @@
     "hrSignature": "[ <Target field name> ; <Calculated result> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-field-by-name.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-field-by-name.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set Layout Object Animation",
@@ -8505,13 +9164,17 @@
         "hrLabel": "Animation",
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "True"
+        "defaultValue": "True",
+        "fmLineBare": true,
+        "note": "FileMaker draws the value with no label (`[ On ]` / `[ Off ]`, FM 26.0.3; fmLineBare); HR keeps the label and reads the bare value too."
       }
     ],
     "hrSignature": "[ <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-layout-object-animation.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-layout-object-animation.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set Multi-User",
@@ -8537,7 +9200,9 @@
     "hrSignature": "[ <On/On (Hidden)/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-multi-user.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-multi-user.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set Next Serial Value",
@@ -8564,7 +9229,9 @@
     "hrSignature": "[ <field> ; <Next value> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-next-serial-value.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-next-serial-value.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set Revert Transaction on Error",
@@ -8579,13 +9246,17 @@
         "hrLabel": "Revert on error",
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "False"
+        "defaultValue": "False",
+        "fmLineBare": true,
+        "note": "FileMaker draws the value with no label (`[ On ]` / `[ Off ]`, FM 26.0.3; fmLineBare); HR keeps the label and reads the bare value too."
       }
     ],
     "hrSignature": "[ <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-revert-transaction-on-error.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-revert-transaction-on-error.html",
+    "fmMin": "21.1.1",
+    "fmMinSource": "documented"
   },
   {
     "name": "Set Selection",
@@ -8618,7 +9289,9 @@
     "hrSignature": "[ <field> ; Start Position: <calc> ; End Position: <calc> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-selection.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-selection.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set Session Identifier",
@@ -8637,7 +9310,9 @@
     "hrSignature": "[ <calc> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-session-identifier.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-session-identifier.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set Use System Formats",
@@ -8652,13 +9327,17 @@
         "hrLabel": "Use system formats",
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "True"
+        "defaultValue": "True",
+        "fmLineBare": true,
+        "note": "FileMaker draws the value with no label (`[ On ]` / `[ Off ]`, FM 26.0.3; fmLineBare); HR keeps the label and reads the bare value too."
       }
     ],
     "hrSignature": "[ <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-use-system-formats.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-use-system-formats.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set Variable",
@@ -8691,7 +9370,9 @@
     "hrSignature": "[ $name ; Value: value ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-variable.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-variable.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set Web Viewer",
@@ -8730,7 +9411,9 @@
     "hrSignature": "[ Object Name: <calc> ; URL: <calc> | Action: <Reset/Reload/Go Forward/Go Back> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-web-viewer.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-web-viewer.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
     {
     "name": "Set Window Title",
@@ -8789,7 +9472,9 @@
     "hrSignature": "[ Current Window | Of Window: <name> [ ; Current file ] ; New Title: <title> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-window-title.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-window-title.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Set Zoom Level",
@@ -8855,7 +9540,9 @@
     "hrSignature": "[ Lock: <On/Off> ; <25%/50%/75%/100%/150%/200%/300%/400%/Zoom In/Zoom Out/calc> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/set-zoom-level.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/set-zoom-level.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Show All Records",
@@ -8867,7 +9554,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/show-all-records.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/show-all-records.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Show Custom Dialog",
@@ -8990,7 +9679,9 @@
         "dataapi": "Not supported.",
         "cwp": "Not supported."
       }
-    }
+    },
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Show Omitted Only",
@@ -9002,7 +9693,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/show-omitted-only.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/show-omitted-only.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Show/Hide Menubar",
@@ -9036,7 +9729,9 @@
     "hrSignature": "[ Lock: <On/Off> ; <Show/Hide/Toggle> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/show-hide-menubar.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/show-hide-menubar.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Show/Hide Text Ruler",
@@ -9062,7 +9757,9 @@
     "hrSignature": "[ <Show/Hide/Toggle> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/show-hide-text-ruler.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/show-hide-text-ruler.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Show/Hide Toolbars",
@@ -9073,22 +9770,29 @@
     "params": [
       {
         "xmlElement": "IncludeEditRecordToolbar",
+        "hrSlot": 1,
+        "flagStyle": true,
         "type": "flagBoolean",
         "hrLabel": "Include Edit Record Toolbar",
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "False"
+        "defaultValue": "False",
+        "notes": "Flag-style: FileMaker draws \"Include Edit Record Toolbar\" when True and nothing when False (live, FM 26.0.3; same line on 19.6.3 and 22.0.4)."
       },
       {
         "xmlElement": "Lock",
+        "hrSlot": 0,
+        "flagStyle": true,
         "type": "flagBoolean",
         "hrLabel": "Lock",
         "xmlAttr": "state",
         "required": false,
-        "defaultValue": "False"
+        "defaultValue": "False",
+        "notes": "Flag-style: FileMaker draws \"Lock\" when True and nothing when False (live, FM 26.0.3), before Include Edit Record Toolbar (hrSlot)."
       },
       {
         "xmlElement": "ShowHide",
+        "hrSlot": 2,
         "type": "enum",
         "hrLabel": null,
         "xmlAttr": "value",
@@ -9101,10 +9805,12 @@
         }
       }
     ],
-    "hrSignature": "[ Include Edit Record Toolbar ; Lock ; <Show/Hide/Toggle> ]",
+    "hrSignature": "[ Lock ; Include Edit Record Toolbar ; <Show/Hide/Toggle> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/show-hide-toolbars.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/show-hide-toolbars.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Sort Records",
@@ -9120,7 +9826,8 @@
         "xmlAttr": "state",
         "required": false,
         "defaultValue": "True",
-        "invertedHr": true
+        "invertedHr": true,
+        "hrSlot": 1
       },
       {
         "xmlElement": "Restore",
@@ -9130,7 +9837,9 @@
         "hrHidden": true,
         "required": false,
         "defaultValue": "True",
-        "note": "Governed companion of SortList (Import/Export Records pattern): FM writes Restore=True iff a sort order is specified (<SortList> present), and DISCARDS a stored SortList at runtime when Restore is False — so a SortList with Restore=False is a dead no-op sort. hrHidden: renders no HR token, its state is derived on emit from whether the SortList carries any sort key. Native copy-back 2026-08-28 (Sort Invoices script + dialog-authored): a specified sort is <Restore state=\"True\"/> + <SortList>."
+        "fmLineToken": "Restore",
+        "hrSlot": 0,
+        "note": "Governed companion of SortList (Import/Export Records pattern): FM writes Restore=True iff a sort order is specified (<SortList> present), and DISCARDS a stored SortList at runtime when Restore is False — so a SortList with Restore=False is a dead no-op sort. hrHidden: renders no HR token, its state is derived on emit from whether the SortList carries any sort key. Native copy-back 2026-08-28 (Sort Invoices script + dialog-authored): a specified sort is <Restore state=\"True\"/> + <SortList>. FileMaker draws it as the bare token `Restore` (`Sort Records [ Restore ; With dialog: Off ]`, FM 26.0.3): fmLineToken, read back as a no-op when a sort order is given. Drawn exactly when <Restore state=\"True\"/> is stored, with or without a <SortList>, and before the dialog option (hrSlot 0; FM 26.0.3, seven Restore/SortList/dialog states pasted and copied back 2026-10-19)."
       },
       {
         "xmlElement": "SortList",
@@ -9147,13 +9856,16 @@
         "entryAttr": "type",
         "entryAttrDefault": "Ascending",
         "required": false,
-        "notes": "fieldList (Cluster 1): ordered sort keys. Each entry <Sort type=\"Ascending|Descending|Custom\"><PrimaryField><Field/></PrimaryField></Sort>. HR token `Sort: Table::Field=Ascending, ...`. Gates the hrHidden Restore companion (visibleWhen): a present sort derives <Restore state=\"True\"/>, its absence <Restore state=\"False\"/>. SortList BlanksLast/Maintain/value are always-on container attributes (FM emits all three; native copy-back 2026-08-28)."
+        "notes": "fieldList (Cluster 1): ordered sort keys. Each entry <Sort type=\"Ascending|Descending|Custom\"><PrimaryField><Field/></PrimaryField></Sort>. HR token `Sort: Table::Field=Ascending, ...`. Gates the hrHidden Restore companion (visibleWhen): a present sort derives <Restore state=\"True\"/>, its absence <Restore state=\"False\"/>. SortList BlanksLast/Maintain/value are always-on container attributes (FM emits all three; native copy-back 2026-08-28). FileMaker's line never draws the sort keys, only Restore (fmLineHidden; FM 26.0.3).",
+        "fmLineHidden": true
       }
     ],
     "hrSignature": "[ Restore ; With dialog: <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/sort-records.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/sort-records.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Sort Records by Field",
@@ -9185,7 +9897,9 @@
     "hrSignature": "[ <Ascending/Descending/Associated value list> ; <field> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/sort-records-by-field.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/sort-records-by-field.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Speak",
@@ -9205,19 +9919,23 @@
         "type": "attrGroup",
         "hrLabel": "Speech options",
         "required": false,
+        "hrOmitAtDefault": true,
+        "fmLineHidden": true,
         "fields": [
           { "key": "WaitForCompletion", "kind": "attr", "xmlAttr": "WaitForCompletion", "defaultValue": "False" },
           { "key": "VoiceName", "kind": "attr", "xmlAttr": "VoiceName", "optional": true },
           { "key": "VoiceId", "kind": "attr", "xmlAttr": "VoiceId", "defaultValue": "0" },
           { "key": "VoiceCreator", "kind": "attr", "xmlAttr": "VoiceCreator", "optional": true }
         ],
-        "note": "attrGroup: <SpeechOptions> carries WaitForCompletion plus the chosen macOS voice (VoiceName/VoiceId/VoiceCreator from `say -v ?`). VoiceName/VoiceCreator are optional — FM drops them at the default voice and re-materializes <SpeechOptions VoiceId=\"0\" WaitForCompletion=\"False\"/> when the element is omitted."
+        "note": "attrGroup: <SpeechOptions> carries WaitForCompletion plus the chosen macOS voice (VoiceName/VoiceId/VoiceCreator from `say -v ?`). VoiceName/VoiceCreator are optional — FM drops them at the default voice and re-materializes <SpeechOptions VoiceId=\"0\" WaitForCompletion=\"False\"/> when the element is omitted. FileMaker's line never draws it, waiting or not, default or named voice (`Speak [ \"hi\" ]`, `Speak [ ]` with no text; fmLineHidden, FM 26.0.3); at that default the converter's HR prints nothing either and HR->XML writes the default element back (hrOmitAtDefault)."
       }
     ],
     "hrSignature": "[ <text to speak> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/speak-os-x.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/speak-os-x.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Spelling Options",
@@ -9229,7 +9947,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/spelling-options.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/spelling-options.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Trigger Claris Connect Flow",
@@ -9249,7 +9969,8 @@
         "enumValues": [
           "On",
           "Off"
-        ]
+        ],
+        "hrHidden": true
       },
       {
         "xmlElement": "DontEncodeURL",
@@ -9261,7 +9982,8 @@
         "enumValues": [
           "On",
           "Off"
-        ]
+        ],
+        "hrHidden": true
       },
       {
         "xmlElement": "SelectAll",
@@ -9273,7 +9995,8 @@
         "enumValues": [
           "On",
           "Off"
-        ]
+        ],
+        "hrHidden": true
       },
       {
         "xmlElement": "VerifySSLCertificates",
@@ -9285,37 +10008,84 @@
         "enumValues": [
           "On",
           "Off"
-        ]
+        ],
+        "hrHidden": true
       },
       {
         "xmlElement": "Flow",
         "type": "text",
-        "hrLabel": "Flow URL",
-        "required": false
+        "hrLabel": "Flow",
+        "required": false,
+        "hrLabeled": true,
+        "hrSlot": 0,
+        "fmLineEmptyAs": "<unknown>"
+      },
+      {
+        "xmlElement": "Calculation",
+        "type": "namedCalc",
+        "hrLabel": "AppID:APIKey for Webhooks",
+        "wrapperElement": "Auth",
+        "required": false,
+        "hrSlot": 3,
+        "fmLineHidden": true
+      },
+      {
+        "xmlElement": "Calculation",
+        "type": "namedCalc",
+        "hrLabel": "JSON Data",
+        "wrapperElement": "JSONData",
+        "required": false,
+        "hrSlot": 2,
+        "fmLineEmptyAs": "  "
       },
       {
         "xmlElement": "Calculation",
         "type": "namedCalc",
         "hrLabel": "cURL options",
         "wrapperElement": "CURLOptions",
-        "required": false
+        "required": false,
+        "hrSlot": 4,
+        "fmLineHidden": true,
+        "defaultValue": "\"--request POST --header \\\"Content-Type: application/json\\\" --data \"",
+        "hrOmitAtDefault": true
+      },
+      {
+        "xmlElement": "Calculation",
+        "type": "calculation",
+        "hrLabel": "URL",
+        "required": false,
+        "omitWhenEmpty": true,
+        "hrSlot": 1,
+        "fmLineHidden": true
       },
       {
         "xmlElement": "Text",
         "type": "text",
-        "hrLabel": "Target variable",
-        "required": false
+        "hrLabel": null,
+        "required": false,
+        "hrHidden": true,
+        "omitWhenEmpty": true,
+        "mirrorOf": "Flow"
+      },
+      {
+        "xmlElement": "Field",
+        "type": "fieldOrVariable",
+        "hrLabel": "Target",
+        "required": false,
+        "hrSlot": 5
       }
     ],
-    "hrSignature": "Trigger Claris Connect Flow [ With dialog: {On|Off} ; Flow URL: {url} ; cURL options: {calc} ]",
+    "hrSignature": "Trigger Claris Connect Flow [ Flow: {flow} ; URL: {calc} ; JSON Data: {calc} ; AppID:APIKey for Webhooks: {calc} ; cURL options: {calc} ; Target: {Table::Field or $variable} ]",
     "blockPair": null,
     "notes": {
-      "behavioral": "Triggers a Claris Connect flow via HTTP. The <Flow> element holds the flow's endpoint URL. The <CURLOptions> element wraps a <Calculation> with cURL option strings (e.g. --request POST --header). The <Text> element captures the response target. NoInteract suppresses the associated dialog — must be True for server-side, WebDirect, and Data API contexts.",
-      "gotchas": "Step ID 211 confirmed by a live FileMaker 26.0.2 round-trip (paste into Script Workspace, copy back, read FM's own <Step id>). The <Flow> and <Text> elements in the snippet example still carry placeholder '<unknown>' values — the full XML structure for those fields has not been reverse-engineered from a captured example.",
-      "constraints": "Requires a valid Claris Connect account and a configured flow with an HTTP trigger. VerifySSLCertificates defaults to False — set to True in production for security."
+      "behavioral": "Sends JSON Data to a Claris Connect webhook and writes the response to Target. <Flow> is the flow's display name, informational only (set by FileMaker's Select Claris Connect Flow dialog, which needs a Claris ID sign-in); the request goes to the URL calculation (step-level <Calculation>). <Auth> holds the AppID:APIKey calculation, sent as HTTP Basic authorization. <CURLOptions> is written by FileMaker on insert (POST, Content-Type: application/json, --data) and is not editable in FileMaker's dialog; FileMaker posts {\"action\":\"script\",\"information\":<JSON Data>} with it, and sends a bare GET without it (measured FM 26.0.3). <Text> is FileMaker's copy of <Flow>.",
+      "gotchas": "FileMaker's line draws only `Flow: <name> ; JSON Data: <calc> ; Target: <target>` (an empty flow as `<unknown>`, empty JSON data as blank); the URL, AppID:APIKey and cURL options are stored but never drawn, so the converter's HR carries them as extra labeled tokens (fmLineHidden). cURL options print only when they differ from FileMaker's default and HR -> XML writes the default when absent. The four option flags are not exposed in FileMaker's dialog; they emit FileMaker's insert defaults (NoInteract True, DontEncodeURL False, SelectAll True, VerifySSLCertificates False). Pasted with <Text> but no <Flow>, FileMaker drops the copy.",
+      "constraints": "Requires a Claris Connect flow with a webhook trigger. FileMaker 20.1 or later."
     },
-    "status": "auto",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/trigger-claris-connect-flow.html"
+    "status": "complete",
+    "helpUrl": "https://help.claris.com/en/pro-help/content/trigger-claris-connect-flow.html",
+    "fmMin": "20.1",
+    "fmMinSource": "documented"
   },
   {
     "name": "Truncate Table",
@@ -9337,15 +10107,25 @@
         "xmlElement": "BaseTable",
         "type": "reference",
         "hrLabel": "Table",
+        "hrQuoted": true,
         "wrapperAttr": "comment=\"\"",
         "required": true,
-        "note": "Generic name-only reference (FM re-resolves id by name on paste). Current table: name=\"<Current Table>\""
+        "enumValues": [
+          "-1"
+        ],
+        "hrEnumValues": {
+          "-1": "<Current Table>"
+        },
+        "rosterKind": "Table",
+        "note": "Generic name-only reference (FM re-resolves id by name on paste). FileMaker draws a named table quoted, `Table: “Line Items”` (hrQuoted), and the current table bare, `Table: <Current Table>`, stored as id=\"-1\" name=\"<Current Table>\" (a fixed-id built-in). FM 26.0.3. FileMaker resolves the name against the file's base tables, case-insensitively; a table occurrence name (`Clients Primary`) or a name the file lacks draws `<Table Missing>` and copies back as id=\"-1\" name=\"<Current Table>\" (FM 26.0.3), so a named table is checked against the file's base tables where a converter knows them (rosterKind)."
       }
     ],
-    "hrSignature": "[ With dialog: <On/Off> ; Table: <table> ]",
+    "hrSignature": "[ With dialog: <On/Off> ; Table: “<table>” ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/truncate-table.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/truncate-table.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Undo/Redo",
@@ -9371,7 +10151,9 @@
     "hrSignature": "[ <Undo/Redo/Toggle> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/undo-redo.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/undo-redo.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Unsort Records",
@@ -9383,7 +10165,9 @@
     "hrSignature": "",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/unsort-records.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/unsort-records.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "View As",
@@ -9410,7 +10194,9 @@
     "hrSignature": "[ <Cycle/View as Form/View as List/View as Table> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/view-as.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/view-as.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Write to Data File",
@@ -9462,7 +10248,9 @@
     "hrSignature": "[ File ID: <calc> ; Data source: <field/variable> ; Write as: <UTF-16/UTF-8> ; Append line feed ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/write-to-data-file.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/write-to-data-file.html",
+    "fmMin": "any",
+    "fmMinSource": "measured"
   },
   {
     "name": "Flush Web Viewer Cookies",
@@ -9474,7 +10262,9 @@
     "hrSignature": "Flush Web Viewer Cookies",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/flush-web-viewer-cookies.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/flush-web-viewer-cookies.html",
+    "fmMin": "26.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Cancel PDF",
@@ -9486,7 +10276,9 @@
     "hrSignature": "Cancel PDF",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/cancel-pdf.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/cancel-pdf.html",
+    "fmMin": "26.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Create PDF",
@@ -9508,10 +10300,12 @@
       {
         "xmlElement": "Calculation",
         "type": "calculation",
-        "hrLabel": "Output File",
+        "hrLabel": null,
+        "hrHidden": true,
+        "mirrorOf": "Document/Title",
         "omitWhenEmpty": true,
         "required": false,
-        "notes": "Optional step-level output-file path calculation; FM omits it when unset."
+        "notes": "FileMaker's copy of the Document Title, not an output path: it writes the Title here too, fills the Title from it when only this is pasted, and keeps the Title when the two differ (FM 26.0.3). No HR token of its own; written from Document: Title= (mirrorOf), absent with no Title."
       },
       {
         "xmlElement": "Document",
@@ -9519,6 +10313,8 @@
         "hrLabel": "Document",
         "parentElement": "CreatePDFFile",
         "required": false,
+        "hrOmitAtDefault": true,
+        "fmLineHidden": true,
         "fields": [
           { "key": "Title", "kind": "calc", "childElement": "Title" },
           { "key": "Subject", "kind": "calc", "childElement": "Subject" },
@@ -9526,10 +10322,10 @@
           { "key": "Keywords", "kind": "calc", "childElement": "Keywords" },
           { "key": "Pages", "kind": "group", "element": "Pages", "fields": [
             { "key": "AllPages", "kind": "attr", "xmlAttr": "AllPages", "defaultValue": "True" },
-            { "key": "NumberFrom", "kind": "calc", "childElement": "NumberFrom" },
+            { "key": "NumberFrom", "kind": "calc", "childElement": "NumberFrom", "defaultValue": "1" },
             { "key": "PageRange", "kind": "group", "element": "PageRange", "fields": [
-              { "key": "From", "kind": "calc", "childElement": "From" },
-              { "key": "To", "kind": "calc", "childElement": "To" }
+              { "key": "From", "kind": "calc", "childElement": "From", "defaultValue": "1" },
+              { "key": "To", "kind": "calc", "childElement": "To", "defaultValue": "1" }
             ] }
           ] }
         ]
@@ -9540,6 +10336,8 @@
         "hrLabel": "Security",
         "parentElement": "CreatePDFFile",
         "required": false,
+        "hrOmitAtDefault": true,
+        "fmLineHidden": true,
         "fields": [
           { "key": "ScreenReader", "kind": "attr", "xmlAttr": "allowScreenReader", "defaultValue": "True" },
           { "key": "Copying", "kind": "attr", "xmlAttr": "enableCopying", "defaultValue": "True" },
@@ -9555,17 +10353,22 @@
         "hrLabel": "View",
         "parentElement": "CreatePDFFile",
         "required": false,
+        "hrOmitAtDefault": true,
+        "fmLineHidden": true,
         "fields": [
           { "key": "Magnification", "kind": "attr", "xmlAttr": "magnification", "defaultValue": "100" },
           { "key": "Layout", "kind": "attr", "xmlAttr": "pageLayout", "defaultValue": "SinglePage" },
           { "key": "Show", "kind": "attr", "xmlAttr": "show", "defaultValue": "PagesPanelAndPage" }
-        ]
+        ],
+        "note": "Document / Security / View: FileMaker's line never draws them, Restore on or off, any one field changed (`Create PDF [ ]`, `Create PDF [ Restore ]`; fmLineHidden, FM 26.0.3). At the UI-insert defaults (NumberFrom / From / To 1) the converter's HR prints nothing either and HR->XML writes them back (hrOmitAtDefault); a step pasted without them gets FileMaker's minimal baseline instead (AllPages False, nothing permitted, Default view)."
       }
     ],
-    "hrSignature": "[ Restore ; Output File: <calc> ; Document: Title=<calc>, Subject=<calc>, Author=<calc>, Keywords=<calc>, Pages=( AllPages=<True|False>, NumberFrom=<calc>, PageRange=( From=<calc>, To=<calc> ) ) ; Security: ScreenReader=<True|False>, Copying=<True|False>, Editing=<token>, Printing=<token>, OpenPassword=<calc>, EditPassword=<calc> ; View: Magnification=<token>, Layout=<token>, Show=<token> ]",
+    "hrSignature": "[ Restore ; Document: Title=<calc>, Subject=<calc>, Author=<calc>, Keywords=<calc>, Pages=( AllPages=<True|False>, NumberFrom=<calc>, PageRange=( From=<calc>, To=<calc> ) ) ; Security: ScreenReader=<True|False>, Copying=<True|False>, Editing=<token>, Printing=<token>, OpenPassword=<calc>, EditPassword=<calc> ; View: Magnification=<token>, Layout=<token>, Show=<token> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/create-pdf.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/create-pdf.html",
+    "fmMin": "26.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Append PDF",
@@ -9624,7 +10427,9 @@
     "hrSignature": "[ From: <File|Target> ; <path>|Source: <container> ; Password: <calc> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/append-pdf.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/append-pdf.html",
+    "fmMin": "26.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Open PDF",
@@ -9683,7 +10488,9 @@
     "hrSignature": "[ From: <File|Target> ; <path>|Source: <container> ; Password: <calc> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/open-pdf.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/open-pdf.html",
+    "fmMin": "26.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Close PDF",
@@ -9763,7 +10570,9 @@
     "hrSignature": "[ Save to: <File|Target> ; <path>|Target: <container> ; Filename: <calc> ; Create folders: <On/Off> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/close-pdf.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/close-pdf.html",
+    "fmMin": "26.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Print PDF",
@@ -9843,7 +10652,9 @@
     "hrSignature": "[ <Restore> ; With dialog: <On/Off> ; <path> ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/print-pdf.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/print-pdf.html",
+    "fmMin": "26.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert Image Caption",
@@ -9889,7 +10700,9 @@
     "hrSignature": "[ Account Name: calc ; Model: calc ; Input: calc ; Target: Table::Field| ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-image-caption.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-image-caption.html",
+    "fmMin": "26.0",
+    "fmMinSource": "measured"
   },
   {
     "name": "Insert Image Captions in Found Set",
@@ -9960,6 +10773,8 @@
     "hrSignature": "[ Account Name: calc ; Model: calc ; Source Field: Table::Field ; Target Field: Table::Field ; Replace target contents ; Continue on error ; Parameters: calc ]",
     "blockPair": null,
     "status": "complete",
-    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-image-captions-in-found-set.html"
+    "helpUrl": "https://help.claris.com/en/pro-help/content/insert-image-captions-in-found-set.html",
+    "fmMin": "26.0",
+    "fmMinSource": "measured"
   }
 ]

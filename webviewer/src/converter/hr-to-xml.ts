@@ -118,7 +118,7 @@ export function hrToXml(hrText: string, context?: FMContext | null): ConversionR
 
   // Report unresolved references as warnings (not errors).
   // The XML is still valid — FileMaker resolves by name on paste.
-  const warnings: ConversionError[] = [...parseWarnings];
+  const warnings: ConversionError[] = [...parseWarnings, ...resolver.getWarnings()];
   for (const ref of resolver.getUnresolved()) {
     warnings.push({
       line: 0,

@@ -29,7 +29,6 @@ const FIXTURES_PATH = path.join(__dirname, 'fixtures', 'hr-to-xml.json');
 /** FM26-AI grammar-gap steps excluded from every converter gate (plan §gaps). */
 const EXCLUDED = new Set([
   'Fine-Tune Model',
-  'Install Menu Set',
 ]);
 
 interface Fixture {
