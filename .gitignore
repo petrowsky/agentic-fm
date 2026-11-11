@@ -24,6 +24,7 @@ agent/docs/filemaker/error-codes.md
 
 # Specific files
 PROJECT.md
+agent/docs/CODING_CONVENTIONS.local.md
 *_PRIVATE.md
 Prompt.md
 .cursorignore
