@@ -31,6 +31,8 @@ Or activate the venv first: `source agent/.venv/bin/activate`
 
 # Session startup
 
+> **Shortcut — one command.** `python3 agent/scripts/session_start.py` runs every check in this section in a single call (git update, environment detection, companion + plug-in, PROJECT.md, CONTEXT.json freshness/task) and prints one OK/WARN/FAIL/SKIP line per check. Run it **once per session** and act on what each line reports. The subsections below remain as a reference for what each check means and as a fallback if the script isn't available.
+
 At the start of each new CLI/IDE session, before responding to the first prompt, run an update check:
 
 ```bash
