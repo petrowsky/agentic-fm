@@ -46,7 +46,28 @@ A client can never change how the server binds.
 Resolution precedence, highest wins:
 
 - **Server bind** — CLI flag (`--port`) / env var (`COMPANION_BIND_HOST`, `COMPANION_PORT`) → `companion.json` → defaults (`127.0.0.1:8765`).
-- **Client reach** — `COMPANION_URL` env → `companion.json` `advertise_host` + `port` → legacy `automation.json` `companion_url` (deprecation window) → default.
+- **Client reach** — `COMPANION_URL` env → `companion.json` `users[<account>]` (per-developer override, keyed by `Get(AccountName)` — optional, see below) → `companion.json` `advertise_host` + `port` → legacy `automation.json` `companion_url` (deprecation window) → default.
+
+### Multi-developer override — `users[<account>]`
+
+For teams where several developers share one FMS-hosted solution, each from their own machine with their own local repo and companion server, `companion.json` can carry an optional `users` block keyed by FileMaker account name:
+
+```jsonc
+{
+  "companion": { "...": "..." },
+  "users": {
+    "jsmith": {
+      "repo_path": "/Users/jsmith/GITs/agentic-fm",
+      "companion_host": "192.168.1.42",
+      "companion_port": 8765
+    }
+  }
+}
+```
+
+`GET /whoami?account=<name>` resolves this block — the query param is the only input, so an FM script can call it with `Get(AccountName)` instead of hardcoding a chain of `If Get(AccountName) = "..."` branches. Returns `400` if the account isn't configured (or `users` is absent entirely), so callers fall back to the existing folder-picker/cached-global behavior.
+
+This layer changes what a **client** dials, never how the **server** binds — it sits in client-reach resolution only, above the base `advertise_host` + `port` and below `COMPANION_URL`. It is also **not** part of plug-in detection: `/health` carries no account, the plug-in detection cache is process-global, and the companion brokers the one plug-in it shares a macOS login with — the same answer regardless of which account asks.
 
 The plug-in's Application Support path is deliberately **not** configurable here — it is a fixed macOS platform location with one correct value, resolved against the macOS user running the companion (which must be the same user running FileMaker and the plug-in). A relocated or cross-user path is a deployment error to document, not a config knob.
 
