@@ -20,7 +20,7 @@
       <Step enable="True" id="89" name="# (comment)"/>
       <Step enable="True" id="68" name="If">
         <Restore state="False"/>
-        <Calculation><![CDATA[IsEmpty ( $$AGENTIC.FM ) or JSONGetElementType ( $$AGENTIC.FM ; "" ) ≠ JSONObject]]></Calculation>
+        <Calculation><![CDATA[IsEmpty ( $$AGENTIC.FM ) or JSONGetElementType ( $$AGENTIC.FM ; "" ) <> JSONObject]]></Calculation>
       </Step>
       <Step enable="True" id="141" name="Set Variable">
         <Repetition>
@@ -77,12 +77,61 @@
         <Restore state="False"/>
         <Calculation><![CDATA[not $exists]]></Calculation>
       </Step>
+      <Step enable="True" id="89" name="# (comment)">
+        <Text>Stored path invalid — clear and re-prompt for the agentic-fm folder.</Text>
+      </Step>
+      <Step enable="True" id="141" name="Set Variable">
+        <Value>
+          <Calculation><![CDATA[""]]></Calculation>
+        </Value>
+        <Repetition>
+          <Calculation><![CDATA[1]]></Calculation>
+        </Repetition>
+        <Name>$$AGENTIC.FM</Name>
+      </Step>
+      <Step enable="True" id="141" name="Set Variable">
+        <Repetition>
+          <Calculation><![CDATA[1]]></Calculation>
+        </Repetition>
+        <Name>$path</Name>
+      </Step>
+      <Step enable="True" id="181" name="Get Folder Path">
+        <AllowFolderCreation state="False"/>
+        <Repetition>
+          <Calculation><![CDATA[1]]></Calculation>
+        </Repetition>
+        <DialogTitle>
+          <Calculation><![CDATA["Select the agentic-fm folder"]]></Calculation>
+        </DialogTitle>
+        <DefaultLocation>
+          <Calculation><![CDATA[Get ( DesktopPath )]]></Calculation>
+        </DefaultLocation>
+        <Name>$path</Name>
+      </Step>
+      <Step enable="True" id="141" name="Set Variable">
+        <Value>
+          <Calculation><![CDATA[$path & "fmparse.sh"]]></Calculation>
+        </Value>
+        <Repetition>
+          <Calculation><![CDATA[1]]></Calculation>
+        </Repetition>
+        <Name>$fmparse</Name>
+      </Step>
+      <Step enable="True" id="188" name="Get File Exists">
+        <UniversalPathList>$fmparse</UniversalPathList>
+        <Text/>
+        <Field>$exists</Field>
+      </Step>
+      <Step enable="True" id="68" name="If">
+        <Restore state="False"/>
+        <Calculation><![CDATA[not $exists]]></Calculation>
+      </Step>
       <Step enable="True" id="87" name="Show Custom Dialog">
         <Title>
           <Calculation><![CDATA["Invalid folder path"]]></Calculation>
         </Title>
         <Message>
-          <Calculation><![CDATA["Please clear the $$AGENTIC.FM global variable and run the script again to select the agentic-fm folder."]]></Calculation>
+          <Calculation><![CDATA["The selected folder does not contain fmparse.sh.¶¶Select the agentic-fm repository root and try again."]]></Calculation>
         </Message>
         <Buttons>
           <Button CommitState="True">
@@ -95,6 +144,7 @@
       <Step enable="True" id="103" name="Exit Script">
         <Calculation><![CDATA[False]]></Calculation>
       </Step>
+      <Step enable="True" id="70" name="End If"/>
       <Step enable="True" id="70" name="End If"/>
       <Step enable="True" id="89" name="# (comment)"/>
       <Step enable="True" id="141" name="Set Variable">
@@ -185,7 +235,7 @@
       </Step>
       <Step enable="True" id="68" name="If">
         <Restore state="False"/>
-        <Calculation><![CDATA[$saveError ≠ 0]]></Calculation>
+        <Calculation><![CDATA[$saveError <> 0]]></Calculation>
       </Step>
       <Step enable="True" id="103" name="Exit Script">
         <Calculation><![CDATA[JSONSetElement ( "{}" ;
@@ -225,7 +275,7 @@
       </Step>
       <Step enable="True" id="68" name="If">
         <Restore state="False"/>
-        <Calculation><![CDATA[$httpError ≠ 0]]></Calculation>
+        <Calculation><![CDATA[$httpError <> 0]]></Calculation>
       </Step>
       <Step enable="True" id="103" name="Exit Script">
         <Calculation><![CDATA[JSONSetElement ( "{}" ;
@@ -288,10 +338,31 @@
       <Step enable="True" id="89" name="# (comment)"/>
       <Step enable="True" id="141" name="Set Variable">
         <Value>
-          <Calculation><![CDATA[JSONSetElement ( "{}" ;
+          <Calculation><![CDATA[Let ( [
+	posixExport = ConvertFromFileMakerPath ( $output ; 1 ) ;
+	fwdExport = Substitute ( $output ; ["\\" ; "/"] ; ["filewin:" ; ""] ; ["filemac:" ; ""] ; ["file:" ; ""] ) ;
+	manualExport = If (
+		Left ( fwdExport ; 1 ) = "/" and PatternCount ( fwdExport ; ":/" ) = 1 ;
+		"/" & Lower ( Middle ( fwdExport ; 2 ; 1 ) ) & Middle ( fwdExport ; 4 ; 999 ) ;
+		fwdExport
+	) ;
+	exportPath = If ( IsEmpty ( posixExport ) or posixExport = "?" ; manualExport ; posixExport ) ;
+
+	rawRepo = JSONGetElement ( $$AGENTIC.FM ; "path" ) ;
+	posixRepo = ConvertFromFileMakerPath ( rawRepo ; 1 ) ;
+	fwdRepo = Substitute ( rawRepo ; ["\\" ; "/"] ; ["filewin:" ; ""] ; ["filemac:" ; ""] ; ["file:" ; ""] ) ;
+	manualRepo = If (
+		Left ( fwdRepo ; 1 ) = "/" and PatternCount ( fwdRepo ; ":/" ) = 1 ;
+		"/" & Lower ( Middle ( fwdRepo ; 2 ; 1 ) ) & Middle ( fwdRepo ; 4 ; 999 ) ;
+		fwdRepo
+	) ;
+	repoPath = If ( IsEmpty ( posixRepo ) or posixRepo = "?" ; manualRepo ; posixRepo ) ;
+	repoPath = If ( Right ( repoPath ; 1 ) = "/" ; Left ( repoPath ; Length ( repoPath ) - 1 ) ; repoPath )
+] ;
+JSONSetElement ( "{}" ;
 	[ "solution_name" ; Get ( FileName ) ; JSONString ] ;
-	[ "export_file_path" ; ConvertFromFileMakerPath ( $output ; 1 ) ; JSONString ] ;
-	[ "repo_path" ; ConvertFromFileMakerPath ( JSONGetElement ( $$AGENTIC.FM ; "path" ) ; 1 ) ; JSONString ] ;
+	[ "export_file_path" ; exportPath ; JSONString ] ;
+	[ "repo_path" ; repoPath ; JSONString ] ;
 	[ "exploder_bin_path" ; "~/bin/fm-xml-export-exploder" ; JSONString ]
 )]]></Calculation>
         </Value>
@@ -325,7 +396,7 @@
       <Step enable="True" id="89" name="# (comment)"/>
       <Step enable="True" id="68" name="If">
         <Restore state="False"/>
-        <Calculation><![CDATA[$httpError ≠ 0]]></Calculation>
+        <Calculation><![CDATA[$httpError <> 0]]></Calculation>
       </Step>
       <Step enable="True" id="87" name="Show Custom Dialog">
         <Title>
@@ -384,7 +455,7 @@
       <Step enable="True" id="89" name="# (comment)"/>
       <Step enable="True" id="68" name="If">
         <Restore state="False"/>
-        <Calculation><![CDATA[not $success or $exitCode ≠ 0]]></Calculation>
+        <Calculation><![CDATA[not $success or $exitCode <> 0]]></Calculation>
       </Step>
       <Step enable="True" id="87" name="Show Custom Dialog">
         <Title>
@@ -543,7 +614,7 @@
       </Step>
       <Step enable="True" id="68" name="If">
         <Restore state="False"/>
-        <Calculation><![CDATA[$httpError ≠ 0]]></Calculation>
+        <Calculation><![CDATA[$httpError <> 0]]></Calculation>
       </Step>
       <Step enable="True" id="103" name="Exit Script">
         <Calculation><![CDATA[JSONSetElement ( "{}" ;
@@ -845,7 +916,7 @@
         <Step enable="True" id="89" name="# (comment)"/>
         <Step enable="True" id="68" name="If">
           <Restore state="False"/>
-          <Calculation><![CDATA[JSONGetElementType ( $input ; "" ) ≠ JSONObject]]></Calculation>
+          <Calculation><![CDATA[JSONGetElementType ( $input ; "" ) <> JSONObject]]></Calculation>
         </Step>
         <Step enable="True" id="103" name="Exit Script">
           <Calculation><![CDATA[JSONSetElement ( "{}" ;
@@ -931,7 +1002,7 @@
         </Step>
         <Step enable="True" id="68" name="If">
           <Restore state="False"/>
-          <Calculation><![CDATA[JSONGetElementType ( $input ; "" ) ≠ JSONObject]]></Calculation>
+          <Calculation><![CDATA[JSONGetElementType ( $input ; "" ) <> JSONObject]]></Calculation>
         </Step>
         <Step enable="True" id="103" name="Exit Script">
           <Calculation><![CDATA[JSONSetElement ( "{}" ;
@@ -997,7 +1068,7 @@
         </Step>
         <Step enable="True" id="68" name="If">
           <Restore state="False"/>
-          <Calculation><![CDATA[$gotoError ≠ 0]]></Calculation>
+          <Calculation><![CDATA[$gotoError <> 0]]></Calculation>
         </Step>
         <Step enable="True" id="103" name="Exit Script">
           <Calculation><![CDATA[JSONSetElement ( "{}" ;
@@ -1136,7 +1207,7 @@
         <Step enable="True" id="89" name="# (comment)"/>
         <Step enable="True" id="68" name="If">
           <Restore state="False"/>
-          <Calculation><![CDATA[$httpError ≠ 0]]></Calculation>
+          <Calculation><![CDATA[$httpError <> 0]]></Calculation>
         </Step>
         <Step enable="True" id="87" name="Show Custom Dialog">
           <Title>
@@ -1176,8 +1247,20 @@
         </Step>
         <Step enable="True" id="141" name="Set Variable">
           <Value>
-            <Calculation><![CDATA[JSONSetElement ( "{}" ;
-	[ "repo_path" ; ConvertFromFileMakerPath ( JSONGetElement ( $$AGENTIC.FM ; "path" ) ; 1 ) ; JSONString ]
+            <Calculation><![CDATA[Let ( [
+	rawRepo = JSONGetElement ( $$AGENTIC.FM ; "path" ) ;
+	posixRepo = ConvertFromFileMakerPath ( rawRepo ; 1 ) ;
+	fwdRepo = Substitute ( rawRepo ; ["\\" ; "/"] ; ["filewin:" ; ""] ; ["filemac:" ; ""] ; ["file:" ; ""] ) ;
+	manualRepo = If (
+		Left ( fwdRepo ; 1 ) = "/" and PatternCount ( fwdRepo ; ":/" ) = 1 ;
+		"/" & Lower ( Middle ( fwdRepo ; 2 ; 1 ) ) & Middle ( fwdRepo ; 4 ; 999 ) ;
+		fwdRepo
+	) ;
+	repoPath = If ( IsEmpty ( posixRepo ) or posixRepo = "?" ; manualRepo ; posixRepo ) ;
+	repoPath = If ( Right ( repoPath ; 1 ) = "/" ; Left ( repoPath ; Length ( repoPath ) - 1 ) ; repoPath )
+] ;
+JSONSetElement ( "{}" ;
+	[ "repo_path" ; repoPath ; JSONString ]
 )]]></Calculation>
           </Value>
           <Repetition>
@@ -1234,14 +1317,14 @@
         </Step>
         <Step enable="True" id="68" name="If">
           <Restore state="False"/>
-          <Calculation><![CDATA[$httpError ≠ 0 or not JSONGetElement ( $response ; "success" )]]></Calculation>
+          <Calculation><![CDATA[$httpError <> 0 or not JSONGetElement ( $response ; "success" )]]></Calculation>
         </Step>
         <Step enable="True" id="87" name="Show Custom Dialog">
           <Title>
             <Calculation><![CDATA["Error"]]></Calculation>
           </Title>
           <Message>
-            <Calculation><![CDATA[If ( $httpError ≠ 0 ; "Could not reach the companion server." ; JSONGetElement ( $response ; "error" ) )]]></Calculation>
+            <Calculation><![CDATA[If ( $httpError <> 0 ; "Could not reach the companion server." ; JSONGetElement ( $response ; "error" ) )]]></Calculation>
           </Message>
           <Buttons>
             <Button CommitState="True">
@@ -1309,14 +1392,14 @@
         </Step>
         <Step enable="True" id="68" name="If">
           <Restore state="False"/>
-          <Calculation><![CDATA[$httpError ≠ 0 or not JSONGetElement ( $response ; "success" )]]></Calculation>
+          <Calculation><![CDATA[$httpError <> 0 or not JSONGetElement ( $response ; "success" )]]></Calculation>
         </Step>
         <Step enable="True" id="87" name="Show Custom Dialog">
           <Title>
             <Calculation><![CDATA["Error"]]></Calculation>
           </Title>
           <Message>
-            <Calculation><![CDATA[If ( $httpError ≠ 0 ; "Could not reach the companion server." ; JSONGetElement ( $response ; "error" ) )]]></Calculation>
+            <Calculation><![CDATA[If ( $httpError <> 0 ; "Could not reach the companion server." ; JSONGetElement ( $response ; "error" ) )]]></Calculation>
           </Message>
           <Buttons>
             <Button CommitState="True">
@@ -1551,7 +1634,7 @@
         </Step>
         <Step enable="True" id="68" name="If">
           <Restore state="False"/>
-          <Calculation><![CDATA[Left ( $openResult ; 5 ) ≠ "OK"]]></Calculation>
+          <Calculation><![CDATA[Left ( $openResult ; 5 ) <> "OK"]]></Calculation>
         </Step>
         <Step enable="True" id="103" name="Exit Script">
           <Calculation><![CDATA[JSONSetElement ( "{}" ;
@@ -1630,7 +1713,7 @@
         <Step enable="True" id="89" name="# (comment)"/>
         <Step enable="True" id="68" name="If">
           <Restore state="False"/>
-          <Calculation><![CDATA[Get ( LastError ) ≠ 0]]></Calculation>
+          <Calculation><![CDATA[Get ( LastError ) <> 0]]></Calculation>
         </Step>
         <Step enable="True" id="87" name="Show Custom Dialog">
           <Title>

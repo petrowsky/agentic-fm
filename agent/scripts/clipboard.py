@@ -29,9 +29,15 @@ Usage:
 """
 
 import argparse
+import json
+import os
 import re
+import struct
 import subprocess
 import sys
+import time
+import urllib.error
+import urllib.request
 import xml.etree.ElementTree as ET
 
 # Optional fast path: PyObjC (pyobjc-framework-Cocoa) lets us read/write the
@@ -61,11 +67,13 @@ FM_CLASSES = {
 XML_ELEMENT_TO_CLASS = {
     'Step':              'XMSS',
     'Script':            'XMSC',
+    'Group':             'XMSC',
     'CustomFunction':    'XMFN',
     'Field':             'XMFD',
     'BaseTable':         'XMTB',
     'ValueList':         'XMVL',
     'Layout':            'XML2',
+    'LayoutObject':      'XML2',
     'Theme':             'XMTH',
     'CustomMenu':        'ut16',
     'CustomMenuSet':     'ut16',
@@ -89,6 +97,18 @@ _FM_CLASS_HEX = {
     'XMVL': 0x584D564C,
     'XMTH': 0x584D5448,
     'ut16': 0x75743136,  # «class ut16» — UTF-16 Unicode text (custom menus)
+}
+
+_WINDOWS_FORMATS = {
+    'XMSS': 'Mac-XMSS',
+    'XMSC': 'Mac-XMSC',
+    'XML2': 'Mac-XML2',
+    'XMLO': 'Mac-XMLO',
+    'XMFD': 'Mac-XMFD',
+    'XMFN': 'Mac-XMFN',
+    'XMTB': 'Mac-XMTB',
+    'XMVL': 'Mac-XMVL',
+    'XMTH': 'Mac-XMTH',
 }
 
 
@@ -192,6 +212,9 @@ def detect_class_from_xml(xml_text):
 
 def read_from_clipboard(output_path=None):
     """Extract FM objects from clipboard and output as formatted XML."""
+    if sys.platform == 'win32':
+        return _windows_clipboard_read(output_path)
+
     cls = detect_clipboard_class()
     if not cls:
         print('ERROR: No FileMaker objects found on clipboard.', file=sys.stderr)
@@ -246,6 +269,85 @@ def read_from_clipboard(output_path=None):
     else:
         print(xml)
 
+    return xml
+
+
+def _windows_clipboard_read(output_path=None):
+    """Read FileMaker descriptor data using the native Windows clipboard API."""
+    import ctypes
+    from ctypes import wintypes
+
+    user32 = ctypes.WinDLL('user32', use_last_error=True)
+    kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
+    user32.OpenClipboard.argtypes = [wintypes.HWND]
+    user32.OpenClipboard.restype = wintypes.BOOL
+    user32.EnumClipboardFormats.argtypes = [wintypes.UINT]
+    user32.EnumClipboardFormats.restype = wintypes.UINT
+    user32.GetClipboardFormatNameW.argtypes = [wintypes.UINT, wintypes.LPWSTR, ctypes.c_int]
+    user32.GetClipboardFormatNameW.restype = ctypes.c_int
+    user32.GetClipboardData.argtypes = [wintypes.UINT]
+    user32.GetClipboardData.restype = wintypes.HANDLE
+    kernel32.GlobalSize.argtypes = [wintypes.HGLOBAL]
+    kernel32.GlobalSize.restype = ctypes.c_size_t
+    kernel32.GlobalLock.argtypes = [wintypes.HGLOBAL]
+    kernel32.GlobalLock.restype = wintypes.LPVOID
+    kernel32.GlobalUnlock.argtypes = [wintypes.HGLOBAL]
+
+    for _ in range(20):
+        if user32.OpenClipboard(None):
+            break
+        time.sleep(0.05)
+    else:
+        raise OSError(ctypes.get_last_error(), 'Could not open Windows clipboard')
+
+    try:
+        clipboard_format = 0
+        format_name = ''
+        available_formats = []
+        current = 0
+        while True:
+            current = user32.EnumClipboardFormats(current)
+            if not current:
+                break
+            buffer = ctypes.create_unicode_buffer(128)
+            if user32.GetClipboardFormatNameW(current, buffer, len(buffer)):
+                available_formats.append(buffer.value)
+                if buffer.value.startswith('Mac-XM') or buffer.value == 'Mac-XML2':
+                    clipboard_format = current
+                    format_name = buffer.value
+                    break
+
+        if not clipboard_format:
+            details = ', '.join(available_formats) if available_formats else '(only standard Windows formats)'
+            print(
+                'ERROR: No FileMaker objects found on clipboard.\n'
+                f'Available custom formats: {details}',
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
+        memory = user32.GetClipboardData(clipboard_format)
+        size = kernel32.GlobalSize(memory)
+        pointer = kernel32.GlobalLock(memory)
+        if not pointer or size <= 4:
+            raise OSError(ctypes.get_last_error(), 'Could not read FileMaker clipboard data')
+        try:
+            payload = ctypes.string_at(pointer, size)
+        finally:
+            kernel32.GlobalUnlock(memory)
+    finally:
+        user32.CloseClipboard()
+
+    declared_size = struct.unpack('<I', payload[:4])[0]
+    xml_bytes = payload[4:4 + declared_size]
+    xml = xml_bytes.decode('utf-8')
+
+    if output_path:
+        with open(output_path, 'w', encoding='utf-8') as file:
+            file.write(xml)
+        print(f'Saved {format_name} to {output_path}', file=sys.stderr)
+    else:
+        print(xml)
     return xml
 
 
@@ -304,13 +406,22 @@ def write_to_clipboard(input_path, cls=None):
 
     cls = cls.lower() if cls.lower() in UT16_CLASSES else cls.upper()
 
+    if cls not in FM_CLASSES and cls not in UT16_CLASSES:
+        print(f"ERROR: Unknown class '{cls}'. Valid options: {', '.join(FM_CLASSES)}", file=sys.stderr)
+        sys.exit(1)
+
+    if sys.platform == 'win32':
+        _windows_clipboard_write(cls, raw_bytes, xml_text)
+        print(f'Clipboard ready \u2192 {input_path} as {cls}', file=sys.stderr)
+        return
+
+    if sys.platform != 'darwin':
+        _write_via_companion(xml_text, input_path)
+        return
+
     if cls in UT16_CLASSES:
         _write_ut16_to_clipboard(xml_text, input_path)
         return
-
-    if cls not in FM_CLASSES:
-        print(f"ERROR: Unknown class '{cls}'. Valid options: {', '.join(FM_CLASSES)}", file=sys.stderr)
-        sys.exit(1)
 
     if _HAS_APPKIT:
         if not _nspasteboard_write(cls, raw_bytes):
@@ -326,6 +437,110 @@ def write_to_clipboard(input_path, cls=None):
             sys.exit(1)
 
     print(f'Clipboard ready \u2192 {input_path} as {cls} ({FM_CLASSES[cls]})', file=sys.stderr)
+
+
+def _windows_clipboard_write(cls, raw_bytes, xml_text):
+    """Write FileMaker descriptor data using the native Windows clipboard API."""
+    import ctypes
+    from ctypes import wintypes
+
+    user32 = ctypes.WinDLL('user32', use_last_error=True)
+    kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
+
+    user32.OpenClipboard.argtypes = [wintypes.HWND]
+    user32.OpenClipboard.restype = wintypes.BOOL
+    user32.EmptyClipboard.restype = wintypes.BOOL
+    user32.RegisterClipboardFormatW.argtypes = [wintypes.LPCWSTR]
+    user32.RegisterClipboardFormatW.restype = wintypes.UINT
+    user32.SetClipboardData.argtypes = [wintypes.UINT, wintypes.HANDLE]
+    user32.SetClipboardData.restype = wintypes.HANDLE
+    kernel32.GlobalAlloc.argtypes = [wintypes.UINT, ctypes.c_size_t]
+    kernel32.GlobalAlloc.restype = wintypes.HGLOBAL
+    kernel32.GlobalLock.argtypes = [wintypes.HGLOBAL]
+    kernel32.GlobalLock.restype = wintypes.LPVOID
+    kernel32.GlobalUnlock.argtypes = [wintypes.HGLOBAL]
+    kernel32.GlobalFree.argtypes = [wintypes.HGLOBAL]
+
+    if cls in UT16_CLASSES:
+        clipboard_format = 13  # CF_UNICODETEXT
+        payload = xml_text.encode('utf-16-le') + b'\x00\x00'
+    else:
+        format_name = _WINDOWS_FORMATS[cls]
+        clipboard_format = user32.RegisterClipboardFormatW(format_name)
+        if not clipboard_format:
+            raise OSError(ctypes.get_last_error(), f'Could not register {format_name}')
+        xml_clean = re.sub(r'<\?xml[^?]*\?>\s*', '', xml_text, count=1)
+        xml_bytes = xml_clean.encode('utf-8')
+        payload = struct.pack('<I', len(xml_bytes)) + xml_bytes
+
+    for _ in range(20):
+        if user32.OpenClipboard(None):
+            break
+        time.sleep(0.05)
+    else:
+        raise OSError(ctypes.get_last_error(), 'Could not open Windows clipboard')
+
+    memory = None
+    try:
+        if not user32.EmptyClipboard():
+            raise OSError(ctypes.get_last_error(), 'Could not empty Windows clipboard')
+
+        memory = kernel32.GlobalAlloc(0x0002, len(payload))  # GMEM_MOVEABLE
+        if not memory:
+            raise OSError(ctypes.get_last_error(), 'Could not allocate clipboard memory')
+
+        pointer = kernel32.GlobalLock(memory)
+        if not pointer:
+            raise OSError(ctypes.get_last_error(), 'Could not lock clipboard memory')
+        try:
+            ctypes.memmove(pointer, payload, len(payload))
+        finally:
+            kernel32.GlobalUnlock(memory)
+
+        if not user32.SetClipboardData(clipboard_format, memory):
+            raise OSError(ctypes.get_last_error(), 'Could not set FileMaker clipboard data')
+        memory = None  # Clipboard owns the allocation after SetClipboardData succeeds.
+    finally:
+        user32.CloseClipboard()
+        if memory:
+            kernel32.GlobalFree(memory)
+
+
+def _write_via_companion(xml_text, input_path):
+    """Delegate clipboard writes from non-macOS hosts to the macOS companion."""
+    configured = os.environ.get('AGENTIC_FM_COMPANION_URL', '').rstrip('/')
+    candidates = [
+        configured,
+        'http://local.hub:8765',
+        'http://host.docker.internal:8765',
+    ]
+    payload = json.dumps({'xml': xml_text}).encode('utf-8')
+    errors = []
+
+    for base_url in dict.fromkeys(url for url in candidates if url):
+        request = urllib.request.Request(
+            f'{base_url}/clipboard',
+            data=payload,
+            headers={'Content-Type': 'application/json'},
+            method='POST',
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=15) as response:
+                result = json.loads(response.read().decode('utf-8'))
+            if result.get('success'):
+                print(f'Clipboard ready via {base_url} \u2192 {input_path}', file=sys.stderr)
+                return
+            errors.append(f'{base_url}: {result.get("error", "unknown error")}')
+        except (urllib.error.URLError, TimeoutError, ValueError) as exc:
+            errors.append(f'{base_url}: {exc}')
+
+    print(
+        'ERROR: No usable macOS companion server was reachable. '
+        'Set AGENTIC_FM_COMPANION_URL to the companion base URL.\n'
+        + '\n'.join(errors),
+        file=sys.stderr,
+    )
+    sys.exit(1)
 
 
 def _write_ut16_to_clipboard(xml_text, input_path):

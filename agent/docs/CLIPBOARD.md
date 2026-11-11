@@ -4,6 +4,9 @@ FileMaker does not use plain text for clipboard objects. When you copy scripts, 
 
 **Do not use `pbpaste` or `pbcopy` for FileMaker objects.** Both tools silently corrupt multi-byte UTF-8 characters (such as `≠`, `≤`, `≥`, `¶`) that are common in FileMaker calculations.
 
+On **Windows**, prefer ASCII operators in shipped fmxmlsnippet XML (`<>` instead of `≠`) when pasting via the clipboard. Some Windows clipboard round-trips have been observed to mojibake Unicode `≠` into `â‰`, after which FileMaker may wrap the calculation in a block comment and silently disable the logic.
+
+
 ---
 
 ## Clipboard class codes

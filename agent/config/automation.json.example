@@ -6,9 +6,9 @@
   "fm_app_name": "FileMaker Pro",
   "companion_url": "http://localhost:8765",
 
-  "_wsl2_note": "The two keys below are only needed on Windows + WSL2. The companion server auto-detects the export path via cmd.exe+wslpath; set export_dir_override only if auto-detection fails.",
-  "repo_path_override": "/home/<you>/agentic-fm",
-  "export_dir_override": "/mnt/c/Users/<you>/Desktop",
+  "_windows_note": "Needed when FileMaker on Windows sends export_file_path/repo_path as '?'. Use native Windows paths for a Git Bash companion, or /mnt/c/... paths when the companion runs inside WSL2.",
+  "repo_path_override": "C:/Users/<you>/agentic-fm",
+  "export_dir_override": "C:/Users/<you>/Desktop",
 
   "tiers": {
     "0": {
