@@ -19,6 +19,9 @@ Usage:
     python3 agent/scripts/fm_icon_extract.py agent/sandbox/nav_bar.xml --json
 """
 
+from __future__ import annotations
+
+
 import argparse
 import binascii
 import json
