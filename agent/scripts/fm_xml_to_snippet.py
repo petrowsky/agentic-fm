@@ -37,6 +37,9 @@ Notes:
     - Step types absent from the catalog emit a self-closing Step and a TODO comment.
 """
 
+from __future__ import annotations
+
+
 import os
 import sys
 import xml.etree.ElementTree as ET
