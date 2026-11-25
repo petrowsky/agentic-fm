@@ -2,6 +2,16 @@
 
 ## Recent Changes
 
+### Context() `generated_at` fix (2026-11-25)
+
+**Action: recommended — update the `Context()` custom function in your FileMaker solution.**
+
+`generated_at` could contain an invalid seconds value such as `"2026-11-25T06:13:94Z"` (the milliseconds ended up in the seconds slot). fmlint cannot parse that, so its stale-`CONTEXT.json` warning was skipped without a message.
+
+**How to update**: open your `Context` custom function, find the line `Right ( "0" & Seconds ( ~ts ) ; 2 ) & "Z" ;` near the end and change it to `Right ( "0" & Int ( Seconds ( ~ts ) ) ; 2 ) & "Z" ;` (or replace the whole formula with `filemaker/Context.fmfn`). Edit the existing function rather than deleting it, so **Push Context** keeps its reference. Then run **Push Context**.
+
+---
+
 ### Companion config — `agent/config/companion.json` (2026-07-15, v0.8.1)
 
 **Action: optional — existing setups keep working with no changes.**
