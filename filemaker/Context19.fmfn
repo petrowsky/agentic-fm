@@ -1,0 +1,380 @@
+/*
+ * Context ( task )  --  FileMaker Pro 19 variant
+ *
+ * Same as Context.fmfn, minus the ddl section: GetTableDDL needs FileMaker 21.0.
+ * Install this instead of Context.fmfn on FileMaker 19.x. The function name stays
+ * Context so the Push Context companion script works unchanged.
+ *
+ * Generates a JSON context document for AI script generation.
+ * Run from the layout where you want the AI to compose a script.
+ *
+ * Parameter:
+ *   task - Text description of what script to create
+ *          e.g. "Create a script to add a new line item to the current invoice"
+ *
+ * Returns: JSON string matching the CONTEXT.json schema used by agentic-fm
+ *
+ * Output includes:
+ *   solution         - file name
+ *   task             - the provided description
+ *   current_layout   - name, id, base table occurrence
+ *   tables           - all TOs referenced on the current layout with complete field lists
+ *   scripts          - all scripts in the file (name + id)
+ *   layouts          - all layouts in the file (name + id)
+ *   value_lists      - all value lists (name + id)
+ *   layout_objects   - named objects on the current layout
+ *
+ * Requires: FileMaker Pro 19.0+
+ *
+ * Differences from Context.fmfn (FileMaker 19 has no GetTableDDL, no
+ * FileMaker_BaseTables and no FileMaker_ValueLists):
+ *   - no ddl section; relationships come from relationships.index (fmcontext.sh)
+ *   - tables have no base table "id"; it is the TableID column in fields.index
+ *   - value_lists have no "source"; it is the SourceType column in value_lists.index
+ */
+
+Let ( [
+
+    /* ===================================================================
+       Core variables
+       =================================================================== */
+
+    ~fn = Get ( FileName ) ;
+    ~layoutName = Get ( LayoutName ) ;
+    ~layoutTO = Get ( LayoutTableName ) ;
+    ~layoutId = GetValue ( LayoutIDs ( ~fn ) ; Get ( LayoutNumber ) ) ;
+    ~layoutTOid = ExecuteSQL (
+        "SELECT TableId FROM FileMaker_Tables WHERE TableName = ?" ;
+        "" ; "" ; ~layoutTO
+    ) ;
+
+    /* ===================================================================
+       Collect unique TOs referenced on the current layout.
+       FieldNames returns related fields as "TOName::FieldName".
+       We extract the TO prefixes to discover all related TOs.
+       =================================================================== */
+
+    ~fieldNamesList = FieldNames ( ~fn ; ~layoutName ) ;
+
+    ~uniqueTOs = While ( [
+        ~_fList  = ~fieldNamesList ;
+        ~_fCount = ValueCount ( ~fieldNamesList ) ;
+        ~_fi     = 0 ;
+        ~_tos    = ~layoutTO
+    ] ;
+        ~_fi < ~_fCount ;
+    [
+        ~_fList  = ~_fList ;
+        ~_fCount = ~_fCount ;
+        ~_fi     = ~_fi + 1 ;
+        ~_tos    = Let ( [
+            ~fld = GetValue ( ~_fList ; ~_fi ) ;
+            ~sep = Position ( ~fld ; "::" ; 1 ; 1 ) ;
+            ~to  = If ( ~sep > 0 ; Left ( ~fld ; ~sep - 1 ) ; "" )
+        ] ;
+            If (
+				~to ≠ "" and IsEmpty ( FilterValues ( ~_tos ; ~to ) ) ;
+                ~_tos & ¶ & ~to ;
+                ~_tos
+            )
+        )
+    ] ;
+        ~_tos
+    ) ;
+
+    /* ===================================================================
+       Build tables JSON
+       For each unique TO: query FileMaker_Fields for all fields,
+       map SQL types to FileMaker types, and assemble:
+       { "TOName": { id, base_table, to, to_id, fields: { ... } } }
+
+       Keyed by TO name (not base table name) so that multiple TOs
+       sharing the same base table each get their own entry.
+       =================================================================== */
+
+    ~tablesJSON = While ( [
+        ~_tCount  = ValueCount ( ~uniqueTOs ) ;
+        ~_ti      = 0 ;
+        ~_tResult = "{}"
+    ] ;
+        ~_ti < ~_tCount ;
+    [
+        ~_tCount  = ~_tCount ;
+        ~_ti      = ~_ti + 1 ;
+        ~_tResult = Let ( [
+            ~toName = GetValue ( ~uniqueTOs ; ~_ti ) ;
+            ~toId   = ExecuteSQL (
+                "SELECT TableId FROM FileMaker_Tables WHERE TableName = ?" ;
+                "" ; "" ; ~toName
+            ) ;
+            ~btName = ExecuteSQL (
+                "SELECT BaseTableName FROM FileMaker_Tables WHERE TableName = ?" ;
+                "" ; "" ; ~toName
+            ) ;
+
+            /* Query all fields for this TO */
+            ~fData = ExecuteSQL (
+                "SELECT FieldName, FieldId, FieldType, FieldClass FROM FileMaker_Fields WHERE TableName = ?" ;
+                "|" ; ¶ ; ~toName
+            ) ;
+
+            /* Build fields object via inner While */
+            ~fieldsObj = While ( [
+                ~_fCount2 = ValueCount ( ~fData ) ;
+                ~_fj      = 0 ;
+                ~_fObj    = "{}"
+            ] ;
+                ~_fj < ~_fCount2 ;
+            [
+                ~_fCount2 = ~_fCount2 ;
+                ~_fj      = ~_fj + 1 ;
+                ~_fObj    = Let ( [
+                    ~row     = GetValue ( ~fData ; ~_fj ) ;
+                    ~parts   = Substitute ( ~row ; "|" ; ¶ ) ;
+                    ~fname   = GetValue ( ~parts ; 1 ) ;
+                    ~fid     = GetValue ( ~parts ; 2 ) ;
+                    ~fsqlRaw = GetValue ( ~parts ; 3 ) ;
+                    ~fclass  = GetValue ( ~parts ; 4 ) ;
+
+                    /* Map SQL type to FileMaker type */
+                    ~fmType = Case (
+                        Left ( ~fsqlRaw ; 7 ) = "varchar"   ; "Text" ;
+                        Left ( ~fsqlRaw ; 4 ) = "text"      ; "Text" ;
+                        Left ( ~fsqlRaw ; 7 ) = "decimal"   ; "Number" ;
+                        Left ( ~fsqlRaw ; 7 ) = "numeric"   ; "Number" ;
+                        ~fsqlRaw = "int"                     ; "Number" ;
+                        ~fsqlRaw = "date"                    ; "Date" ;
+                        ~fsqlRaw = "time"                    ; "Time" ;
+                        Left ( ~fsqlRaw ; 9 ) = "timestamp" ; "Timestamp" ;
+                        Left ( ~fsqlRaw ; 8 ) = "datetime"  ; "Timestamp" ;
+                        Left ( ~fsqlRaw ; 9 ) = "varbinary" ; "Container" ;
+                        Left ( ~fsqlRaw ; 4 ) = "blob"      ; "Container" ;
+                        ~fsqlRaw
+                    ) ;
+
+                    /* Build field object */
+                    ~fieldObj = JSONSetElement ( "{}" ;
+                        [ "id"   ; ~fid    ; JSONNumber ] ;
+                        [ "type" ; ~fmType ; JSONString ]
+                    ) ;
+                    ~fieldObj = If (
+						~fclass ≠ "Normal" and ~fclass ≠ "" ;
+                        JSONSetElement ( ~fieldObj ; "fieldtype" ; ~fclass ; JSONString ) ;
+                        ~fieldObj
+                    )
+                ] ;
+                    JSONSetElement ( ~_fObj ; ~fname ; ~fieldObj ; JSONObject )
+                )
+            ] ;
+                ~_fObj
+            ) ;
+
+            /* Build table object */
+            ~tObj = JSONSetElement ( "{}" ;
+                [ "base_table" ; ~btName    ; JSONString ] ;
+                [ "to"         ; ~toName    ; JSONString ] ;
+                [ "to_id"      ; ~toId      ; JSONNumber ] ;
+                [ "fields"     ; ~fieldsObj ; JSONObject ]
+            )
+        ] ;
+            /* Key by TO name — unique, prevents overwrites when
+               multiple TOs share the same base table */
+            JSONSetElement ( ~_tResult ; ~toName ; ~tObj ; JSONObject )
+        )
+    ] ;
+        ~_tResult
+    ) ;
+
+    /* ===================================================================
+       Scripts JSON: { "ScriptName": { "id": N }, ... }
+       Includes all scripts in the file.
+
+       Built via string concatenation rather than JSONSetElement to avoid
+       issues with script names containing characters that JSONSetElement
+       interprets as path operators ([ ] . " \).
+       =================================================================== */
+
+    ~sNames = ScriptNames ( ~fn ) ;
+    ~sIds   = ScriptIDs ( ~fn ) ;
+
+    ~scriptsJSON = While ( [
+        ~_sCount  = ValueCount ( ~sNames ) ;
+        ~_si      = 0 ;
+        ~_sPairs  = ""
+    ] ;
+        ~_si < ~_sCount ;
+    [
+        ~_sCount  = ~_sCount ;
+        ~_si      = ~_si + 1 ;
+        ~_sPairs  = Let ( [
+            ~sName = GetValue ( ~sNames ; ~_si ) ;
+            ~sId   = GetValue ( ~sIds ; ~_si ) ;
+			/* Escape the only character that would break a JSON string
+			   value: a double quote. Backslashes are theoretically possible
+			   but essentially never appear in FM script names.
+               Char(34) = double quote, Char(92) = backslash. */
+            ~escaped = Substitute ( ~sName ;
+                [ Char ( 92 ) ; Char ( 92 ) & Char ( 92 ) ] ;
+                [ Char ( 34 ) ; Char ( 92 ) & Char ( 34 ) ]
+            ) ;
+            ~q = Char ( 34 ) ;
+            ~pair = ~q & ~escaped & ~q & ":{" & ~q & "id" & ~q & ":" & ~sId & "}"
+        ] ;
+            If ( not IsEmpty ( ~sName ) ;
+                If ( IsEmpty ( ~_sPairs ) ;
+                    ~pair ;
+                    ~_sPairs & "," & ~pair
+                ) ;
+                ~_sPairs
+            )
+        )
+    ] ;
+        "{" & ~_sPairs & "}"
+    ) ;
+
+    /* ===================================================================
+       Layouts JSON: { "LayoutName": { "id": N }, ... }
+       Includes all layouts in the file.
+       =================================================================== */
+
+    ~layNames = LayoutNames ( ~fn ) ;
+    ~layIds   = LayoutIDs ( ~fn ) ;
+
+    ~layoutsJSON = While ( [
+        ~_lCount  = ValueCount ( ~layNames ) ;
+        ~_li      = 0 ;
+        ~_lPairs  = ""
+    ] ;
+        ~_li < ~_lCount ;
+    [
+        ~_lCount  = ~_lCount ;
+        ~_li      = ~_li + 1 ;
+        ~_lPairs  = Let ( [
+            ~lName = GetValue ( ~layNames ; ~_li ) ;
+            ~lId   = GetValue ( ~layIds ; ~_li ) ;
+            /* Escape characters that would break a JSON string value.
+               Char(34) = double quote, Char(92) = backslash. */
+            ~escaped = Substitute ( ~lName ;
+                [ Char ( 92 ) ; Char ( 92 ) & Char ( 92 ) ] ;
+                [ Char ( 34 ) ; Char ( 92 ) & Char ( 34 ) ]
+            ) ;
+            ~q = Char ( 34 ) ;
+            ~pair = ~q & ~escaped & ~q & ":{" & ~q & "id" & ~q & ":" & ~lId & "}"
+        ] ;
+            If ( not IsEmpty ( ~lName ) ;
+                If ( IsEmpty ( ~_lPairs ) ;
+                    ~pair ;
+                    ~_lPairs & "," & ~pair
+                ) ;
+                ~_lPairs
+            )
+        )
+    ] ;
+        "{" & ~_lPairs & "}"
+    ) ;
+
+    /* ===================================================================
+       Value Lists JSON: { "VLName": { "id": N }, ... }
+       ValueListNames / ValueListIDs (FileMaker_ValueLists needs a newer version)
+       =================================================================== */
+
+    ~vlNames = ValueListNames ( ~fn ) ;
+    ~vlIds   = ValueListIDs ( ~fn ) ;
+
+    ~vlJSON = While ( [
+        ~_vCount  = ValueCount ( ~vlNames ) ;
+        ~_vi      = 0 ;
+        ~_vResult = "{}"
+    ] ;
+        ~_vi < ~_vCount ;
+    [
+        ~_vCount  = ~_vCount ;
+        ~_vi      = ~_vi + 1 ;
+        ~_vResult = Let ( [
+            ~vName = GetValue ( ~vlNames ; ~_vi ) ;
+            ~vId   = GetValue ( ~vlIds ; ~_vi )
+        ] ;
+            If ( not IsEmpty ( ~vName ) ;
+                JSONSetElement ( ~_vResult ;
+                    ~vName ;
+                    JSONSetElement ( "{}" ; "id" ; ~vId ; JSONNumber ) ;
+                    JSONObject
+                ) ;
+                ~_vResult
+            )
+        )
+    ] ;
+        ~_vResult
+    ) ;
+
+    /* ===================================================================
+       Layout Objects: named objects on the current layout as JSON array.
+       Useful for Go to Object[] script steps.
+       LayoutObjectNames returns angle brackets < > to indicate objects
+       nested inside portals, tab controls, etc. These are excluded
+       since they are not valid object names for Go to Object[].
+       =================================================================== */
+
+    ~objList = LayoutObjectNames ( ~fn ; ~layoutName ) ;
+
+    ~layoutObjectsJSON = While ( [
+        ~_oCount = ValueCount ( ~objList ) ;
+        ~_oi     = 0 ;
+        ~_oIdx   = 0 ;
+        ~_oArr   = "[]"
+    ] ;
+        ~_oi < ~_oCount ;
+    [
+        ~_oCount = ~_oCount ;
+        ~_oi     = ~_oi + 1 ;
+        ~_oIdx   = Let ( ~n = GetValue ( ~objList ; ~_oi ) ;
+                       If (
+		                   not IsEmpty ( ~n ) and ~n ≠ "<" and ~n ≠ ">" ;
+                           ~_oIdx + 1 ;
+                           ~_oIdx
+                       )
+                   ) ;
+        ~_oArr   = Let ( ~n = GetValue ( ~objList ; ~_oi ) ;
+                       If (
+		                   not IsEmpty ( ~n ) and ~n ≠ "<" and ~n ≠ ">" ;
+                           JSONSetElement ( ~_oArr ; ~_oIdx - 1 ; ~n ; JSONString ) ;
+                           ~_oArr
+                       )
+                   )
+    ] ;
+        ~_oArr
+    ) ;
+
+    /* ===================================================================
+       Assemble final JSON
+       =================================================================== */
+
+    /* ISO 8601 UTC timestamp for staleness detection */
+    ~ts = GetAsTimestamp ( Get ( CurrentTimeUTCMilliseconds ) / 1000 ) ;
+    ~generatedAt =
+        Year ( ~ts ) & "-" &
+        Right ( "0" & Month ( ~ts ) ; 2 ) & "-" &
+        Right ( "0" & Day ( ~ts ) ; 2 ) & "T" &
+        Right ( "0" & Hour ( ~ts ) ; 2 ) & ":" &
+        Right ( "0" & Minute ( ~ts ) ; 2 ) & ":" &
+        Right ( "0" & Int ( Seconds ( ~ts ) ) ; 2 ) & "Z" ;
+
+    ~json = JSONSetElement ( "{}" ;
+        [ "context_version"           ; 2                    ; JSONNumber ] ;
+        [ "solution"                  ; ~fn                  ; JSONString ] ;
+        [ "task"                      ; task                 ; JSONString ] ;
+        [ "generated_at"              ; ~generatedAt         ; JSONString ] ;
+        [ "current_layout.name"       ; ~layoutName          ; JSONString ] ;
+        [ "current_layout.id"         ; ~layoutId            ; JSONNumber ] ;
+        [ "current_layout.base_to"    ; ~layoutTO            ; JSONString ] ;
+        [ "current_layout.base_to_id" ; ~layoutTOid          ; JSONNumber ] ;
+        [ "tables"                    ; ~tablesJSON          ; JSONObject ] ;
+        [ "scripts"                   ; ~scriptsJSON         ; JSONObject ] ;
+        [ "layouts"                   ; ~layoutsJSON         ; JSONObject ] ;
+        [ "value_lists"               ; ~vlJSON              ; JSONObject ] ;
+        [ "layout_objects"            ; ~layoutObjectsJSON   ; JSONArray  ]
+    )
+
+] ;
+    ~json
+)

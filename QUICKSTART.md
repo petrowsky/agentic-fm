@@ -28,7 +28,7 @@ agentic-fm gives an AI agent structured knowledge of your FileMaker solution —
 
 ## ✅ Prerequisites
 
-1. **FileMaker Pro 21.0+** — earlier versions lack required steps (`GetTableDDL`, `While`, data file steps)
+1. **FileMaker Pro 19.0+** — 21.0+ for the full `Context.fmfn`. On 19.x/20.x install `filemaker/Context19.fmfn` instead (no `GetTableDDL`; see `filemaker/README.md`)
 2. **fm-xml-export-exploder** — Rust binary that parses FileMaker XML exports. Download from [GitHub releases](https://github.com/bc-m/fm-xml-export-exploder/releases/latest)
 3. **Python 3** — macOS ships Python 3 at `/usr/bin/python3`. For a newer version: `brew install python`
 4. **Node.js 18+** — required only for the webviewer path, not for CLI/IDE-only usage. Install from [nodejs.org](https://nodejs.org) or via `brew install node`

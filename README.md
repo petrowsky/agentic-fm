@@ -24,7 +24,7 @@ See **[filemaker/README.md](filemaker/README.md)** for the full dependency list 
 
 | Dependency                                                                               | Required By                                            | Notes                                                      |
 | ---------------------------------------------------------------------------------------- | ------------------------------------------------------ | ---------------------------------------------------------- |
-| FileMaker Pro 21.0+                                                                      | Everything                                             | `GetTableDDL`, `While`, and data file steps required       |
+| FileMaker Pro 19.0+                                                                      | Everything                                             | 21.0+ for `Context.fmfn`; on 19.x/20.x use `Context19.fmfn` |
 | [fm-xml-export-exploder](https://github.com/bc-m/fm-xml-export-exploder/releases/latest) | Explode XML, fmparse.sh                                | Download binary; place at `~/bin/fm-xml-export-exploder`   |
 | Python 3                                                                                 | clipboard.py, validate_snippet.py, companion_server.py | stdlib only — no virtualenv required                       |
 | xmllint                                                                                  | fmcontext.sh                                           | Ships with macOS; `apt-get install libxml2-utils` on Linux |
@@ -437,8 +437,10 @@ The function introspects the live FileMaker solution using design functions and 
 
 - The current layout, its base table occurrence, and its named objects
 - All table occurrences referenced on the layout with complete field lists (name, ID, type)
-- Relationship information via `GetTableDDL` (FOREIGN KEY constraints and field comments)
+- Relationship information via `GetTableDDL` (FOREIGN KEY constraints and field comments, FileMaker 21.0+)
 - All scripts, layouts, and value lists in the solution (name + ID)
+
+On FileMaker Pro 19.x or 20.x, install `filemaker/Context19.fmfn` instead. It produces the same JSON without the `ddl` section; relationships then come from `relationships.index`. See `filemaker/README.md`.
 
 Because the output is scoped to the current layout's context, the AI receives exactly the information it needs without unnecessary noise. See `docs/Context.fmfn.md` for the full technical reference.
 
