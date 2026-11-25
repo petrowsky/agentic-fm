@@ -389,7 +389,7 @@ Let ( [
         Right ( "0" & Day ( ~ts ) ; 2 ) & "T" &
         Right ( "0" & Hour ( ~ts ) ; 2 ) & ":" &
         Right ( "0" & Minute ( ~ts ) ; 2 ) & ":" &
-        Right ( "0" & Seconds ( ~ts ) ; 2 ) & "Z" ;
+        Right ( "0" & Int ( Seconds ( ~ts ) ) ; 2 ) & "Z" ;
 
     ~json = JSONSetElement ( "{}" ;
         [ "context_version"           ; 2                    ; JSONNumber ] ;
