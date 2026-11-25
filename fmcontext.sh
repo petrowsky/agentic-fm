@@ -381,6 +381,11 @@ PYFIELDS
         find "$XML_PARSED_DIR/value_lists/$SOLUTION" -name '*.xml' -type f 2>/dev/null | sort | while IFS= read -r file; do
             vl_name=$(xval 'string(/ValueList/ValueListReference/@name)' "$file")
             vl_id=$(xval 'string(/ValueList/ValueListReference/@id)' "$file")
+            # FileMaker 19 exports keep name and id as attributes on <ValueList>
+            if [[ -z "$vl_name" ]]; then
+                vl_name=$(xval 'string(/ValueList/@name)' "$file")
+                vl_id=$(xval 'string(/ValueList/@id)' "$file")
+            fi
             vl_source=$(xval 'string(/ValueList/Source/@value)' "$file")
 
             # For custom value lists, extract the values (newline-separated in XML)
