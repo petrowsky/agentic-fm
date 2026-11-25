@@ -6,6 +6,8 @@ This folder contains the FileMaker artifacts that connect your solution to the a
 | ------------------ | ------------------------------------------------------------------------------------------------------- |
 | `Context.fmfn`     | Custom function source — install into your FileMaker solution                                           |
 | `context.xml`      | fmxmlsnippet format of the `Context` custom function — alternative install via `clipboard.py`           |
+| `Context19.fmfn`   | `Context` for FileMaker Pro 19.x/20.x (no `GetTableDDL`) — install instead of `Context.fmfn`            |
+| `context19.xml`    | fmxmlsnippet format of `Context19.fmfn` — alternative install via `clipboard.py`                        |
 | `agentic-fm.fmp12` | Pre-built FileMaker file containing the companion script group — open and copy/paste into your solution |
 | `agentic-fm.xml`   | Companion script group in fmxmlsnippet format — alternative install via `clipboard.py`                  |
 
@@ -13,13 +15,20 @@ This folder contains the FileMaker artifacts that connect your solution to the a
 
 ## Dependencies
 
-### FileMaker Pro 21.0+
+### FileMaker Pro 19.0+
 
-The minimum version is **21.0**. Earlier versions lack:
+The minimum version is **19.0**. Which `Context` custom function to install depends on your version:
 
-- `GetTableDDL` — used by `Context.fmfn` to discover foreign key relationships
-- `While` — used by `Context.fmfn` for iteration
-- `Create Data File` / `Open Data File` / `Write to Data File` / `Close Data File` — used by the **Push Context** script to write `CONTEXT.json` to disk
+| FileMaker Pro | Install          | Notes                                                              |
+| ------------- | ---------------- | ------------------------------------------------------------------ |
+| 21.0+         | `Context.fmfn`   | Full output, including the `ddl` section                           |
+| 19.x, 20.x    | `Context19.fmfn` | Same output without `ddl`, base table `id` and value list `source` |
+
+`Context.fmfn` uses `GetTableDDL` (21.0+) and the `FileMaker_BaseTables` / `FileMaker_ValueLists` system tables, which 19 does not have. A custom function that calls an unknown function cannot be saved, so 19.x/20.x need the separate file. `Context19.fmfn` keeps the function name `Context`, so **Push Context** works unchanged. What it leaves out is still available to the agent from the index files: relationships in `relationships.index`, base table IDs in `fields.index` (`TableID`), and value list sources in `value_lists.index`. Field comments, which 21.0+ gets through `ddl`, are only in `agent/xml_parsed/`.
+
+All versions need `While` and the data file steps (`Create Data File` / `Open Data File` / `Write to Data File` / `Close Data File`, used by **Push Context**), which exist since 18.0.
+
+Tested on FileMaker Pro 19.6.3 (Windows) with the clipboard install (Option B below): table/field/script/custom function/value list paste, Save a Copy as XML + `fmparse.sh` / `fmcontext.sh`, `Context19.fmfn`, **Push Context** and **Explode XML**.
 
 ### Companion Server
 
@@ -99,8 +108,10 @@ For the full first-run workflow, see the main [QUICKSTART.md](../QUICKSTART.md#-
 1. Open your FileMaker solution in FileMaker Pro.
 2. Go to **File > Manage > Custom Functions**.
 3. Click **New** and create a function named `Context` with one parameter: `task` (type: Text).
-4. Copy the entire contents of `filemaker/Context.fmfn` and paste it into the calculation editor.
+4. Copy the entire contents of `filemaker/Context.fmfn` (FileMaker Pro 19.x/20.x: `filemaker/Context19.fmfn`) and paste it into the calculation editor.
 5. Click **OK** and save.
+
+> To update `Context` later, edit the existing function and replace its formula. Do not delete it and paste a new one: scripts refer to custom functions by internal ID, so **Push Context** would lose its reference.
 
 ### 2. Install the companion scripts
 
@@ -180,7 +191,7 @@ See `filemaker/custom_menu/README.md` for the integration steps.
 
 | Dependency             | Required By                                            | Where to Get                                                                      |
 | ---------------------- | ------------------------------------------------------ | --------------------------------------------------------------------------------- |
-| FileMaker Pro 21.0+    | Everything                                             | [claris.com](https://www.claris.com)                                              |
+| FileMaker Pro 19.0+    | Everything (21.0+ for `Context.fmfn`)                  | [claris.com](https://www.claris.com)                                              |
 | companion_server.py    | Explode XML script                                     | Included — `python3 agent/scripts/companion_server.py`                            |
 | fm-xml-export-exploder | Explode XML script, fmparse.sh                         | [GitHub releases](https://github.com/bc-m/fm-xml-export-exploder/releases/latest) |
 | Python 3               | clipboard.py, validate_snippet.py, companion_server.py | Ships with macOS or `brew install python`                                         |

@@ -128,7 +128,7 @@ This step usually passes automatically on macOS. Move on quickly if it does.
 
 > The `Context` custom function generates the JSON that powers the AI's awareness of your solution. Install it once per solution:
 >
-> 1. Open your solution in **FileMaker Pro 21.0+**
+> 1. Open your solution in **FileMaker Pro 21.0+** (19.x/20.x: use `filemaker/Context19.fmfn` / `filemaker/context19.xml` in the steps below)
 > 2. Go to **File > Manage > Custom Functions**
 > 3. Click **New**
 > 4. Name: `Context`

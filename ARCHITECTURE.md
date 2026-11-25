@@ -224,7 +224,7 @@ A FileMaker custom function (`filemaker/Context.fmfn`) that generates `CONTEXT.j
 Context ( "Create a script to add a new line item to the current invoice" )
 ```
 
-- Requires FileMaker Pro 21.0+.
+- Requires FileMaker Pro 21.0+. For 19.x/20.x, `filemaker/Context19.fmfn` is the same function without the `ddl` section (no `GetTableDDL`), without base table `id` and without value list `source`; the agent gets those from the index files.
 - Evaluates on the current layout and auto-discovers relevant TOs, fields, and relationships.
 - Invoked automatically by the **Push Context** companion script (`filemaker/agentic-fm.xml`).
 - See `docs/Context.fmfn.md` for the full technical reference.
@@ -258,6 +258,6 @@ When extending this project, keep the following principles in mind:
 | ------------------------------------------------------------------------ | --------------------------------------------- | -------------------------------------------------------------------------------- |
 | [fm-xml-export-exploder](https://github.com/bc-m/fm-xml-export-exploder) | `fmparse.sh`                                  | Must be on PATH or set via `FM_XML_EXPLODER_BIN`                                 |
 | `xmllint`                                                                | `fmcontext.sh`                                | Ships with macOS; `libxml2-utils` on Linux                                       |
-| FileMaker Pro 21.0+                                                      | `Context()` function                          | For `GetTableDDL` and `While` support                                            |
+| FileMaker Pro 19.0+                                                      | `Context()` function                          | 21.0+ for `Context.fmfn` (`GetTableDDL`); 19.x/20.x use `Context19.fmfn`         |
 | Python 3 (stdlib)                                                        | `clipboard.py`, `validate_snippet.py`, `companion_server.py`, `deploy.py` | No virtualenv required; run directly with `python3 agent/scripts/...` |
 | Node.js 18+                                                              | `webviewer/`                                  | For Vite dev server and build                                                    |

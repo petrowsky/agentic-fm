@@ -6,7 +6,7 @@
 
 The function is layout-aware. When evaluated, it examines the current layout to determine which table occurrences (TOs) are in scope, then builds a complete picture of those tables, their fields, and how they relate to each other. It also collects solution-wide catalogs of scripts, layouts, and value lists.
 
-**Requires:** FileMaker Pro 21.0+ (for `GetTableDDL` and `While` function support)
+**Requires:** FileMaker Pro 21.0+ (for `GetTableDDL` and `While` function support). For 19.x/20.x see [FileMaker 19 variant](#filemaker-19-variant).
 
 **Parameter:** `task` (Text) -- A natural-language description of what script to create.
 
@@ -228,3 +228,17 @@ ExecuteSQL (
 ```
 
 Returns pipe-delimited columns with return-delimited rows.
+
+---
+
+## FileMaker 19 variant
+
+`filemaker/Context19.fmfn` (clipboard version `filemaker/context19.xml`) is `Context.fmfn` for FileMaker Pro 19.x and 20.x. The function name is still `Context`, so **Push Context** calls it unchanged. Differences:
+
+| Part | `Context.fmfn` (21.0+) | `Context19.fmfn` (19.0+) | Where the agent finds it instead |
+|------|------------------------|--------------------------|----------------------------------|
+| `ddl` | `GetTableDDL` output | not present | `relationships.index` (relationships); `agent/xml_parsed/` (field comments) |
+| `tables.*.id` | from `FileMaker_BaseTables` | not present | `fields.index`, `TableID` column |
+| `value_lists` | `FileMaker_ValueLists` (id + source) | `ValueListNames` / `ValueListIDs` (id only) | `value_lists.index`, `SourceType` column |
+
+Everything else (layout, tables, fields, scripts, layouts, layout objects, `generated_at`, `context_version`) is identical. Tested on FileMaker Pro 19.6.3 (Windows).

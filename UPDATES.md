@@ -2,6 +2,18 @@
 
 ## Recent Changes
 
+### FileMaker Pro 19 support — `Context19.fmfn` (2026-11-25)
+
+**Action: only if you use FileMaker Pro 19.x or 20.x.**
+
+agentic-fm now works on FileMaker Pro 19.0+. On 19.x/20.x, install `filemaker/Context19.fmfn` (or `filemaker/context19.xml` via `clipboard.py`) as your `Context` custom function instead of `Context.fmfn`. It is the same function without the `GetTableDDL`-based `ddl` section; see `filemaker/README.md`.
+
+`fmcontext.sh` also reads value list names and IDs from FileMaker 19 exports now (they were empty in `value_lists.index`). Re-run **Explode XML** or `fmcontext.sh` to refresh the index.
+
+**On 21.0+:** nothing to do.
+
+---
+
 ### Companion config — `agent/config/companion.json` (2026-07-15, v0.8.1)
 
 **Action: optional — existing setups keep working with no changes.**
